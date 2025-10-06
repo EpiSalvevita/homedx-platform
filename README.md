@@ -179,7 +179,7 @@ LegalPage (id, type, language, content, ...)
 
 ### Prerequisites
 - Node.js 16+
-- PostgreSQL 12+
+- Docker (for PostgreSQL container)
 - npm/yarn
 
 ### Frontend Setup
@@ -192,6 +192,10 @@ npm run build:prod # Production build
 
 ### Backend Setup
 ```bash
+# 1. Start PostgreSQL container first
+docker start hdx-postgres
+
+# 2. Setup backend
 cd backend
 npm install
 npx prisma migrate dev  # Database setup
@@ -212,6 +216,49 @@ STRIPE_SECRET_KEY="sk_test_..."
 
 # File Upload
 UPLOAD_PATH="./uploads"
+```
+
+## 🚀 Deployment
+
+### Database Setup (Required First)
+
+**Note**: The application uses a Docker PostgreSQL container (`hdx-postgres`) that must be running before starting the backend services.
+
+### Production Deployment
+```bash
+# 1. Start database
+docker start hdx-postgres
+
+# Verify it's running
+docker ps | grep postgres
+
+# Check database connection
+psql -h localhost -U devuser -d devdb -c "\dt"
+
+# 2. Build and start backend
+cd backend
+npm install
+npm run build
+npm run start:prod
+
+# 3. Build and serve frontend
+cd ../app
+npm install
+npm run build:prod
+# Serve the dist/ folder with your preferred web server
+```
+
+### Docker Container Management
+```bash
+
+# Stop database
+docker stop hdx-postgres
+
+# View database logs
+docker logs hdx-postgres
+
+# Access database shell
+docker exec -it hdx-postgres psql -U devuser -d devdb
 ```
 
 ## 📊 Monitoring & Analytics
