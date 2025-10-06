@@ -185,10 +185,12 @@ LegalPage (id, type, language, content, ...)
 ### Frontend Setup
 ```bash
 cd app
-npm install
-npm run serve:dev  # Development server on :3000
-npm run build:prod # Production build
+npm install --legacy-peer-deps  # Required due to dependency conflicts
+npm run serve:dev               # Development server on :3000
+npm run build:prod             # Production build
 ```
+
+**Note**: The frontend has dependency conflicts that require `--legacy-peer-deps` flag. This is safe for development.
 
 ### Backend Setup
 ```bash
@@ -197,10 +199,12 @@ docker start hdx-postgres
 
 # 2. Setup backend
 cd backend
-npm install
-npx prisma migrate dev  # Database setup
-npm run start:dev       # Development server on :4000
+npm install --legacy-peer-deps  # Required due to dependency conflicts
+npx prisma migrate dev          # Database setup
+npm run start:dev               # Development server on :4000
 ```
+
+**Note**: The backend has dependency conflicts that require `--legacy-peer-deps` flag. This is safe for development.
 
 ### Environment Variables
 ```env
@@ -372,6 +376,50 @@ docker exec -it hdx-postgres psql -U devuser -d devdb
 3. **Error Handling**: Some error handling could be improved
 4. **Performance**: Large database dump suggests optimization needs
 5. **Security**: Additional security measures may be needed for production
+6. **Dependency Conflicts**: Both frontend and backend require `--legacy-peer-deps` flag
+7. **Sass Deprecation Warnings**: Frontend shows many Sass deprecation warnings (non-breaking)
+8. **NPM Vulnerabilities**: Frontend has 83 vulnerabilities that should be addressed
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### Dependency Installation Fails
+```bash
+# If npm install fails with dependency conflicts, use:
+npm install --legacy-peer-deps
+```
+
+#### Services Won't Start
+```bash
+# Check if PostgreSQL is running
+docker ps | grep postgres
+
+# Check if ports are available
+netstat -tlnp | grep -E ":(3000|4000)"
+
+# Kill processes on ports if needed
+sudo fuser -k 3000/tcp
+sudo fuser -k 4000/tcp
+```
+
+#### Sass Deprecation Warnings
+The frontend shows many Sass deprecation warnings. These are non-breaking but can be addressed by:
+- Updating to modern Sass syntax
+- Using `@use` instead of `@import`
+- Updating color functions to use `color.scale()` instead of `lighten()/darken()`
+
+#### Database Connection Issues
+```bash
+# Restart PostgreSQL container
+docker restart hdx-postgres
+
+# Check database logs
+docker logs hdx-postgres
+
+# Test connection
+psql -h localhost -U devuser -d devdb -c "\dt"
+```
 
 ## 📞 Support & Maintenance
 
