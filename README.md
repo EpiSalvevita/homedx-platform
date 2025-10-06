@@ -335,6 +335,31 @@ docker exec -it hdx-postgres psql -U devuser -d devdb
 - `PaymentResolver`: Payment processing
 - `LicenseResolver`: License management
 
+## 🧪 Development Testing
+
+### Test User Credentials
+For development and testing purposes, use these credentials:
+
+```
+Email: epirotalija@gmail.com
+Password: espex260
+```
+
+**Note**: This is a test user account in the development database. Do not use these credentials in production.
+
+### Current Development Status
+- ✅ **Frontend**: React app running on http://localhost:3000
+- ✅ **Backend**: NestJS GraphQL API running on http://localhost:4000
+- ✅ **Database**: PostgreSQL with test user and empty test data
+- ✅ **Authentication**: JWT-based auth working
+- ✅ **Hot Reloading**: Enabled for both frontend and backend
+
+### Quick Start for Testing
+1. Start PostgreSQL: `docker start hdx-postgres`
+2. Start backend: `cd backend && npm run start:dev`
+3. Start frontend: `cd app && npm run serve:dev`
+4. Open http://localhost:3000 and login with test credentials
+
 ## 🔍 AI Assistant Guidelines
 
 ### When Working with This Codebase:
@@ -418,7 +443,19 @@ docker restart hdx-postgres
 docker logs hdx-postgres
 
 # Test connection
-psql -h localhost -U devuser -d devdb -c "\dt"
+PGPASSWORD=devpassword psql -h localhost -U devuser -d devdb -c "\dt"
+```
+
+#### Database State
+The development database currently contains:
+- **1 test user**: `epirotalija@gmail.com` (password: `espex260`)
+- **0 rapid tests**: No test data yet
+- **0 certificates**: No certificates generated
+- **0 licenses**: No license data
+
+To check database contents:
+```bash
+PGPASSWORD=devpassword psql -h localhost -U devuser -d devdb -c "SELECT COUNT(*) FROM \"User\"; SELECT COUNT(*) FROM \"RapidTest\";"
 ```
 
 ## 📞 Support & Maintenance
