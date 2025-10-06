@@ -109,6 +109,7 @@ app/uploads/
 
 # Database dumps
 *.sql
+db-show.sql
 
 # Build artifacts
 build/
