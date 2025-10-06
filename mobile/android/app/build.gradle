@@ -81,6 +81,8 @@ project.ext.react = [
     enableHermes: false,  // clean and rebuild if changing
 ]
 
+ext.hermesEnabled = project.ext.react.get("enableHermes", false)
+
 apply from: "../../node_modules/react-native/react.gradle"
 
 /**
@@ -127,13 +129,9 @@ def nativeArchitectures = project.getProperties().get("reactNativeDebugArchitect
 
 android {
 
-    lintOptions {   //change by cursor
-       checkReleaseBuilds false     //changed by dursor
-       abortOnError false       //changed by cursor
-       buildToolsVersion = "30.0.2"
-        compileSdkVersion = 30  //changed by cursor
-   
-        
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
     }
 
     ndkVersion rootProject.ext.ndkVersion
@@ -146,7 +144,6 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
-        targetSdkVersion 30 //changed by cursor
     }
     splits {
         abi {
