@@ -1,0 +1,668 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type ActivateLicenseResponse {
+  license: License
+  message: String
+  success: Boolean!
+}
+
+type AssignCouponResponse {
+  licenseCode: String
+  message: String
+  success: Boolean!
+}
+
+"""Audit action enumeration"""
+enum AuditAction {
+  CREATE
+  DELETE
+  EXPORT
+  LOGIN
+  LOGOUT
+  UPDATE
+  VIEW
+}
+
+"""Audit entity type enumeration"""
+enum AuditEntityType {
+  CERTIFICATE
+  LICENSE
+  PAYMENT
+  RAPID_TEST
+  TEST_KIT
+  USER
+}
+
+type AuditLog {
+  action: AuditAction!
+  createdAt: DateTime!
+  description: String
+  entityId: String
+  entityType: AuditEntityType!
+  id: String!
+  ipAddress: String
+  newValues: String
+  oldValues: String
+  user: User!
+  userAgent: String
+  userId: String!
+}
+
+type AuthResponse {
+  access_token: String!
+  user: User!
+}
+
+type BackendStatus {
+  certificatePdf: Boolean!
+  cwa: Boolean!
+  cwaLaive: Boolean!
+  flags: [SystemFlag!]!
+  maintenance: Boolean!
+  paymentIsActive: Boolean!
+  stripe: Boolean!
+  version: String!
+}
+
+type Certificate {
+  certificateNumber: String!
+  createdAt: DateTime!
+  id: String!
+  issuedAt: DateTime!
+  pdfUrl: String
+  qrCodeUrl: String
+  rapidTest: RapidTest!
+  rapidTestId: String!
+  revokedAt: DateTime
+  revokedReason: String
+  status: CertificateStatus!
+  type: CertificateType!
+  updatedAt: DateTime!
+  user: User!
+  userId: String!
+  validFrom: DateTime!
+  validUntil: DateTime!
+}
+
+type CertificatePdf {
+  language: String!
+  url: String!
+}
+
+"""Certificate status enumeration"""
+enum CertificateStatus {
+  DRAFT
+  EXPIRED
+  ISSUED
+  REVOKED
+}
+
+"""Certificate type enumeration"""
+enum CertificateType {
+  MEDICAL_CLEARANCE
+  RECOVERY
+  TEST_RESULT
+  VACCINATION
+}
+
+type CertificateWithPdf {
+  id: String!
+  pdf: CertificatePdf
+}
+
+type CheckEmailResponse {
+  exists: Boolean!
+  valid: Boolean!
+}
+
+input CreateAuditLogInput {
+  action: AuditAction!
+  description: String
+  entityId: String
+  entityType: AuditEntityType!
+  ipAddress: String
+  newValues: String
+  oldValues: String
+  userAgent: String
+  userId: String!
+}
+
+input CreateCertificateInput {
+  certificateNumber: String!
+  issuedAt: DateTime!
+  pdfUrl: String
+  qrCodeUrl: String
+  rapidTestId: String!
+  status: CertificateStatus
+  type: CertificateType!
+  userId: String!
+  validFrom: DateTime!
+  validUntil: DateTime!
+}
+
+input CreateNotificationInput {
+  data: String
+  message: String!
+  priority: NotificationPriority
+  status: NotificationStatus
+  title: String!
+  type: NotificationType!
+  userId: String!
+}
+
+input CreatePaymentInput {
+  amount: Float!
+  currency: String!
+  paymentIntentId: String
+  paymentMethod: String!
+  rapidTestId: String
+  transactionId: String
+  userId: String!
+}
+
+input CreateRapidTestInput {
+  identityCard1Url: String
+  identityCard2Url: String
+  identityCardId: String
+  profilePicUrl: String
+  testDate: DateTime!
+  testDeviceUrl: String
+  testKitId: String!
+  userId: String!
+}
+
+input CreateTestKitInput {
+  batchNumber: String!
+  expirationDate: DateTime!
+  manufacturer: String!
+  model: String!
+  serialNumber: String!
+  status: TestKitStatus
+  type: TestKitType!
+  userId: String
+}
+
+input CreateUserInput {
+  address1: String
+  address2: String
+  city: String
+  country: String
+  dateOfBirth: DateTime
+  email: String!
+  firstName: String!
+  gender: String
+  lastName: String!
+  password: String!
+  phone: String
+  postcode: String
+  profileImageUrl: String
+  title: String
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type DownloadCertificatePdfResponse {
+  message: String
+  pdf: String
+  success: Boolean!
+}
+
+input GetLegalPageInput {
+  language: String! = "de"
+  type: LegalPageType!
+}
+
+input GetLegalPagesInput {
+  activeOnly: Boolean! = true
+  language: String! = "de"
+  types: [LegalPageType!]
+}
+
+type LegalPage {
+  content: String!
+  createdAt: DateTime!
+  id: String!
+  isActive: Boolean!
+  language: String!
+  title: String!
+  type: LegalPageType!
+  updatedAt: DateTime!
+  version: String!
+}
+
+type LegalPageResponse {
+  pages: [LegalPage!]!
+  total: Float!
+}
+
+"""Type of legal page"""
+enum LegalPageType {
+  COOKIE_POLICY
+  IMPRESSUM
+  PRIVACY_POLICY
+  TERMS_CONDITIONS
+}
+
+type License {
+  createdAt: DateTime!
+  description: String
+  expiresAt: DateTime
+  id: String!
+  licenseKey: String!
+  maxUses: Int!
+  revokedAt: DateTime
+  revokedReason: String
+  status: LicenseStatus!
+  updatedAt: DateTime!
+  user: User
+  userId: String!
+  usesCount: Int!
+}
+
+"""License status enumeration"""
+enum LicenseStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  activateLicense(code: String!): ActivateLicenseResponse!
+  archiveNotification(id: String!): Notification!
+  assignCoupon(licenseCode: String!): AssignCouponResponse!
+  assignTestKitToUser(id: String!, userId: String!): TestKit!
+  checkEmail(email: String!): CheckEmailResponse!
+  createAuditLog(input: CreateAuditLogInput!): AuditLog!
+  createCertificate(input: CreateCertificateInput!): Certificate!
+  createLicense(licenseKey: String!, maxUses: Float!, status: String!, userId: String!): License!
+  createNotification(input: CreateNotificationInput!): Notification!
+  createPayment(input: CreatePaymentInput!): Payment!
+  createPaymentIntent: SystemResponse!
+  createRapidTest(input: CreateRapidTestInput!): RapidTest!
+  createTestKit(input: CreateTestKitInput!): TestKit!
+  createUser(input: CreateUserInput!): User!
+  downloadCertificatePdf: DownloadCertificatePdfResponse!
+  generateCertificatePDF(id: String!): String!
+  generateCertificateQR(id: String!): String!
+  incrementLicenseUses(id: String!): License!
+  issueCertificate(id: String!): Certificate!
+  login(input: LoginInput!): AuthResponse!
+  markAllNotificationsAsRead(userId: String!): [Notification!]!
+  markNotificationAsRead(id: String!): Notification!
+  markTestKitAsUsed(id: String!): TestKit!
+  removeAuditLog(id: String!): AuditLog!
+  removeCertificate(id: String!): Certificate!
+  removeLicense(id: String!): License!
+  removeNotification(id: String!): Notification!
+  removePayment(id: String!): Payment!
+  removeRapidTest(id: String!): RapidTest!
+  removeTestKit(id: String!): TestKit!
+  removeUser(id: String!): User!
+  resetAuthentication: SystemResponse!
+  resetCWALink: SystemResponse!
+  revokeCertificate(id: String!, reason: String!): Certificate!
+  setLanguage(language: String!): SystemResponse!
+  signup(input: SignupInput!): AuthResponse!
+  submitTest(agreementGiven: Boolean, identifyUrl: String, identityCard1Url: String, identityCard2Url: String, identityCardId: String, licenseCode: String, liveToken: String!, paymentId: String, photoUrl: String!, testDate: Float!, testDeviceUrl: String!, videoUrl: String!): SubmitTestResponse!
+  testMutation: String!
+  updateAuditLog(id: String!, input: UpdateAuditLogInput!): AuditLog!
+  updateCertificate(id: String!, input: UpdateCertificateInput!): Certificate!
+  updateCertificateLanguage(language: String!, testId: String!): UpdateCertificateLanguageResponse!
+  updateLicense(id: String!, maxUses: Float, status: String): License!
+  updateNotification(id: String!, input: UpdateNotificationInput!): Notification!
+  updatePayment(id: String!, input: UpdatePaymentInput!): Payment!
+  updatePaymentStatus(id: String!, status: String!): Payment!
+  updateRapidTest(id: String!, input: UpdateRapidTestInput!): RapidTest!
+  updateTestKit(id: String!, input: UpdateTestKitInput!): TestKit!
+  updateUser(id: String!, input: UpdateUserInput!): User!
+  uploadIdBackPhoto(file: Upload!, fileExtension: String!): UploadResponse!
+  uploadIdFrontPhoto(file: Upload!, fileExtension: String!): UploadResponse!
+  uploadTestPhoto(file: Upload!, fileExtension: String!): UploadResponse!
+  uploadTestVideo(file: Upload!, fileExtension: String!, head: String, headpre: String): UploadResponse!
+}
+
+type Notification {
+  archivedAt: DateTime
+  createdAt: DateTime!
+  data: String
+  id: String!
+  message: String!
+  priority: NotificationPriority!
+  readAt: DateTime
+  status: NotificationStatus!
+  title: String!
+  type: NotificationType!
+  updatedAt: DateTime!
+  user: User!
+  userId: String!
+}
+
+"""Notification priority enumeration"""
+enum NotificationPriority {
+  HIGH
+  LOW
+  MEDIUM
+  URGENT
+}
+
+"""Notification status enumeration"""
+enum NotificationStatus {
+  ARCHIVED
+  READ
+  UNREAD
+}
+
+"""Notification type enumeration"""
+enum NotificationType {
+  CERTIFICATE_READY
+  PAYMENT_FAILED
+  PAYMENT_SUCCESS
+  SECURITY_ALERT
+  SYSTEM_UPDATE
+  TEST_RESULT
+}
+
+type Payment {
+  amount: Float!
+  completedAt: DateTime
+  createdAt: DateTime!
+  currency: String!
+  description: String
+  failureReason: String
+  id: String!
+  method: PaymentMethod!
+  status: PaymentStatus!
+  transactionId: String
+  updatedAt: DateTime!
+  user: User!
+  userId: String!
+}
+
+type PaymentAmount {
+  amount: Float!
+  discount: Float!
+  discountType: String!
+  reducedAmount: Float!
+}
+
+"""Payment method enumeration"""
+enum PaymentMethod {
+  BANK_TRANSFER
+  CREDIT_CARD
+  CRYPTO
+  PAYPAL
+}
+
+"""Payment status enumeration"""
+enum PaymentStatus {
+  CANCELLED
+  COMPLETED
+  FAILED
+  PENDING
+  REFUNDED
+}
+
+type Query {
+  auditLog(id: String!): AuditLog
+  auditLogs: [AuditLog!]!
+  auditLogsByAction(action: String!): [AuditLog!]!
+  auditLogsByDateRange(endDate: DateTime!, startDate: DateTime!): [AuditLog!]!
+  availableTestKits: [TestKit!]!
+  backendStatus: BackendStatus!
+  certificate(testId: String!): Certificate
+  certificateByNumber(certificateNumber: String!): Certificate
+  certificates: [Certificate!]!
+  countryCodes: [String!]!
+  cwaLink(rapidTestId: String!): String!
+  entityAuditLogs(entityId: String!, entityType: String!): [AuditLog!]!
+  getImpressum(language: String! = "de"): LegalPage
+  getLegalPage(input: GetLegalPageInput!): LegalPage
+  getLegalPages(input: GetLegalPagesInput): LegalPageResponse!
+  getPrivacyPolicy(language: String! = "de"): LegalPage
+  getTermsAndConditions(language: String! = "de"): LegalPage
+  lastRapidTest: RapidTest
+  license(id: String!): License
+  licenses: [License!]!
+  liveToken: String!
+  me: User!
+  notification(id: String!): Notification
+  notifications: [Notification!]!
+  payment(id: String!): Payment
+  paymentAmount: PaymentAmount!
+  payments: [Payment!]!
+  profileImage: String!
+  qrCode: String!
+  rapidTest(id: String!): RapidTest
+  rapidTests: [RapidTest!]!
+  testKit(id: String!): TestKit
+  testKitBySerialNumber(serialNumber: String!): TestKit
+  testKits: [TestKit!]!
+  testStatus: String!
+  unreadNotificationCount(userId: String!): Float!
+  unreadNotifications(userId: String!): [Notification!]!
+  user(id: String!): User
+  userAuditLogs(userId: String!): [AuditLog!]!
+  userByEmail(email: String!): User
+  userCertificates(userId: String!): [Certificate!]!
+  userLicenses(userId: String!): [License!]!
+  userNotifications(userId: String!): [Notification!]!
+  userPayments(userId: String!): [Payment!]!
+  userRapidTests(userId: String!): [RapidTest!]!
+  userTestKits(userId: String!): [TestKit!]!
+  users: [User!]!
+  validCertificates(userId: String!): [Certificate!]!
+}
+
+type RapidTest {
+  completedAt: DateTime
+  createdAt: DateTime!
+  id: String!
+  notes: String
+  result: TestResult
+  resultImageUrl: String
+  status: TestStatus!
+  testDate: DateTime!
+  testKit: TestKit!
+  testKitId: String!
+  updatedAt: DateTime!
+  user: User!
+  userId: String!
+}
+
+input SignupInput {
+  email: String!
+  firstName: String!
+  lastName: String!
+  password: String!
+}
+
+type SubmitTestResponse {
+  success: Boolean!
+  validation: String
+}
+
+type SystemFlag {
+  key: String!
+  value: String!
+}
+
+type SystemResponse {
+  message: String
+  secret: String
+  success: Boolean!
+}
+
+type TestKit {
+  batchNumber: String!
+  createdAt: DateTime!
+  expirationDate: DateTime!
+  id: String!
+  manufacturer: String!
+  model: String!
+  purchasedAt: DateTime
+  serialNumber: String!
+  status: TestKitStatus!
+  type: TestKitType!
+  updatedAt: DateTime!
+  usedAt: DateTime
+  user: User
+  userId: String
+}
+
+"""Test kit status enumeration"""
+enum TestKitStatus {
+  AVAILABLE
+  DAMAGED
+  EXPIRED
+  USED
+}
+
+"""Test kit type enumeration"""
+enum TestKitType {
+  COVID_19
+  DRUG_TEST
+  FLU
+  PREGNANCY
+  STREP_THROAT
+}
+
+"""Rapid test result enumeration"""
+enum TestResult {
+  INCONCLUSIVE
+  INVALID
+  NEGATIVE
+  POSITIVE
+}
+
+"""Rapid test status enumeration"""
+enum TestStatus {
+  COMPLETED
+  FAILED
+  IN_PROGRESS
+  PENDING
+}
+
+input UpdateAuditLogInput {
+  description: String
+  ipAddress: String
+  newValues: String
+  oldValues: String
+  userAgent: String
+}
+
+input UpdateCertificateInput {
+  issuedAt: DateTime
+  pdfUrl: String
+  qrCodeUrl: String
+  revokedAt: DateTime
+  revokedReason: String
+  status: CertificateStatus
+  type: CertificateType
+  validFrom: DateTime
+  validUntil: DateTime
+}
+
+type UpdateCertificateLanguageResponse {
+  certificate: CertificateWithPdf
+  message: String
+  success: Boolean!
+}
+
+input UpdateNotificationInput {
+  data: String
+  message: String
+  priority: NotificationPriority
+  status: NotificationStatus
+  title: String
+  type: NotificationType
+}
+
+input UpdatePaymentInput {
+  amount: Float
+  currency: String
+  paymentIntentId: String
+  paymentMethod: String
+  status: String
+  transactionId: String
+}
+
+input UpdateRapidTestInput {
+  agreementGiven: Boolean
+  certificateUrl: String
+  comment: String
+  identityCard1Url: String
+  identityCard2Url: String
+  identityCardId: String
+  photoUrl: String
+  profilePicUrl: String
+  qrCode: String
+  result: String
+  status: String
+  testDeviceUrl: String
+  videoUrl: String
+}
+
+input UpdateTestKitInput {
+  batchNumber: String
+  expirationDate: DateTime
+  manufacturer: String
+  model: String
+  serialNumber: String
+  status: TestKitStatus
+  type: TestKitType
+  userId: String
+}
+
+input UpdateUserInput {
+  address1: String
+  address2: String
+  city: String
+  country: String
+  dateOfBirth: DateTime
+  firstName: String
+  gender: String
+  lastName: String
+  phone: String
+  postcode: String
+  profileImageUrl: String
+  title: String
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+type UploadResponse {
+  objectName: String
+  success: Boolean!
+  validation: String
+}
+
+type User {
+  address: String
+  city: String
+  country: String
+  createdAt: DateTime!
+  dateOfBirth: DateTime
+  email: String!
+  emailVerified: Boolean!
+  firstName: String!
+  id: String!
+  lastLoginAt: DateTime
+  lastName: String!
+  phone: String
+  postalCode: String
+  profileImageUrl: String
+  role: String!
+  status: String!
+  updatedAt: DateTime!
+}

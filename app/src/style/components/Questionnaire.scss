@@ -1,0 +1,75 @@
+.questionnaire {
+  flex: 1;
+  justify-content: flex-start;
+  overflow: hidden;
+  @include fluidSpace(margin-top, $space-small);
+
+  .answers {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .action {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: $space-small;
+    display: flex;
+    flex-flow: row nowrap;
+
+    &__wrapper {
+      height: 50px;
+      @include fluidSpace(margin-bottom, $space-small);
+    }
+
+    &__input {
+      flex: 1;
+      height: 50px;
+
+      &--text {
+        @extend .action__input !optional;
+        @include fluidSpace(padding-top, 0);
+        @include fluidSpace(padding-bottom, 0);
+        @include fluidSpace(padding-left, $space-small);
+        @include fluidSpace(padding-right, $space-small);
+        margin: 0;
+        border: none;
+        background: transparent;
+        padding-inline: 0;
+        color: $color-text--light;
+        box-shadow: none;
+        font-weight: 200;
+        &[readonly] {
+          color: rgba($color-text--light, 0.6);
+        }
+
+        &::placeholder {
+          color: $color-text--mid;
+        }
+      }
+    }
+
+    .btn {
+      width: 40px;
+      height: 50px;
+      padding: 0;
+    }
+  }
+
+  .answer {
+    height: 50px;
+    flex-shrink: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: $color-text--light;
+    display: flex;
+    flex-flow: row nowrap;
+    @include fluidSpace(padding-left, $space-small);
+    @include fluidSpace(padding-right, $space-small);
+    @include fluidSpace(margin-bottom, $space-xsmall);
+    border-radius: $space-small;
+    justify-content: center;
+    align-items: center;
+
+    &__answer {
+      text-transform: uppercase;
+    }
+  }
+}

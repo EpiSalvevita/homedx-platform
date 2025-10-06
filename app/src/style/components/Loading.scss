@@ -1,0 +1,54 @@
+.loading {
+  width: 56px;
+  height: 56px;
+
+  &__wrapper {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    align-self: center;
+    width: 80%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity ease 0.2s, visibility ease 0.2s;
+    max-width: 420px;
+
+    &.show {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+  &__wrapper--inner {
+    position: relative;
+    width: 100%;
+    background-color: rgba($color-background, 0.2);
+    backdrop-filter: blur(8px);
+    border-radius: 16px;
+
+    &:before {
+      content: '';
+      display: block;
+      width: 100%;
+      padding-bottom: 100%;
+    }
+  }
+
+  &__content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    // padding: $space-medium;
+    @include fluidSpace(padding, $space-medium);
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+
+    * {
+      text-align: center;
+      color: $color-text--light;
+    }
+  }
+}

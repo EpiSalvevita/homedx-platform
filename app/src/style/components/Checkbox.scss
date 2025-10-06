@@ -1,0 +1,61 @@
+.checkbox {
+  $size: 24px;
+  position: relative;
+  appearance: none;
+  border: none;
+
+  width: $size;
+  height: $size;
+  flex-shrink: 0;
+
+  background: $color-gradient--light;
+  border-radius: 2px;
+
+  &:checked {
+    &:before {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: $size - 4;
+      height: $size - 4;
+      background: url(../assets/icons/ic_check.b64.svg);
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+  }
+
+  &__wrapper {
+    display: flex;
+    flex-flow: row nowrap;
+    @include fluidSpace(margin-top, $space-small);
+    @include fluidSpace(margin-bottom, $space-small);
+
+    line-height: 1.4;
+    font-size: $text-small;
+
+    label {
+      display: flex;
+      flex-flow: row wrap;
+      align-items: center;
+      color: $color-text--light;
+      @include fluidSpace(margin-left, $space-small);
+
+      a {
+        @include fluidSpace(padding-left, $space-xsmall);
+        @include fluidSpace(padding-right, $space-xsmall);
+      }
+    }
+
+    &.alt {
+      label {
+        color: $color-text;
+      }
+
+      .checkbox {
+        border: solid 2px $color-primary;
+      }
+    }
+  }
+}

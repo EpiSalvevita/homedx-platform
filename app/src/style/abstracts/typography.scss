@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;400&display=swap');
+
+@function strip-unit($number) {
+  @if type-of($number) == 'number' and not unitless($number) {
+    @return $number / ($number * 0 + 1);
+  }
+  @return $number;
+}
+
+@function toFluid($px, $min: 16px, $max: 36px) {
+  @return clamp($min, strip-unit($px) / 375 * 100vw, $max);
+}
+
+$text-xxsmall: toFluid(10px, 8px, 12px); // custom
+$text-xsmall: toFluid(12px, 10px, 14px); // custom
+$text-small: toFluid(14px, 12px, 16px); // small
+$text-normal: toFluid(16px, 14px, 18px); // Text
+$text-large: toFluid(18px, 16px, 20px); // custom
+$text-xlarge: toFluid(20px, 18px, 26px); // H3
+$text-xxlarge: toFluid(26px, 22px, 30px); // H2
+$text-xxxlarge: toFluid(36px, 30px, 42px); // H1
+
+body {
+  font-size: $text-normal;
+  font-family: 'Manrope';
+  font-weight: 200;
+  color: $color-text--light;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 400;
+  &.alt {
+    color: $color-text--light;
+  }
+}
+
+h1 {
+  font-size: $text-xxxlarge;
+}
+
+h2 {
+  font-size: $text-xxlarge;
+}
+
+h3 {
+  font-size: $text-xlarge;
+}
+input {
+  font-size: $text-normal;
+}
+select,
+input,
+small {
+  font-size: $text-small;
+}
+.input__wrapper label {
+  font-size: $text-xxsmall;
+}
+p {
+  margin: 0;
+  padding: 0;
+
+  &.alt {
+    color: $color-text--light;
+  }
+}
+
+a {
+  color: $color-text--light;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 4), (min-resolution: 4dppx) {
+  body {
+    font-size: toFluid(16px * 0.75, 14px * 0.75, 18px * 0.75);
+  }
+  h1 {
+    font-size: toFluid(36px * 0.75, 30px * 0.75, 42px * 0.75);
+  }
+
+  h2 {
+    font-size: toFluid(26px * 0.75, 22px * 0.75, 30px * 0.75);
+  }
+
+  h3 {
+    font-size: toFluid(20px * 0.75, 18px * 0.75, 26px * 0.75);
+  }
+
+  select,
+  input,
+  small {
+    font-size: toFluid(14px * 0.75, 12px * 0.75, 16px * 0.75);
+  }
+  .input__wrapper label {
+    font-size: toFluid(10px * 0.75, 8px * 0.75, 12px * 0.75);
+  }
+}

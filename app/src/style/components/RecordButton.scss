@@ -1,0 +1,38 @@
+.btn__record {
+  $size: 60px;
+  width: $size;
+  height: $size;
+  border-radius: $size / 2;
+  background-color: rgba($color-background, 0.4);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  &__icon {
+    $size: 48px;
+    width: $size;
+    height: $size;
+    border-radius: $size / 2;
+    background-color: $color-primary;
+    transition: width 0.4s ease, height 0.4s ease, border-radius 0.4s ease;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    span {
+      font-size: $text-xxsmall;
+    }
+  }
+
+  &.stop {
+    .btn__record {
+      &__icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 4px;
+      }
+    }
+  }
+}

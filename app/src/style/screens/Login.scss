@@ -1,0 +1,40 @@
+.screen-login {
+  // background: $color-gradient;
+  justify-content: center;
+
+  .login__header {
+    width: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-end;
+
+    padding: $space-medium 0;
+    @include fluidSpace(padding-top, $space-medium);
+    @include fluidSpace(padding-bottom, $space-medium);
+
+    svg {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  .login__content {
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .login__showPassword {
+    position: absolute;
+    top: 50%;
+    @include fluidSpace(right, $space-medium);
+
+    @include fluidSpace(padding, $space-small);
+    transform: translateY(calc(-50% - #{$space-small / 2}));
+    @include fluidSpace(margin-bottom, $space-small);
+  }
+
+  form {
+    @include fluidSpace(margin-top, $space-large);
+    @include fluidSpace(margin-bottom, $space-large);
+  }
+}

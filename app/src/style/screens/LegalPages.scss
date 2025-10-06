@@ -1,0 +1,150 @@
+.content-page {
+  min-height: 100vh;
+  background-color: var(--bg-color-primary);
+  
+  .content-body {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    
+    @media (max-width: 768px) {
+      padding: 16px;
+    }
+  }
+}
+
+.legal-content {
+  line-height: 1.6;
+  color: var(--text-color-primary);
+  
+  .legal-heading {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color-primary);
+    margin: 24px 0 12px 0;
+    border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: 8px;
+    
+    &:first-child {
+      margin-top: 0;
+    }
+    
+    @media (max-width: 768px) {
+      font-size: 1.1rem;
+      margin: 20px 0 10px 0;
+    }
+  }
+  
+  .legal-paragraph {
+    margin: 16px 0;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text-color-secondary);
+    text-align: justify;
+    
+    @media (max-width: 768px) {
+      font-size: 0.9rem;
+      margin: 14px 0;
+      text-align: left;
+    }
+    
+    // Handle contact information and addresses
+    &:contains("Telefon") {
+      background-color: var(--bg-color-secondary);
+      padding: 12px 16px;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary-color);
+      margin: 20px 0;
+    }
+  }
+}
+
+.legal-footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color-light);
+  
+  .legal-version {
+    font-size: 0.8rem;
+    color: var(--text-color-tertiary);
+    text-align: center;
+    font-style: italic;
+    margin: 0;
+    
+    @media (max-width: 768px) {
+      font-size: 0.75rem;
+    }
+  }
+}
+
+.error-message {
+  text-align: center;
+  padding: 40px 20px;
+  
+  p {
+    color: var(--text-color-secondary);
+    margin: 8px 0;
+    font-size: 0.95rem;
+    
+    &:first-child {
+      color: var(--error-color);
+      font-weight: 500;
+    }
+  }
+}
+
+// Dark mode adjustments
+.theme-dark {
+  .legal-content {
+    .legal-heading {
+      color: var(--text-color-primary-dark);
+      border-bottom-color: var(--border-color-dark);
+    }
+    
+    .legal-paragraph {
+      color: var(--text-color-secondary-dark);
+      
+      &:contains("Telefon") {
+        background-color: var(--bg-color-secondary-dark);
+        border-left-color: var(--primary-color-dark);
+      }
+    }
+  }
+  
+  .legal-footer {
+    border-top-color: var(--border-color-dark);
+    
+    .legal-version {
+      color: var(--text-color-tertiary-dark);
+    }
+  }
+}
+
+// Responsive typography
+@media (max-width: 480px) {
+  .content-page {
+    .content-body {
+      padding: 12px;
+    }
+  }
+  
+  .legal-content {
+    .legal-heading {
+      font-size: 1rem;
+      margin: 16px 0 8px 0;
+    }
+    
+    .legal-paragraph {
+      font-size: 0.85rem;
+      margin: 12px 0;
+    }
+  }
+  
+  .legal-footer {
+    margin-top: 30px;
+    
+    .legal-version {
+      font-size: 0.7rem;
+    }
+  }
+} 

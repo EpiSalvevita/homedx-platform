@@ -1,0 +1,134 @@
+.camera {
+  flex: 1;
+  width: 100%;
+  max-height: 100%;
+
+  &__timer {
+    position: absolute;
+    // top: $space-medium;
+    @include fluidSpace(top, $space-medium);
+    // padding: $space-small / 2 $space-large;
+    @include fluidSpace(padding-top, $space-small);
+    @include fluidSpace(padding-bottom, $space-small);
+    @include fluidSpace(padding-left, $space-large);
+    @include fluidSpace(padding-right, $space-large);
+    background-color: $color-primary;
+    color: $color-text--light;
+    align-self: center;
+    border-radius: 24px;
+    z-index: 10;
+  }
+  &__timer__warning {
+    position: absolute;
+    // top: $space-medium;
+    @include fluidSpace(top, $space-medium);
+    @include fluidSpace(left, $space-medium);
+    // padding: $space-small / 2 $space-large;
+    @include fluidSpace(padding-top, $space-small);
+    @include fluidSpace(padding-bottom, $space-small);
+    @include fluidSpace(padding-left, $space-large);
+    @include fluidSpace(padding-right, $space-large);
+    background-color: #be0000;
+    color: $color-text--light;
+    align-self: center;
+    border-radius: 24px;
+    z-index: 10;
+  }
+
+  &__wrapper {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    max-width: $max-content;
+    background-color: rgba(0, 0, 0, 0.8);
+    pointer-events: all;
+
+    &__footer {
+      &__wrapper {
+        height: 56px + $space-medium * 2;
+        // padding: 0 $space-medium !important;
+        @include fluidSpace(padding-top, 0);
+        @include fluidSpace(padding-bottom, 0);
+        @include fluidSpace(padding-left, $space-medium);
+        @include fluidSpace(padding-right, $space-medium);
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        align-items: center;
+
+        .btn {
+          flex: 1;
+          margin: 0;
+        }
+      }
+    }
+
+    &--inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      margin-top: $space-medium;
+      border-radius: 16px;
+      overflow: hidden;
+
+      img[alt='result'] {
+        height: 100%;
+        object-fit: contain;
+      }
+    }
+  }
+
+  &__footer {
+    position: absolute;
+    width: 100%;
+    // bottom: $space-medium;
+    @include fluidSpace(bottom, $space-medium);
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+
+    > div {
+      flex: 1;
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+  &__btn {
+    cursor: pointer;
+
+    &--record {
+      backdrop-filter: blur(6px);
+    }
+
+    &--trash,
+    &--swap {
+      backdrop-filter: blur(6px);
+      border-radius: 20px;
+    }
+
+    &--close {
+      position: absolute;
+      // top: $space-medium;
+      // right: $space-medium;
+      @include fluidSpace(top, $space-medium);
+      @include fluidSpace(right, $space-medium);
+      width: 30px;
+      height: 30px;
+      z-index: 1;
+
+      path {
+        fill: $color-primary;
+      }
+      rect {
+        stroke: rgba($color-primary--dark, 0.2);
+        stroke-opacity: 1;
+        fill: rgba($color-background, 0.6);
+      }
+    }
+  }
+}

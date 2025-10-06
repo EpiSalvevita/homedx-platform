@@ -1,0 +1,38 @@
+ul,
+ul.list {
+  $size: 10px;
+  $lineheight: 1.5;
+
+  list-style: none;
+  padding-inline-start: $size * 2;
+  .list__item {
+    position: relative;
+    font-size: $text-normal;
+    line-height: $lineheight;
+    &:not(:last-of-type) {
+      // margin-bottom: $space-medium;
+      @include fluidSpace(margin-bottom, $space-medium);
+    }
+
+    &:before {
+      content: '';
+      position: absolute;
+      left: -$size - $space-small;
+      top: $size / 2 * $lineheight;
+      display: block;
+      width: $size;
+      height: $size;
+      background: $color-gradient--light;
+      border-radius: 2px;
+      opacity: 0.8;
+    }
+  }
+
+  &.primary {
+    .list__item {
+      &:before {
+        background: $color-gradient--primary;
+      }
+    }
+  }
+}

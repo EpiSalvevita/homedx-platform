@@ -1,0 +1,114 @@
+.screen-authentication {
+  flex-flow: column nowrap;
+  transition: visibility 0.3s ease, opacity 0.3s ease;
+  overflow-y: hidden;
+
+  color: $color-background;
+  @include fluidSpace(padding-bottom, $space-medium);
+
+  &.hide {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .progressbar {
+    @include fluidSpace(margin-bottom, $space-medium);
+  }
+
+  .authentication {
+    &__header {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+
+      h1,
+      h2,
+      h3 {
+        flex: 1;
+      }
+
+      &__title {
+        @include fluidSpace(padding-top, $space-medium);
+        @include fluidSpace(padding-bottom, $space-medium);
+        min-height: 1.4rem;
+      }
+
+      .btn__close {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+      }
+    }
+  }
+
+  .step__content {
+    overflow-y: auto;
+  }
+
+  .authentication__identity {
+    input {
+      display: none;
+      visibility: hidden;
+    }
+
+    .list {
+      flex: 1;
+    }
+
+    &__profilepicture {
+      $size: 80px;
+      width: $size;
+      height: $size;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: solid 2px $color-primary--dark;
+      align-self: flex-end;
+      border-radius: $size / 2;
+      @include fluidSpace(margin-bottom, $space-medium);
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+
+        &.empty {
+          width: 80%;
+          height: 80%;
+          object-fit: contain;
+        }
+      }
+
+      &__buttons {
+        .btn:not(:last-of-type) {
+          @include fluidSpace(margin-bottom, $space-medium);
+        }
+      }
+
+      &__wrapper {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+
+        flex: 1;
+        background: $color-background;
+        @include fluidSpace(padding, $space-medium);
+        color: $color-text;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        transition: bottom 0.3s ease;
+
+        h2 {
+          padding-left: 0;
+        }
+
+        &.hide {
+          bottom: -100%;
+        }
+      }
+    }
+  }
+}

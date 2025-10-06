@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "Network": ["Network.js"],
+      "Style": ["style/index.scss"],
+      "Language": ["Language.js"],
+      "Utility": ["Utility.js"],
+      "Store": ["Store.js"],
+      "screens": ["screens"],
+      "components": ["components"],
+      "base": ["base"],
+      "assets": ["assets"],
+      "hdx-config": ["../hdx.config.js"]
+    }
+  }
+}

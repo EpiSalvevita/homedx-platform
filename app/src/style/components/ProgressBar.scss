@@ -1,0 +1,17 @@
+.progressbar {
+  $size: 7px;
+  box-sizing: border-box;
+  width: 100%;
+  height: $size;
+  // border: solid 1px $color-background;
+  border-radius: $size;
+  background: rgba($color-background, 0.2);
+
+  &__progress {
+    height: 100%;
+    background-color: $color-background;
+    border-radius: $size;
+
+    transition: width 0.3s ease;
+  }
+}

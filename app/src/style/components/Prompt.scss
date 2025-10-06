@@ -1,0 +1,110 @@
+.prompt {
+  pointer-events: all;
+  position: fixed;
+  box-sizing: border-box;
+  width: calc(100% - #{$space-medium * 2});
+  max-width: 420px;
+  max-height: calc(100% - #{$bottombar_height} - #{$topbar_height});
+  overflow-y: auto;
+  background-color: $color-background;
+  border-radius: $space-medium;
+  top: 50%;
+  left: 50%;
+  color: $color-text;
+  @include fluidSpace(padding, $space-medium);
+  transition: all 0.6s ease;
+  z-index: 50;
+
+  &.shadow {
+    box-shadow: 0 5px 10px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  &.center {
+    transform: translate(-50%, -50%);
+  }
+  &.left {
+    left: 0;
+    transform: translate(-120vw, -50%);
+  }
+  &.right {
+    left: 0;
+    transform: translate(120vw, -50%);
+  }
+  &.top {
+    top: 0;
+    transform: translate(-50%, -120vh);
+  }
+  &.bottom {
+    top: 0;
+    transform: translate(-50%, 120vh);
+  }
+
+  &__icon {
+    position: relative;
+    // &:before {
+    //   content: '';
+    //   position: relative;
+    //   left: 22px;
+    //   width: 102px;
+    //   height: 102px;
+    //   // background: linear-gradient(
+    //   //   -135deg,
+    //   //   #800343,
+    //   //   #800343 49%,
+    //   //   rgba(#af2f70, 0.1)
+    //   // );
+    //   opacity: 0.2;
+    //   border-radius: 16px;
+    // }
+
+    &.right {
+      &:before {
+        left: 0;
+      }
+      svg {
+        top: 0;
+        left: 28px;
+      }
+    }
+
+    &.small {
+      svg {
+        width: 72px;
+      }
+    }
+
+    // svg {
+    //   position: absolute;
+    //   width: 102px;
+    //   // height: 102px;
+    //   top: 26px;
+
+    //   path {
+    //     fill: $color-primary;
+    //   }
+    // }
+  }
+
+  &__title,
+  &__subtitle,
+  &__text {
+    text-align: start;
+    margin: $space-medium 0 0 0;
+    @include fluidSpace(margin-top, $space-medium);
+  }
+
+  &__title {
+    @include fluidSpace(margin-top, $space-large);
+  }
+
+  &__button {
+    @include fluidSpace(margin-top, $space-large);
+  }
+  &__text {
+    font-size: $text-small;
+  }
+  a {
+    display: contents;
+    color: $color-primary;
+  }
+}

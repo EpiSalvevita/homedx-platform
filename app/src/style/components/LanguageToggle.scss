@@ -1,0 +1,51 @@
+.lngtoggle {
+  text-align: end;
+  align-self: flex-end;
+  display: flex;
+  flex-flow: row nowrap;
+  @include fluidSpace(padding, 2px);
+  @include fluidSpace(margin-top, $space-small);
+  @include fluidSpace(margin-bottom, $space-small);
+  border: solid 1px $color-text--light;
+  border-radius: 100px;
+
+  @include fluidSpace(padding-top, $space-xsmall);
+  @include fluidSpace(padding-right, $space-small);
+  @include fluidSpace(padding-left, $space-small);
+  @include fluidSpace(padding-bottom, $space-xsmall);
+
+  small,
+  span {
+    position: relative;
+
+    & + * {
+      @include fluidSpace(margin-left, $space-small);
+    }
+
+    &.true {
+      color: $color-text--mid;
+
+      &:before {
+        background-color: $color-text--light;
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    &:before {
+      content: '';
+      z-index: -1;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: block;
+
+      width: 100%;
+      height: 100%;
+      border-radius: 100px;
+      transition: all 0.3s ease-in;
+      transform: scale(0);
+      opacity: 0;
+    }
+  }
+}

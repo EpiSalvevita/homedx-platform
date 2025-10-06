@@ -1,0 +1,11 @@
+.mt-sm {
+  // margin-top: $space-small;
+  @include fluidSpace(margin-top, $space-small);
+}
+.mt-md {
+  @include fluidSpace(margin-top, $space-medium);
+  // margin-top: $space-medium;
+}
+.mb-md {
+  @include fluidSpace(margin-bottom, $space-medium);
+}

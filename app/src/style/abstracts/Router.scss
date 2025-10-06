@@ -1,0 +1,22 @@
+.router {
+  &__content {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    transition: top 0.3s ease, bottom 0.3s ease;
+    max-width: $max-content;
+    margin: 0 auto;
+
+    &.show-top {
+      top: $topbar_height;
+    }
+    &.show-bottom {
+      bottom: $bottombar_height;
+    }
+  }
+}
