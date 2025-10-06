@@ -66,4 +66,15 @@ export class AuthService {
       valid: emailRegex.test(email),
     };
   }
+
+  async validateToken(token: string): Promise<any> {
+    try {
+      const payload = this.jwtService.verify(token, {
+        secret: process.env.JWT_SECRET || 'your-secret-key',
+      });
+      return payload;
+    } catch {
+      return null;
+    }
+  }
 } 

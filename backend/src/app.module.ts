@@ -3,6 +3,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { MulterModule } from '@nestjs/platform-express';
 import { PrismaService } from './services/prisma.service';
 import { UserService } from './services/user.service';
 import { UserResolver } from './graphql/resolvers/user.resolver';
@@ -28,12 +29,17 @@ import { SystemResolver } from './graphql/resolvers/system.resolver';
 import { LegalPageService } from './services/legal-page.service';
 import { LegalPageResolver } from './graphql/resolvers/legal-page.resolver';
 import { JwtStrategy } from './auth/jwt.strategy';
+import { MobileController } from './controllers/mobile.controller';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 // import { NotificationService } from './services/notification.service';
 // import { NotificationResolver } from './graphql/resolvers/notification.resolver';
 
 @Module({
   imports: [
     PassportModule,
+    MulterModule.register({
+      dest: './uploads',
+    }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
@@ -47,6 +53,7 @@ import { JwtStrategy } from './auth/jwt.strategy';
       signOptions: { expiresIn: '24h' },
     }),
   ],
+  controllers: [MobileController],
   providers: [
     PrismaService,
     UserService,
@@ -73,6 +80,7 @@ import { JwtStrategy } from './auth/jwt.strategy';
     LegalPageService,
     LegalPageResolver,
     JwtStrategy,
+    JwtAuthGuard,
     // NotificationService,
     // NotificationResolver,
   ],
