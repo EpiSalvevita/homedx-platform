@@ -14,6 +14,22 @@ homedx-platform/
 
 ## 🚀 **Quick Start**
 
+### **Automated Deploy (Recommended)**
+```bash
+# Deploy everything (backend + mobile)
+./deploy.sh
+
+# Or deploy specific parts
+./deploy.sh backend    # Start only backend
+./deploy.sh mobile     # Start only mobile app
+
+# Stop all services
+./stop.sh
+```
+
+### **Manual Setup**
+If you prefer to run each service manually:
+
 ### **Backend Setup**
 ```bash
 cd backend
@@ -294,7 +310,8 @@ The debug APK is available at:
 /home/epi_linux/homedx-platform/mobile/android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-### 🔧 **Recent Updates (Today)**
+### 🔧 **Recent Updates**
+- **Automated Deploy Scripts**: Created `deploy.sh` and `stop.sh` for one-command deployment
 - **Fixed Gradle Version**: Updated from 6.7.1 to 7.5.1 to resolve compatibility issues
 - **Updated Android Gradle Plugin**: Upgraded from 4.2.2 to 7.2.2
 - **Resolved OpenSSL Error**: Fixed Metro bundler compatibility with Node.js 17+
