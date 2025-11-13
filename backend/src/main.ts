@@ -7,8 +7,10 @@ async function bootstrap() {
   
   // Enable CORS
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8080', 'http://localhost:8000'],
+    origin: true, // Allow all origins in development (for Flutter app)
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token', 'Accept'],
   });
   
   // TODO: Fix graphql-upload ES module issue
@@ -23,7 +25,7 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(4000);
+  await app.listen(4000, '0.0.0.0');
 }
 
 bootstrap(); 

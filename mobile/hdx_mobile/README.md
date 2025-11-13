@@ -242,6 +242,65 @@ Found 2 connected devices:
   Linux (desktop)              • linux         • linux-x64   • Ubuntu 24.04.2 LTS ...
 ```
 
+### Step 6: Set Up Port Forwarding for Backend Connectivity
+
+**IMPORTANT**: If you're running the backend in WSL2 and the Flutter app on an Android emulator in Windows, you need to set up port forwarding so the emulator can reach the WSL2 backend.
+
+#### The Problem
+
+- The backend runs in WSL2 on port 4000
+- The Android emulator runs on Windows
+- The emulator uses `10.0.2.2` to access Windows localhost
+- Windows localhost doesn't automatically forward to WSL2
+- **Result**: Connection timeouts when the app tries to reach the backend
+
+#### The Solution
+
+Set up port forwarding from Windows localhost:4000 to WSL2:4000.
+
+**Quick Setup** (run in Windows PowerShell as Administrator):
+
+1. Get your WSL2 IP address:
+   ```powershell
+   wsl hostname -I
+   ```
+   This will output something like `172.26.71.195`
+
+2. Set up port forwarding:
+   ```powershell
+   netsh interface portproxy add v4tov4 listenport=4000 listenaddress=127.0.0.1 connectport=4000 connectaddress=172.26.71.195
+   ```
+   Replace `172.26.71.195` with your actual WSL2 IP from step 1.
+
+3. Verify it worked:
+   ```powershell
+   netsh interface portproxy show all
+   ```
+   You should see the forwarding rule listed.
+
+**Alternative: Use the Setup Script**
+
+A PowerShell script is available at the project root (`setup-wsl-port-forward.ps1`) that automates this process. Run it from Windows PowerShell as Administrator:
+
+```powershell
+.\setup-wsl-port-forward.ps1
+```
+
+**Important Notes**:
+- You must run PowerShell **as Administrator** for port forwarding to work
+- If you restart WSL2, the IP address may change. You'll need to run the setup again
+- To remove port forwarding: `netsh interface portproxy delete v4tov4 listenport=4000 listenaddress=127.0.0.1`
+- The backend must be configured to listen on `0.0.0.0` (check `backend/src/main.ts` - it should have `app.listen(4000, '0.0.0.0')`)
+
+**Verify Backend is Accessible**:
+
+From Windows PowerShell (not as admin is fine for testing):
+```powershell
+curl http://localhost:4000/gg-homedx-json/gg-api/v1/get-be-status-flags -X POST -H "Content-Type: application/json" -d "{}"
+```
+
+You should see: `{"success":true,"cwa":true,"cwaLaive":true}`
+
 ### Troubleshooting WSL2 Setup
 
 - **Emulator shows as "offline"**: Wait for the emulator to fully boot (Android home screen visible)
@@ -255,6 +314,11 @@ Found 2 connected devices:
   cp -r /mnt/c/Users/<YourUsername>/AppData/Local/Android/Sdk/licenses/* ~/android-sdk-wrapper/licenses/
   ```
   Replace `<YourUsername>` with your Windows username. This ensures the wrapper SDK has all required license agreements.
+- **Connection Timeout / Backend Not Reachable**: 
+  - Ensure port forwarding is set up (see Step 6 above)
+  - Verify the backend is running: `curl http://localhost:4000/...` from WSL2
+  - Check Flutter app's `.env` file has `API_BASE_URL=http://10.0.2.2:4000`
+  - If WSL2 IP changed after restart, update port forwarding with the new IP
 
 ## Troubleshooting
 
