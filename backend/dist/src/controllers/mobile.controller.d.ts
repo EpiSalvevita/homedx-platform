@@ -49,7 +49,7 @@ export declare class MobileController {
         password: string;
         lang?: string;
     }): Promise<MobileResponse>;
-    getUserData(token: string): Promise<UserDataResponse>;
+    getUserData(req: any): Promise<UserDataResponse>;
     updateUserData(token: string, body: any): Promise<MobileResponse>;
     getTestTypeList(body: {
         lang?: string;

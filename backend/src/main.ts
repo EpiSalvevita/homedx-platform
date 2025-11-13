@@ -2,8 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
-const graphqlUploadExpress = require('graphql-upload/graphqlUploadExpress.mjs').default;
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
@@ -13,7 +11,9 @@ async function bootstrap() {
     credentials: true,
   });
   
-  app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 5 }));
+  // TODO: Fix graphql-upload ES module issue
+  // const { default: graphqlUploadExpress } = await import('graphql-upload/graphqlUploadExpress.mjs');
+  // app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 5 }));
 
   app.useGlobalPipes(
     new ValidationPipe({

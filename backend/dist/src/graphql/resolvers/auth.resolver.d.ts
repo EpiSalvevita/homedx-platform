@@ -13,7 +13,6 @@ export declare class AuthResolver {
     signup(input: SignupInput): Promise<{
         access_token: string;
         user: {
-            id: string;
             email: string;
             firstName: string;
             lastName: string;
@@ -21,14 +20,15 @@ export declare class AuthResolver {
             city: string | null;
             country: string | null;
             phone: string | null;
-            createdAt: Date;
-            updatedAt: Date;
+            id: string;
             address: string | null;
-            emailVerified: boolean;
-            lastLoginAt: Date | null;
             postalCode: string | null;
             role: import(".prisma/client").$Enums.UserRole;
             status: import(".prisma/client").$Enums.UserStatus;
+            emailVerified: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            lastLoginAt: Date | null;
         };
     }>;
     testMutation(): Promise<string>;

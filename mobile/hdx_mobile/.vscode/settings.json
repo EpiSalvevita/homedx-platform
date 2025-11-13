@@ -1,0 +1,16 @@
+{
+  "dart.flutterSdkPath": "/home/epilinux3/homedx-platform/mobile/flutter",
+  "dart.flutterAdditionalArgs": [],
+  "dart.devToolsReuseWindows": true,
+  "dart.previewFlutterUiGuides": true,
+  "dart.previewFlutterUiGuidesCustomTracking": true,
+  "flutter.checkForSdkUpdates": false,
+  "dart.checkForSdkUpdates": false,
+  "dart.openDevTools": "flutter",
+  "dart.showDevTools": true,
+  "dart.enableSdkFormatter": true,
+  "dart.enableFlutterUiGuides": true,
+  "dart.showTodos": true,
+  "workbench.statusBar.visible": true,
+  "dart.adbPath": "/mnt/c/Users/EpirotAlija/AppData/Local/Android/Sdk/platform-tools/adb.exe"
+}

@@ -12,7 +12,6 @@ export declare class AuthService {
     signup(email: string, password: string, firstName: string, lastName: string): Promise<{
         access_token: string;
         user: {
-            id: string;
             email: string;
             firstName: string;
             lastName: string;
@@ -20,14 +19,15 @@ export declare class AuthService {
             city: string | null;
             country: string | null;
             phone: string | null;
-            createdAt: Date;
-            updatedAt: Date;
+            id: string;
             address: string | null;
-            emailVerified: boolean;
-            lastLoginAt: Date | null;
             postalCode: string | null;
             role: import(".prisma/client").$Enums.UserRole;
             status: import(".prisma/client").$Enums.UserStatus;
+            emailVerified: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            lastLoginAt: Date | null;
         };
     }>;
     checkEmail(email: string): Promise<{

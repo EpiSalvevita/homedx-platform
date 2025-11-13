@@ -62,13 +62,10 @@ let MobileController = class MobileController {
             };
         }
     }
-    async getUserData(token) {
+    async getUserData(req) {
         var _a;
         try {
-            const user = await this.authService.validateToken(token);
-            if (!user) {
-                return { success: false, error: 'Invalid token' };
-            }
+            const user = req.user;
             const userData = await this.userService.findById(user.sub);
             return {
                 success: true,
@@ -324,9 +321,9 @@ __decorate([
 __decorate([
     (0, common_1.Post)('get-user-data'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Headers)('x-auth-token')),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], MobileController.prototype, "getUserData", null);
 __decorate([

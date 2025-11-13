@@ -7,7 +7,6 @@ export declare class JwtStrategy extends JwtStrategy_base {
     private prisma;
     constructor(prisma: PrismaService);
     validate(payload: any): Promise<{
-        id: string;
         email: string;
         firstName: string;
         lastName: string;
@@ -15,14 +14,15 @@ export declare class JwtStrategy extends JwtStrategy_base {
         city: string | null;
         country: string | null;
         phone: string | null;
-        createdAt: Date;
-        updatedAt: Date;
+        id: string;
         address: string | null;
-        emailVerified: boolean;
-        lastLoginAt: Date | null;
         postalCode: string | null;
         role: import(".prisma/client").$Enums.UserRole;
         status: import(".prisma/client").$Enums.UserStatus;
+        emailVerified: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        lastLoginAt: Date | null;
     }>;
 }
 export {};

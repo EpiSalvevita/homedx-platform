@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Headers, UseGuards, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Post, Body, Headers, UseGuards, UploadedFile, UseInterceptors, Request } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
@@ -104,14 +104,11 @@ export class MobileController {
 
   @Post('get-user-data')
   @UseGuards(JwtAuthGuard)
-  async getUserData(@Headers('x-auth-token') token: string): Promise<UserDataResponse> {
+  async getUserData(@Request() req: any): Promise<UserDataResponse> {
     try {
-      // Extract user from token
-      const user = await this.authService.validateToken(token);
-      if (!user) {
-        return { success: false, error: 'Invalid token' };
-      }
-
+      // User is already validated by JwtAuthGuard and attached to request
+      const user = req.user;
+      
       // Get user data
       const userData = await this.userService.findById(user.sub);
       

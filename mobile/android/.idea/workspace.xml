@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="03444da2-418c-4c79-93cc-11381b684858" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/.metadata" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/.vscode/launch.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/.vscode/settings.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ANDROID_DEVICE_SETUP.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/DART_DEVTOOLS_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/FIX_LICENSE_ISSUE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/IMMEDIATE_SOLUTION.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/QUICK_DEVTOOLS_TEST.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/START_EMULATOR.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/SUCCESS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/TROUBLESHOOT_DEVTOOLS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/WSL2_ANDROID_FIX.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/accept-licenses-windows.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/analysis_options.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/app/build.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/app/src/debug/AndroidManifest.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/app/src/main/kotlin/com/example/hdx_mobile/MainActivity.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/app/src/main/res/drawable-v21/launch_background.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/app/src/main/res/drawable/launch_background.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/app/src/main/res/mipmap-hdpi/ic_launcher.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/app/src/main/res/mipmap-mdpi/ic_launcher.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/app/src/main/res/values-night/styles.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/app/src/main/res/values/styles.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/app/src/profile/AndroidManifest.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/build.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/gradle.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/android/settings.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/fix-adb-path.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Flutter/AppFrameworkInfo.plist" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Flutter/Debug.xcconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Flutter/Release.xcconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner.xcworkspace/contents.xcworkspacedata" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/AppDelegate.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Base.lproj/LaunchScreen.storyboard" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Base.lproj/Main.storyboard" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Info.plist" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/Runner/Runner-Bridging-Header.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/ios/RunnerTests/RunnerTests.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/lib/config/app_router.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/lib/config/app_theme.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/lib/main.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/lib/screens/home_screen.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/lib/services/api_service.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/lib/utils/constants.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/linux/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/linux/CMakeLists.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/linux/flutter/CMakeLists.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/linux/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/linux/flutter/generated_plugin_registrant.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/linux/flutter/generated_plugins.cmake" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/linux/runner/CMakeLists.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/linux/runner/main.cc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/linux/runner/my_application.cc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/linux/runner/my_application.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Flutter/Flutter-Debug.xcconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Flutter/Flutter-Release.xcconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner.xcodeproj/project.pbxproj" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner.xcworkspace/contents.xcworkspacedata" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/AppDelegate.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_128.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_16.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_32.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_64.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/Base.lproj/MainMenu.xib" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/Configs/AppInfo.xcconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/Configs/Debug.xcconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/Configs/Release.xcconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/Configs/Warnings.xcconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/DebugProfile.entitlements" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/Info.plist" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/MainFlutterWindow.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/Runner/Release.entitlements" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/macos/RunnerTests/RunnerTests.swift" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/pubspec.lock" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/pubspec.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/setup-adb-wsl.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/start-android-emulator.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/test/widget_test.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/web/favicon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/web/icons/Icon-192.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/web/icons/Icon-512.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/web/icons/Icon-maskable-192.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/web/icons/Icon-maskable-512.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/web/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/web/manifest.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/CMakeLists.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/flutter/CMakeLists.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/flutter/generated_plugin_registrant.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/flutter/generated_plugins.cmake" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/runner/CMakeLists.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/runner/Runner.rc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/runner/flutter_window.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/runner/flutter_window.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/runner/main.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/runner/resource.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/runner/resources/app_icon.ico" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/runner/runner.exe.manifest" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/runner/utils.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/runner/utils.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/runner/win32_window.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../hdx_mobile/windows/runner/win32_window.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/.env" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/dist/src/app.e2e-spec.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/dist/src/app.e2e-spec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/dist/src/app.e2e-spec.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/dist/src/auth/jwt.strategy.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/dist/src/auth/jwt.strategy.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/dist/src/controllers/mobile.controller.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/dist/src/controllers/mobile.controller.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/dist/src/controllers/mobile.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/dist/src/controllers/mobile.controller.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/dist/src/controllers/mobile.controller.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/dist/src/controllers/mobile.controller.js.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/dist/src/graphql/resolvers/auth.resolver.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/dist/src/graphql/resolvers/auth.resolver.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/dist/src/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/dist/src/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/dist/src/main.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/dist/src/main.js.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/dist/src/services/auth.service.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/dist/src/services/auth.service.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/dist/src/services/legal-page.service.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/dist/src/services/legal-page.service.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/dist/tsconfig.tsbuildinfo" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/dist/tsconfig.tsbuildinfo" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/node_modules/.package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/default.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/default.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/edge.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/edge.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/index-browser.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/index-browser.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/index.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x.so.node" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x.so.node" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/wasm.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/wasm.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/wasm.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/node_modules/.prisma/client/wasm.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/src/controllers/mobile.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/src/controllers/mobile.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.buckconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.editorconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.env.template" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.eslintrc.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.prettierrc.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.svgrrc.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.watchmanconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../App.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Root.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../__tests__/App-test.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../__tests__/Landing.test.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../__tests__/Navigator.test.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../__tests__/useHomedx.test.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/_BUCK" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/build_defs.bzl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/debug.keystore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/proguard-rules.pro" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/debug/AndroidManifest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/debug/java/com/homedx/ReactNativeFlipper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/assets/fonts/Manrope-Bold.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/assets/fonts/Manrope-Light.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/assets/fonts/Manrope-Medium.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/assets/fonts/Manrope-Regular.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/assets/fonts/Manrope-SemiBold.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/homedx/MainActivity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/homedx/MainApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-hdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-hdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-mdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-mdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/styles.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../babel.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../declarations.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/Podfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/Podfile.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX.xcodeproj/project.pbxproj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX.xcodeproj/xcshareddata/xcschemes/homeDX-dev.xcscheme" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX.xcodeproj/xcshareddata/xcschemes/homeDX-stage.xcscheme" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX.xcodeproj/xcshareddata/xcschemes/homeDX.xcscheme" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX.xcworkspace/contents.xcworkspacedata" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/AppDelegate.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/AppDelegate.m" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/AppIcon.appiconset/1024.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/AppIcon.appiconset/114.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/AppIcon.appiconset/120.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/AppIcon.appiconset/180.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/AppIcon.appiconset/29.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/AppIcon.appiconset/40.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/AppIcon.appiconset/57.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/AppIcon.appiconset/58.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/AppIcon.appiconset/60.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/AppIcon.appiconset/80.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/AppIcon.appiconset/87.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/AppIcon.appiconset/Contents.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/Contents.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/LaunchScreen.imageset/Contents.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/LaunchScreen.imageset/splashscreen-1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/LaunchScreen.imageset/splashscreen-2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Images.xcassets/LaunchScreen.imageset/splashscreen.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/Info.plist" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/LaunchScreen.storyboard" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDX/main.m" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDXTests/Info.plist" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ios/homeDXTests/homeDXTests.m" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../jest.setup.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../metro.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package.json.backup" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../react-native.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../readme.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/HdxProvider.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/I18n.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/Navigator.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/Network.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/PasswordGenerator.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/Persistor.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/Theme.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/Utility.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/assets/fonts/Manrope-Bold.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/assets/fonts/Manrope-Light.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/assets/fonts/Manrope-Medium.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/assets/fonts/Manrope-Regular.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/assets/fonts/Manrope-SemiBold.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/assets/icons/ic_certificates.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/assets/icons/ic_home.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/assets/icons/ic_nav_active.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/assets/icons/ic_swap-camera.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/assets/images/bg_landing.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/assets/images/logo.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/components/AvailableTest.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/components/PasswordInput.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/components/TestResult.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/components/questionnaire/AnswerView.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/components/questionnaire/BooleanAnswer.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/components/questionnaire/CheckAnswer.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/components/questionnaire/DateAnswer.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/components/questionnaire/RangeAnswer.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/components/questionnaire/SelectAnswer.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/components/questionnaire/SummaryView.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/components/questionnaire/TextAnswer.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/components/signup/DataView.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/components/signup/PasswordView.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/components/signup/TokenView.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/contexts/HdxContext.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/hooks/useBluetooth.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/hooks/useHomedx.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/hooks/usePrevious.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/lang/general/de.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/lang/general/en.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/lang/general/fr.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/lang/general/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/lang/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/models/HdxTypes.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/models/ScreenProps.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/models/TestProps.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/auth/Authentication.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/auth/Types.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/auth/assets/images/Muster_Perso_Hinten.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/auth/assets/images/Muster_Perso_Vorne.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/auth/assets/images/Muster_Zertifikat_Profilbild.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/auth/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/auth/lang/de.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/auth/lang/en.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/auth/lang/fr.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/auth/lang/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/auth/steps/IDBack.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/auth/steps/IDFront.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/auth/steps/Overview.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/auth/steps/Picture.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/auth/steps/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/Router.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/antibodytest/AntibodyTest.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/antibodytest/lang/de.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/antibodytest/lang/en.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/antibodytest/lang/fr.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/antibodytest/lang/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/antibodytest/questions.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/assets/images/Muster_Kassette_Ergebnis.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/assets/images/Muster_Kassette_PIN.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/assets/images/Muster_Smartphone_Stand.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/assets/images/Muster_Ungeoeffnetes_Testkit.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/i18n.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/pcrtest/PCRTest.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/pcrtest/Types.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/pcrtest/lang/de.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/pcrtest/lang/en.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/pcrtest/lang/fr.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/pcrtest/lang/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/pcrtest/steps/BuyTestkit.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/pcrtest/steps/IDCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/pcrtest/steps/MailInfo.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/pcrtest/steps/Onboarding.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/pcrtest/steps/Overview.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/pcrtest/steps/Sample.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/pcrtest/steps/Scan.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/pcrtest/steps/Tutorial.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/pcrtest/steps/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/RapidTest.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/Types.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/lang/de.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/lang/en.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/lang/fr.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/lang/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/steps/CWA.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/steps/Checkout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/steps/Components.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/steps/Coupon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/steps/Finish.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/steps/License.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/steps/Overview.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/steps/PIN.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/steps/Payment.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/steps/RecordVideo.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/steps/ResultPhoto.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/steps/TestKitPhoto.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/steps/Tutorial.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/plugins/covid19/rapidtest/steps/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/screens/Dashboard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/screens/Landing.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/screens/Login.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/screens/MyTestResults.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/screens/PersonalData.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/screens/Settings.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/screens/Signup.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/screens/Testing.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/widgets/AvailableTests.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/widgets/CameraOverlay.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/widgets/CameraView.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/widgets/LatestTest.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/widgets/ListView.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/widgets/Questionnaire.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/widgets/TestView.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tsconfig.json" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[]" />
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="346pi0ik83LoJu5dMVUk4EZXNJ6" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;android.gradle.sync.needed&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;//wsl.localhost/Ubuntu/home/epilinux3/homedx-platform/mobile/android&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;AndroidSdkUpdater&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
+      <module name="mobile.app" />
+      <option name="ANDROID_RUN_CONFIGURATION_SCHEMA_VERSION" value="1" />
+      <option name="DEPLOY" value="true" />
+      <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />
+      <option name="DEPLOY_AS_INSTANT" value="false" />
+      <option name="ARTIFACT_NAME" value="" />
+      <option name="PM_INSTALL_OPTIONS" value="" />
+      <option name="ALL_USERS" value="false" />
+      <option name="ALWAYS_INSTALL_WITH_PM" value="false" />
+      <option name="ALLOW_ASSUME_VERIFIED" value="false" />
+      <option name="CLEAR_APP_STORAGE" value="false" />
+      <option name="DYNAMIC_FEATURES_DISABLED_LIST" value="" />
+      <option name="ACTIVITY_EXTRA_FLAGS" value="" />
+      <option name="MODE" value="default_activity" />
+      <option name="RESTORE_ENABLED" value="false" />
+      <option name="RESTORE_FILE" value="" />
+      <option name="RESTORE_FRESH_INSTALL_ONLY" value="false" />
+      <option name="CLEAR_LOGCAT" value="false" />
+      <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
+      <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" />
+      <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
+      <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
+      <option name="DEBUGGER_TYPE" value="Auto" />
+      <Auto>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
+      </Auto>
+      <Hybrid>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
+      </Hybrid>
+      <Java>
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
+      </Java>
+      <Native>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
+      </Native>
+      <Profilers>
+        <option name="ADVANCED_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_CPU_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_CPU_PROFILING_CONFIGURATION_NAME" value="Java/Kotlin Method Sample (legacy)" />
+        <option name="STARTUP_NATIVE_MEMORY_PROFILING_ENABLED" value="false" />
+        <option name="NATIVE_MEMORY_SAMPLE_RATE_BYTES" value="2048" />
+      </Profilers>
+      <option name="DEEP_LINK" value="" />
+      <option name="ACTIVITY" value="" />
+      <option name="ACTIVITY_CLASS" value="" />
+      <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
+      <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="03444da2-418c-4c79-93cc-11381b684858" name="Changes" comment="" />
+      <created>1760544003056</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1760544003056</updated>
+    </task>
+    <servers />
+  </component>
+</project>
