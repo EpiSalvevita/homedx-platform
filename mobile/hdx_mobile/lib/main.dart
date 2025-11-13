@@ -6,6 +6,7 @@ import 'config/app_router.dart';
 import 'services/api_service.dart';
 import 'services/auth_service.dart';
 import 'providers/auth_provider.dart';
+import 'providers/bluetooth_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
     final apiService = ApiService();
     final authService = AuthService(apiService);
     final authProvider = AuthProvider(authService);
+    final bluetoothProvider = BluetoothProvider();
 
     // Initialize auth state
     authProvider.initialize();
@@ -32,6 +34,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: authProvider),
+        ChangeNotifierProvider.value(value: bluetoothProvider),
         Provider<ApiService>.value(value: apiService),
         Provider<AuthService>.value(value: authService),
       ],

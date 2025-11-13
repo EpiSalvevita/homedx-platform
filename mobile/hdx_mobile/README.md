@@ -342,6 +342,32 @@ If you encounter "Can't find service: package" errors:
 - Try a cold boot of the emulator (wipe data)
 - Consider using an emulator with API 34 or 35 instead of API 36
 
+## Features
+
+### ✅ Implemented Features
+
+- **Authentication & User Management**
+  - User registration and login
+  - User profile management
+  - Session persistence
+
+- **Test Selection**
+  - Browse available test types (RheumaCheck, Vitamin D, COVID-19, etc.)
+  - Select and add tests
+  - Test type information display
+
+- **Bluetooth Connectivity**
+  - Scan for Bluetooth devices
+  - Connect to Bluetooth devices
+  - View device services and characteristics
+  - Read/write Bluetooth data
+  - Subscribe to notifications
+
+- **Navigation**
+  - Protected routes with authentication guards
+  - Deep linking support
+  - Back navigation support
+
 ## Dependencies
 
 Current dependencies (see `pubspec.yaml` for details):
@@ -352,6 +378,8 @@ Current dependencies (see `pubspec.yaml` for details):
 - `http: ^1.2.2` - HTTP client for API calls
 - `flutter_dotenv: ^5.1.0` - Environment configuration
 - `shared_preferences: ^2.2.3` - Local storage
+- `flutter_blue_plus: ^1.32.7` - Bluetooth Low Energy connectivity
+- `permission_handler: ^11.3.1` - Permission management
 
 ## Testing
 

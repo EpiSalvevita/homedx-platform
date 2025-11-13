@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/user_service.dart';
+import '../services/user_service.dart' show UserData, UserService;
 import '../services/api_service.dart';
-import '../services/user_service.dart' show UserData;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

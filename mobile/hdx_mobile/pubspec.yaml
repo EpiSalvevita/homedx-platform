@@ -43,12 +43,17 @@ dependencies:
 
   # HTTP Client
   http: ^1.2.2
+  http_parser: ^4.0.2
 
   # Environment Configuration
   flutter_dotenv: ^5.1.0
 
   # Shared Preferences (Local Storage)
   shared_preferences: ^2.2.3
+
+  # Bluetooth Connectivity
+  flutter_blue_plus: ^1.32.7
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:

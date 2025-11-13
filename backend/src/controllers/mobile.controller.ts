@@ -175,9 +175,41 @@ export class MobileController {
     try {
       // Return available test types
       const testTypes = [
-        { name: 'COVID-19 Rapid Test', id: 'covid-rapid' },
-        { name: 'Antigen Test', id: 'antigen' },
-        { name: 'PCR Test', id: 'pcr' },
+        { 
+          name: 'RheumaCheck', 
+          id: 'rheumacheck',
+          description: 'Rheumatoid arthritis screening test',
+          icon: 'healing',
+          color: 'FF0000',
+        },
+        { 
+          name: 'Vitamin D', 
+          id: 'vitamind',
+          description: 'Vitamin D deficiency screening test',
+          icon: 'wb_sunny',
+          color: 'FF9800',
+        },
+        { 
+          name: 'COVID-19 Rapid Test', 
+          id: 'covid-rapid',
+          description: 'Rapid antigen test for COVID-19',
+          icon: 'coronavirus',
+          color: '2196F3',
+        },
+        { 
+          name: 'Antigen Test', 
+          id: 'antigen',
+          description: 'General antigen test',
+          icon: 'science',
+          color: '4CAF50',
+        },
+        { 
+          name: 'PCR Test', 
+          id: 'pcr',
+          description: 'Polymerase Chain Reaction test',
+          icon: 'biotech',
+          color: '9C27B0',
+        },
       ];
 
       return {

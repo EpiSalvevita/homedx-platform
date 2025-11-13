@@ -64,7 +64,7 @@ class ApiService {
           .timeout(AppConstants.apiTimeout);
 
       return _handleResponse(response);
-    } on TimeoutException catch (e) {
+    } on TimeoutException {
       throw ApiException(
         'Connection timeout: Unable to reach the server at $baseUrl. '
         'Please check if the backend is running and accessible. '
@@ -98,7 +98,7 @@ class ApiService {
           .timeout(AppConstants.apiTimeout);
 
       return _handleResponse(response);
-    } on TimeoutException catch (e) {
+    } on TimeoutException {
       throw ApiException(
         'Connection timeout: Unable to reach the server at $baseUrl. '
         'Please check if the backend is running and accessible. '
@@ -153,7 +153,7 @@ class ApiService {
       final response = await http.Response.fromStream(streamedResponse);
       
       return _handleResponse(response);
-    } on TimeoutException catch (e) {
+    } on TimeoutException {
       throw ApiException(
         'Connection timeout: Unable to reach the server at $baseUrl. '
         'Please check if the backend is running and accessible. '

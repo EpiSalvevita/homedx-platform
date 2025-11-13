@@ -220,10 +220,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       title: 'Tests',
                       color: Colors.blue,
                       onTap: () {
-                        // TODO: Navigate to tests
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Tests feature coming soon')),
-                        );
+                        context.go('/tests');
+                      },
+                    ),
+                    _buildActionCard(
+                      context,
+                      icon: Icons.bluetooth,
+                      title: 'Bluetooth',
+                      color: Colors.indigo,
+                      onTap: () {
+                        context.go('/bluetooth');
                       },
                     ),
                     _buildActionCard(
@@ -249,18 +255,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           MaterialPageRoute(
                             builder: (context) => const ProfileScreen(),
                           ),
-                        );
-                      },
-                    ),
-                    _buildActionCard(
-                      context,
-                      icon: Icons.settings,
-                      title: 'Settings',
-                      color: Colors.purple,
-                      onTap: () {
-                        // TODO: Navigate to settings
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Settings feature coming soon')),
                         );
                       },
                     ),

@@ -2,6 +2,9 @@ import 'package:go_router/go_router.dart';
 import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
+import '../screens/bluetooth_connection_screen.dart';
+import '../screens/bluetooth_scan_screen.dart';
+import '../screens/test_selection_screen.dart';
 import '../providers/auth_provider.dart';
 
 class AppRouter {
@@ -40,6 +43,21 @@ class AppRouter {
           path: '/signup',
           name: 'signup',
           builder: (context, state) => const SignupScreen(),
+        ),
+        GoRoute(
+          path: '/bluetooth',
+          name: 'bluetooth',
+          builder: (context, state) => const BluetoothConnectionScreen(),
+        ),
+        GoRoute(
+          path: '/bluetooth/scan',
+          name: 'bluetooth-scan',
+          builder: (context, state) => const BluetoothScanScreen(),
+        ),
+        GoRoute(
+          path: '/tests',
+          name: 'tests',
+          builder: (context, state) => const TestSelectionScreen(),
         ),
       ],
     );
