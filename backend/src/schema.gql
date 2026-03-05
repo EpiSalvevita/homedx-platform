@@ -1,0 +1,228 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthResponse {
+  access_token: String!
+  user: User!
+}
+
+input CreateLicenseInput {
+  code: String!
+  expiresAt: DateTime
+  maxUses: Int!
+  status: String!
+  userId: Int!
+}
+
+input CreatePaymentInput {
+  amount: Float!
+  currency: String!
+  paymentIntentId: String
+  paymentMethod: String!
+  rapidTestId: Int
+  transactionId: String
+  userId: Int!
+}
+
+input CreateRapidTestInput {
+  identityCard1Url: String
+  identityCard2Url: String
+  identityCardId: String
+  profilePicUrl: String
+  testDate: DateTime!
+  testDeviceUrl: String
+  userId: Int!
+}
+
+input CreateUserInput {
+  address1: String
+  address2: String
+  city: String
+  country: String
+  dateOfBirth: DateTime
+  email: String!
+  firstName: String!
+  gender: String
+  lastName: String!
+  password: String!
+  phone: String
+  postcode: String
+  profileImageUrl: String
+  title: String
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type License {
+  code: String!
+  createdAt: DateTime!
+  expiresAt: DateTime
+  id: ID!
+  maxUses: Float!
+  rapidTests: [RapidTest!]
+  status: String!
+  updatedAt: DateTime!
+  user: User!
+  userId: Float!
+  usesCount: Float!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  createLicense(input: CreateLicenseInput!): License!
+  createPayment(input: CreatePaymentInput!): Payment!
+  createRapidTest(input: CreateRapidTestInput!): RapidTest!
+  createUser(input: CreateUserInput!): User!
+  incrementLicenseUses(id: Int!): License!
+  login(input: LoginInput!): AuthResponse!
+  removeLicense(id: Int!): License!
+  removePayment(id: Int!): Payment!
+  removeRapidTest(id: Int!): RapidTest!
+  removeUser(id: Int!): User!
+  signup(input: SignupInput!): AuthResponse!
+  updateLicense(id: Int!, input: UpdateLicenseInput!): License!
+  updatePayment(id: Int!, input: UpdatePaymentInput!): Payment!
+  updatePaymentStatus(id: Int!, status: String!): Payment!
+  updateRapidTest(id: Int!, input: UpdateRapidTestInput!): RapidTest!
+  updateUser(id: Int!, input: UpdateUserInput!): User!
+}
+
+type Payment {
+  amount: Float!
+  createdAt: DateTime!
+  currency: String!
+  id: ID!
+  paymentIntentId: String
+  paymentMethod: String!
+  rapidTest: RapidTest
+  status: String!
+  transactionId: String
+  updatedAt: DateTime!
+  user: User!
+  userId: Float!
+}
+
+type Query {
+  license(id: Int!): License
+  licenses: [License!]!
+  payment(id: Int!): Payment
+  payments: [Payment!]!
+  rapidTest(id: Int!): RapidTest
+  rapidTests: [RapidTest!]!
+  user(id: Int!): User
+  userByEmail(email: String!): User
+  userLicenses(userId: Int!): [License!]!
+  userPayments(userId: Int!): [Payment!]!
+  userRapidTests(userId: Int!): [RapidTest!]!
+  users: [User!]!
+}
+
+type RapidTest {
+  agreementGiven: Boolean!
+  certificateUrl: String
+  comment: String
+  createdAt: DateTime!
+  id: ID!
+  identityCard1Url: String
+  identityCard2Url: String
+  identityCardId: String
+  license: License
+  licenseId: Float
+  payment: Payment
+  paymentId: Float
+  photoUrl: String
+  profilePicUrl: String
+  qrCode: String
+  result: String
+  status: String!
+  testDate: DateTime!
+  testDeviceUrl: String
+  updatedAt: DateTime!
+  user: User!
+  userId: Float!
+  videoUrl: String
+}
+
+input SignupInput {
+  email: String!
+  firstName: String!
+  lastName: String!
+  password: String!
+}
+
+input UpdateLicenseInput {
+  expiresAt: DateTime
+  maxUses: Int
+  status: String
+  usesCount: Int
+}
+
+input UpdatePaymentInput {
+  amount: Float
+  currency: String
+  paymentIntentId: String
+  paymentMethod: String
+  status: String
+  transactionId: String
+}
+
+input UpdateRapidTestInput {
+  agreementGiven: Boolean
+  certificateUrl: String
+  comment: String
+  identityCard1Url: String
+  identityCard2Url: String
+  identityCardId: String
+  photoUrl: String
+  profilePicUrl: String
+  qrCode: String
+  result: String
+  status: String
+  testDeviceUrl: String
+  videoUrl: String
+}
+
+input UpdateUserInput {
+  address1: String
+  address2: String
+  city: String
+  country: String
+  dateOfBirth: DateTime
+  firstName: String
+  gender: String
+  lastName: String
+  phone: String
+  postcode: String
+  profileImageUrl: String
+  title: String
+}
+
+type User {
+  address1: String
+  address2: String
+  city: String
+  country: String
+  createdAt: DateTime!
+  dateOfBirth: DateTime
+  email: String!
+  firstName: String!
+  gender: String
+  id: ID!
+  lastName: String!
+  licenses: [License!]
+  payments: [Payment!]
+  phone: String
+  postcode: String
+  profileImageUrl: String
+  rapidTests: [RapidTest!]
+  title: String
+  updatedAt: DateTime!
+}

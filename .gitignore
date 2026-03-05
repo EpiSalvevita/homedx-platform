@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+
+# Build outputs
+backend/dist/
+*.tsbuildinfo
+
+# Logs
+backend/logs/
+backend.pid
+backend.log
+frontend/flutter.log
+frontend/flutter.pid
+
+# Environment
+.env
+backend/.env
+*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large binaries (use Git LFS if needed)
+*.tar.xz
+*.tar.gz
+*.zip
+
+# Flutter
+frontend/mobile/hdx_mobile/.dart_tool/
+frontend/mobile/hdx_mobile/build/
+frontend/mobile/hdx_mobile/.packages
+frontend/mobile/hdx_mobile/pubspec.lock

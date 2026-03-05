@@ -1,0 +1,3570 @@
+e
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+Table of contents
+1
+
+Introduction ..................................................................................................................................... 4
+
+2
+
+Preparational functions ................................................................................................................... 5
+
+3
+
+4
+
+5
+
+6
+
+2.1
+
+CL_PrepareInit ......................................................................................................................... 5
+
+2.2
+
+CL_PrepareClose...................................................................................................................... 5
+
+2.3
+
+CL_GetVersion ......................................................................................................................... 6
+
+2.4
+
+CL_SetMessageHandler ........................................................................................................... 6
+
+2.5
+
+CL_SetDateTimeHandler ......................................................................................................... 7
+
+2.6
+
+CL_SetLicense .......................................................................................................................... 7
+
+2.7
+
+CL_BTLEShowOnlyConnected.................................................................................................. 8
+
+Detect devices ................................................................................................................................. 9
+3.1
+
+CL_GetDeviceCount ................................................................................................................. 9
+
+3.2
+
+CL_GetDeviceInfo .................................................................................................................. 10
+
+Device communication .................................................................................................................. 11
+4.1
+
+CL_ConnectAndValidate ........................................................................................................ 11
+
+4.2
+
+CL_Disconnect ....................................................................................................................... 11
+
+4.3
+
+CL_DeviceConnected ............................................................................................................. 12
+
+4.4
+
+CL_GetState ........................................................................................................................... 12
+
+4.5
+
+CL_UpdateDateTime ............................................................................................................. 12
+
+4.6
+
+CL_SetDateTime .................................................................................................................... 13
+
+4.7
+
+CL_GetDateTime.................................................................................................................... 13
+
+4.8
+
+CL_GetDeviceEEPROMVersion .............................................................................................. 13
+
+4.9
+
+CL_GetDeviceSerial................................................................................................................ 14
+
+4.10
+
+CL_GetDeviceFirmware ......................................................................................................... 14
+
+4.11
+
+CL_SetButtonLock.................................................................................................................. 15
+
+4.12
+
+CL_FormatDeviceDB .............................................................................................................. 15
+
+Measurement functions ................................................................................................................ 16
+5.1
+
+CL_StartMeasurement .......................................................................................................... 16
+
+5.2
+
+CL_StartMeasurementFromFile ............................................................................................ 17
+
+5.3
+
+CL_ReadDeviceDB.................................................................................................................. 18
+
+5.4
+
+CL_ClearMeasurementList .................................................................................................... 18
+
+Retrieving measurement information ........................................................................................... 19
+6.1
+
+CL_GetMeasurementCount................................................................................................... 19
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+1
+
+CubeDLL Programmer’s Guide
+Version 1.02
+6.2
+
+CL_GetMeasurementName ................................................................................................... 20
+
+6.3
+
+CL_GetMeasurementID ......................................................................................................... 20
+
+6.4
+
+CL_GetMeasurementDateTime ............................................................................................. 21
+
+6.5
+
+CL_GetMeasurementLotNr ................................................................................................... 21
+
+6.6
+
+CL_GetMeasurementDistributorManufacturer .................................................................... 22
+
+6.7
+
+CL_GetMeasurementVoltage ................................................................................................ 22
+
+6.8
+
+CL_GetMeasurementTemperature ....................................................................................... 23
+
+6.9
+
+CL_GetMeasurementImage .................................................................................................. 24
+
+7
+
+Retrieving result information ........................................................................................................ 25
+7.1
+
+CL_GetResultCount ............................................................................................................... 25
+
+7.2
+
+CL_GetResultName................................................................................................................ 26
+
+7.3
+
+CL_GetResultValidity ............................................................................................................. 27
+
+7.4
+
+CL_GetResultValue ................................................................................................................ 28
+
+7.5
+
+CL_GetResultClass ................................................................................................................. 29
+
+7.6
+
+CL_GetResultUnit .................................................................................................................. 30
+
+8
+
+Retrieving line information ........................................................................................................... 31
+8.1
+
+CL_GetLineCount ................................................................................................................... 31
+
+8.2
+
+CL_GetLineMean ................................................................................................................... 32
+
+8.3
+
+CL_GetLineMin ...................................................................................................................... 32
+
+8.4
+
+CL_GetLineMax...................................................................................................................... 33
+
+8.5
+
+CL_GetLineLeftMean ............................................................................................................. 33
+
+8.6
+
+CL_GetLineRightMean ........................................................................................................... 34
+
+8.7
+
+CL_GetLineMaxPosAbs .......................................................................................................... 34
+
+8.8
+
+CL_GetLineCenterPosAbs ...................................................................................................... 35
+
+8.9
+
+CL_GetLineUsedPixel ............................................................................................................. 35
+
+8.10
+
+CL_GetLineWidth................................................................................................................... 36
+
+9
+
+Return codes.................................................................................................................................. 37
+
+10
+
+Messages ................................................................................................................................... 38
+
+10.1
+
+MessageHandler .................................................................................................................... 38
+
+10.2
+
+Message types ....................................................................................................................... 38
+
+10.3
+
+MT_INFO - Message codes .................................................................................................... 39
+
+10.4
+
+MT_ERROR - Message codes ................................................................................................. 39
+
+10.5
+
+Communication errors .......................................................................................................... 41
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+2
+
+CubeDLL Programmer’s Guide
+Version 1.02
+10.6
+
+Device errors ......................................................................................................................... 43
+
+11
+
+List of device/interface states ................................................................................................... 46
+
+12
+
+List of test configuration errors ................................................................................................. 47
+
+13
+
+Version History .......................................................................................................................... 48
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+3
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+1 Introduction
+The CubeDLL (dynamic link library) provides an interface for communications with a Chembio
+Diagnostics GmbH Cube/MicroReader I device. This document describes the available functions and
+their usage as well as some general information.
+
+The proper usage of this interface requires the installation of an FTDI driver, which should be
+supplied with the DLL file. For the latest driver version, please visit https://ftdichip.com/drivers/.
+
+Code samples and function descriptions given in this document will be for Object Pascal and/or
+C/C++. The calling convention used for all functions is stdcall.
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+4
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+2 Preparational functions
+This chapter describes functions used to set up the interface for proper functionality.
+
+2.1 CL_PrepareInit
+Description
+
+Definition
+
+Object
+Pascal
+C/C++
+Name
+Type
+
+Parameter 1
+Description
+
+Return
+
+Call first after loading library. Allocates memory for needed variables
+and initializes interface.
+Not calling this function will lead to all other functions not working
+respectively returning FR_NOT_INITIALIZED.
+function CL_PrepareInit(AllowBluetooth: UInt8): UInt32; stdcall;
+unsigned int __stdcall CL_PrepareInit(unsigned char AllowBluetooth);
+AllowBluetooth
+8bit unsigned int
+Set to a value unequal 0 to allow usage of Bluetooth and BluetoothLE
+for device connection.
+Set to 0 if your devices do not support bluetooth connectivity or you
+are using cable connections exclusively.
+Will return 0 on success, for other values see list of function return
+codes.
+
+2.2 CL_PrepareClose
+Description
+
+Definition
+
+Object
+Pascal
+C/C++
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+Always call before unloading library, frees all memory allocated by the
+interface.
+Not calling this function before unloading the library will lead to
+memory leaks.
+procedure CL_PrepareClose(); stdcall;
+void __stdcall CL_PrepareClose();
+
+5
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+2.3 CL_GetVersion
+Object
+Pascal
+
+Can be used to get version information about the interface.
+function CL_GetVersion(VersionMain: PUInt32; VersionSub: PUInt32;
+VersionRev: PUInt32): UInt32; stdcall;
+
+C/C++
+
+unsigned int __stdcall CL_GetVersion(unsigned int* VersionMain,
+unsigned int* VersionSub, unsigned int* VersionRev);
+
+Description
+Definition
+
+Parameter 1
+
+Name
+Type
+Description
+
+Parameter 2
+
+Name
+Type
+Description
+
+Parameter 3
+
+Name
+Type
+Description
+
+Return
+
+VersionMain
+(Pointer) 32bit unsigned int
+Location to store the main version of the DLL. If not assigned, function
+will return FR_INVALID_POINTER.
+VersionSub
+(Pointer) 32bit unsigned int
+Location to store the sub version of the DLL. If not assigned, function
+will return FR_INVALID_POINTER.
+VersionRev
+(Pointer) 32bit unsigned int
+Location to store the version revision of the DLL. If not assigned,
+function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+2.4 CL_SetMessageHandler
+Set a callback procedure for handling received messages (information,
+errors, progress, etc.). See Messages for further information.
+
+Description
+Definition
+
+Parameter 1
+
+Object
+Pascal
+C/C++
+Name
+
+procedure CL_SetMessageHandler(Handler: TMessageHandler);
+stdcall;
+void __stdcall CL_SetMessageHandler(Handler: tMessageHandler);
+Handler
+procedure TMessageHandler (MessageType: UInt32; MessageCode:
+UInt32; Data: UInt32); stdcall;
+
+Type
+
+Description
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+void __stdcall TMessageHandler (unsigned int messageType; unsigned
+int messageCode; unsigned int data);
+Callback-procedure to handle all kinds of messages from the interface
+(progress, errors, information). See MessageHandler.
+
+6
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+2.5 CL_SetDateTimeHandler
+Description
+
+Definition
+
+Object
+Pascal
+C/C++
+Name
+
+Set a Callback procedure for handling received date/time values
+(which will be sent after calling CL_UpdateDateTime, CL_SetDateTime
+and CL_GetDateTime).
+procedure CL_SetDateTimeHandler(Handler: TDateTimeHandler);
+stdcall;
+void __stdcall CL_SetDateTimeHandler(Handler: tDateTimeHandler);
+Handler
+procedure (DateTime: Double); stdcall;
+
+Parameter 1 Type
+Description
+
+void __stdcall (double dateTime);
+Callback procedure to handle date/time messages from the interface.
+
+2.6 CL_SetLicense
+Assign a license file to the interface. Needs to be called before a
+connection can be established.
+Description
+
+Definition
+
+Parameter 1
+
+Object
+Pascal
+
+Without a valid license, the interface will not be able to establish a
+connection to a device. If no license was provided with the DLL or
+device, please contact Chembio Diagnostics GmbH.
+function CL_SetLicense(LicenseFileName: PAnsiChar; StrLength:
+UInt32): UInt32; stdcall;
+
+C/C++
+
+unsigned int __stdcall CL_SetLicense(char* LicenseFileName, unsigned
+int StrLength);
+
+Name
+Type
+Description
+
+Name
+Parameter 2 Type
+Description
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+LicenseFileName
+(Pointer) array of char
+Location of the full (absolute) filepath- and name. If not assigned,
+function will return FR_INVALID_POINTER.
+StrLength
+32bit unsigned int
+Length of parameter 1.
+Will return 0 on success, for other values see list of function return
+codes.
+
+7
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+2.7 CL_BTLEShowOnlyConnected
+
+Object
+Pascal
+
+Set up the BluetoothLE device detection to either detect all paired
+devices, or only those which have an active connection to the PC. Per
+default, the interface will detect all paired devices.
+function ML_BTLEShowOnlyConnected(ShowOnlyConnected: UInt8):
+UInt32; stdcall;
+
+C/C++
+
+unsigned int __stdcall ML_BTLEShowOnlyConnected (char
+ShowOnlyConnected);
+
+Description
+
+Definition
+
+Name
+Type
+Parameter 1
+Description
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+ShowOnlyConnected
+8bit unsigned int
+If set to 0, the device detection will detect all paired BluetoothLE
+devices, even if they are currently not connected. For any other value,
+only connected devices will be detected.
+Will return 0 on success, for other values see list of function return
+codes.
+
+8
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+3 Detect devices
+The interface can connect to devices through either DirectFTDI (special USB-cable with FTDI
+driver), classic Bluetooth (requires support by both the device and the PC) or BluetoothLE
+(requires support by the device and the PC as well as the 64bit version of the DLL).
+Please be aware that for a device to be connectable via bluetooth, it must be paired first.
+Bluetooth is only supported for Windows 10, functionality on other versions of windows can not
+be guaranteed.
+The interface will always search devices in all available channels at the same time (USB cable,
+classic Bluetooth and BluetoothLE), switching between different modi is not needed.
+
+3.1 CL_GetDeviceCount
+Description
+
+Definition
+
+Object
+Pascal
+C/C++
+
+Parameter 1
+
+Name
+Type
+Description
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+Get the number of available devices. The interface will detect devices
+through all available connection methods (cable, classic Bluetooth and
+Bluetooth LE).
+function CL_GetDeviceCount(Count: PUint32): UInt32; stdcall;
+unsigned int __stdcall CL_GetDeviceCount(unsigned int* Count);
+Count
+(Pointer) 32bit unsigned int
+Location to store the number of available devices. If not assigned,
+function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+9
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+3.2 CL_GetDeviceInfo
+
+Object
+Pascal
+
+Get info for the device on the specified index.
+Please be aware that, since Cube/MRI devices are connected through
+a special cable, this function will only return the description and serial
+of the cable, not of the device (FTDI devices only).
+For Bluetooth devices, the description parameter will contain the
+name of the device (as advertised through Bluetooth), while the serial
+will be left empty.
+function CL_GetDeviceInfo(Index: UInt32; Description: PAnsiChar;
+Serial: PAnsiChar): UInt32; stdcall;
+
+C/C++
+
+unsigned int __stdcall CL_GetDeviceInfo(unsigned int Index, char*
+Description, char* Serial);
+
+Description
+
+Definition
+
+Name
+Parameter 1 Type
+Description
+Name
+Type
+Parameter 2
+Description
+Name
+Type
+Parameter 3
+Description
+Name
+Type
+Parameter 3
+Description
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+Index
+32bit unsigned int
+The index of the required device.
+Description
+(Pointer) array of char with fixed length 64
+Location to store the description/name of the device (leftover array
+indices will be set to 0). If not assigned, function will return
+FR_INVALID_POINTER.
+Serial
+(Pointer) array of char with fixed length 64
+Location to store the serial number of the device (leftover array
+indices will be set to 0). If not assigned, function will return
+FR_INVALID_POINTER.
+ConnectionType
+(Pointer) 8bit unsigned int
+Location to store the connection type of the device.
+Connection type can be:
+0 – FTDI (cable)
+1 – Bluetooth LE
+2 – Classic Bluetooth
+If not assigned, function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+10
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+4 Device communication
+This chapter describes functions used to connect/disconnect a device as well as functions concerning
+the general device behaviour and setup.
+
+4.1 CL_ConnectAndValidate
+Description
+
+Object
+Pascal
+Definition
+C/C++
+Name
+Parameter 1 Type
+Description
+Return
+
+Initiate a connection to the device with the given index. The progress
+of establishing the connection will be reported through Messages. The
+message IM_CONNECTION_ESTABLISHED will signal the successfully
+established connection. Call CL_SetLicense before to set a valid license
+for the device you want to connect to.
+function CL_ConnectAndValidate(Index: UInt32): UInt32; stdcall;
+unsigned int __stdcall CL_ConnectAndValidate(unsigned int Index);
+Index
+32bit unsigned int
+The index of the required device.
+Will return 0 on success, for other values see list of function return
+codes.
+
+4.2 CL_Disconnect
+Description
+
+Definition
+
+Object
+Pascal
+C/C++
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+Close a currently opened connection. Will have no effect if no
+connection is open. The message IM_DEVICE_DISCONNECTED will
+signal the finished disconnect.
+function CL_Disconnect(): UInt32; stdcall;
+unsigned int __stdcall CL_Disconnect();
+Will return 0 on success, for other values see list of function return
+codes.
+
+11
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+4.3 CL_DeviceConnected
+Description
+Definition
+
+Object
+Pascal
+C/C++
+Name
+Type
+
+Parameter 1
+Description
+Return
+
+Used to check if there is an open connection from the interface.
+function CL_DeviceConnected(Connected: PUInt8): UInt32; stdcall;
+unsigned int __stdcall CL_DeviceConnected(unsigned char*
+Connected);
+Connected
+(Pointer) 8bit unsigned int
+Location to store the connection state (0 if there is no established
+connection, 1 if there is one). If not assigned, function will return
+FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+4.4 CL_GetState
+Get the current state of the interface/device.
+Description
+
+Definition
+
+Parameter 1
+
+Object
+Pascal
+C/C++
+Name
+Type
+Description
+
+Please be aware that every change or update of a state will be relayed
+by the interface per MessageHandler.
+function CL_GetState(State: PUInt32): UInt32; stdcall;
+unsigned int __stdcall CL_GetState(unsigned int* State);
+State
+(Pointer) 32bit unsigned int
+Location to store the current state of the interface/device (see list of
+states). If not assigned, function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+Return
+
+4.5 CL_UpdateDateTime
+Update date and time of a connected device to the current system
+date and time. The device will then send the set date and time back
+through the callback function set by CL_SetDateTimeHandler.
+
+Description
+
+Definition
+
+Object
+Pascal
+C/C++
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+function CL_UpdateDateTime(): UInt32; stdcall;
+unsigned int __stdcall CL_UpdateDateTime();
+Will return 0 on success, for other values see list of function return
+codes.
+
+12
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+4.6 CL_SetDateTime
+Update date and time of a connected device to the given date and
+time. The device will then send the set date and time back (see
+CL_SetDateTimeHandler).
+
+Description
+Object
+Pascal
+Definition
+C/C++
+Name
+Parameter 1 Type
+Description
+Return
+
+function CL_SetDateTime(DateTime: Double): UInt32; stdcall;
+unsigned int __stdcall CL_SetDateTime(double DateTime);
+DateTime
+64bit floating point
+The date and time value to be set to the connected device.
+Will return 0 on success, for other values see list of function return
+codes.
+
+4.7 CL_GetDateTime
+Request current date and time of the connected device. The device
+will send the date and time back (see CL_SetDateTimeHandler).
+
+Description
+Definition
+
+Object
+Pascal
+C/C++
+
+Return
+
+function CL_GetDateTime(): UInt32; stdcall;
+unsigned int __stdcall CL_GetDateTime();
+Will return 0 on success, for other values see list of function return
+codes.
+
+4.8 CL_GetDeviceEEPROMVersion
+Object
+Pascal
+
+Retrieve the EEPROM version of the currently connected device.
+function CL_GetDeviceEEPROMVersion(EEPROMVersion: PUInt8):
+UInt32; stdcall;
+
+C/C++
+
+unsigned int __stdcall CL_GetDeviceEEPROMVersion(unsigned char*
+EEPROMVersion);
+
+Description
+Definition
+
+Parameter 1
+
+Name
+Type
+Description
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+EEPROMVersion
+(Pointer) 8bit unsigned int
+Location to store the EEPROM version of the connected device. If not
+assigned, function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+13
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+4.9 CL_GetDeviceSerial
+Retrieve the serial number of the connected device as formatted
+string.
+
+Description
+
+Definition
+
+Parameter 1
+
+Object
+Pascal
+
+function CL_GetDeviceSerial(Serial: PAnsiChar; StrLength: PUint32):
+UInt32; stdcall;
+
+C/C++
+
+unsigned int __stdcall CL_GetDeviceSerial(char* Serial, unsigned int*
+StrLength);
+
+Name
+Type
+Description
+
+Parameter 2
+
+Name
+Type
+Description
+
+Return
+
+Serial
+(Pointer) array of char
+Location to store the device serial (as formatted text). Set nil/NULL to
+retrieve string length only.
+StrLength
+(Pointer) 32bit unsigned int
+Location to store the required length for parameter 1. If not assigned,
+function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+4.10 CL_GetDeviceFirmware
+Retrieve the firmware version of the connected device as formatted
+string.
+
+Description
+
+Definition
+
+Parameter 1
+
+Object
+Pascal
+
+function CL_GetDeviceFirmware(Firmware: PAnsiChar; StrLength:
+PUInt32);: Uint32; stdcall;
+
+C/C++
+
+unsigned int __stdcall CL_GetDeviceFirmware(char* Firmware,
+unsigned int* StrLength);
+
+Name
+Type
+Description
+
+Parameter 2
+
+Name
+Type
+Description
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+Firmware
+(Pointer) array of char
+Location to store the firmware version (as formatted text). Set
+nil/NULL to retrieve string length only.
+StrLength
+(Pointer) 32bit unsigned int
+Location to store the required length for parameter 1. If not assigned,
+function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+14
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+4.11 CL_SetButtonLock
+Description
+
+Definition
+
+Object
+Pascal
+C/C++
+Name
+Type
+
+Parameter 1
+Description
+
+Lock or release device control through the device button.
+Success will be reported through MessageHandler (Message
+IM_BUTTON_SET).
+function CL_SetButtonLock(LockButton: UInt8): UInt32; stdcall;
+unsigned int __stdcall CL_SetButtonLock(unsigned char LockButton);
+LockButton
+8bit unsigned int
+Set to 1 to lock the device button (device will not react to physical
+usage of the button). Any other value will release the lock and make
+the button useable.
+Will return 0 on success, for other values see list of function return
+codes.
+
+Return
+
+4.12 CL_FormatDeviceDB
+Initialize formatting of the database of the currently connected device.
+Will delete all saved measurement results on the device. Success will
+be reported through message IM_DB_FORMATTED.
+
+Description
+
+Definition
+
+Object
+Pascal
+C/C++
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+function CL_FormatDeviceDB(): UInt32; stdcall;
+unsigned int __stdcall CL_Format DeviceDB();
+Will return 0 on success, for other values see list of function return
+codes.
+
+15
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+5 Measurement functions
+All measurement results gotten from the device will be appended to a list handled by the interface.
+Functions that allow access to the entries of that list are described in chapters Retrieving
+measurement information, Retrieving result information and Retrieving line information.
+The following functions allow the manipulation of that measurement list.
+
+5.1 CL_StartMeasurement
+
+Description
+
+Definition
+
+Object
+Pascal
+C/C++
+Name
+Type
+
+Parameter 1
+Description
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+Initialize the execution of a measurement, either direct or timed. The
+test configuration will be read from an RFID tag. Progress will be
+reported through info messages (see MessageHandler). The
+measurement result will be added to the measure list handled by the
+interface, the interface will send a IM_MEASUREMENT_DONE
+message afterwards containing the index of the new measurement
+(for data retrieval).
+function CL_StartMeasurement(UseTimer: UInt8): UInt32; stdcall;
+unsigned int __stdcall CL_StartMeasurement(unsigned char
+UseTimer);
+UseTimer
+8bit unsigned int
+If set to 1, a timed measurement will be started using the incubation
+time defined in the test configuration. In any other case, the
+incubation timer will be ignored and the measurement directly
+executed.
+Will return 0 on success, for other values see list of function return
+codes.
+
+16
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+5.2 CL_StartMeasurementFromFile
+
+Object
+Pascal
+
+Initialize the execution of a measurement, either direct or timed. The
+test configuration will be read from the given file. Progress will be
+reported through info messages (see MessageHandler). The
+measurement result will be added to the measure list handled by the
+interface, which will send the message IM_MEASUREMENT_DONE
+afterwards containing the index of the new measurement (for data
+retrieval).
+function CL_StartMeasurementFromFile(UseTimer: UInt8;
+FilePathName: PAnsiChar; StrLength: UInt32): UInt32; stdcall;
+
+C/C++
+
+unsigned int __stdcall CL_StartMeasurementFromFile(unsigned char
+UseTimer, char* FilePathName, unsigned int StrLength);
+
+Description
+
+Definition
+
+Name
+Type
+Parameter 1
+Description
+
+Parameter 2
+
+Name
+Type
+Description
+
+Name
+Parameter 3 Type
+Description
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+UseTimer
+8bit unsigned int
+If set to 1, a timed measurement will be started using the incubation
+time defined in the test configuration. In any other case, the
+incubation timer will be ignored and the measurement directly
+executed.
+FilePathName
+(Pointer) array of char
+Location (absolute filepath) and name of the configuration file. If not
+assigned, function will return FR_INVALID_POINTER.
+StrLength
+32bit unsigned int
+Length of parameter 2.
+Will return 0 on success, for other values see list of function return
+codes.
+
+17
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+5.3 CL_ReadDeviceDB
+Initialize reading of the device database (get all measurement results).
+Progress will be reported through progress messages (see
+MessageHandler). All received measurement results will be written to
+a list handled by the interface, from where the actual values can be
+retrieved through corresponding functions.
+Success will be signaled by message IM_MEASURE_COUNT, which
+also contains the amount of read measurements. Use
+CL_GetMeasurementCount afterwards to get the overall number of
+available measurements from the interface.
+
+Description
+
+Definition
+
+Object
+Pascal
+C/C++
+
+Parameter 1
+
+Name
+Type
+Description
+
+Executing this function multiple times will not lead to measurements
+being present in the list more than one time. If a measurement is
+already in the list, it will be automatically skipped if read again.
+function CL_ReadDeviceDB(ClearMeasureList: UInt8): UInt32; stdcall;
+unsigned int __stdcall CL_ReadDeviceDB(unsigned char
+ClearMeasureList);
+ClearMeasureList
+8bit unsigned int
+If set to 1, the DLL-internal list of measurement results will be cleared
+before adding the newly read measurements.
+Will return 0 on success, for other values see list of function return
+codes.
+
+Return
+
+5.4 CL_ClearMeasurementList
+Description
+Definition
+
+Object
+Pascal
+C/C++
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+Clear the list of measurements handled by the interface.
+function CL_ClearMeasurementList(): UInt32; stdcall;
+unsigned int __stdcall CL_ClearMeasurementList();
+Will return 0 on success, for other values see list of function return
+codes.
+
+18
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+6 Retrieving measurement information
+Use the following functions to gain information on measurements. Using these functions requires a
+previous download of device data (through CL_ReadDeviceDB) or execution of one or more
+measurements through the interface (CL_StartMeasurement or CL_StartMeasurementFromFile).
+
+6.1 CL_GetMeasurementCount
+
+Description
+
+Definition
+
+Delphi
+C/C++
+Name
+Type
+
+Parameter 1
+Description
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+Retrieve the amount of measurements currently available to the
+interface.
+Use CL_ReadDeviceDB, CL_StartMeasurement,
+CL_StartMeasurementFromFile and CL_ClearMeasureList to
+manipulate the list.
+Calling this function gives the range of indices available for all
+functions requiring a measurement index. When addressing these
+indices, please be aware that the first valid index is always 0.
+function CL_GetMeasurementCount(Count: PUInt32): UInt32; stdCall;
+unsigned int __stdCall CL_GetMeasureCount(unsigned int* Count);
+Count
+(Pointer) 32bit unsigned int
+Location to store the amount of measurement results currently
+available to the DLL. If not assigned, function will return
+FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+19
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+6.2 CL_GetMeasurementName
+Delphi
+
+Retrieve the name of the measurement at the given index.
+function CL_GetMeasurementName(MeasureIdx: UInt32;
+MeasureName: PAnsiChar; StrLength: PUInt32): UInt32); stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetMeasurementName(unsigned int
+MeasureIdx, char* MeasureName, unsigned int* StrLength);
+
+Description
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Type
+Parameter 2
+Description
+
+Parameter 3
+
+Name
+Type
+Description
+
+Return
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+MeasureName
+(Pointer) 32bit unsigned int
+Location to store the measurement name. Set nil/NULL to retrieve
+only the required length.
+StrLength
+(Pointer) 32bit unsigned int
+Location to store the required length for parameter 2. If not assigned,
+function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+6.3 CL_GetMeasurementID
+Delphi
+
+Retrieve the ID of the measurement at the given index.
+function CL_GetMeasurementID(MeasureIdx: UInt32; MeasureID:
+PAnsiChar; StrLength: PUInt32): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetMeasurementID(unsigned int
+MeasureIdx, char* MeasureID, unsigned int* StrLength);
+
+Description
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Type
+Parameter 2
+Description
+
+Parameter 3
+
+Name
+Type
+Description
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+MeasureID
+(Pointer) array of char
+Location to store the measurement ID (as formatted text). Set
+nil/NULL to retrieve only the required length.
+StrLength
+(Pointer) 32bit unsigned int
+Location to store the required length for parameter 2. If not assigned,
+function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+20
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+6.4 CL_GetMeasurementDateTime
+Delphi
+
+Retrieve the date and time of the measurement at the given index.
+function CL_GetMeasurementDateTime(MeasureIdx: UInt32;
+DateTime: PDouble): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetMeasurementDateTime(unsigned int
+MeasureIdx, double* DateTime);
+
+Description
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Type
+Parameter 2
+Description
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+DateTime
+(Pointer) 64bit floating point
+Location to store the date and time of the measurement execution on
+return. If not assigned, function will return FR_INVALID_POINTER.
+
+Return
+
+Will return 0 on success, for other values see list of function return
+codes.
+
+6.5 CL_GetMeasurementLotNr
+Delphi
+
+Retrieve the Lot-number of the measurement at the given index.
+function CL_GetMeasurementLotNr(MeasureIdx: UInt32; LotNr:
+PAnsiChar; StrLength: PUInt32): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetMeasurementLotNr(unsigned int
+MeasureIdx, char* LotNr, unsigned int* StrLength);
+
+Description
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Type
+Parameter 2
+Description
+
+Parameter 3
+
+Name
+Type
+Description
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+LotNr
+(Pointer) array of char
+Location to store the Lot-number of the measurement. Set nil/NULL to
+retrieve only the required length.
+StrLength
+(Pointer) 32bit unsigned int
+Location to store the required length for parameter 2. If not assigned,
+function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+21
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+6.6 CL_GetMeasurementDistributorManufacturer
+Retrieve the distributor/manufacturer information of the
+measurement at the given index.
+
+Description
+Delphi
+Definition
+C/C++
+Name
+Parameter 1 Type
+Description
+Name
+Type
+Parameter 2
+Description
+
+Parameter 3
+
+Name
+Type
+Description
+
+Return
+
+function CL_GetMeasurementDistributorManufacturer(MeasureIdx:
+UInt32; DistrManu: PAnsiChar; StrLength: PUInt32): UInt32; stdCall;
+unsigned int __stdCall
+CL_GetMeasurementDistributorManufacturer(unsigned int
+MeasureIdx, char* DistrManu, unsigned int* StrLength);
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+DistrManu
+(Pointer) array of char
+Location to store the distributor/manufacturer of the measurement.
+Set nil/NULL to retrieve only the required length.
+StrLength
+(Pointer) 32bit unsigned int
+Location to store the required length for parameter 2. If not assigned,
+function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+6.7 CL_GetMeasurementVoltage
+Delphi
+
+Retrieve the voltage of the device during the measurement.
+function CL_GetMeasurementVoltage(MeasureIdx: UInt32; Voltage:
+PUInt16): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetMeasurementVoltage(unsigned int
+MeasureIdx, unsigned short* Voltage);
+
+Description
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Type
+Parameter 2
+Description
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+Voltage
+(Pointer) 16bit unsigned int
+Location to store the voltage (in millivolt) of the measurement. If not
+assigned, function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+22
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+6.8 CL_GetMeasurementTemperature
+Retrieve the temperature of the device during the measurement.
+
+Description
+Delphi
+
+function CL_GetMeasurementTemperature(MeasureIdx: UInt32;
+Temperature: PSingle): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetMeasurementTemperature(unsigned int
+MeasureIdx, float* Temperature);
+
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Type
+Parameter 2
+Description
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+Temperature
+(Pointer) 32bit floating point
+Location to store the temperature (in °C). If not assigned, function will
+return FR_INVALID_POINTER.
+
+Return
+
+Will return 0 on success, for other values see list of function return
+codes.
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+23
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+6.9 CL_GetMeasurementImage
+Retrieve the pixel values for the measurement image.
+
+Delphi
+
+Not all devices are configured to save the measurement image. In
+those cases, the parameter ImageWidth will contain 0 as value for
+measurement result gotten through CL_ReadDeviceDB.
+Measurements executed directly through the interface will always
+contain image information (CL_StartMeasurement and
+CL_StartMeasurementFromFile).
+function CL_GetMeasurementImage(MeasureIdx: UInt32;
+ImageValues: PInt32; ImageWidth: PUInt16): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetMeasurementImage(unsigned int
+MeasureIdx, signed int* ImageValues, unsigned short* ImageWidth);
+
+Description
+
+Definition
+
+Name
+Parameter 1 Type
+Description
+Name
+Type
+Parameter 2
+Description
+Name
+Type
+Parameter 3
+Description
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+ImageValues
+(Pointer) array of 32bit unsigned int
+Location to store the actual image values. Set nil/NULL to retrieve only
+the required length of the array (width of the image).
+ImageWidth
+(Pointer) 16bit unsigned int
+Location to store the width of the image (and therefore required
+length of parameter 1). If not assigned, function will return
+FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+24
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+7 Retrieving result information
+Retrieve information about the results in a measurement. For prerequisites, see chapter Retrieving
+measurement information.
+
+7.1 CL_GetResultCount
+
+Delphi
+
+Retrieve the number of available results for the given measurement.
+Calling this function gives the range of indices available for all
+functions requiring a result index (for this measurement). When
+addressing these indices, please be aware that the first valid index is
+always 0.
+function CL_GetResultCount(MeasureIdx: UInt32; ResultCount:
+PUInt8): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetResultCount(unsigned int MeasureIdx,
+unsigned char* ResultCount);
+
+Description
+
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Type
+Parameter 2
+Description
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+ResultCount
+(Pointer) 8bit unsigned int
+Location to store the amount of available results for the specified
+measurement. If not assigned, function will return
+FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+25
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+7.2 CL_GetResultName
+Delphi
+
+Retrieve the name of the specified result.
+function CL_GetResultName(MeasureIdx: UInt32; ResultIdx: UInt8;
+ResultName: PAnsiChar; StrLength: PUInt32): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetResultName(unsigned int MeasureIdx,
+unsigned char ResultIdx, char* ResultName, unsigned int* StrLength);
+
+Description
+
+Definition
+
+Name
+Parameter 1 Type
+Description
+Name
+Parameter 2 Type
+Description
+Name
+Type
+Parameter 3
+Description
+
+Parameter 4
+
+Name
+Type
+Description
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+ResultIdx
+8bit unsigned int
+Index of the result (in the measurement).
+ResultName
+(Pointer) array of char
+Location to store the name of the requested result. Set nil/NULL to
+retrieve only the required array length.
+StrLength
+(Pointer) 32bit unsigned int
+Will hold the required length for parameter 3. If not assigned, function
+will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+26
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+7.3 CL_GetResultValidity
+Delphi
+
+Retrieve the validity of the specified result.
+function CL_GetResultValidityMeasureIdx: UInt32; ResultIdx: UInt8;
+Validity: PUInt8): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetResultValidity(unsigned int MeasureIdx,
+unsigned char ResultIdx; unsigned char* Validity);
+
+Description
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Parameter 2 Type
+Description
+Name
+Type
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+ResultIdx
+8bit unsigned int
+Index of the result (in the measurement).
+Validity
+(Pointer) 8bit unsigned int
+Location to store the validity of the result. If not assigned, function will
+return FR_INVALID_POINTER.
+
+Parameter 3
+
+Possible values:
+0 - Result is valid
+1 - Result is NaN (Not a Number)
+2 - Result is infinite (either - or +)
+3 - Result is invalid
+4 - Device is expired
+Will return 0 on success, for other values see list of function return
+codes.
+
+Description
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+27
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+7.4 CL_GetResultValue
+Description
+Delphi
+Definition
+C/C++
+Name
+Parameter 1 Type
+Description
+Name
+Parameter 2 Type
+Description
+Name
+Type
+Parameter 3
+Description
+
+Parameter 4
+
+Name
+Type
+Description
+Name
+Type
+
+Parameter 5
+Description
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+Retrieve the value (as string) for the specified result.
+function CL_GetResultValue(MeasureIdx: UInt32; ResultIdx: UInt8;
+ResultValue: PAnsiChar; StrLength: PUint32; ResultValid: PUInt8);
+stdCall;
+unsigned int __stdCall CL_GetResultValue(unsigned int MeasureIdx,
+unsigned char ResultIdx, char* ResultValue, unsigned int* StrLength,
+unsigned char* ResultValid);
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+ResultIdx
+8bit unsigned int
+Index of the result (in the measurement).
+ResultValue
+(Pointer) array of char
+Location to store the value (as text) of the requested result. Set
+nil/NULL to only retrieve the required array length.
+If the value is an actual floating-point number, a "." will be used as
+decimal separator.
+StrLength
+(Pointer) 32bit unsigned int
+Location to store the required length for parameter 3. If not assigned,
+function will return FR_INVALID_POINTER.
+ResultValid
+(Pointer) 8bit unsigned int
+Location to store the validity of the result. If not assigned, function will
+return FR_INVALID_POINTER.
+Possible values:
+0 - Result is valid
+1 - Result is NaN (Not a Number)
+2 - Result is infinite (either positive or negative)
+3 - Result is invalid
+4 - Device is expired
+Will return 0 on success, for other values see list of function return
+codes.
+
+28
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+7.5 CL_GetResultClass
+Delphi
+
+Retrieve the class of the specified result.
+function CL_GetResultClass(MeasureIdx: UInt32; ResultIdx: UInt8;
+ResultClass: PAnsiChar; StrLength: PUInt32): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetResultClass(unsigned int MeasureIdx,
+unsigned char ResultIdx, char* ResultClass, unsigned int* StrLength);
+
+Description
+
+Definition
+
+Name
+Parameter 1 Type
+Description
+Name
+Parameter 2 Type
+Description
+Name
+Type
+Parameter 3
+Description
+
+Parameter 4
+
+Name
+Type
+Description
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+ResultIdx
+8bit unsigned int
+Index of the result (in the measurement).
+ResultClass
+(Pointer) array of char
+Location to store the class of the requested result. Set nil/NULL to
+retrieve the required array length.
+StrLength
+(Pointer) 32bit unsigned int
+Location to store the required length for parameter 3. If not assigned,
+function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+29
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+7.6 CL_GetResultUnit
+Delphi
+
+Retrieve the unit of the specified result.
+function CL_GetResultUnit(MeasureIdx: UInt32; ResultIdx: UInt8;
+ResultUnit: PAnsiChar; StrLength: PUInt32): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetResultUnit(unsigned int MeasureIdx,
+unsigned char ResultIdx, char* ResultUnit, unsigned int* StrLength);
+
+Description
+
+Definition
+
+Name
+Parameter 1 Type
+Description
+Name
+Parameter 2 Type
+Description
+Name
+Type
+Parameter 3
+Description
+
+Parameter 4
+
+Name
+Type
+Description
+
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+ResultIdx
+8bit unsigned int
+Index of the result (in the measurement).
+ResultUnit
+(Pointer) array of char
+Location to store the unit of the requested result. Set nil/NULL to
+retrieve the required array length.
+StrLength
+(Pointer) 32bit unsigned int
+Location to store the required length for parameter 3. If not assigned,
+function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+30
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+8 Retrieving line information
+Retrieve information about the test lines in a measurement. For prerequisites, see chapter Retrieving
+measurement information.
+Please be aware that not every device is saving the line information. Therefore, measurement results
+gotten through CL_ReadDeviceDB will not necessarily contain line information.
+Measurements executed directly through the interface (CL_StartMeasurement and
+CL_StartMeasurementFromFile) will always contain line information.
+
+8.1 CL_GetLineCount
+
+Delphi
+
+Retrieve the number of available lines for the specified measurement.
+Calling this function gives the range of indices available for all
+functions requiring a line index (for this measurement). When
+addressing these indices, please be aware that the first valid index is
+always 0.
+function CL_GetLineCount(MeasureIdx: UInt32; LineCount: PUInt8):
+UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetLineCount(unsigned int MeasureIdx,
+unsigned char* LineCount);
+
+Description
+
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Type
+Parameter 2
+Description
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+LineCount
+(Pointer) 8bit unsigned int
+Location to store the number of available lines for the measurement.
+If not assigned, function will return FR_INVALID_POINTER.
+
+Return
+
+Will return 0 on success, for other values see list of function return
+codes.
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+31
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+8.2 CL_GetLineMean
+Delphi
+
+Retrieve the mean value for the specified line.
+function CL_GetLineMean(MeasureIdx: UInt32; LineIdx: UInt8;
+LineMean: PSingle): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetLineMean(unsigned int MeasureIdx,
+unsigned char LineIdx, float* LineMean);
+
+Description
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Parameter 2 Type
+Description
+Name
+Type
+Parameter 3
+Description
+Return
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+LineIdx
+8bit unsigned int
+Index of the line (in the measurement).
+LineMean
+(Pointer) 32bit floating point
+Location to store the mean value for the specified line. If not assigned,
+function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+8.3 CL_GetLineMin
+Delphi
+
+Retrieve the minimum value for the specified line.
+function CL_GetLineMin(MeasureIdx: UInt32; LineIdx: UInt8; LineMin:
+PSingle): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetLineMin(unsigned int MeasureIdx,
+unsigned char LineIdx, float* LineMin);
+
+Description
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Parameter 2 Type
+Description
+Name
+Type
+Parameter 3
+Description
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+LineIdx
+8bit unsigned int
+Index of the line (in the measurement).
+LineMin
+(Pointer) 32bit floating point
+Location to store the minimum value for the specified line. If not
+assigned, function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+32
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+8.4 CL_GetLineMax
+Delphi
+
+Retrieve the maximum value for the specified line.
+function CL_GetLineMax(MeasureIdx: UInt32; LineIdx: UInt8; LineMax:
+PSingle): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetLineMax(unsigned int MeasureIdx,
+unsigned char LineIdx, float* LineMax);
+
+Description
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Parameter 2 Type
+Description
+Name
+Type
+Parameter 3
+Description
+Return
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+LineIdx
+8bit unsigned int
+Index of the line (in the measurement).
+LineMax
+(Pointer) 32bit floating point
+Location to store the maximum value for the specified line. If not
+assigned, function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+8.5 CL_GetLineLeftMean
+Delphi
+
+Retrieve the mean value of the left half for the specified line.
+function CL_GetLineLeftMean(MeasureIdx: UInt32; LineIdx: UInt8;
+LineLeftMean: PSingle): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetLineLeftMean(unsigned int MeasureIdx,
+unsigned char LineIdx, float* LineLeftMean);
+
+Description
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Parameter 2 Type
+Description
+Name
+Type
+Parameter 3
+Description
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+LineIdx
+8bit unsigned int
+Index of the line (in the measurement).
+LineLeftMean
+(Pointer) 32bit floating point
+Location to store the mean value of the left half for the specified line.
+If not assigned, function will return FR_INVALID_POINTER.
+
+Return
+
+Will return 0 on success, for other values see list of function return
+codes.
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+33
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+8.6 CL_GetLineRightMean
+Delphi
+
+Retrieve the mean value of the right half for the specified line.
+function CL_GetLineRightMean(MeasureIdx: UInt32; LineIdx: UInt8;
+LineRightMean: PSingle): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetLineRightMean(unsigned int MeasureIdx,
+unsigned char LineIdx, float* LineRightMean);
+
+Description
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Parameter 2 Type
+Description
+Name
+Type
+Parameter 3
+Description
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+LineIdx
+8bit unsigned int
+Index of the line (in the measurement).
+LineRightMean
+(Pointer) 32bit floating point
+Location to store the mean value of the right half for the specified line.
+If not assigned, function will return FR_INVALID_POINTER.
+
+Return
+
+Will return 0 on success, for other values see list of function return
+codes.
+
+8.7 CL_GetLineMaxPosAbs
+Retrieve the absolute position of the maximum value for the specified
+line.
+
+Description
+Delphi
+
+function CL_GetLineMaxPosAbs(MeasureIdx: UInt32; LineIdx: UInt8;
+MaxPosAbs: PUInt8): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetLineMaxPosAbs(unsigned int
+MeasureIdx, unsigned char LineIdx, unsigned char* MaxPosAbs);
+
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Parameter 2 Type
+Description
+Name
+Type
+Parameter 3
+Description
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+LineIdx
+8bit unsigned int
+Index of the line (in the measurement).
+MaxPosAbs
+(Pointer) 8bit unsigned int
+Location to store the position of the maximum value for the specified
+line. If not assigned, function will return FR_INVALID_POINTER.
+
+Return
+
+Will return 0 on success, for other values see list of function return
+codes.
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+34
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+8.8 CL_GetLineCenterPosAbs
+Delphi
+
+Retrieve the absolute position of the center (middle) of the line.
+function CL_GetLineCenterPosAbs(MeasureIdx: UInt32; LineIdx: UInt8;
+CenterPosAbs: PUInt8): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetCenterPosAbs(unsigned int MeasureIdx,
+unsigned char LineIdx, unsigned char* CenterPosAbs);
+
+Description
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Parameter 2 Type
+Description
+Name
+Type
+Parameter 3
+Description
+Return
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+LineIdx
+8bit unsigned int
+Index of the line (in the measurement).
+CenterPosAbs
+(Pointer) 8bit unsigned int
+Location to store the center position of the specified line. If not
+assigned, function will return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+8.9 CL_GetLineUsedPixel
+Retrieve the number of pixels in the line that contributed to the
+evaluation.
+
+Description
+Delphi
+
+function CL_GetLineUsedPixel(MeasureIdx: UInt32; LineIdx: UInt8;
+LineUsedPixel: PUInt8): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetLineUsedPixel(unsigned int MeasureIdx,
+unsigned char LineIdx, unsigned char* LineUsedPixel);
+
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Parameter 2 Type
+Description
+Name
+Type
+Parameter 3
+Description
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+LineIdx
+8bit unsigned int
+Index of the line (in the measurement).
+LineUsedPixel
+(Pointer) 8bit unsigned int
+Location to store the number of pixels in the line that contributed to
+the line. If not assigned, function will return FR_INVALID_POINTER.
+
+Return
+
+Will return 0 on success, for other values see list of function return
+codes.
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+35
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+8.10 CL_GetLineWidth
+Delphi
+
+Retrieve the line width.
+function CL_GetLineWidth(MeasureIdx: UInt32; LineIdx: UInt8;
+LineWidth: PUInt8): UInt32; stdCall;
+
+C/C++
+
+unsigned int __stdCall CL_GetLineWidth(unsigned int MeasureIdx,
+unsigned char LineIdx, unsigned char* LineWidth);
+
+Description
+Definition
+Name
+Parameter 1 Type
+Description
+Name
+Parameter 2 Type
+Description
+Name
+Type
+Parameter 3
+Description
+Return
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+MeasureIdx
+32bit unsigned int
+Index of the measurement.
+LineIdx
+8bit unsigned int
+Index of the line (in the measurement).
+LineWidth
+(Pointer) 8bit unsigned int
+Location to store the width of the line. If not assigned, function will
+return FR_INVALID_POINTER.
+Will return 0 on success, for other values see list of function return
+codes.
+
+36
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+9 Return codes
+The following table gives an overview of all codes the interface functions can return. Please be aware
+that many functions, especially those leading to direct communication with the device, only initialize
+that communication und therefore will report errors mainly through the MessageHandler.
+
+Name
+FR_OK
+
+Value
+0x00
+
+FR_NOT_INITIALIZED
+
+0x01
+
+FR_NO_VALID_INTERFACE
+
+0x02
+
+FR_INVALID_INDEX
+
+0x03
+
+FR_COULD_NOT_OPEN_PORT
+FR_FILE_NOT_FOUND
+FR_DEVICE_NOT_READY
+FR_LICENSE_INVALID
+FR_NO_LICENSE_SET
+FR_ALREADY_INITIALIZED
+
+0x04
+0x05
+0x06
+0x07
+0x08
+0x09
+
+FR_DEVICE_NOT_AVAILABLE
+
+0x0A
+
+FR_CONNECTION_ALREADY_OPEN
+
+0x0B
+
+FR_NO_DEVICE_CONNECTED
+FR_CONFIG_INVALID
+FR_INVALID_POINTER
+
+0x0D
+0x0E
+0x10
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+Description
+OK, no error(s)
+Interface has not been initialized - call prepareInitFunction.
+Device detection failed because no valid interface is
+available.
+The specified index is out of range of available
+indices.
+The port could not be opened (invalid device?).
+The specified filename & -path could not be found.
+The device/DLL is busy with another operation.
+The specified license is not valid.
+No license has been set.
+The DLL initialization has already been executed.
+The FTDI device is not available (connected to
+another software?).
+There is already an active connection, please close it
+before trying to open a new one.
+There is no device connected.
+The specified configuration is not valid.
+A required pointer is invalid (nil/NULL).
+
+37
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+10
+
+Messages
+
+10.1 MessageHandler
+To be able to receive and handle any messages, a callback procedure needs to be set through
+CL_SetMessageHandler. The callback-procedure has the following definition:
+
+Object
+Pascal
+
+Callback procedure for message handling.
+procedure (MessageType: UInt32; MessageCode: UInt32; Data:
+UInt32); stdcall;
+
+C/C++
+
+void __stdcall (unsigned int messageType; unsigned int messageCode;
+unsigned int data);
+
+Description
+Definition
+
+Name
+Parameter 1 Type
+Description
+Name
+Parameter 2 Type
+Description
+Name
+Type
+Parameter 3
+Description
+
+MessageType
+32bit unsigned int
+See Table MessageType.
+MessageCode
+32bit unsigned int
+Interpretation depending on parameter MessageType.
+Data
+32bit unsigned int
+Interpretation depending on parameters MessageType and
+MessageCode.
+
+10.2 Message types
+The following table describes the possible values of the parameter MessageType:
+Message type
+
+Value Message code
+
+Description
+Info message
+Error message
+
+MT_INFO
+
+0x00
+
+See list of
+InfoMessages
+
+MT_ERROR
+
+0x01
+
+See list of
+ErrorMessages
+
+0x02
+
+Message code will
+contain the current
+progress (as
+absolute number),
+while Data
+represents the
+maximum progress
+value.
+
+MT_PROGRESS
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+Progress update (e.g., when
+reading device database).
+Should Data (maximum
+progress) have the value 0, this
+message is to be interpreted as
+a busy signal from the interface.
+
+38
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+10.3 MT_INFO - Message codes
+The following table describes the potential values fort he parameter MessageCode in case of
+MessageType being MT_INFO:
+InfoMessage
+(MessageType = mtInfo)
+
+IM_PLACE_WHITE
+
+Code Data
+
+Description
+
+0x00
+
+Put the white cassette
+(undeveloped test) in the
+device.
+
+IM_PLACE_TEST
+
+0x01
+
+IM_TIMER_RUNNING
+
+Seconds left until
+the execution of
+0x02 the measurement
+
+IM_EVALUATION_RUNNING
+
+0x03
+
+IM_MEASUREMENT_DONE
+
+Index of new
+measurement in
+measure list of the
+0x04 DLL
+
+IM_DEVICE_BUSY
+IM_CONNECTION_ESTABLISHED
+IM_DEVICE_DISCONNECTED
+
+0x05
+0x06
+0x07
+
+IM_STATE_SET
+
+0x08
+
+IM_MEASURE_COUNT
+
+0x09
+
+Put the test cassette (developed
+test) in the device.
+Measurement timer is running
+(will be sent approximately once
+per second as long as the timer
+of a measurement is running).
+Measurement evaluation is
+running (will be sent once the
+actual measurement starts).
+
+Will be sent whenever a
+measurement has been
+executed successfully.
+Device is busy. This message is
+The estimated busy also fired if a measurement has
+time
+been started.
+A device has been connected.
+A device has been disconnected.
+Device/Interface changed state.
+The current state
+See list of states.
+The amount of
+measurements
+read from the
+device
+The database has been read.
+
+IM_BUTTON_SET
+
+0x0A
+
+The device button has been
+enabled/disabled.
+
+IM_DB_FORMATTED
+
+0x0C
+
+Database successfully
+formatted.
+
+10.4 MT_ERROR - Message codes
+The following table describes the potential values for the parameter MessageCode in case of
+MessageType being MT_ERROR:
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+39
+
+CubeDLL Programmer’s Guide
+Version 1.02
+ErrorMessage
+(MessageType = mtError)
+
+Code Data
+
+EM_COMMAND_NOT_SUPPORTED 0x00
+
+Description
+The sent command is not
+supported by the device.
+
+EM_DEVICE_ERROR
+
+See list of device
+0x01 errors
+
+A device error occurred (see list
+of device errors).
+
+EM_COMMUNICATION_ERROR
+
+See list of
+communication
+0x02 errors
+
+A communication error occured
+(see list of communication
+errors).
+
+EM_DATE_TIME_INVALID
+
+0x03
+
+The date/time value received
+from the device is invalid.
+
+EM_TIME_OUT
+
+0 - device has been
+successfully
+reacknowledged
+after timeout
+1 - device has been Time out on device
+0x04 disconnected
+communication.
+
+EM_LICENSE_MISMATCH
+
+0x05
+
+The license does not match the
+device.
+
+EM_TEST_CONFIG_ERROR
+
+See list of test
+0x06 config errors
+
+The test configuration produced
+an error.
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+40
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+10.5 Communication errors
+List of communication errors:
+Error
+
+Value Description
+
+DC_ERR_NO_ERROR
+
+0x00
+
+no error (placeholder, won't result in an
+actual message)
+
+DC_ERR_CRC_MISMATCH
+
+0x01
+
+CRC check failed (device received a data
+package with invalid CRC)
+
+DC_ERR_UNKNOWN_COMMAND
+
+0x02
+
+the command is not supported by this
+device
+
+DC_ERR_RECEIVE_BUFFER_OVERFLOW
+
+0x04
+
+the received package is to big to fit in the
+buffer
+
+DC_ERR_NOT_ENOUGH_MEMORY
+
+0x05
+
+the device does not have enough free
+memory to handle the received package
+
+DC_ERR_COMMAND_ERROR
+DC_ERR_INVALID_FLASH_START_ADDRESS
+DC_ERR_INVALID_FLASH_END_ADDRESS
+DC_ERR_INVALID_EEPROM_START_ADDRESS
+DC_ERR_INVALID_EEPROM_END_ADDRESS
+DC_ERR_PAGE_WRITE_ERROR
+DC_ERR_UNKNOWN_SUB_COMMAND
+DC_ERR_NOT_POWERED
+DC_ERR_FLASH_IS_WRITE_PROTECTED
+
+0x06
+0x10
+0x11
+0x12
+0x13
+0x14
+0x21
+0x24
+0x25
+
+placeholder - occurs if a command is not
+yet completely implemented (was used
+in development phase)
+flash start address is invalid
+flash end address is invalid
+eeprom start address is invalid
+eeprom end address is invalid
+error while writing in flash memory
+sub command is not implemented
+device is not powered
+flash is write protected
+
+DC_ERR_FLASH_WRITE_FAILED
+
+0x26
+
+write check failed (memory needs to be
+erased before being written)
+
+DC_ERR_IMAGE_NO_DATA
+
+0x30
+
+there is no available image data for
+transmission
+
+DC_ERR_IMAGE_INVALID_FLAGS
+
+0x31
+
+the command flags for the image data
+request are invalid
+
+DC_ERR_WRITE_BIG_BUFFER_OVERFLOW
+
+0x40
+
+the package size is to big to fit in the
+buffer
+
+DC_ERR_WRITE_BIG_BUFFER_INVALID_ADDRESS 0x41
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+the target address for the write
+operation is invalid (no memory
+assigned)
+
+41
+
+CubeDLL Programmer’s Guide
+Version 1.02
+Error
+
+Value Description
+
+DC_ERR_READ_BIG_BUFFER_NO_FKT
+
+0x42
+
+the target address for the write operation
+is invalid (no write function for this
+memory location)
+
+DC_ERR_READ_BIG_BUFFER_NO_DATA
+
+0x43
+
+attempted to read more data than is
+available (with auto size)
+
+DC_ERR_WRITE_BIG_MEMORY_OVERFLOW
+DC_ERR_WRITE_BIG_FLASH_FAILED
+
+0x44
+0x45
+
+attempted to write more data than the
+memory can contain
+writing in the flash memory failed
+
+DC_ERR_READ_BIG_MEMORY_OVERFLOW
+
+0x46
+
+attempted to read more data than is
+available at the memory location
+
+DC_ERR_CUBE_NOT_VALIDATED
+
+0x50
+
+the command is not supported without
+validation
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+42
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+10.6 Device errors
+List of device errors:
+Error
+
+Value Description
+
+NO_ERROR
+
+0x00
+
+placeholder, won't result in an actual
+message
+
+EVALUATION_EXPIRY_DATE_EXCEEDED
+
+0x10
+
+the expiry date of the test
+configuration has been exceeded
+
+EVALUATION_LOW_BATTERY
+EVALUATION_CAPTURE_BLACK_ERROR_HIGH
+EVALUATION_CAPTURE_BLACK_ERROR_LOW
+EVALUATION_CAPTURE_LIGHT_ERROR_HIGH
+EVALUATION_CAPTURE_LIGHT_ERROR_LOW
+
+0x11
+0x12
+0x13
+0x14
+0x15
+
+EVALUATION_NOMINAL_POS_OUT_OF_RANGE
+
+0x16
+
+EVALUATION_SEARCHW_SMALLER_LINEW
+EVALUATION_INVALID_CONFIGURATION
+
+search width of a test line is smaller
+0x17 than its actual width
+0x1A loaded test configuration is invalid
+
+EVALUATION_INVALID_VERSION
+
+0x1C
+
+EVALUATION_USER_ABORTED
+
+evaluation has been aborted by the
+0x1D user
+
+voltage sinking below minimum value
+during measurement
+errors on image capturing
+
+nominal position of a testline is out of
+range
+
+loaded test configuration has an
+invalid/unsupported version
+
+EVALUATION_QC_TEST_NEEDED
+RES_ASSIGN_ILLEGAL_INDEX
+RES_ASSIGN_ILLEGAL_CHARACTER
+
+0x1E
+0x20
+0x21
+
+a QC test is needed before another
+measurement can be done
+Result assignment: illegal index
+Result assignment: illegal character
+
+RES_ASSIGN_ILLEGAL_JUMP
+
+0x22
+
+Result assignment: illegal jump address
+
+0x23
+0x24
+0x25
+0x26
+
+Result assignment: expected number
+but found char
+Result assignment: illegal index
+Result assignment: illegal index
+Result assignment: index out of range
+
+RES_ASSIGN_VALUE_LOW
+
+0x28
+
+Result assignment: value out of range
+(below range)
+
+RES_ASSIGN_VALUE_HIGH
+
+0x29
+
+Result assignment: value out of range
+(above range)
+
+RES_ASSIGN_EXPECTED_OPERAND
+
+Result assignment: expected operand,
+0x2A received something else
+
+RES_ASSIGN_ILLEGAL_CHAR_IN_NUMBER
+RES_ASSIGN_ILLEGAL_INDEX_2
+RES_ASSIGN_ILLEGAL_INDEX_3
+RES_ASSIGN_INDEX_OUT_OF_RANGE
+
+RES_ASSIGN_JUMP_ADDRESS_OUT_OF_RANGE
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+0x2B
+
+Result assignment: jump address out of
+range
+43
+
+CubeDLL Programmer’s Guide
+Version 1.02
+Error
+
+Value Description
+
+RES_ASSIGN_ILLEGAL_ASSIGNMENT
+
+0x2C
+
+RES_ASSIGN_OPERAND_IS_NAN
+
+Result assignment: assigned constant
+0x2D value is invalid (not a number)
+
+Result assignment: assignment not
+valid (can not reassign constant values)
+
+RES_ASSIGN_INFINITE_LOOP
+RFID_TIME_OUT
+RFID_STATUS_ERROR
+RFID_RECEIVE_LENGTH_OVERFLOW
+
+0x2E
+0x30
+0x31
+0x32
+
+Result assignment: potential infinite
+loop
+time out on receiving data from RFID
+RFID status error
+buffer to small for received data
+
+RFID_COLLISION_DETECTED
+
+0x33
+
+communication collision detected
+(more than one tag in range)
+
+RFID_MIFARE_NAK
+
+0x34
+
+MIFARE-tag: acknowledge has not
+been received
+
+RFID_RECEIVE_CRC_INVALIDE
+
+0x35
+
+the CRC for the received data is invalid
+
+RFID_BUFFER_TO_SMALL
+RFID_ATQA_ANSWER_INVALID
+
+0x36
+0x37
+
+buffer to small for requested operation
+ATQA-command failed
+
+RFID_NOTHING_RECEIVED
+RFID_STATUS_INVALID
+RFID_INTERNAL_ERROR
+
+timeout on receiving RFID data (no tag
+0x38 in range)
+0x39 RFID: status invalid
+0x3A RFID: internal error
+the requested address is not available
+in the RFID memory (out of range)
+
+RFID_MEMORY_ADDRESS_OUT_OF_RANGE
+
+0x3B
+
+RFID_MEMORY_AUTHENTIFICATION_FAILED
+RFID_TRANCEIVE_ERROR
+
+the authentification of a RFID memory
+0x3C block failed
+0x3D error while transceiving data
+
+RFID_READ_BUFFER_TO_SMALL
+
+0x3E
+
+the read buffer is to small for
+requested operation
+
+RFID_NO_VALID_TAG
+RFID_MAIN_TIMEOUT
+
+0x3F
+0x40
+
+no RFID tag detected or initialization
+failed
+timeout on RFID communication
+
+RFID_MEMORY_ADDRESS_OUT_OF_RANGE2
+
+0x41
+
+the requested address is not available
+in the RFID memory (out of range)
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+44
+
+CubeDLL Programmer’s Guide
+Version 1.02
+Error
+TEST_CONFIGURATION_GETCHAR_TIMEOUT
+
+Value Description
+0x45 timeout during read operation
+
+TEST_CONFIGURATION_GETCHAR_EOF
+
+0x46
+
+end of file reached (more data
+requested than available)
+
+TEST_CONFIGURATION_CFG_TO_BIG
+
+0x47
+
+test configuration exceeds maximum
+size
+
+TEST_CONFIGURATION_UNKNOWN_CFG
+TEST_CONFIGURATION_EMPTY
+
+0x48
+0x49
+
+test configuration unknown (version
+not supported)
+test configuration empty
+
+TEST_CONFIGURATION_FLASH_FULL
+
+(saving results) test configuration does
+0x4A not fit in remaining memory
+
+TEST_CONFIGURATION_CHECKSUMFAIL
+TEST_NO_CONFIG_FOUND
+
+0x4B
+0x4C
+
+test configuration: checksum mismatch
+(test configuration corrupted)
+no test configuration found
+
+DB_LOAD_REQUESTED_RESULT_CFG_NOTFOUND
+DB_LOAD_RESULT_EMPTY
+DB_LOAD_RESULT_DELETED
+INTFLASH_ERASE_FAIL
+
+0x50
+0x51
+0x52
+0x63
+
+loading result: corresponding
+configuration not found
+loading result: result empty
+loading result: result deleted
+erasing/nulling of internal flash failed
+
+RFID_WRITE_ENCRYPT_FIRST_MUST_START_AT_0
+
+0x70
+
+writing encrypted tag for the first time:
+start at address 0
+
+RFID_UNENCRYPTED_TAG_READ_NOT_ALLOWED
+
+0x71
+
+reading of unencrypted RFID tags is not
+allowed
+
+RFID_CONFIG_NO_CREDIT
+RFID_NOT_SUPPORTED
+CRYPT_ALU_NOT_ENOUGH_DATA
+CRYPT_ALU_CALCULATION_PROGRAMMED_BREAK
+CRYPT_ALU_INTERNAL_PROGRAM_EMPTY
+CRYPT_RANDOM_PATTERN_INVALID
+
+0x72
+0x73
+0x80
+0x81
+0x82
+0x83
+
+the credit counter on the RFID tag has
+reached 0, the tag is not usable
+anymore
+the RFID tag type is not supported
+validation errors
+
+TEST_CONFIGURATION_noValidCustomer
+
+0x91
+
+the test configuration is not meant for
+the connected device
+
+SAVE_TEST_NO_RESULT_FOUND_WITH_THIS_ID
+
+0x9E
+
+the given ID does not match any saved
+result
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+45
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+11
+
+List of device/interface states
+
+Name
+STATE_DISCONNECTED
+STATE_IDLE
+STATE_BUSY
+
+Value
+0x00
+0x01
+0x02
+
+Description
+Communication port is disabled
+Software is in idle state, cube is connected
+Cube is busy, unable to receive/handle new commands
+
+STATE_ERROR
+STATE_ERROR_ACK
+STATE_CONNECT
+STATE_READ
+STATE_WRITE
+STATE_CAPTURE
+STATE_EVALUATE
+STATE_FORMATTING
+STATE_DATE_TIME
+STATE_SET_BUTTON_CTRL
+
+0x03
+0x04
+0x10
+0x20
+0x30
+0x40
+0x50
+0x60
+0x70
+0x72
+
+Currently in error state (normally while message is
+displayed)
+GetAcknowledge command issued when an error occured
+Software is settting up a connection to the cube
+Software is reading data from the cube
+Software is writing data to the cube
+Cube is capturing image(s)
+Software and cube are in the process of a measurement
+Device is formatting its database
+Setting/getting device date/time
+Setting button control (lock/unlock button)
+
+0x73
+
+Locking device (removing validation and access to certain
+commands)
+
+STATE_LOCK
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+46
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+12
+
+List of test configuration errors
+
+Name
+CONFIG_EMPTY
+
+Value
+0x01
+
+CONFIG_INVALID_CHECKSUM 0x03
+
+Description
+The configuration is empty.
+The version of the configuration is not supported or
+incompatible to the device.
+The configuration has an invalid checksum (data is
+corrupted).
+
+CONFIG_WRONG_VERSION
+
+0x02
+
+CONFIG_PARSE_ERROR
+CONFIG_INVALID_FILE
+
+An error occurred while the configuration has been
+parsed (not enough or invalid data).
+The given filename for the configuration does not exist.
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+0x04
+0x05
+
+47
+
+CubeDLL Programmer’s Guide
+Version 1.02
+
+13
+Version
+1.00
+1.01
+
+1.02
+
+Version History
+Changes
+Initial release based on Cube DLL Version 1.5.152
+Updated for DLL V1.5.153:
+SetBaudrate and GetBaudrate removed for the time being (not
+supported by current cube firmware)
+Updated for DLL V1.5.165
+- Added support for BluetoothLE (64bit version only).
+- Added function ML_BTLEShowOnlyConnected
+- Changed device detection behaviour, devices in all
+channels (FTDI; BT; BTLE) will be detected simultaneously
+without a need to actively change the mode.
+- Removed CL_StartBluetooth,
+CL_GetBluetoothDeviceCount, CL_GetBluetoothDeviceInfo
+and CL_GetConnectionMode
+- Renamed CL_GetFTDIDeviceCount to CL_GetDeviceCount
+- Renamed CL_GetFTDIDeviceInfo to CL_GetDeviceInfo
+- Renamed FR_FTDI_INVALID to FR_NO_VALID_INTERFACE
+to reflect its updated meaning
+- Removed unused function return codes and states
+referring to the superfluous separate Bluetooth mode
+- Added Parameter ConnectionType to CL_GetDeviceInfo
+
+Chembio Diagnostics GmbH
+Schwarzschildstraße 1
+12489 Berlin
+
+Date
+June 2021
+June 2021
+
+August 2021
+
+48
+
+
