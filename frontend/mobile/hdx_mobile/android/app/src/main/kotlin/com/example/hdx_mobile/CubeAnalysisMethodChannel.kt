@@ -1,6 +1,7 @@
 package com.example.hdx_mobile
 
 import android.app.Application
+import android.util.Log
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.Observer
@@ -23,6 +24,8 @@ class CubeBridge(
     companion object {
         const val METHOD_CHANNEL = "com.homedx.cube/analysis"
         const val EVENT_CHANNEL = "com.homedx.cube/events"
+        /** Default asset path: place your test config blob here (see README / docs). */
+        private const val DEFAULT_CUBE_CONFIG_ASSET = "cube_test_config.bin"
     }
 
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -176,7 +179,29 @@ class CubeBridge(
 
             "startEvaluation" -> {
                 val useTimer = call.argument<Boolean>("useTimer") ?: false
-                viewModel.startEvaluation(useTimer)
+                val assetName = call.argument<String>("configAssetName")?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: DEFAULT_CUBE_CONFIG_ASSET
+                val requireAsset = call.argument<Boolean>("requireBundledConfig") ?: false
+                val stream = try {
+                    application.assets.open(assetName)
+                } catch (_: Exception) {
+                    null
+                }
+                if (stream == null && requireAsset) {
+                    result.error(
+                        "missing_asset",
+                        "Cube config asset not found: $assetName",
+                        null,
+                    )
+                    return
+                }
+                Log.i(
+                    "CubeBridge",
+                    "startEvaluation: calling viewModel.startEvaluation(useTimer=$useTimer, " +
+                        "configAsset=$assetName, configStreamOpen=${stream != null})",
+                )
+                viewModel.startEvaluation(useTimer, stream)
+                Log.i("CubeBridge", "startEvaluation: viewModel.startEvaluation returned (async work continues in SDK)")
                 result.success(true)
             }
 

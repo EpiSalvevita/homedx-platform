@@ -48,8 +48,10 @@ Cube data processing now runs on Android (phone/app side). The backend expects
 `POST /submit-cube-data` requests containing processed result data when available.
 
 Notes:
+- **Cube Bluetooth pairing:** When Android asks for a pairing PIN/passkey, use the **last six digits of the Cube serial number**.
 - Keep `API_BASE_URL` reachable from your Android device.
-- If backend runs in WSL2, run `setup-wsl-port-forward.ps1` so the phone can reach port `4000`.
+- If backend runs in WSL2, run `setup-wsl-port-forward.cmd` (Admin) or
+  `powershell -ExecutionPolicy Bypass -File setup-wsl-port-forward.ps1` so the phone can reach port `4000`.
 
 ## Getting API Keys
 

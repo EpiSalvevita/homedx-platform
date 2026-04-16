@@ -49,6 +49,7 @@ Short, current snapshot of what exists in backend vs app. This is not a backlog.
 
 ## Bluetooth & Cube Device
 
+- **Pairing PIN (Android):** If the system requests a Bluetooth PIN/passkey for the Cube, enter the **last six digits of the Cube serial number** (from the device label).
 - **App implemented:** Cube-only BLE scan, connect, run measurement, submit results
 - **Backend ready:** `submit-cube-data` endpoint for storing Cube results from mobile
 - **Android flow:** Native Cube SDK (cubelib AAR) processes measurements on-device; no Windows service

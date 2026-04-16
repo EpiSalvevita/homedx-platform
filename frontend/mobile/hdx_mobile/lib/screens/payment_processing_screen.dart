@@ -5,6 +5,7 @@ import '../services/payment_service.dart';
 import 'credit_card_payment_screen.dart';
 import 'paypal_payment_screen.dart';
 import 'sepa_payment_screen.dart';
+import 'order_success_screen.dart';
 
 enum PaymentMethod {
   creditCard,
@@ -41,15 +42,18 @@ class PaymentProcessingScreen extends StatelessWidget {
             // Update payment status to COMPLETED
             await _completePayment(context, paymentService, paymentId, transactionId);
             cartProvider.clear();
-            Navigator.of(context).popUntil((route) => route.isFirst);
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Zahlung erfolgreich abgeschlossen!'),
-                  backgroundColor: Colors.green,
+            if (!context.mounted) return;
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (_) => OrderSuccessScreen(
+                  amount: amount,
+                  currency: currency,
+                  title: 'Zahlung erfolgreich',
+                  subtitle: 'Ihre Bestellung wurde bestätigt. Sie erhalten eine Bestätigung in der App.',
                 ),
-              );
-            }
+              ),
+              (route) => route.isFirst,
+            );
           },
           onPaymentFailed: (error) {
             Navigator.of(context).pop();
@@ -70,15 +74,18 @@ class PaymentProcessingScreen extends StatelessWidget {
             // Update payment status to COMPLETED
             await _completePayment(context, paymentService, paymentId, transactionId);
             cartProvider.clear();
-            Navigator.of(context).popUntil((route) => route.isFirst);
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('PayPal-Zahlung erfolgreich abgeschlossen!'),
-                  backgroundColor: Colors.green,
+            if (!context.mounted) return;
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (_) => OrderSuccessScreen(
+                  amount: amount,
+                  currency: currency,
+                  title: 'PayPal-Zahlung erfolgreich',
+                  subtitle: 'Ihre Bestellung wurde bestätigt. Sie erhalten eine Bestätigung in der App.',
                 ),
-              );
-            }
+              ),
+              (route) => route.isFirst,
+            );
           },
           onPaymentCancelled: () {
             Navigator.of(context).pop();
@@ -107,16 +114,19 @@ class PaymentProcessingScreen extends StatelessWidget {
           onPaymentComplete: () async {
             // SEPA payments are marked as PENDING (awaiting bank transfer)
             cartProvider.clear();
-            Navigator.of(context).popUntil((route) => route.isFirst);
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('SEPA-Überweisung initiiert. Bitte überweisen Sie den Betrag innerhalb von 3-5 Werktagen.'),
-                  backgroundColor: Colors.blue,
-                  duration: Duration(seconds: 6),
+            if (!context.mounted) return;
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (_) => OrderSuccessScreen(
+                  amount: amount,
+                  currency: currency,
+                  title: 'SEPA-Überweisung gestartet',
+                  subtitle: 'Bitte überweisen Sie den Betrag innerhalb von 3–5 Werktagen. '
+                      'Ihre Bestellung bleibt bis dahin reserviert.',
                 ),
-              );
-            }
+              ),
+              (route) => route.isFirst,
+            );
           },
           onPaymentCancelled: () {
             Navigator.of(context).pop();

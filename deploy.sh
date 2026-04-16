@@ -27,6 +27,75 @@ print_info() {
     echo -e "${YELLOW}ℹ${NC} $1"
 }
 
+# Windows LAN IPv4 for Flutter on a physical phone (WSL interop).
+windows_wifi_lan_ip() {
+    if ! command -v powershell.exe &>/dev/null; then
+        echo ""
+        return
+    fi
+    powershell.exe -NoProfile -Command "(Get-NetIPAddress -AddressFamily IPv4 | Where-Object { \$_.InterfaceAlias -match 'Wi-Fi|WiFi|WLAN|Ethernet' -and \$_.IPAddress -notlike '169.254.*' } | Select-Object -First 1).IPAddress" 2>/dev/null | tr -d '\r\n' | grep -E '^[0-9.]+$' || true
+}
+
+# POST endpoint used for smoke tests (same path the app uses under /gg-homedx-json/gg-api/v1).
+BACKEND_STATUS_URL="http://127.0.0.1:4000/gg-homedx-json/gg-api/v1/get-be-status-flags"
+
+verify_backend_listening() {
+    local i=0
+    local max=15
+    while [ "$i" -lt "$max" ]; do
+        if curl -sS --max-time 4 -X POST "$BACKEND_STATUS_URL" -H "Content-Type: application/json" -d '{}' >/dev/null 2>&1; then
+            print_status "Backend is up in WSL at http://127.0.0.1:4000"
+            return 0
+        fi
+        i=$((i + 1))
+        sleep 2
+    done
+    print_error "Backend did not respond on port 4000 in WSL after ~$((max * 2))s. The phone cannot log in until this works. Check: tail -50 backend.log"
+    return 1
+}
+
+# Optional: same URL the phone uses; may fail from WSL even when the phone works (hairpin routing).
+probe_windows_lan_from_wsl() {
+    local LAN="$1"
+    [ -z "$LAN" ] && return
+    local url="http://${LAN}:4000/gg-homedx-json/gg-api/v1/get-be-status-flags"
+    if curl -sS --max-time 5 -X POST "$url" -H "Content-Type: application/json" -d '{}' >/dev/null 2>&1; then
+        print_status "http://${LAN}:4000 reachable from WSL (matches typical Flutter API_BASE_URL for Wi‑Fi)"
+    else
+        print_info "Could not reach http://${LAN}:4000 from WSL (sometimes normal). If login still times out on the phone: run setup-wsl-port-forward.cmd as Admin on Windows; then .\\check-homedx-connectivity.ps1"
+    fi
+}
+
+# After backend starts: remind about portproxy + Flutter API_BASE_URL (common login timeout cause).
+print_mobile_network_hints() {
+    echo ""
+    echo "📶 Phone / Flutter → backend (port 4000)"
+    LAN="$(windows_wifi_lan_ip)"
+    if [ -n "$LAN" ]; then
+        print_info "Windows Wi‑Fi/Ethernet IPv4 (use in Flutter .env): http://${LAN}:4000"
+    else
+        print_info "Could not read Windows LAN IP from WSL; on Windows run: ipconfig (use Wi‑Fi IPv4)"
+    fi
+    ENV_FILE="frontend/mobile/hdx_mobile/.env"
+    if [ -f "$ENV_FILE" ]; then
+        API_LINE=$(grep -E '^[[:space:]]*API_BASE_URL=' "$ENV_FILE" | head -1 || true)
+        if [ -n "$API_LINE" ]; then
+            echo "   $API_LINE"
+            if echo "$API_LINE" | grep -qiE 'localhost|127\.0\.0\.1'; then
+                print_info "Physical device: localhost only works with USB adb reverse tcp:4000 tcp:4000"
+            fi
+            if [ -n "$LAN" ] && ! echo "$API_LINE" | grep -qF "$LAN"; then
+                print_info "If login fails, API_BASE_URL may be stale. On Windows: .\\check-homedx-connectivity.ps1 -UpdateMobileEnv"
+            fi
+        else
+            print_info "Add API_BASE_URL to $ENV_FILE (see .env.example)"
+        fi
+    fi
+    print_info "After WSL restart, rerun setup-wsl-port-forward.cmd as Admin (WSL IP changes)."
+    print_info "Details: docs/WSL2_PORT_FORWARDING.md"
+    probe_windows_lan_from_wsl "$LAN"
+}
+
 # Check if we're in the right directory
 if [ ! -f "README.md" ]; then
     print_error "Please run this script from the homeDX platform root directory"
@@ -58,6 +127,8 @@ case "$MODE" in
         exit 1
         ;;
 esac
+
+FLUTTER_APP="frontend/mobile/hdx_mobile"
 
 # Start PostgreSQL Database
 if [ "$START_BACKEND" = true ]; then
@@ -104,6 +175,8 @@ if [ "$START_BACKEND" = true ]; then
         # Wait a bit for backend to initialize
         sleep 3
     fi
+    verify_backend_listening || true
+    print_mobile_network_hints
 fi
 
 # Start Mobile App
@@ -111,9 +184,16 @@ if [ "$START_MOBILE" = true ]; then
     echo ""
     echo "📱 Starting Mobile App..."
 
-    if [ ! -f "mobile/package.json" ]; then
-        print_info "React Native app not found at mobile/package.json; skipping mobile startup."
-        print_info "Use the Flutter app under mobile_flutter/ (see README) after backend is running."
+    if [ -f "$FLUTTER_APP/pubspec.yaml" ]; then
+        print_status "Flutter app found at $FLUTTER_APP"
+        if [ -f "$FLUTTER_APP/.env" ]; then
+            grep -E '^[[:space:]]*API_BASE_URL=' "$FLUTTER_APP/.env" | head -1 || true
+        fi
+        print_info "To run on a device: cd $FLUTTER_APP && flutter run"
+        print_info "Release install: cd $FLUTTER_APP && flutter run --release -d <deviceId>"
+    elif [ ! -f "mobile/package.json" ]; then
+        print_info "No Flutter app at $FLUTTER_APP/pubspec.yaml and no React Native at mobile/package.json."
+        print_info "Start the Flutter client manually from frontend/mobile/hdx_mobile when ready."
     else
         # Check if mobile dependencies are installed
         if [ ! -d "mobile/node_modules" ]; then
@@ -184,6 +264,9 @@ if [ "$START_MOBILE" = true ]; then
         
         cd ..
     fi
+    if [ "$START_BACKEND" = false ] && [ -f "$FLUTTER_APP/pubspec.yaml" ]; then
+        print_mobile_network_hints
+    fi
 fi
 
 # Summary
@@ -197,19 +280,20 @@ if [ "$START_BACKEND" = true ]; then
     echo "📊 Backend API:"
     echo "   Status: Running (PID: $(cat backend.pid 2>/dev/null || echo 'unknown'))"
     echo "   Logs:   backend.log"
-    echo "   Health: http://localhost:4000"
+    echo "   Health: http://localhost:4000 (from WSL); phone uses Windows LAN IP :4000"
 fi
 
 if [ "$START_MOBILE" = true ]; then
     echo ""
     echo "📱 Mobile App:"
-    echo "   Status: Metro bundler running (PID: $(cat metro.pid 2>/dev/null || echo 'unknown'))"
-    echo "   Logs:   metro.log"
-    echo ""
-    echo "To install on Android device:"
-    echo "   1. Start an emulator in Android Studio, OR"
-    echo "   2. Connect a physical device via USB"
-    echo "   3. Run: cd mobile && npx react-native run-android"
+    if [ -f "frontend/mobile/hdx_mobile/pubspec.yaml" ]; then
+        echo "   Flutter: cd frontend/mobile/hdx_mobile && flutter run"
+    elif [ -f "metro.pid" ]; then
+        echo "   Metro: PID $(cat metro.pid 2>/dev/null || echo 'unknown'), logs: metro.log"
+        echo "   Android: cd mobile && npx react-native run-android"
+    else
+        echo "   See messages above for Flutter or legacy React Native paths."
+    fi
 fi
 
 echo ""

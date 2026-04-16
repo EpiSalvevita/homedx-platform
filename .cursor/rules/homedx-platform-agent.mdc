@@ -10,18 +10,18 @@ alwaysApply: true
   - `frontend/mobile/hdx_mobile/` is the Flutter app (current client).
   - `Cube APP V0.1.21/` contains Cube Android integration files/docs.
 - Architecture (Cube test flow):
-  - Phone connects to Cube device via Bluetooth (Cube SDK filters scan to Cube devices only).
+  - Phone connects to Cube device via Bluetooth (Cube SDK filters scan to Cube devices only). Android pairing PIN/passkey: **last six digits of the Cube serial number**.
   - User starts measurement; Cube SDK runs evaluation on-device.
   - Phone reads measurement results from Cube SDK.
   - Phone sends processed Cube results to Backend (`POST /submit-cube-data`).
   - Results returned to phone and displayed.
 - Deployment scripts:
   - Root `deploy.sh` starts backend and mobile.
-  - `setup-wsl-port-forward.ps1` configures WSL2 port forwarding + firewall rule.
+  - `setup-wsl-port-forward.cmd` (or `setup-wsl-port-forward.ps1` with Bypass) configures WSL2 port forwarding + firewall rule.
 - Networking guidance:
   - Backend listens on `0.0.0.0:4000` in WSL2.
-  - For phone access, `mobile/hdx_mobile/.env` should use `API_BASE_URL=http://<Windows-LAN-IP>:4000`.
-  - Ensure portproxy and firewall rule are set for port 4000 (run `setup-wsl-port-forward.ps1` as Admin).
+  - For phone access, `frontend/mobile/hdx_mobile/.env` should use `API_BASE_URL=http://<Windows-LAN-IP>:4000` (from Windows `ipconfig`, not the WSL IP). Re-run port forwarding after WSL restarts. Optional: `check-homedx-connectivity.ps1 -UpdateMobileEnv` on Windows syncs `.env`, then rebuild Flutter.
+  - Ensure portproxy and firewall rule are set for port 4000 (run `setup-wsl-port-forward.cmd` as Admin). See `docs/WSL2_PORT_FORWARDING.md`.
 - E2E test checklist:
   - Connect Cube device to phone via Bluetooth.
   - Start a test in the app and verify the full flow: Phone → Backend → Results.

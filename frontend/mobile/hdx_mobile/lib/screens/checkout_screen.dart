@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../config/app_theme.dart';
 import '../providers/cart_provider.dart';
 import '../services/payment_service.dart';
 import '../providers/auth_provider.dart';
@@ -16,86 +17,53 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   PaymentMethod _selectedPaymentMethod = PaymentMethod.creditCard;
   bool _isProcessing = false;
 
-  String _getPaymentMethodName(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.creditCard:
-        return 'Kreditkarte';
-      case PaymentMethod.paypal:
-        return 'PayPal';
-      case PaymentMethod.sepa:
-        return 'SEPA-Überweisung';
+  String _methodName(PaymentMethod m) {
+    switch (m) {
+      case PaymentMethod.creditCard: return 'Kreditkarte';
+      case PaymentMethod.paypal: return 'PayPal';
+      case PaymentMethod.sepa: return 'SEPA-Überweisung';
     }
   }
 
-  String _getPaymentMethodBackendValue(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.creditCard:
-        return 'CREDIT_CARD';
-      case PaymentMethod.paypal:
-        return 'PAYPAL';
-      case PaymentMethod.sepa:
-        return 'BANK_TRANSFER';
+  String _methodBackend(PaymentMethod m) {
+    switch (m) {
+      case PaymentMethod.creditCard: return 'CREDIT_CARD';
+      case PaymentMethod.paypal: return 'PAYPAL';
+      case PaymentMethod.sepa: return 'BANK_TRANSFER';
     }
   }
 
-  IconData _getPaymentMethodIcon(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.creditCard:
-        return Icons.credit_card;
-      case PaymentMethod.paypal:
-        return Icons.account_balance_wallet;
-      case PaymentMethod.sepa:
-        return Icons.account_balance;
+  IconData _methodIcon(PaymentMethod m) {
+    switch (m) {
+      case PaymentMethod.creditCard: return Icons.credit_card;
+      case PaymentMethod.paypal: return Icons.account_balance_wallet;
+      case PaymentMethod.sepa: return Icons.account_balance;
     }
   }
 
   Future<void> _processPayment(CartProvider cartProvider, AuthProvider authProvider, PaymentService paymentService) async {
-    if (cartProvider.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ihr Warenkorb ist leer')),
-      );
-      return;
-    }
-
-    setState(() {
-      _isProcessing = true;
-    });
+    if (cartProvider.isEmpty) return;
+    setState(() => _isProcessing = true);
 
     try {
       final userId = authProvider.userId;
-      print('Checkout - userId: $userId');
-      print('Checkout - cart total: ${cartProvider.totalPrice}');
-      print('Checkout - payment method: $_selectedPaymentMethod');
-      
-      if (userId == null || userId.isEmpty) {
-        throw Exception('Benutzer nicht angemeldet. Bitte melden Sie sich erneut an.');
-      }
+      if (userId == null || userId.isEmpty) throw Exception('Benutzer nicht angemeldet.');
 
       final totalAmount = cartProvider.totalPrice;
-      if (totalAmount <= 0) {
-        throw Exception('Ungültiger Betrag');
-      }
+      if (totalAmount <= 0) throw Exception('Ungültiger Betrag');
 
-      final paymentMethod = _getPaymentMethodBackendValue(_selectedPaymentMethod);
-      print('Checkout - calling createPayment with userId: $userId, amount: $totalAmount, method: $paymentMethod');
-
-      // Create payment record in backend (status: PENDING)
       final payment = await paymentService.createPayment(
         userId: userId,
         amount: totalAmount,
         currency: 'EUR',
-        paymentMethod: paymentMethod,
+        paymentMethod: _methodBackend(_selectedPaymentMethod),
         items: cartProvider.items,
       );
-      
-      print('Checkout - payment created successfully: ${payment['id']}');
 
       if (mounted) {
-        print('Navigating to payment processing screen - method: $_selectedPaymentMethod, paymentId: ${payment['id']}');
-        // Navigate to payment processing screen based on selected method
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => PaymentProcessingScreen(
+            builder: (_) => PaymentProcessingScreen(
               paymentMethod: _selectedPaymentMethod,
               amount: totalAmount,
               currency: 'EUR',
@@ -106,32 +74,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       }
     } catch (e) {
       if (mounted) {
-        String errorMessage = e.toString();
-        // Clean up error message
-        errorMessage = errorMessage.replaceAll('Exception: ', '');
-        errorMessage = errorMessage.replaceAll('Failed to create payment: ', '');
-        
-        // Print full error details for debugging
-        print('=== PAYMENT ERROR ===');
-        print('Error type: ${e.runtimeType}');
-        print('Error message: $errorMessage');
-        print('Full error: $e');
-        print('====================');
-        
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Zahlung fehlgeschlagen: $errorMessage'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
+          SnackBar(content: Text('Zahlung fehlgeschlagen: ${e.toString().replaceAll("Exception: ", "")}'), backgroundColor: AppTheme.errorColor),
         );
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isProcessing = false;
-        });
-      }
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
@@ -142,142 +90,126 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final paymentService = Provider.of<PaymentService>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Kasse'),
-      ),
+      appBar: AppBar(title: const Text('Kasse')),
       body: cartProvider.isEmpty
-          ? const Center(
+          ? Center(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text('Ihr Warenkorb ist leer'),
+                  Icon(Icons.shopping_cart_outlined, size: 64, color: AppTheme.textColorSecondary),
+                  const SizedBox(height: 16),
+                  const Text('Ihr Warenkorb ist leer'),
                 ],
               ),
             )
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Order Summary
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Bestellübersicht',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          ...cartProvider.items.map((item) => Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text('${item.product.name} x${item.quantity}'),
-                                    ),
-                                    Text(
-                                      '${item.totalPrice.toStringAsFixed(2)} €',
-                                      style: const TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                ),
-                              )),
-                          const Divider(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Gesamt',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                '${cartProvider.totalPrice.toStringAsFixed(2)} €',
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                  const Text('Bestellübersicht', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
+                  const SizedBox(height: 12),
+
+                  // Order items
+                  ...cartProvider.items.map((item) => Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppTheme.cardColor,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: AppTheme.cardShadow,
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(color: AppTheme.primaryLight, borderRadius: BorderRadius.circular(10)),
+                          child: const Icon(Icons.local_offer, color: AppTheme.primaryBlue, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text('${item.product.name} ${item.quantity > 1 ? "x${item.quantity}" : ""}',
+                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.textColor)),
+                        ),
+                        Text('${item.totalPrice.toStringAsFixed(2)} €', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)),
+                      ],
+                    ),
+                  )),
+
+                  // Total
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.cardColor,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: AppTheme.cardShadow,
+                    ),
+                    child: Row(
+                      children: [
+                        const Text('Gesamt', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
+                        const Spacer(),
+                        Text('${cartProvider.totalPrice.toStringAsFixed(2)} €', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 24),
 
-                  // Payment Method Selection
-                  const Text(
-                    'Zahlungsmethode',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(height: 28),
+                  const Text('Zahlungsmethode', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
+                  const SizedBox(height: 12),
+
+                  // Payment methods
+                  ...PaymentMethod.values.map((method) {
+                    final isSelected = _selectedPaymentMethod == method;
+                    return GestureDetector(
+                      onTap: () => setState(() => _selectedPaymentMethod = method),
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: AppTheme.cardColor,
+                          borderRadius: BorderRadius.circular(14),
+                          border: isSelected ? Border.all(color: AppTheme.primaryBlue, width: 2) : null,
+                          boxShadow: AppTheme.cardShadow,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 22,
+                              height: 22,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(color: isSelected ? AppTheme.primaryBlue : AppTheme.textColorSecondary, width: 2),
+                              ),
+                              child: isSelected
+                                  ? Center(child: Container(width: 12, height: 12, decoration: const BoxDecoration(color: AppTheme.primaryBlue, shape: BoxShape.circle)))
+                                  : null,
+                            ),
+                            const SizedBox(width: 14),
+                            Icon(_methodIcon(method), color: AppTheme.primaryBlue, size: 22),
+                            const SizedBox(width: 12),
+                            Text(_methodName(method), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.textColor)),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: _isProcessing ? null : () => _processPayment(cartProvider, authProvider, paymentService),
+                      child: _isProcessing
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : Text('Jetzt zahlen (${cartProvider.totalPrice.toStringAsFixed(2)} €)', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  ...PaymentMethod.values.map((method) => Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: RadioListTile<PaymentMethod>(
-                          value: method,
-                          groupValue: _selectedPaymentMethod,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedPaymentMethod = value!;
-                            });
-                          },
-                          title: Row(
-                            children: [
-                              Icon(_getPaymentMethodIcon(method)),
-                              const SizedBox(width: 8),
-                              Text(_getPaymentMethodName(method)),
-                            ],
-                          ),
-                        ),
-                      )),
-                  const SizedBox(height: 24),
-
-                  // Process Payment Button
-                  ElevatedButton(
-                    onPressed: _isProcessing
-                        ? null
-                        : () => _processPayment(cartProvider, authProvider, paymentService),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.green,
-                    ),
-                    child: _isProcessing
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : Text(
-                            'Jetzt zahlen (${cartProvider.totalPrice.toStringAsFixed(2)} €)',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                  ),
                 ],
               ),
             ),
     );
   }
 }
-

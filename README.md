@@ -22,7 +22,7 @@ This repository hosts the full homeDX stack:
 ```
 
 **Data Flow:**
-1. Phone connects to Cube device via Bluetooth (Cube SDK filters scan to Cube devices only)
+1. Phone connects to Cube device via Bluetooth (Cube SDK filters scan to Cube devices only). If Android asks for a pairing PIN/passkey, use the **last six digits of the Cube serial number**.
 2. User starts measurement; Cube SDK runs evaluation on-device
 3. Phone reads measurement results from Cube SDK
 4. Phone sends processed result data to Backend API (`POST /submit-cube-data`)
@@ -55,13 +55,24 @@ Stop services with:
 ## WSL2 Port Forwarding
 
 If the app runs on a physical phone or Android emulator on Windows, set up port
-forwarding so it can reach the backend in WSL2. Run as Administrator:
+forwarding so it can reach the backend in WSL2. Run **as Administrator** from the
+repo root.
 
-```powershell
-.\setup-wsl-port-forward.ps1
+**Recommended** (avoids PowerShell execution-policy blocks on unsigned scripts):
+
+```cmd
+.\setup-wsl-port-forward.cmd
 ```
 
-See `docs/WSL2_PORT_FORWARDING.md` for manual setup.
+**Alternative** (PowerShell):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup-wsl-port-forward.ps1
+```
+
+See `docs/WSL2_PORT_FORWARDING.md` for manual setup and verification.
+
+**Connectivity check (Windows PowerShell, repo root):** `.\check-homedx-connectivity.ps1` — optional `-UpdateMobileEnv` updates `frontend/mobile/hdx_mobile/.env` to your current LAN IPv4 (then rebuild the app). Details in `ENV_SETUP.md` and `docs/WSL2_PORT_FORWARDING.md`.
 
 ## Docs
 

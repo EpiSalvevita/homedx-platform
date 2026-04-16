@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../config/app_theme.dart';
 import '../services/user_service.dart' show UserData, UserService;
 import '../services/api_service.dart';
+import '../services/cube_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -18,6 +20,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isSaving = false;
   String? _error;
 
+  /// Native Cube SDK: bundled `cube_license.dat` accepted by the library.
+  bool? _cubeLicenseValid;
+  String _cubeSdkVersion = '';
+  bool _cubeSdkInfoLoading = true;
+
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -31,6 +38,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _loadUserData();
+    _loadCubeSdkInfo();
+  }
+
+  Future<void> _loadCubeSdkInfo() async {
+    try {
+      final api = Provider.of<ApiService>(context, listen: false);
+      final cube = CubeService(api);
+      final valid = await cube.licenseValid();
+      final version = await cube.getVersion();
+      if (!mounted) return;
+      setState(() {
+        _cubeLicenseValid = valid;
+        _cubeSdkVersion = version;
+        _cubeSdkInfoLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _cubeLicenseValid = false;
+        _cubeSdkInfoLoading = false;
+      });
+    }
   }
 
   @override
@@ -47,16 +76,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadUserData() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
+    setState(() { _isLoading = true; _error = null; });
     try {
       final apiService = Provider.of<ApiService>(context, listen: false);
       _userService = UserService(apiService);
       final userData = await _userService.getUserData();
-
       setState(() {
         _userData = userData;
         _firstNameController.text = userData.firstName;
@@ -70,24 +94,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
+      setState(() { _error = e.toString(); _isLoading = false; });
     }
   }
 
   Future<void> _saveUserData() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    if (_userData == null) return;
-
-    setState(() {
-      _isSaving = true;
-      _error = null;
-    });
+    if (!_formKey.currentState!.validate() || _userData == null) return;
+    setState(() { _isSaving = true; _error = null; });
 
     try {
       final updatedData = UserData(
@@ -95,55 +108,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
         email: _emailController.text.trim(),
-        phone: _phoneController.text.trim().isEmpty 
-            ? null 
-            : _phoneController.text.trim(),
-        city: _cityController.text.trim().isEmpty 
-            ? null 
-            : _cityController.text.trim(),
-        country: _countryController.text.trim().isEmpty 
-            ? null 
-            : _countryController.text.trim(),
-        address1: _addressController.text.trim().isEmpty 
-            ? null 
-            : _addressController.text.trim(),
-        postcode: _postcodeController.text.trim().isEmpty 
-            ? null 
-            : _postcodeController.text.trim(),
+        phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
+        city: _cityController.text.trim().isEmpty ? null : _cityController.text.trim(),
+        country: _countryController.text.trim().isEmpty ? null : _countryController.text.trim(),
+        address1: _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
+        postcode: _postcodeController.text.trim().isEmpty ? null : _postcodeController.text.trim(),
         dateOfBirth: _userData!.dateOfBirth,
         testAccount: _userData!.testAccount,
         authorized: _userData!.authorized,
       );
 
       await _userService.updateUserData(updatedData);
-
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile updated successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profil aktualisiert'), backgroundColor: AppTheme.successColor));
         await _loadUserData();
       }
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-      });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update profile: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e'), backgroundColor: AppTheme.errorColor));
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
@@ -151,210 +136,174 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Profil'),
         actions: [
           if (!_isLoading && _userData != null)
             IconButton(
               icon: _isSaving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                   : const Icon(Icons.save),
               onPressed: _isSaving ? null : _saveUserData,
             ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null && _userData == null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Error loading profile',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _error!,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.red,
-                            ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _loadUserData,
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                )
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // User Info Card
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              children: [
-                                CircleAvatar(
-                                  radius: 40,
-                                  backgroundColor: Theme.of(context).primaryColor,
-                                  child: Text(
-                                    _userData?.firstName[0].toUpperCase() ?? 'U',
-                                    style: const TextStyle(
-                                      fontSize: 32,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  '${_userData?.firstName ?? ''} ${_userData?.lastName ?? ''}',
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  _userData?.email ?? '',
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        color: Colors.grey[600],
-                                      ),
-                                ),
-                              ],
-                            ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: _buildCubeSdkCard(),
+          ),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null && _userData == null
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text('Fehler beim Laden des Profils', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 16),
+                              ElevatedButton(onPressed: _loadUserData, child: const Text('Erneut versuchen')),
+                            ],
                           ),
                         ),
+                      )
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.all(16),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                        // Avatar card
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: AppTheme.cardColor,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: AppTheme.cardShadow,
+                          ),
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 72,
+                                height: 72,
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryLight,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.person_outline, size: 36, color: AppTheme.primaryBlue),
+                              ),
+                              const SizedBox(height: 14),
+                              Text(
+                                '${_userData?.firstName ?? ''} ${_userData?.lastName ?? ''}',
+                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textColor),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(_userData?.email ?? '', style: TextStyle(fontSize: 14, color: AppTheme.textColorSecondary)),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        _buildField(_firstNameController, 'Vorname', Icons.person_outline, required: true),
+                        const SizedBox(height: 14),
+                        _buildField(_lastNameController, 'Nachname', Icons.person_outline, required: true),
+                        const SizedBox(height: 14),
+                        _buildField(_emailController, 'E-mail', Icons.email_outlined, required: true, keyboard: TextInputType.emailAddress),
+                        const SizedBox(height: 14),
+                        _buildField(_phoneController, 'Handynummer', Icons.phone_outlined, keyboard: TextInputType.phone),
+                        const SizedBox(height: 14),
+                        _buildField(_cityController, 'Stadt', Icons.location_city_outlined),
+                        const SizedBox(height: 14),
+                        _buildField(_countryController, 'Land', Icons.public),
                         const SizedBox(height: 24),
 
-                        // Form Fields
-                        TextFormField(
-                          controller: _firstNameController,
-                          decoration: const InputDecoration(
-                            labelText: 'First Name',
-                            prefixIcon: Icon(Icons.person),
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your first name';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _lastNameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Last Name',
-                            prefixIcon: Icon(Icons.person_outline),
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your last name';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            prefixIcon: Icon(Icons.email),
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your email';
-                            }
-                            if (!value.contains('@')) {
-                              return 'Please enter a valid email';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _phoneController,
-                          keyboardType: TextInputType.phone,
-                          decoration: const InputDecoration(
-                            labelText: 'Phone (Optional)',
-                            prefixIcon: Icon(Icons.phone),
-                            border: OutlineInputBorder(),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: ElevatedButton(
+                            onPressed: _isSaving ? null : _saveUserData,
+                            child: _isSaving
+                                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                : const Text('Änderungen speichern'),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _cityController,
-                          decoration: const InputDecoration(
-                            labelText: 'City (Optional)',
-                            prefixIcon: Icon(Icons.location_city),
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _countryController,
-                          decoration: const InputDecoration(
-                            labelText: 'Country (Optional)',
-                            prefixIcon: Icon(Icons.public),
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _addressController,
-                          decoration: const InputDecoration(
-                            labelText: 'Address (Optional)',
-                            prefixIcon: Icon(Icons.home),
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _postcodeController,
-                          decoration: const InputDecoration(
-                            labelText: 'Postal Code (Optional)',
-                            prefixIcon: Icon(Icons.markunread_mailbox),
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Save Button
-                        ElevatedButton(
-                          onPressed: _isSaving ? null : _saveUserData,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                          child: _isSaving
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor:
-                                        AlwaysStoppedAnimation<Color>(Colors.white),
-                                  ),
-                                )
-                              : const Text('Save Changes'),
-                        ),
                       ],
                     ),
                   ),
                 ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCubeSdkCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: AppTheme.cardShadow,
+      ),
+      child: _cubeSdkInfoLoading
+          ? const Row(
+              children: [
+                SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2)),
+                SizedBox(width: 12),
+                Text('Cube-SDK wird geprüft…'),
+              ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Cube-Gerät (SDK)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
+                const SizedBox(height: 8),
+                Text(
+                  _cubeSdkVersion.isEmpty ? 'Version: —' : 'Version: $_cubeSdkVersion',
+                  style: TextStyle(fontSize: 14, color: AppTheme.textColorSecondary),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(
+                      _cubeLicenseValid == true ? Icons.check_circle : Icons.warning_amber_rounded,
+                      size: 20,
+                      color: _cubeLicenseValid == true ? AppTheme.successColor : AppTheme.errorColor,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _cubeLicenseValid == true
+                            ? 'Bundled-Lizenz: gültig (laut SDK)'
+                            : 'Bundled-Lizenz: ungültig oder abgelaufen — neue cube_license.dat vom Anbieter einspielen und App neu bauen.',
+                        style: const TextStyle(fontSize: 14, color: AppTheme.textColor),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildField(TextEditingController ctrl, String label, IconData icon, {bool required = false, TextInputType? keyboard}) {
+    return TextFormField(
+      controller: ctrl,
+      keyboardType: keyboard,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+      ),
+      validator: required
+          ? (v) => (v == null || v.isEmpty) ? '$label ist erforderlich' : null
+          : null,
     );
   }
 }
-

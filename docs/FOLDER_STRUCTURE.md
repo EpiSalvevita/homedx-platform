@@ -8,7 +8,8 @@
 - `Cube/` – Cube-related reference/license files
 - `docs/` – Detailed setup docs
 - `deploy.sh`, `stop.sh` – start/stop services
-- `setup-wsl-port-forward.ps1` – WSL2 port forwarding (run as Admin on Windows)
+- `check-homedx-connectivity.ps1` – Windows: verify LAN IP, portproxy, and TCP 4000
+- `setup-wsl-port-forward.cmd` / `setup-wsl-port-forward.ps1` – WSL2 port forwarding (run as Admin on Windows; prefer `.cmd` to avoid PowerShell execution-policy issues)
 
 ## Quick Pointers
 

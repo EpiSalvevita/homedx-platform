@@ -9,6 +9,7 @@ import '../screens/test_bluetooth_check_screen.dart';
 import '../screens/doctor_selection_screen.dart';
 import '../screens/appointment_booking_screen.dart';
 import '../screens/shop_screen.dart';
+import '../screens/test_results_screen.dart';
 import '../providers/auth_provider.dart';
 
 class AppRouter {
@@ -98,6 +99,11 @@ class AppRouter {
           path: '/shop',
           name: 'shop',
           builder: (context, state) => const ShopScreen(),
+        ),
+        GoRoute(
+          path: '/results',
+          name: 'results',
+          builder: (context, state) => const TestResultsScreen(),
         ),
       ],
     );

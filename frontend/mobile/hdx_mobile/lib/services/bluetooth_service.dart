@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' hide BluetoothService;
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' as blue show BluetoothService;
 import 'package:permission_handler/permission_handler.dart';
@@ -82,19 +83,23 @@ class AppBluetoothService {
       throw Exception('Bluetooth is not supported on this device');
     }
 
-    // Request location permission (required for Bluetooth scanning on Android)
-    final locationStatus = await Permission.location.request();
+    // Android 12+ (API 31+): Cube SDK and flutter_blue_plus need these at runtime.
+    if (Platform.isAndroid) {
+      final scan = await Permission.bluetoothScan.request();
+      final connect = await Permission.bluetoothConnect.request();
+      if (!scan.isGranted || !connect.isGranted) {
+        throw Exception(
+          'Bluetooth „Geräte in der Nähe“ / Scan und Verbinden ist erforderlich. Bitte in den App-Einstellungen erlauben.',
+        );
+      }
+    }
+
+    // Location (still required on many Android builds for BLE scan / discovery)
+    final locationStatus = await Permission.locationWhenInUse.request();
     if (!locationStatus.isGranted) {
-      throw Exception('Location permission is required for Bluetooth scanning');
+      throw Exception('Standort-Berechtigung ist für Bluetooth-Scan nötig. Bitte erlauben.');
     }
 
-    // Request Bluetooth permissions (Android 12+)
-    if (await Permission.bluetoothScan.request().isGranted &&
-        await Permission.bluetoothConnect.request().isGranted) {
-      return true;
-    }
-
-    // For older Android versions, check if Bluetooth is enabled
     final adapterState = await FlutterBluePlus.adapterState.first;
     if (adapterState != BluetoothAdapterState.on) {
       throw Exception('Bluetooth is not enabled. Please enable Bluetooth in settings.');

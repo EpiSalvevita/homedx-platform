@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../config/app_theme.dart';
 import '../models/test_type.dart';
 import '../services/test_service.dart';
 import '../services/api_service.dart';
+
 
 class TestSelectionScreen extends StatefulWidget {
   const TestSelectionScreen({super.key});
@@ -24,69 +26,25 @@ class _TestSelectionScreenState extends State<TestSelectionScreen> {
   }
 
   Future<void> _loadTestTypes() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
+    setState(() { _isLoading = true; _error = null; });
     try {
       final apiService = Provider.of<ApiService>(context, listen: false);
       final testService = TestService(apiService);
       final testTypes = await testService.getTestTypes();
-
-      if (mounted) {
-        setState(() {
-          _testTypes = testTypes;
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() { _testTypes = testTypes; _isLoading = false; });
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() { _error = e.toString(); _isLoading = false; });
     }
   }
 
-  Future<void> _selectTest(TestType testType) async {
-    // Navigate to Bluetooth check screen for all tests
-    if (mounted) {
-      context.push(
-        '/tests/${testType.id}/bluetooth-check?testTypeName=${Uri.encodeComponent(testType.name)}',
-      );
-    }
-  }
-
-  IconData _getIconData(String iconName) {
-    switch (iconName) {
-      case 'healing':
-        return Icons.healing;
-      case 'wb_sunny':
-        return Icons.wb_sunny;
-      case 'coronavirus':
-        return Icons.coronavirus;
-      case 'science':
-        return Icons.science;
-      case 'biotech':
-        return Icons.biotech;
-      default:
-        return Icons.medical_services;
-    }
+  void _selectTest(TestType testType) {
+    context.push('/tests/${testType.id}/bluetooth-check?testTypeName=${Uri.encodeComponent(testType.name)}');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Testtyp auswählen'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
-          tooltip: 'Zurück zum Start',
-        ),
-      ),
+      appBar: AppBar(title: const Text('Testtyp auswählen')),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _loadTestTypes,
@@ -97,43 +55,20 @@ class _TestSelectionScreenState extends State<TestSelectionScreen> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
+    if (_isLoading) return const Center(child: CircularProgressIndicator());
 
     if (_error != null) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.error_outline,
-                size: 80,
-                color: Colors.red,
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Fehler beim Laden der Tests',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              Icon(Icons.error_outline, size: 64, color: AppTheme.errorColor),
               const SizedBox(height: 16),
-              Text(
-                _error!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _loadTestTypes,
-                child: const Text('Erneut versuchen'),
-              ),
+              Text('Fehler beim Laden der Tests', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
+              const SizedBox(height: 24),
+              ElevatedButton(onPressed: _loadTestTypes, child: const Text('Erneut versuchen')),
             ],
           ),
         ),
@@ -141,111 +76,55 @@ class _TestSelectionScreenState extends State<TestSelectionScreen> {
     }
 
     if (_testTypes.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.medical_services_outlined,
-                size: 80,
-                color: Colors.grey,
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Keine Tests verfügbar',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Derzeit sind keine Testtypen verfügbar',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-            ],
-          ),
-        ),
-      );
+      return const Center(child: Text('Keine Tests verfügbar', style: TextStyle(fontSize: 16)));
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
       itemCount: _testTypes.length,
-      itemBuilder: (context, index) {
-        final testType = _testTypes[index];
-        return _buildTestCard(testType);
-      },
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) => _buildTestCard(_testTypes[index]),
     );
   }
 
   Widget _buildTestCard(TestType testType) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: InkWell(
-        onTap: () => _selectTest(testType),
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Row(
-            children: [
-              // Icon
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: testType.color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  _getIconData(testType.icon),
-                  color: testType.color,
-                  size: 32,
-                ),
+    return GestureDetector(
+      onTap: () => _selectTest(testType),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppTheme.cardColor,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: AppTheme.cardShadow,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppTheme.primaryBlue.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
               ),
-              const SizedBox(width: 16),
-              // Content
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      testType.name,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    if (testType.description.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        testType.description,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
+              child: Icon(Icons.science, color: AppTheme.primaryBlue, size: 24),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(testType.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
+                  if (testType.description.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(testType.description, style: TextStyle(fontSize: 13, color: AppTheme.textColorSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
                   ],
-                ),
+                ],
               ),
-              // Arrow
-              Icon(
-                Icons.chevron_right,
-                color: Colors.grey[400],
-              ),
-            ],
-          ),
+            ),
+            const Icon(Icons.chevron_right, color: AppTheme.textColorSecondary, size: 22),
+          ],
         ),
       ),
     );
   }
 }
-

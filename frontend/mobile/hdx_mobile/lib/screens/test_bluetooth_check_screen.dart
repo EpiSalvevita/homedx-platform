@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../config/app_theme.dart';
 import '../providers/bluetooth_provider.dart';
 import '../services/api_service.dart';
 import '../services/cube_service.dart';
+import '../widgets/neumorphic.dart';
 import 'bluetooth_scan_screen.dart';
+import 'test_progress_screen.dart';
 
 class TestBluetoothCheckScreen extends StatefulWidget {
   final String testTypeId;
@@ -64,148 +67,21 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
     }
   }
 
-  final ValueNotifier<String> _statusNotifier =
-      ValueNotifier('Starte Messung...');
-
-  Future<void> _proceedWithTest() async {
+  void _proceedWithTest() {
     if (_isProcessing) return;
-
     setState(() => _isProcessing = true);
 
-    try {
-      if (mounted) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => AlertDialog(
-            content: ValueListenableBuilder<String>(
-              valueListenable: _statusNotifier,
-              builder: (context, status, _) => Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16),
-                  Text(status),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Bitte warten Sie, bis die Messung abgeschlossen ist.',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }
-
-      final result = await _cubeService.runTestAndSubmit(
-        testTypeId: widget.testTypeId,
-        onStatus: (status) => _statusNotifier.value = status,
-      );
-
-      if (mounted) Navigator.of(context).pop();
-
-      if (result.success) {
-        if (mounted) {
-          await showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Testergebnis'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${widget.testTypeName} Test abgeschlossen',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Icon(
-                        result.result == 'POSITIVE'
-                            ? Icons.warning
-                            : result.result == 'NEGATIVE'
-                                ? Icons.check_circle
-                                : Icons.help,
-                        color: result.result == 'POSITIVE'
-                            ? Colors.red
-                            : result.result == 'NEGATIVE'
-                                ? Colors.green
-                                : Colors.orange,
-                        size: 32,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        result.result ?? 'Unbekannt',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: result.result == 'POSITIVE'
-                              ? Colors.red
-                              : result.result == 'NEGATIVE'
-                                  ? Colors.green
-                                  : Colors.orange,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (result.resultData != null &&
-                      result.resultData!.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    const Divider(),
-                    const Text(
-                      'Details:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    ...result.resultData!.map((data) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2),
-                          child:
-                              Text('${data.name}: ${data.value} ${data.unit}'),
-                        )),
-                  ],
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    context.go('/');
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content:
-                  Text(result.error ?? 'Fehler beim Verarbeiten des Tests'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted && Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
-      }
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Fehler: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => TestProgressScreen(
+          cubeService: _cubeService,
+          testTypeId: widget.testTypeId,
+          testTypeName: widget.testTypeName,
+        ),
+      ),
+    ).then((_) {
       if (mounted) setState(() => _isProcessing = false);
-    }
+    });
   }
 
   Future<void> _navigateToScan() async {
@@ -286,26 +162,31 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.bluetooth_disabled, size: 80, color: Colors.grey),
-            const SizedBox(height: 24),
-            const Text(
+            Icon(Icons.bluetooth_disabled, size: 96, color: AppTheme.textColor),
+            const SizedBox(height: 28),
+            Text(
               'Bluetooth ist deaktiviert',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppTheme.textColor),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Bluetooth muss aktiviert sein, um eine Verbindung zum Cube-Gerät herzustellen',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              style: TextStyle(fontSize: 18, color: AppTheme.textColor),
             ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
+            const SizedBox(height: 36),
+            NeumorphicButton(
+              isPrimary: true,
               onPressed: () => provider.turnOnBluetooth(),
-              icon: const Icon(Icons.bluetooth),
-              label: const Text('Bluetooth aktivieren'),
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.bluetooth, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Text('Bluetooth aktivieren', style: TextStyle(color: Colors.white)),
+                ],
               ),
             ),
           ],
@@ -320,81 +201,90 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Card(
-            color: Colors.green.shade50,
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  const Icon(Icons.check_circle, size: 64, color: Colors.green),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Cube-Gerät verbunden',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
+          NeumorphicContainer(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              children: [
+                const Icon(Icons.check_circle, size: 64, color: AppTheme.primaryColor),
+                const SizedBox(height: 16),
+                Text(
+                  'Cube-Gerät verbunden',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryColor,
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Status: $_cubeState',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Status: $_cubeState',
+                  style: TextStyle(fontSize: 14, color: AppTheme.textColor),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 32),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Bereit zum Teststart',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Ihr Cube-Gerät ist verbunden und bereit. Sie können nun mit dem ${widget.testTypeName} Test fortfahren.',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-                  ),
-                ],
-              ),
+          NeumorphicContainer(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Bereit zum Teststart',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textColor),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Ihr Cube-Gerät ist verbunden und bereit. Sie können nun mit dem ${widget.testTypeName} Test fortfahren.',
+                  style: TextStyle(fontSize: 16, color: AppTheme.textColor),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 32),
-          ElevatedButton.icon(
-            onPressed: _isProcessing ? null : _proceedWithTest,
-            icon: _isProcessing
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : const Icon(Icons.play_arrow),
-            label: Text(
-                _isProcessing ? 'Test wird gestartet...' : 'Test starten'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              textStyle:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          IgnorePointer(
+            ignoring: _isProcessing,
+            child: NeumorphicButton(
+              isPrimary: true,
+              onPressed: _proceedWithTest,
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (_isProcessing)
+                    const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  else
+                    const Icon(Icons.play_arrow, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Text(
+                    _isProcessing ? 'Test wird gestartet...' : 'Test starten',
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 16),
-          OutlinedButton.icon(
-            onPressed: _isProcessing ? null : _disconnectCube,
-            icon: const Icon(Icons.bluetooth_disabled),
-            label: const Text('Gerät trennen'),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+          IgnorePointer(
+            ignoring: _isProcessing,
+            child: NeumorphicButton(
+              onPressed: _disconnectCube,
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.bluetooth_disabled, color: AppTheme.textColor),
+                  const SizedBox(width: 8),
+                  Text('Gerät trennen', style: TextStyle(color: AppTheme.textColor, fontSize: 18)),
+                ],
+              ),
             ),
           ),
         ],
@@ -409,34 +299,41 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.bluetooth_searching, size: 80, color: Colors.orange),
-            const SizedBox(height: 24),
-            const Text(
+            Icon(Icons.bluetooth_searching, size: 96, color: AppTheme.primaryColor),
+            const SizedBox(height: 28),
+            Text(
               'Kein Cube-Gerät verbunden',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppTheme.textColor),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
               'Bitte verbinden Sie Ihr Cube-Gerät, um mit dem ${widget.testTypeName} Test fortzufahren',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, color: Colors.grey),
+              style: TextStyle(fontSize: 18, color: AppTheme.textColor),
             ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
+            const SizedBox(height: 36),
+            NeumorphicButton(
+              isPrimary: true,
               onPressed: _navigateToScan,
-              icon: const Icon(Icons.bluetooth_searching),
-              label: const Text('Nach Cube-Geräten suchen'),
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                textStyle:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.bluetooth_searching, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Text('Nach Cube-Geräten suchen', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             TextButton(
               onPressed: () => context.pop(),
-              child: const Text('Abbrechen'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                minimumSize: const Size(48, 48),
+              ),
+              child: Text('Abbrechen', style: TextStyle(fontSize: 18, color: AppTheme.textColor)),
             ),
           ],
         ),

@@ -1,15 +1,14 @@
 import { Resolver, Query, Args } from '@nestjs/graphql';
 import { LegalPageService } from '../../services/legal-page.service';
-import { 
-  LegalPage, 
-  LegalPageResponse, 
-  LegalPageType 
+import {
+  LegalPage,
+  LegalPageResponse,
+  LegalPageType,
 } from '../types/legal-page.types';
-import { 
-  GetLegalPageInput, 
-  GetLegalPagesInput 
+import {
+  GetLegalPageInput,
+  GetLegalPagesInput,
 } from '../types/legal-page.input';
-import { LegalPageType as PrismaLegalPageType } from '@prisma/client';
 
 @Resolver(() => LegalPage)
 export class LegalPageResolver {

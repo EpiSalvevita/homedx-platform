@@ -79,9 +79,8 @@ flutter devices
 
 ## Step 6: Port Forwarding for Backend Connectivity
 
-If backend runs in WSL2 and the app runs on Windows/phone, follow:
-
-- `docs/WSL2_PORT_FORWARDING.md`
+If backend runs in WSL2 and the app runs on Windows/phone, run **`setup-wsl-port-forward.cmd`**
+as Administrator from the repo root (see `docs/WSL2_PORT_FORWARDING.md`).
 
 ## Troubleshooting (Common)
 

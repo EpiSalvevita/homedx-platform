@@ -69,6 +69,14 @@ API_BASE_URL=http://10.0.2.2:4000   # Android emulator (Windows host)
 API_BASE_URL=http://<windows-lan-ip>:4000   # Physical phone on same Wi-Fi
 ```
 
+If the backend runs in **WSL2** and the app on a Windows emulator or phone, run
+**`setup-wsl-port-forward.cmd`** as Administrator from the repo root so Windows
+port 4000 reaches WSL (see `docs/WSL2_PORT_FORWARDING.md`).
+
+The main Android manifest enables **cleartext HTTP** for local `API_BASE_URL` (LAN/WSL dev).
+
+If login still shows **connection timeout**, the phone is not reaching Windows on port 4000. On Windows, run `.\check-homedx-connectivity.ps1` and ensure `API_BASE_URL` uses the **Windows** IPv4 shown there (not the WSL IP), the backend is running in WSL, and `setup-wsl-port-forward.cmd` was run as Administrator after WSL restarts.
+
 ### 3) Verify Setup
 
 ```bash
@@ -158,6 +166,12 @@ See:
 
 The app uses the native Cube Android SDK (cubelib AAR) via a Kotlin bridge.
 Scanning is filtered to Cube devices only; no Windows service is used.
+
+**Bluetooth pairing (Android):** When the phone asks for a PIN or passkey to pair the Cube, use the **last six digits of the Cube’s serial number** (numeric characters only, in order as they appear on the device label).
+
+**Paired in Settings vs connected in the app:** Pairing the Cube under Android **Settings → Bluetooth** only registers the device with the OS. The homeDX app still uses the **Cube native SDK** scan list: open the in-app **Cube-Gerät suchen** flow, grant **Nearby devices / Bluetooth scan & connect** (and **Location** when prompted), wait until your Cube appears, then tap **Verbinden**. Until the SDK reaches **`ST_IDLE`**, the test flow treats the Cube as disconnected.
+
+**If the scan list stays empty:** Keep the Cube **on**, **charged**, and **paired** in Android settings (PIN = last six digits of the serial number). The Chembio SDK only lists devices it can discover over BLE; wait the full scan (~30s). The app now **disconnects the native Cube transport before each scan** so a stale half-open link cannot block discovery (`startScan` is skipped while `isConnectionOpen()` is true, which is a different flag than “connected” in the UI).
 
 **Key Components:**
 - `CubeService` (`lib/services/cube_service.dart`) – Flutter bridge to native Cube SDK

@@ -102,10 +102,29 @@ class CubeMeasurementInfo {
   });
 }
 
+/// Identifies a step in the Cube measurement lifecycle.
+enum CubeMeasureStep {
+  starting,
+  placeWhite,
+  placeTest,
+  timerRunning,
+  evaluating,
+  readingResults,
+  submitting,
+  done,
+  error,
+}
+
+/// Payload for a measurement step update.
+class CubeStepUpdate {
+  final CubeMeasureStep step;
+  final String label;
+  final int? secondsLeft;
+
+  const CubeStepUpdate({required this.step, required this.label, this.secondsLeft});
+}
+
 /// Service that bridges Flutter to the native Cube Android SDK via MethodChannel/EventChannel.
-///
-/// The Cube SDK manages its own BLE/USB connections, scanning, measurements, and result reading.
-/// Flutter drives the workflow through this service.
 class CubeService {
   static const MethodChannel _channel =
       MethodChannel('com.homedx.cube/analysis');
@@ -122,13 +141,11 @@ class CubeService {
 
   CubeService(this._apiService);
 
-  /// Start listening to native Cube SDK events.
   void startListening() {
     _eventSubscription ??=
         _eventChannel.receiveBroadcastStream().listen(_handleEvent);
   }
 
-  /// Stop listening to events.
   void stopListening() {
     _eventSubscription?.cancel();
     _eventSubscription = null;
@@ -229,9 +246,21 @@ class CubeService {
 
   // ── Measurement ──
 
-  Future<bool> startEvaluation({bool useTimer = false}) async {
-    final ok = await _channel
-        .invokeMethod<bool>('startEvaluation', {'useTimer': useTimer});
+  /// [configAssetName] — optional file under `android/app/src/main/assets/` (default: `cube_test_config.bin`).
+  /// If the asset is missing and [requireBundledConfig] is false, evaluation falls back to RFID config (SDK default).
+  Future<bool> startEvaluation({
+    bool useTimer = false,
+    String? configAssetName,
+    bool requireBundledConfig = false,
+  }) async {
+    final args = <String, dynamic>{
+      'useTimer': useTimer,
+      'requireBundledConfig': requireBundledConfig,
+    };
+    if (configAssetName != null && configAssetName.isNotEmpty) {
+      args['configAssetName'] = configAssetName;
+    }
+    final ok = await _channel.invokeMethod<bool>('startEvaluation', args);
     return ok ?? false;
   }
 
@@ -283,42 +312,86 @@ class CubeService {
 
   // ── Full measurement flow ──
 
-  /// Run a complete measurement: start evaluation, wait for results, submit to backend.
+  /// Run a complete measurement with rich step-by-step callbacks.
   ///
-  /// [onStatus] is called with progress messages for UI updates.
+  /// [onStep] is called with [CubeStepUpdate] for each lifecycle phase,
+  /// enabling the UI to show detailed progress (cassette instructions,
+  /// timer countdown, etc.).
   Future<CubeTestResult> runTestAndSubmit({
     required String testTypeId,
     void Function(String status)? onStatus,
+    void Function(CubeStepUpdate step)? onStep,
     Duration timeout = const Duration(minutes: 5),
   }) async {
-    onStatus?.call('Starte Messung...');
-
-    // 1. Start evaluation on the Cube device
-    final evalOk = await startEvaluation();
-    if (!evalOk) {
-      return CubeTestResult(
-        success: false,
-        error: 'Messung konnte nicht gestartet werden',
-      );
+    void emitStep(CubeMeasureStep step, String label, {int? secondsLeft}) {
+      onStep?.call(CubeStepUpdate(step: step, label: label, secondsLeft: secondsLeft));
+      onStatus?.call(label);
     }
 
-    onStatus?.call('Messung läuft...');
+    emitStep(CubeMeasureStep.starting, 'Starte Messung...');
 
-    // 2. Wait for the SDK to finish evaluation (state goes back to ST_IDLE)
-    final stateCompleter = Completer<bool>();
+    // 1. Hook into onMessage to detect Cube DLL info messages
+    final previousMessageHandler = onMessage;
     final previousStateHandler = onStateChanged;
+    final stateCompleter = Completer<bool>();
+    Completer<bool>? dbReadCompleter;
     bool sawEvaluating = false;
+    int? measurementDoneIndex;
+    String? lastSdkError;
 
+    onMessage = (msgType, msgCode, msgData) {
+      previousMessageHandler?.call(msgType, msgCode, msgData);
+
+      if (msgType == 'MT_INFO' || msgType == '0') {
+        switch (msgCode) {
+          case 0x00: // IM_PLACE_WHITE
+            emitStep(CubeMeasureStep.placeWhite, 'Bitte legen Sie die weiße Kassette in das Gerät ein.');
+            break;
+          case 0x01: // IM_PLACE_TEST
+            emitStep(CubeMeasureStep.placeTest, 'Bitte legen Sie die Testkassette in das Gerät ein.');
+            break;
+          case 0x02: // IM_TIMER_RUNNING
+            final secs = msgData;
+            final mins = secs ~/ 60;
+            final remSecs = secs % 60;
+            final timeStr = mins > 0
+                ? '$mins:${remSecs.toString().padLeft(2, '0')} Min'
+                : '$secs Sek';
+            emitStep(CubeMeasureStep.timerRunning, 'Inkubationszeit: $timeStr verbleibend', secondsLeft: secs);
+            break;
+          case 0x03: // IM_EVALUATION_RUNNING
+            emitStep(CubeMeasureStep.evaluating, 'Messung wird ausgewertet...');
+            break;
+          case 0x04: // IM_MEASUREMENT_DONE
+            measurementDoneIndex = msgData;
+            if (!stateCompleter.isCompleted) {
+              stateCompleter.complete(true);
+            }
+            emitStep(CubeMeasureStep.readingResults, 'Messung abgeschlossen. Ergebnisse werden geladen...');
+            break;
+          case 0x09: // IM_MEASURE_COUNT (readDeviceDatabase completed)
+            if (dbReadCompleter != null && !dbReadCompleter!.isCompleted) {
+              dbReadCompleter!.complete(true);
+            }
+            break;
+        }
+      } else if (msgType == 'MT_ERROR' || msgType == '1') {
+        lastSdkError = 'Cube SDK Fehler: Code $msgCode, Data $msgData';
+        if (!stateCompleter.isCompleted) {
+          stateCompleter.complete(false);
+        }
+        if (dbReadCompleter != null && !dbReadCompleter!.isCompleted) {
+          dbReadCompleter!.complete(false);
+        }
+      }
+    };
+
+    // Install state listener before startEvaluation to avoid missing quick transitions.
     onStateChanged = (state) {
       previousStateHandler?.call(state);
 
       if (state == 'ST_EVALUATE' || state == 'ST_READ') {
         sawEvaluating = true;
-        if (state == 'ST_EVALUATE') {
-          onStatus?.call('Messung läuft...');
-        } else {
-          onStatus?.call('Daten werden gelesen...');
-        }
       }
 
       if (sawEvaluating && state == 'ST_IDLE') {
@@ -331,47 +404,83 @@ class CubeService {
     };
 
     try {
+      // 2. Start evaluation on the Cube device
+      final evalOk = await startEvaluation();
+      if (!evalOk) {
+        return CubeTestResult(
+          success: false,
+          error: 'Messung konnte nicht gestartet werden',
+        );
+      }
+
+      emitStep(CubeMeasureStep.evaluating, 'Messung läuft...');
+
+      // 3. Wait for SDK completion signal/state.
       final ok = await stateCompleter.future.timeout(timeout, onTimeout: () => false);
-      onStateChanged = previousStateHandler;
 
       if (!ok) {
         return CubeTestResult(
           success: false,
-          error: 'Messung fehlgeschlagen oder Zeitüberschreitung',
+          error: lastSdkError ?? 'Messung fehlgeschlagen oder Zeitüberschreitung',
         );
       }
 
-      // 3. Read measurements from device database
-      onStatus?.call('Messdaten werden geladen...');
-      await Future.delayed(const Duration(milliseconds: 500));
+      // 4. Read measurements from device database
+      emitStep(CubeMeasureStep.readingResults, 'Messdaten werden geladen...');
+      dbReadCompleter = Completer<bool>();
       await readDeviceDatabase();
-      await Future.delayed(const Duration(seconds: 2));
-
-      final measurements = await getMeasurements();
+      final dbReadOk = await dbReadCompleter.future.timeout(
+        const Duration(seconds: 20),
+        onTimeout: () => false,
+      );
+      if (!dbReadOk) {
+        return CubeTestResult(
+          success: false,
+          error: lastSdkError ?? 'Auslesen der Messdaten hat zu lange gedauert',
+        );
+      }
+      final measurements = await _waitForMeasurements(
+        expectedIndex: measurementDoneIndex,
+      );
       if (measurements.isEmpty) {
         return CubeTestResult(
           success: false,
-          error: 'Keine Messdaten auf dem Gerät gefunden',
+          error: lastSdkError ?? 'Keine Messdaten auf dem Gerät gefunden',
         );
       }
 
-      // 4. Select the most recent measurement
-      onStatus?.call('Ergebnisse werden geladen...');
-      await selectMeasurement(measurements.last.index);
-      await Future.delayed(const Duration(seconds: 2));
+      // 5. Select the measurement announced by SDK, fallback to most recent.
+      CubeMeasurementInfo selected = measurements.last;
+      if (measurementDoneIndex != null) {
+        for (final m in measurements) {
+          if (m.index == measurementDoneIndex) {
+            selected = m;
+            break;
+          }
+        }
+      }
 
-      // 5. Get results
-      final results = await getResults();
+      emitStep(CubeMeasureStep.readingResults, 'Ergebnisse werden geladen...');
+      final selectedOk = await selectMeasurement(selected.index);
+      if (!selectedOk) {
+        return CubeTestResult(
+          success: false,
+          error: 'Messung konnte nicht ausgewählt werden',
+        );
+      }
+
+      // 6. Get results
+      final results = await _waitForResults();
       if (results.isEmpty) {
         return CubeTestResult(
           success: false,
-          error: 'Keine Ergebnisse für diese Messung verfügbar',
+          error: lastSdkError ?? 'Keine Ergebnisse für diese Messung verfügbar',
         );
       }
 
-      // 6. Submit to backend
-      onStatus?.call('Ergebnisse werden übermittelt...');
-      final deviceSerial = measurements.last.deviceSerial;
+      // 7. Submit to backend
+      emitStep(CubeMeasureStep.submitting, 'Ergebnisse werden übermittelt...');
+      final deviceSerial = selected.deviceSerial;
       final resultString = _determineResultString(results);
       final response = await _apiService.submitCubeData(
         testTypeId: testTypeId,
@@ -381,13 +490,16 @@ class CubeService {
         resultData: results.map((r) => r.toApiJson()).toList(),
       );
 
+      emitStep(CubeMeasureStep.done, 'Fertig');
       return CubeTestResult.fromJson(response);
     } catch (e) {
-      onStateChanged = previousStateHandler;
       return CubeTestResult(
         success: false,
         error: 'Fehler während der Messung: $e',
       );
+    } finally {
+      onStateChanged = previousStateHandler;
+      onMessage = previousMessageHandler;
     }
   }
 
@@ -428,5 +540,39 @@ class CubeService {
       if (v != null && v > 0.5) return 'POSITIVE';
     }
     return 'NEGATIVE';
+  }
+
+  Future<List<CubeMeasurementInfo>> _waitForMeasurements({
+    int? expectedIndex,
+    Duration timeout = const Duration(seconds: 20),
+    Duration pollInterval = const Duration(milliseconds: 300),
+  }) async {
+    final deadline = DateTime.now().add(timeout);
+    List<CubeMeasurementInfo> latest = [];
+    while (DateTime.now().isBefore(deadline)) {
+      latest = await getMeasurements();
+      if (latest.isNotEmpty) {
+        if (expectedIndex == null) return latest;
+        for (final m in latest) {
+          if (m.index == expectedIndex) return latest;
+        }
+      }
+      await Future.delayed(pollInterval);
+    }
+    return latest;
+  }
+
+  Future<List<CubeResultData>> _waitForResults({
+    Duration timeout = const Duration(seconds: 12),
+    Duration pollInterval = const Duration(milliseconds: 250),
+  }) async {
+    final deadline = DateTime.now().add(timeout);
+    List<CubeResultData> latest = [];
+    while (DateTime.now().isBefore(deadline)) {
+      latest = await getResults();
+      if (latest.isNotEmpty) return latest;
+      await Future.delayed(pollInterval);
+    }
+    return latest;
   }
 }

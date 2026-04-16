@@ -6,6 +6,7 @@ import { RapidTestService } from '../services/rapid-test.service';
 import { FileUploadService } from '../services/file-upload.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from '../services/prisma.service';
 
 // Mobile API Response Types
 interface MobileResponse {
@@ -43,6 +44,20 @@ interface LiveTokenResponse extends MobileResponse {
   liveToken?: string;
 }
 
+interface CubeResultDataItem {
+  name: string;
+  value: string;
+  unit?: string;
+  class?: string;
+  validity?: number;
+}
+
+interface SubmitCubeDataResponse extends MobileResponse {
+  testId?: string;
+  result?: string;
+  resultData?: CubeResultDataItem[];
+}
+
 @Controller('gg-homedx-json/gg-api/v1')
 export class MobileController {
   constructor(
@@ -51,6 +66,7 @@ export class MobileController {
     private readonly rapidTestService: RapidTestService,
     private readonly fileUploadService: FileUploadService,
     private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
   ) {}
 
   @Post('login')
@@ -252,6 +268,85 @@ export class MobileController {
     }
   }
 
+  @Post('submit-cube-data')
+  @UseGuards(JwtAuthGuard)
+  async submitCubeData(
+    @Request() req: any,
+    @Body()
+    body: {
+      testTypeId: string;
+      rawData?: number[];
+      deviceSerial?: string;
+      measurementTimestamp?: number;
+      result?: string;
+      resultData?: CubeResultDataItem[];
+    },
+  ): Promise<SubmitCubeDataResponse> {
+    try {
+      const userId = req?.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+      if (!body?.testTypeId) {
+        return { success: false, error: 'testTypeId is required' };
+      }
+
+      // Reuse available kit; create a fallback if inventory is empty.
+      let testKit = await this.prisma.testKit.findFirst({
+        where: { status: 'AVAILABLE' },
+      });
+      if (!testKit) {
+        testKit = await this.prisma.testKit.create({
+          data: {
+            serialNumber: `CUBE-${Date.now()}`,
+            type: 'COVID_19',
+            manufacturer: 'Cube Device',
+            model: 'Cube',
+            batchNumber: `CUBE-BATCH-${Date.now()}`,
+            expirationDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+            status: 'AVAILABLE',
+          },
+        });
+      }
+
+      const normalizedResult = this.normalizeCubeResult(body.result, body.resultData);
+      const testDate = body.measurementTimestamp
+        ? new Date(body.measurementTimestamp)
+        : new Date();
+
+      const rapidTest = await this.prisma.rapidTest.create({
+        data: {
+          userId,
+          testKitId: testKit.id,
+          testDate,
+          completedAt: new Date(),
+          status: 'COMPLETED',
+          result: normalizedResult,
+          notes: JSON.stringify({
+            source: 'cube',
+            testTypeId: body.testTypeId,
+            deviceSerial: body.deviceSerial ?? null,
+            measurementTimestamp: body.measurementTimestamp ?? null,
+            rawData: body.rawData ?? null,
+            resultData: body.resultData ?? [],
+          }),
+        },
+      });
+
+      return {
+        success: true,
+        testId: rapidTest.id,
+        result: normalizedResult,
+        resultData: body.resultData ?? [],
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to submit Cube data',
+      };
+    }
+  }
+
   @Post('get-last-test')
   @UseGuards(JwtAuthGuard)
   async getLastTest(@Headers('x-auth-token') token: string): Promise<TestResultResponse> {
@@ -445,5 +540,30 @@ export class MobileController {
         error: error.message || 'Failed to unset authentication',
       };
     }
+  }
+
+  private normalizeCubeResult(
+    result?: string,
+    resultData?: CubeResultDataItem[],
+  ): 'POSITIVE' | 'NEGATIVE' | 'INVALID' | 'INCONCLUSIVE' {
+    const normalized = (result ?? '').toUpperCase();
+    if (
+      normalized === 'POSITIVE' ||
+      normalized === 'NEGATIVE' ||
+      normalized === 'INVALID' ||
+      normalized === 'INCONCLUSIVE'
+    ) {
+      return normalized;
+    }
+
+    for (const entry of resultData ?? []) {
+      const cls = (entry.class ?? '').toUpperCase();
+      if (cls === 'POSITIVE' || cls === 'POS') return 'POSITIVE';
+      if (cls === 'NEGATIVE' || cls === 'NEG') return 'NEGATIVE';
+      if (cls === 'INVALID') return 'INVALID';
+      if (cls === 'INCONCLUSIVE') return 'INCONCLUSIVE';
+    }
+
+    return 'INCONCLUSIVE';
   }
 }

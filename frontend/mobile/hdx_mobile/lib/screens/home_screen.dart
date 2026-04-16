@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../config/app_theme.dart';
 import '../providers/auth_provider.dart';
 import '../services/user_service.dart';
 import '../services/api_service.dart';
+import '../widgets/neumorphic.dart';
 import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,7 +18,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   UserData? _userData;
   bool _isLoading = true;
-  String? _error;
 
   @override
   void initState() {
@@ -25,77 +26,59 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadUserData() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
+    setState(() => _isLoading = true);
     try {
       final apiService = Provider.of<ApiService>(context, listen: false);
       final userService = UserService(apiService);
       final userData = await userService.getUserData();
-
-      if (mounted) {
-        setState(() {
-          _userData = userData;
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() { _userData = userData; _isLoading = false; });
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   Future<void> _handleLogout() async {
     final authProvider = context.read<AuthProvider>();
     await authProvider.logout();
-    if (mounted) {
-      context.go('/login');
-    }
+    if (mounted) context.go('/login');
   }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
-    final userName = _userData != null
-        ? '${_userData!.firstName} ${_userData!.lastName}'
-        : authProvider.userEmail ?? 'Benutzer';
+    final firstName = _userData?.firstName ?? authProvider.userEmail?.split('@').first ?? 'Benutzer';
+    final email = _userData?.email ?? authProvider.userEmail ?? '';
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('HomeDX'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.person),
+            icon: const Icon(Icons.menu),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-            },
-          ),
-          PopupMenuButton(
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'logout',
-                child: Row(
-                  children: [
-                    Icon(Icons.logout, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Abmelden'),
-                  ],
+              showModalBottomSheet(
+                context: context,
+                builder: (_) => SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.person_outline),
+                        title: const Text('Profil'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.logout, color: AppTheme.errorColor),
+                        title: const Text('Abmelden', style: TextStyle(color: AppTheme.errorColor)),
+                        onTap: () { Navigator.pop(context); _handleLogout(); },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-            onSelected: (value) {
-              if (value == 'logout') {
-                _handleLogout();
-              }
+              );
             },
           ),
         ],
@@ -104,195 +87,83 @@ class _HomeScreenState extends State<HomeScreen> {
         child: RefreshIndicator(
           onRefresh: _loadUserData,
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Welcome Section
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                // Welcome card
+                NeumorphicContainer(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryLight,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.person_outline, color: AppTheme.primaryBlue, size: 28),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CircleAvatar(
-                              radius: 30,
-                              backgroundColor: Theme.of(context).primaryColor,
-                              child: Text(
-                                userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Willkommen,',
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                          color: Colors.grey[600],
-                                        ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    userName,
-                                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                  ),
-                                  if (_userData?.email != null) ...[
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      _userData!.email,
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            color: Colors.grey[600],
-                                          ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
+                            Text('Willkommen,', style: TextStyle(fontSize: 14, color: AppTheme.textColorSecondary)),
+                            Text(firstName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
+                            if (email.isNotEmpty)
+                              Text(email, style: TextStyle(fontSize: 13, color: AppTheme.textColorSecondary)),
                           ],
                         ),
-                        if (_isLoading) ...[
-                          const SizedBox(height: 16),
-                          const LinearProgressIndicator(),
-                        ],
-                        if (_error != null && !_isLoading) ...[
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.red[50],
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.red[200]!),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.error_outline, color: Colors.red[700]),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    'Fehler beim Laden der Benutzerdaten',
-                                    style: TextStyle(color: Colors.red[700]),
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: _loadUserData,
-                                  child: const Text('Wiederholen'),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
+                      ),
+                      GestureDetector(
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
+                        child: const Icon(Icons.arrow_forward_ios, size: 18, color: AppTheme.textColorSecondary),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                if (_isLoading)
+                  const Padding(padding: EdgeInsets.only(top: 8), child: LinearProgressIndicator()),
 
-                // Quick Actions Section
-                Text(
-                  'Schnellaktionen',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
+                const Text('Schnellaktionen', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
+                const SizedBox(height: 14),
+
+                // 2x2 grid of quick actions
                 GridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 1.5,
+                  crossAxisSpacing: 14,
+                  mainAxisSpacing: 14,
+                  childAspectRatio: 1.4,
                   children: [
-                    _buildActionCard(
-                      context,
-                      icon: Icons.medical_services,
-                      title: 'Test starten',
-                      color: Colors.blue,
-                      onTap: () {
-                        context.go('/tests');
-                      },
-                    ),
-                    _buildActionCard(
-                      context,
-                      icon: Icons.medical_services_outlined,
-                      title: 'Arzttermin',
-                      color: Colors.teal,
-                      onTap: () {
-                        context.push('/doctors');
-                      },
-                    ),
-                    _buildActionCard(
-                      context,
-                      icon: Icons.assignment,
-                      title: 'Ergebnisse',
-                      color: Colors.green,
-                      onTap: () {
-                        // TODO: Navigate to results
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Ergebnisse-Funktion kommt bald')),
-                        );
-                      },
-                    ),
-                    _buildActionCard(
-                      context,
-                      icon: Icons.shopping_cart,
-                      title: 'Shop',
-                      color: Colors.orange,
-                      onTap: () {
-                        context.push('/shop');
-                      },
-                    ),
+                    _ActionCard(icon: Icons.medical_services, label: 'Test starten', onTap: () => context.go('/tests')),
+                    _ActionCard(icon: Icons.calendar_today, label: 'Arzttermin', onTap: () => context.push('/doctors')),
+                    _ActionCard(icon: Icons.assignment, label: 'Ergebnisse', onTap: () => context.push('/results')),
+                    _ActionCard(icon: Icons.shopping_bag, label: 'Shop', onTap: () => context.push('/shop')),
                   ],
                 ),
-                const SizedBox(height: 24),
 
-                // Recent Activity Section
-                Text(
-                  'Letzte Aktivität',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                const SizedBox(height: 24),
+                const Text('Letzte Aktivität', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
+                const SizedBox(height: 14),
+
+                _ActivityTile(
+                  icon: Icons.info_outline,
+                  title: 'Erste Schritte',
+                  subtitle: 'Vervollständigen Sie Ihr Profil, um zu beginnen',
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
                 ),
-                const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        ListTile(
-                          leading: const Icon(Icons.info_outline),
-                          title: const Text('Erste Schritte'),
-                          subtitle: const Text('Vervollständigen Sie Ihr Profil, um zu beginnen'),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ProfileScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        const Divider(),
-                        ListTile(
-                          leading: const Icon(Icons.notifications_outlined),
-                          title: const Text('Keine aktuellen Benachrichtigungen'),
-                          subtitle: const Text('Sie sind auf dem neuesten Stand!'),
-                        ),
-                      ],
-                    ),
-                  ),
+                const SizedBox(height: 10),
+                _ActivityTile(
+                  icon: Icons.notifications_none,
+                  title: 'Keine Aktuellen Benachrichtigungen',
+                  subtitle: 'Sie sind auf dem neuesten Stand!',
+                  onTap: () {},
                 ),
               ],
             ),
@@ -301,41 +172,115 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
 
-  Widget _buildActionCard(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 48,
-                color: color,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
+class _ActionCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _ActionCard({required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.cardColor,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: AppTheme.cardShadow,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Blue blob icon
+            SizedBox(
+              width: 56,
+              height: 44,
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 4,
+                    top: 0,
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                textAlign: TextAlign.center,
+                  ),
+                  Positioned(
+                    right: 4,
+                    bottom: 0,
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.35),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 10),
+            Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textColor)),
+          ],
         ),
       ),
     );
   }
 }
 
+class _ActivityTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _ActivityTile({required this.icon, required this.title, required this.subtitle, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppTheme.cardColor,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: AppTheme.cardShadow,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppTheme.primaryLight,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: AppTheme.primaryBlue, size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textColor)),
+                  const SizedBox(height: 3),
+                  Text(subtitle, style: TextStyle(fontSize: 13, color: AppTheme.textColorSecondary)),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppTheme.textColorSecondary, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
