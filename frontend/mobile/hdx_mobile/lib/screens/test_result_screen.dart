@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../config/app_theme.dart';
 import '../services/cube_service.dart';
+import '../utils/test_specialization_mapping.dart';
 import '../widgets/neumorphic.dart';
 
 /// Full-screen display of a single Cube test result.
 ///
 /// Shows a large result badge (positive/negative/inconclusive),
 /// the test name, date/time, and detailed result rows.
+///
+/// When the result is positive and a [testTypeId] is available, the screen
+/// also offers a CTA that deep-links into the doctor selection flow,
+/// pre-filtered to the matching specialty (e.g. positive RheumaCheck ->
+/// Rheumatologie).
 class TestResultScreen extends StatelessWidget {
   final String testTypeName;
   final CubeTestResult result;
+  final String? testTypeId;
 
   const TestResultScreen({
     super.key,
     required this.testTypeName,
     required this.result,
+    this.testTypeId,
   });
 
   @override
@@ -108,20 +117,78 @@ class TestResultScreen extends StatelessWidget {
 
             const SizedBox(height: 32),
 
+            if (isPositive) _buildBookSpecialistCta(context),
+
             // Actions
             NeumorphicButton(
-              isPrimary: true,
+              isPrimary: !isPositive,
               onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.home, color: Colors.white),
-                  SizedBox(width: 12),
-                  Text('Zur Startseite'),
+                  Icon(
+                    Icons.home,
+                    color: isPositive ? AppTheme.textColor : Colors.white,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Zur Startseite',
+                    style: TextStyle(
+                      color: isPositive ? AppTheme.textColor : Colors.white,
+                    ),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBookSpecialistCta(BuildContext context) {
+    final specialization =
+        TestSpecializationMapping.primarySpecialization(testTypeId);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: NeumorphicButton(
+        key: const Key('book-specialist-cta'),
+        isPrimary: true,
+        onPressed: () {
+          final query = <String, String>{};
+          if (testTypeId != null && testTypeId!.isNotEmpty) {
+            query['testTypeId'] = testTypeId!;
+          }
+          if (testTypeName.isNotEmpty) {
+            query['testTypeName'] = testTypeName;
+          }
+          final uri = Uri(path: '/doctors', queryParameters: query);
+          context.push(uri.toString());
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.calendar_month, color: Colors.white),
+                SizedBox(width: 12),
+                Text(
+                  'Termin mit Facharzt buchen',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Empfohlen: $specialization',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+              ),
+            ),
           ],
         ),
       ),

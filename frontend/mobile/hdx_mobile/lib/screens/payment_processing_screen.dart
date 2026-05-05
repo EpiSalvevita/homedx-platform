@@ -149,9 +149,9 @@ class PaymentProcessingScreen extends StatelessWidget {
         status: 'COMPLETED',
       );
 
-      print('Payment updated successfully: $paymentId');
+      debugPrint('Payment updated successfully: $paymentId');
     } catch (e) {
-      print('Error updating payment: $e');
+      debugPrint('Error updating payment: $e');
       // Don't show error to user as payment was already processed
     }
   }

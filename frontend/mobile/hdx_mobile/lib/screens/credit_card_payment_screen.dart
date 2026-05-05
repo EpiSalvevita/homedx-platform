@@ -46,13 +46,13 @@ class _CreditCardPaymentScreenState extends State<CreditCardPaymentScreen> {
     value = value.replaceAll(RegExp(r'[^\d]'), '');
     // Add spaces every 4 digits
     if (value.length > 4) {
-      value = value.substring(0, 4) + ' ' + value.substring(4);
+      value = '${value.substring(0, 4)} ${value.substring(4)}';
     }
     if (value.length > 9) {
-      value = value.substring(0, 9) + ' ' + value.substring(9);
+      value = '${value.substring(0, 9)} ${value.substring(9)}';
     }
     if (value.length > 14) {
-      value = value.substring(0, 14) + ' ' + value.substring(14);
+      value = '${value.substring(0, 14)} ${value.substring(14)}';
     }
     return value;
   }
@@ -62,7 +62,7 @@ class _CreditCardPaymentScreenState extends State<CreditCardPaymentScreen> {
     value = value.replaceAll(RegExp(r'[^\d]'), '');
     // Add slash after 2 digits
     if (value.length >= 2) {
-      value = value.substring(0, 2) + '/' + value.substring(2);
+      value = '${value.substring(0, 2)}/${value.substring(2)}';
     }
     return value;
   }
@@ -132,17 +132,17 @@ class _CreditCardPaymentScreenState extends State<CreditCardPaymentScreen> {
     });
 
     try {
-      print('Credit card payment - Starting payment process for paymentId: ${widget.paymentId}');
+      debugPrint('Credit card payment - Starting payment process for paymentId: ${widget.paymentId}');
       final paymentService = Provider.of<PaymentService>(context, listen: false);
 
       // Step 1: Create payment intent via backend
-      print('Credit card payment - Creating Stripe payment intent...');
+      debugPrint('Credit card payment - Creating Stripe payment intent...');
       final clientSecret = await paymentService.createStripePaymentIntent(
         paymentId: widget.paymentId,
         amount: widget.amount,
         currency: widget.currency,
       );
-      print('Credit card payment - Payment intent created, clientSecret received');
+      debugPrint('Credit card payment - Payment intent created, clientSecret received');
 
       // Step 2: Create payment method with Stripe using card details
       final paymentMethod = await stripe.Stripe.instance.createPaymentMethod(
@@ -207,7 +207,7 @@ class _CreditCardPaymentScreenState extends State<CreditCardPaymentScreen> {
             children: [
               // Amount Display
               Card(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(

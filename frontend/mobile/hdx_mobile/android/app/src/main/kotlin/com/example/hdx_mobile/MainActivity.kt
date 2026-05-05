@@ -10,4 +10,10 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         cubeBridge = CubeBridge(application, flutterEngine)
     }
+
+    override fun onDestroy() {
+        cubeBridge?.dispose()
+        cubeBridge = null
+        super.onDestroy()
+    }
 }

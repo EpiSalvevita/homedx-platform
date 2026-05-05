@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import '../utils/constants.dart';
@@ -66,9 +67,9 @@ class GraphQLService {
     final graphqlUrl = '${AppConstants.apiBaseUrl}/graphql';
     final token = _apiService.authToken;
     
-    print('GraphQL mutate - URL: $graphqlUrl');
-    print('GraphQL mutate - Has token: ${token != null}');
-    print('GraphQL mutate - Variables: $variables');
+    debugPrint('GraphQL mutate - URL: $graphqlUrl');
+    debugPrint('GraphQL mutate - Has token: ${token != null}');
+    debugPrint('GraphQL mutate - Variables: $variables');
     
     final options = MutationOptions(
       document: gql(mutation),
@@ -78,16 +79,16 @@ class GraphQLService {
 
     try {
       final result = await _client.mutate(options);
-      print('GraphQL mutate - Result: hasException=${result.hasException}');
+      debugPrint('GraphQL mutate - Result: hasException=${result.hasException}');
       if (result.hasException) {
-        print('GraphQL mutate - Exception: ${result.exception}');
+        debugPrint('GraphQL mutate - Exception: ${result.exception}');
       }
       if (result.data != null) {
-        print('GraphQL mutate - Data: ${result.data}');
+        debugPrint('GraphQL mutate - Data: ${result.data}');
       }
       return result;
     } catch (e) {
-      print('GraphQL mutate - Caught exception: $e');
+      debugPrint('GraphQL mutate - Caught exception: $e');
       rethrow;
     }
   }

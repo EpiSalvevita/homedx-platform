@@ -79,7 +79,14 @@ class AppRouter {
         GoRoute(
           path: '/doctors',
           name: 'doctors',
-          builder: (context, state) => const DoctorSelectionScreen(),
+          builder: (context, state) {
+            final testTypeId = state.uri.queryParameters['testTypeId'];
+            final testTypeName = state.uri.queryParameters['testTypeName'];
+            return DoctorSelectionScreen(
+              testTypeId: testTypeId,
+              testTypeName: testTypeName,
+            );
+          },
         ),
         GoRoute(
           path: '/doctors/:doctorId/appointment',
@@ -88,10 +95,14 @@ class AppRouter {
             final doctorId = state.pathParameters['doctorId'] ?? '';
             final doctorName = state.uri.queryParameters['doctorName'] ?? 'Arzt';
             final specialization = state.uri.queryParameters['specialization'] ?? '';
+            final testTypeId = state.uri.queryParameters['testTypeId'];
+            final testTypeName = state.uri.queryParameters['testTypeName'];
             return AppointmentBookingScreen(
               doctorId: doctorId,
               doctorName: doctorName,
               specialization: specialization,
+              testTypeId: testTypeId,
+              testTypeName: testTypeName,
             );
           },
         ),

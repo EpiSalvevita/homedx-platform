@@ -143,7 +143,7 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
             children: [
               // Amount Display
               Card(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(

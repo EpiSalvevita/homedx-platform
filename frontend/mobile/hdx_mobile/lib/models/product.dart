@@ -31,14 +31,8 @@ class Product {
       price: (json['price'] as num).toDouble(),
       currency: json['currency'] as String? ?? 'EUR',
       imageUrl: json['imageUrl'] as String? ?? '',
-      type: ProductType.values.firstWhere(
-        (e) => e.toString() == 'ProductType.${json['type']}',
-        orElse: () => ProductType.PHYSICAL,
-      ),
-      category: ProductCategory.values.firstWhere(
-        (e) => e.toString() == 'ProductCategory.${json['category']}',
-        orElse: () => ProductCategory.TEST_STRIP,
-      ),
+      type: ProductType.fromWireValue(json['type'] as String?),
+      category: ProductCategory.fromWireValue(json['category'] as String?),
       stock: json['stock'] as int?,
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
@@ -52,8 +46,8 @@ class Product {
       'price': price,
       'currency': currency,
       'imageUrl': imageUrl,
-      'type': type.toString().split('.').last,
-      'category': category.toString().split('.').last,
+      'type': type.wireValue,
+      'category': category.wireValue,
       'stock': stock,
       'metadata': metadata,
     };
@@ -86,17 +80,57 @@ class Product {
   }
 }
 
+/// Categorizes a [Product] by fulfillment type.
+///
+/// Each value carries an explicit [wireValue] that mirrors the matching
+/// Prisma enum member on the NestJS backend. Dart-side names follow Dart
+/// style (lowerCamelCase); wire values follow Prisma style (SCREAMING_SNAKE_CASE).
 enum ProductType {
-  PHYSICAL,
-  DIGITAL,
-  SERVICE,
+  physical('PHYSICAL'),
+  digital('DIGITAL'),
+  service('SERVICE');
+
+  const ProductType(this.wireValue);
+
+  /// Backend wire-format string. Sent in `Product.toJson` and matched in
+  /// `fromWireValue`. Do not refactor this away without coordinating with
+  /// the backend Prisma schema.
+  final String wireValue;
+
+  /// Resolves a backend wire value to its Dart enum member.
+  ///
+  /// Returns [ProductType.physical] for null or unknown values so a
+  /// malformed/expanded backend payload doesn't crash the app — same
+  /// behaviour as the previous `toString()`-based parser.
+  static ProductType fromWireValue(String? value) {
+    if (value == null) return ProductType.physical;
+    for (final t in ProductType.values) {
+      if (t.wireValue == value) return t;
+    }
+    return ProductType.physical;
+  }
 }
 
+/// Sub-categorizes a [Product] for the shop UI.
+///
+/// See [ProductType] for the wire-value rationale.
 enum ProductCategory {
-  TEST_STRIP,
-  TEST_DEVICE,
-  ACCESSORY,
-  OTHER,
+  testStrip('TEST_STRIP'),
+  testDevice('TEST_DEVICE'),
+  accessory('ACCESSORY'),
+  other('OTHER');
+
+  const ProductCategory(this.wireValue);
+
+  final String wireValue;
+
+  static ProductCategory fromWireValue(String? value) {
+    if (value == null) return ProductCategory.testStrip;
+    for (final t in ProductCategory.values) {
+      if (t.wireValue == value) return t;
+    }
+    return ProductCategory.testStrip;
+  }
 }
 
 class CartItem {

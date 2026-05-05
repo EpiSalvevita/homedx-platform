@@ -80,7 +80,15 @@ class CubeDeviceInfo {
   final int index;
   final String name;
 
-  CubeDeviceInfo({required this.index, required this.name});
+  /// Communication channel reported by the SDK
+  /// (e.g. `BLUETOOTH_LE`, `BLUETOOTH`, `FTDI`). Empty when unknown.
+  final String commType;
+
+  CubeDeviceInfo({
+    required this.index,
+    required this.name,
+    this.commType = '',
+  });
 }
 
 /// Measurement summary returned from native SDK.
@@ -167,6 +175,7 @@ class CubeService {
           return CubeDeviceInfo(
             index: (dm['index'] as num?)?.toInt() ?? 0,
             name: dm['name']?.toString() ?? '',
+            commType: dm['commType']?.toString() ?? '',
           );
         }).toList();
         onDevicesUpdated?.call(devices);
@@ -317,11 +326,20 @@ class CubeService {
   /// [onStep] is called with [CubeStepUpdate] for each lifecycle phase,
   /// enabling the UI to show detailed progress (cassette instructions,
   /// timer countdown, etc.).
+  ///
+  /// [useTimer] controls whether the SDK runs the standardized incubation
+  /// timer defined in the cassette test configuration. Per the Cube
+  /// programmer's guide, when this is false the measurement is executed
+  /// immediately without waiting — which would skip the assay's required
+  /// incubation period and produce clinically meaningless results — so it
+  /// defaults to true. Pass false only for reading already-incubated
+  /// cassettes.
   Future<CubeTestResult> runTestAndSubmit({
     required String testTypeId,
     void Function(String status)? onStatus,
     void Function(CubeStepUpdate step)? onStep,
     Duration timeout = const Duration(minutes: 5),
+    bool useTimer = true,
   }) async {
     void emitStep(CubeMeasureStep step, String label, {int? secondsLeft}) {
       onStep?.call(CubeStepUpdate(step: step, label: label, secondsLeft: secondsLeft));
@@ -370,8 +388,9 @@ class CubeService {
             emitStep(CubeMeasureStep.readingResults, 'Messung abgeschlossen. Ergebnisse werden geladen...');
             break;
           case 0x09: // IM_MEASURE_COUNT (readDeviceDatabase completed)
-            if (dbReadCompleter != null && !dbReadCompleter!.isCompleted) {
-              dbReadCompleter!.complete(true);
+            final c = dbReadCompleter;
+            if (c != null && !c.isCompleted) {
+              c.complete(true);
             }
             break;
         }
@@ -380,8 +399,9 @@ class CubeService {
         if (!stateCompleter.isCompleted) {
           stateCompleter.complete(false);
         }
-        if (dbReadCompleter != null && !dbReadCompleter!.isCompleted) {
-          dbReadCompleter!.complete(false);
+        final c = dbReadCompleter;
+        if (c != null && !c.isCompleted) {
+          c.complete(false);
         }
       }
     };
@@ -405,7 +425,7 @@ class CubeService {
 
     try {
       // 2. Start evaluation on the Cube device
-      final evalOk = await startEvaluation();
+      final evalOk = await startEvaluation(useTimer: useTimer);
       if (!evalOk) {
         return CubeTestResult(
           success: false,

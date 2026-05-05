@@ -26,6 +26,14 @@ class CubeBridge(
         const val EVENT_CHANNEL = "com.homedx.cube/events"
         /** Default asset path: place your test config blob here (see README / docs). */
         private const val DEFAULT_CUBE_CONFIG_ASSET = "cube_test_config.bin"
+        /**
+         * Seconds of inactivity after which the SDK closes the BLE link.
+         * Mirrors the vendor sample's preference default (300 s) — without
+         * this the SDK keeps the connection open until the process is
+         * killed, which drains battery and leaves the device unavailable
+         * to other apps.
+         */
+        private const val AUTO_DISCONNECT_SECONDS = 300L
     }
 
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -53,8 +61,12 @@ class CubeBridge(
         eventSink?.success(
             mapOf(
                 "type" to "devices",
-                "devices" to devices.map { d ->
-                    mapOf("name" to d.toString(), "index" to devices.indexOf(d))
+                "devices" to devices.mapIndexed { idx, d ->
+                    mapOf(
+                        "name" to d.name,
+                        "commType" to d.commType.name,
+                        "index" to idx,
+                    )
                 },
             )
         )
@@ -108,6 +120,25 @@ class CubeBridge(
         })
 
         loadBundledLicense()
+        viewModel.setAutoDisconnectTime(AUTO_DISCONNECT_SECONDS)
+    }
+
+    /**
+     * Tear-down hook for the owning Activity / engine. Removes any active
+     * `observeForever` subscriptions, drops the `EventSink`, and asks the
+     * SDK to release the BLE connection so it doesn't leak past the
+     * Flutter engine's lifetime.
+     */
+    fun dispose() {
+        removeObservers()
+        eventSink = null
+        try {
+            if (viewModel.isConnected()) {
+                viewModel.disconnectDevice(/* finishCurrentOperation = */ true, /* shutDown = */ false)
+            }
+        } catch (e: Exception) {
+            Log.w("CubeBridge", "dispose: disconnectDevice failed", e)
+        }
     }
 
     private fun observeOnMainThread() {

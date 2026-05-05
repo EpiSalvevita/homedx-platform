@@ -4,11 +4,47 @@ import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
 import '../providers/bluetooth_provider.dart';
 import '../services/api_service.dart';
+import '../services/bluetooth_service.dart';
 import '../services/cube_service.dart';
 import '../widgets/neumorphic.dart';
 
+/// Bundle of injectable dependencies used by widget tests to bypass the
+/// real `CubeService`, `AppBluetoothService.requestPermissions` and
+/// `BluetoothProvider`. Production code never sets this — the screen
+/// falls back to the Provider tree and the real services when this is
+/// null. See `test/screens/bluetooth_scan_screen_test.dart`.
+@visibleForTesting
+class BluetoothScanScreenTestOverrides {
+  /// CubeService instance backed by a stubbed `MethodChannel`/`EventChannel`.
+  final CubeService cubeService;
+
+  /// Stand-in for `AppBluetoothService.requestPermissions()`. Return
+  /// `true` to grant, `false` to surface the permission-denied error UI.
+  /// Throw to simulate an exception (e.g. user revoked permissions).
+  final Future<bool> Function() requestPermissions;
+
+  /// Bypasses `Provider.of<BluetoothProvider>().isBluetoothEnabled` so a
+  /// test doesn't have to construct a real `BluetoothProvider` (which
+  /// would subscribe to `FlutterBluePlus.adapterState` and crash on
+  /// non-mobile platforms).
+  final bool isBluetoothEnabled;
+
+  /// Replaces `BluetoothProvider.turnOnBluetooth()` for the
+  /// "Bluetooth deaktiviert" CTA. Defaults to a no-op.
+  final Future<void> Function()? turnOnBluetooth;
+
+  const BluetoothScanScreenTestOverrides({
+    required this.cubeService,
+    required this.requestPermissions,
+    this.isBluetoothEnabled = true,
+    this.turnOnBluetooth,
+  });
+}
+
 class BluetoothScanScreen extends StatefulWidget {
-  const BluetoothScanScreen({super.key});
+  final BluetoothScanScreenTestOverrides? testOverrides;
+
+  const BluetoothScanScreen({super.key, this.testOverrides});
 
   @override
   State<BluetoothScanScreen> createState() => _BluetoothScanScreenState();
@@ -16,18 +52,26 @@ class BluetoothScanScreen extends StatefulWidget {
 
 class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
   late CubeService _cubeService;
+  final AppBluetoothService _btPermissionService = AppBluetoothService();
   List<CubeDeviceInfo> _devices = [];
   bool _isScanning = false;
   bool _isConnecting = false;
   bool _connectDialogOpen = false;
+  bool _permissionsGranted = false;
   String? _error;
   Timer? _connectTimeoutTimer;
+  Timer? _scanTimeoutGuardTimer;
 
   @override
   void initState() {
     super.initState();
-    final apiService = Provider.of<ApiService>(context, listen: false);
-    _cubeService = CubeService(apiService);
+    final overrides = widget.testOverrides;
+    if (overrides != null) {
+      _cubeService = overrides.cubeService;
+    } else {
+      final apiService = Provider.of<ApiService>(context, listen: false);
+      _cubeService = CubeService(apiService);
+    }
     _cubeService.onDevicesUpdated = _onDevicesUpdated;
     _cubeService.onStateChanged = _onStateChanged;
     _cubeService.onMessage = _onMessage;
@@ -43,13 +87,47 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
         });
         return;
       }
+      final permsOk = await _ensureBluetoothPermissions();
+      if (!mounted || !permsOk) return;
       _startScan();
     });
+  }
+
+  /// Requests `BLUETOOTH_SCAN` / `BLUETOOTH_CONNECT` (Android 12+) and
+  /// `ACCESS_FINE_LOCATION` (older Android) before the Cube SDK scans. The
+  /// CubeLib scan goes through the native side and silently returns empty
+  /// results when these dangerous permissions are missing.
+  Future<bool> _ensureBluetoothPermissions() async {
+    if (_permissionsGranted) return true;
+    try {
+      final overrides = widget.testOverrides;
+      if (overrides != null) {
+        final ok = await overrides.requestPermissions();
+        if (!ok) {
+          throw Exception(
+            'Bluetooth „Geräte in der Nähe“ / Scan und Verbinden ist erforderlich. Bitte in den App-Einstellungen erlauben.',
+          );
+        }
+      } else {
+        await _btPermissionService.requestPermissions();
+      }
+      if (!mounted) return false;
+      setState(() => _permissionsGranted = true);
+      return true;
+    } catch (e) {
+      if (!mounted) return false;
+      setState(() {
+        _isScanning = false;
+        _error = e.toString().replaceFirst('Exception: ', '');
+      });
+      return false;
+    }
   }
 
   @override
   void dispose() {
     _connectTimeoutTimer?.cancel();
+    _scanTimeoutGuardTimer?.cancel();
     _cubeService.stopListening();
     super.dispose();
   }
@@ -101,6 +179,8 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
   }
 
   Future<void> _startScan() async {
+    final permsOk = await _ensureBluetoothPermissions();
+    if (!permsOk || !mounted) return;
     setState(() {
       _error = null;
       _isScanning = true;
@@ -117,9 +197,19 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
               'Scan konnte nicht gestartet werden (SDK lehnt Start ab — z. B. noch verbunden oder bereits am Scannen). Tippen Sie auf Aktualisieren oder starten Sie die App neu.';
         });
       }
-      // Scanning stops automatically after timeout; state event will update _isScanning
-      await Future.delayed(const Duration(milliseconds: scanMs + 1500));
-      if (mounted) setState(() => _isScanning = false);
+      // Safety belt: if the SDK never emits a stop-scan state event,
+      // flip the spinner off shortly after the scan window. Stored as a
+      // Timer so dispose() can cancel it; otherwise a unit-test teardown
+      // (or a real navigation away) leaves a Future.delayed pending,
+      // which throws "Timer still pending" and risks setState after
+      // dispose in production.
+      _scanTimeoutGuardTimer?.cancel();
+      _scanTimeoutGuardTimer = Timer(
+        const Duration(milliseconds: scanMs + 1500),
+        () {
+          if (mounted) setState(() => _isScanning = false);
+        },
+      );
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -215,9 +305,13 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
   }
 
   Widget _buildBody() {
-    final btProvider = Provider.of<BluetoothProvider>(context);
-    if (!btProvider.isBluetoothEnabled) {
-      return _buildBluetoothDisabledView(btProvider);
+    final overrides = widget.testOverrides;
+    final isEnabled = overrides != null
+        ? overrides.isBluetoothEnabled
+        : Provider.of<BluetoothProvider>(context).isBluetoothEnabled;
+
+    if (!isEnabled) {
+      return _buildBluetoothDisabledView();
     }
 
     if (_error != null) {
@@ -235,7 +329,12 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
     return _buildDeviceList();
   }
 
-  Widget _buildBluetoothDisabledView(BluetoothProvider provider) {
+  Widget _buildBluetoothDisabledView() {
+    final overrides = widget.testOverrides;
+    final Future<void> Function() onTurnOn = overrides?.turnOnBluetooth ??
+        () async => Provider.of<BluetoothProvider>(context, listen: false)
+            .turnOnBluetooth();
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -258,7 +357,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
             const SizedBox(height: 36),
             NeumorphicButton(
               isPrimary: true,
-              onPressed: () => provider.turnOnBluetooth(),
+              onPressed: onTurnOn,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               child: Row(
                 mainAxisSize: MainAxisSize.min,

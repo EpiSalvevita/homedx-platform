@@ -65,9 +65,9 @@ class _ShopScreenState extends State<ShopScreen> {
               children: [
                 _CategoryChip(label: 'Alle', isSelected: _selectedCategory == null, onTap: () => setState(() => _selectedCategory = null)),
                 const SizedBox(width: 8),
-                _CategoryChip(label: 'Teststreifen', isSelected: _selectedCategory == ProductCategory.TEST_STRIP, onTap: () => setState(() => _selectedCategory = ProductCategory.TEST_STRIP)),
+                _CategoryChip(label: 'Teststreifen', isSelected: _selectedCategory == ProductCategory.testStrip, onTap: () => setState(() => _selectedCategory = ProductCategory.testStrip)),
                 const SizedBox(width: 8),
-                _CategoryChip(label: 'Testgeräte', isSelected: _selectedCategory == ProductCategory.TEST_DEVICE, onTap: () => setState(() => _selectedCategory = ProductCategory.TEST_DEVICE)),
+                _CategoryChip(label: 'Testgeräte', isSelected: _selectedCategory == ProductCategory.testDevice, onTap: () => setState(() => _selectedCategory = ProductCategory.testDevice)),
               ],
             ),
           ),

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'graphql_service.dart';
 
 class PaymentService {
@@ -41,14 +42,14 @@ class PaymentService {
         },
       };
 
-      print('Creating payment with variables: $variables');
+      debugPrint('Creating payment with variables: $variables');
       
       final result = await _graphQLService.mutate(
         mutation: mutation,
         variables: variables,
       );
 
-      print('Payment mutation result: hasException=${result.hasException}, data=${result.data}');
+      debugPrint('Payment mutation result: hasException=${result.hasException}, data=${result.data}');
 
       if (result.hasException) {
         final errors = result.exception?.graphqlErrors ?? [];
@@ -57,10 +58,10 @@ class PaymentService {
         String errorMessage = 'Payment creation failed';
         if (errors.isNotEmpty) {
           errorMessage = errors.map((e) => e.message).join(', ');
-          print('GraphQL errors: ${errors.map((e) => e.message).join(', ')}');
+          debugPrint('GraphQL errors: ${errors.map((e) => e.message).join(', ')}');
         } else if (linkException != null) {
           errorMessage = linkException.toString();
-          print('Link exception: $linkException');
+          debugPrint('Link exception: $linkException');
         }
         
         throw Exception(errorMessage);
@@ -167,7 +168,7 @@ class PaymentService {
         }
       ''';
 
-      print('Creating Stripe payment intent - paymentId: $paymentId, amount: $amount, currency: $currency');
+      debugPrint('Creating Stripe payment intent - paymentId: $paymentId, amount: $amount, currency: $currency');
       
       final result = await _graphQLService.mutate(
         mutation: mutation,
@@ -180,7 +181,7 @@ class PaymentService {
         },
       );
 
-      print('Stripe payment intent result: hasException=${result.hasException}, data=${result.data}');
+      debugPrint('Stripe payment intent result: hasException=${result.hasException}, data=${result.data}');
 
       if (result.hasException) {
         final errors = result.exception?.graphqlErrors ?? [];
@@ -189,10 +190,10 @@ class PaymentService {
         String errorMessage = 'Failed to create payment intent';
         if (errors.isNotEmpty) {
           errorMessage = errors.map((e) => e.message).join(', ');
-          print('GraphQL errors: $errorMessage');
+          debugPrint('GraphQL errors: $errorMessage');
         } else if (linkException != null) {
           errorMessage = linkException.toString();
-          print('Link exception: $linkException');
+          debugPrint('Link exception: $linkException');
         }
         
         throw Exception(errorMessage);

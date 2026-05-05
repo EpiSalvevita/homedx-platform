@@ -17,11 +17,17 @@ class TestProgressScreen extends StatefulWidget {
   final String testTypeId;
   final String testTypeName;
 
+  /// Forwarded to [CubeService.runTestAndSubmit]. Defaults to true so the
+  /// Cube SDK runs the standardized incubation timer baked into the cassette
+  /// test configuration.
+  final bool useTimer;
+
   const TestProgressScreen({
     super.key,
     required this.cubeService,
     required this.testTypeId,
     required this.testTypeName,
+    this.useTimer = true,
   });
 
   @override
@@ -57,6 +63,7 @@ class _TestProgressScreenState extends State<TestProgressScreen>
   Future<void> _startMeasurement() async {
     final result = await widget.cubeService.runTestAndSubmit(
       testTypeId: widget.testTypeId,
+      useTimer: widget.useTimer,
       onStep: (update) {
         if (!mounted) return;
         setState(() {
@@ -75,6 +82,7 @@ class _TestProgressScreenState extends State<TestProgressScreen>
           builder: (_) => TestResultScreen(
             testTypeName: widget.testTypeName,
             result: result,
+            testTypeId: widget.testTypeId,
           ),
         ),
       );

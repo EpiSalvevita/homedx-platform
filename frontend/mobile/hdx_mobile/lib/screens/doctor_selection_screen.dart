@@ -2,9 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../models/doctor.dart';
 import '../services/doctor_service.dart';
+import '../utils/test_specialization_mapping.dart';
 
 class DoctorSelectionScreen extends StatefulWidget {
-  const DoctorSelectionScreen({super.key});
+  /// When set, the doctor list is pre-filtered to specialists matching the
+  /// originating test (e.g. positive RheumaCheck -> Rheumatologie). The
+  /// [testTypeName] is the human-readable label used in the banner.
+  final String? testTypeId;
+  final String? testTypeName;
+
+  const DoctorSelectionScreen({
+    super.key,
+    this.testTypeId,
+    this.testTypeName,
+  });
 
   @override
   State<DoctorSelectionScreen> createState() => _DoctorSelectionScreenState();
@@ -15,6 +26,7 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
   bool _isLoading = true;
   String? _error;
   String _searchQuery = '';
+  bool _fellBackToFullList = false;
 
   @override
   void initState() {
@@ -30,12 +42,24 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
 
     try {
       final doctorService = DoctorService();
-      final doctors = await doctorService.getAvailableDoctors();
+      final doctors = await doctorService.getAvailableDoctors(
+        testTypeId: widget.testTypeId,
+      );
+
+      // Detect whether the service fell back to the full list because no
+      // specialist matched, so we can show an honest banner.
+      bool fellBack = false;
+      final id = widget.testTypeId;
+      if (id != null && id.isNotEmpty) {
+        final filtered = DoctorService.filterDoctorsForTestType(doctors, id);
+        fellBack = filtered.length != doctors.length;
+      }
 
       if (mounted) {
         setState(() {
           _doctors = doctors;
           _isLoading = false;
+          _fellBackToFullList = fellBack;
         });
       }
     } catch (e) {
@@ -72,6 +96,8 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            if (widget.testTypeId != null && widget.testTypeId!.isNotEmpty)
+              _buildTestContextBanner(context),
             // Search Bar
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -98,6 +124,56 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTestContextBanner(BuildContext context) {
+    final specialization =
+        TestSpecializationMapping.primarySpecialization(widget.testTypeId);
+    final testName = widget.testTypeName?.trim().isNotEmpty == true
+        ? widget.testTypeName!
+        : 'Ihren Test';
+
+    final headline = _fellBackToFullList
+        ? 'Kein passender Facharzt verfügbar'
+        : 'Empfohlene Fachärzte: $specialization';
+    final body = _fellBackToFullList
+        ? 'Für $testName konnten wir aktuell keinen Facharzt für $specialization finden. Wir zeigen Ihnen alle verfügbaren Ärzte.'
+        : 'Basierend auf Ihrem positiven $testName empfehlen wir Ärzte mit Fachrichtung $specialization.';
+
+    return Container(
+      key: const Key('doctor-selection-test-banner'),
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).primaryColor.withValues(alpha: 0.25),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.medical_services_outlined,
+              color: Theme.of(context).primaryColor),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  headline,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Text(body, style: const TextStyle(fontSize: 13)),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -200,8 +276,15 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
       ),
       child: InkWell(
         onTap: () {
+          final testTypeQuery = (widget.testTypeId?.isNotEmpty == true)
+              ? '&testTypeId=${Uri.encodeComponent(widget.testTypeId!)}'
+                  '${widget.testTypeName?.isNotEmpty == true ? '&testTypeName=${Uri.encodeComponent(widget.testTypeName!)}' : ''}'
+              : '';
           context.push(
-            '/doctors/${doctor.id}/appointment?doctorName=${Uri.encodeComponent(doctor.name)}&specialization=${Uri.encodeComponent(doctor.specialization)}',
+            '/doctors/${doctor.id}/appointment'
+            '?doctorName=${Uri.encodeComponent(doctor.name)}'
+            '&specialization=${Uri.encodeComponent(doctor.specialization)}'
+            '$testTypeQuery',
           );
         },
         borderRadius: BorderRadius.circular(12),

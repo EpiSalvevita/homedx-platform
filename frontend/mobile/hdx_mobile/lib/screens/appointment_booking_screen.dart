@@ -9,11 +9,19 @@ class AppointmentBookingScreen extends StatefulWidget {
   final String doctorName;
   final String specialization;
 
+  /// Optional id of the rapid test that triggered this booking (e.g. the
+  /// positive RheumaCheck). Forwarded to the booking API so the appointment
+  /// can be linked to the originating test.
+  final String? testTypeId;
+  final String? testTypeName;
+
   const AppointmentBookingScreen({
     super.key,
     required this.doctorId,
     required this.doctorName,
     required this.specialization,
+    this.testTypeId,
+    this.testTypeName,
   });
 
   @override
@@ -94,6 +102,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
         appointmentTime: _selectedSlot!.dateTime,
         type: _appointmentType,
         notes: _notesController.text.isEmpty ? null : _notesController.text,
+        testTypeId: widget.testTypeId,
       );
 
       if (mounted) {
@@ -244,18 +253,25 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
               ),
               const SizedBox(height: 8),
               Card(
-                child: RadioListTile<String>(
-                  title: const Row(
-                    children: [
-                      Icon(Icons.video_call, color: Colors.blue),
-                      SizedBox(width: 8),
-                      Text('Online-Beratung'),
-                    ],
-                  ),
-                  subtitle: const Text('Videoanruf'),
-                  value: 'online',
+                // Single-option group while only "online" consultations are
+                // supported. _appointmentType is final, so the noop onChanged
+                // can't actually change the selection — when more types are
+                // added, switch _appointmentType to a State field and update
+                // it from this callback.
+                child: RadioGroup<String>(
                   groupValue: _appointmentType,
-                  onChanged: null, // Only online for now
+                  onChanged: (_) {},
+                  child: const RadioListTile<String>(
+                    title: Row(
+                      children: [
+                        Icon(Icons.video_call, color: Colors.blue),
+                        SizedBox(width: 8),
+                        Text('Online-Beratung'),
+                      ],
+                    ),
+                    subtitle: Text('Videoanruf'),
+                    value: 'online',
+                  ),
                 ),
               ),
 
