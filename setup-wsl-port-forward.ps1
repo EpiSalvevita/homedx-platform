@@ -1,32 +1,57 @@
-# homeDX Platform - WSL2 Port Forwarding
-# Run as Administrator in PowerShell
-# Forwards Windows port 4000 to WSL2 so the mobile app can reach the backend
+#Requires -RunAsAdministrator
+<#
+ homeDX Platform - WSL2 port forwarding for backend (TCP 4000).
+ Must run elevated: netsh portproxy + Windows Firewall.
+ From WSL repo root: ./run-wsl-port-forward-elevated.sh (copies into %TEMP% and triggers UAC)
+ (elevated shells often fail to execute scripts from \\wsl$\ UNC roots).
+#>
+$ErrorActionPreference = 'Stop'
 
-$ErrorActionPreference = "Stop"
-
-# Get WSL2 IP
-$wslIp = (wsl hostname -I 2>$null).Trim().Split()[0]
+# Prefer eth0 (mirrored networking / single primary NIC); fall back to first hostname -I token.
+$wslIp = (& wsl.exe -e /bin/sh -c 'ip -4 -o addr show eth0 2>/dev/null | awk ''{print $4}'' | cut -d/ -f1' 2>$null).Trim()
 if (-not $wslIp) {
-    Write-Host "Error: Could not get WSL2 IP. Is WSL running?" -ForegroundColor Red
+    $wslLine = (& wsl.exe hostname -I 2>$null)
+    if (-not $wslLine) {
+        Write-Host "Error: Could not read WSL IP (eth0 or hostname -I). Is WSL running?" -ForegroundColor Red
+        exit 1
+    }
+    $wslIp = ($wslLine.Trim() -split '\s+')[0]
+}
+if ($wslIp -notmatch '^\d{1,3}(\.\d{1,3}){3}$') {
+    Write-Host "Error: Unexpected WSL IP value: $wslIp" -ForegroundColor Red
     exit 1
 }
 
-Write-Host "WSL2 IP: $wslIp" -ForegroundColor Cyan
+Write-Host "WSL2 IP (connect target): $wslIp" -ForegroundColor Cyan
 
-# Remove existing rules for port 4000
-netsh interface portproxy delete v4tov4 listenport=4000 listenaddress=0.0.0.0 2>$null
-netsh interface portproxy delete v4tov4 listenport=4000 listenaddress=127.0.0.1 2>$null
+# Remove stale rules (ignore exit code if missing)
+Start-Process -FilePath netsh.exe -ArgumentList @('interface','portproxy','delete','v4tov4','listenport=4000','listenaddress=0.0.0.0') -Wait -NoNewWindow -PassThru | Out-Null
+Start-Process -FilePath netsh.exe -ArgumentList @('interface','portproxy','delete','v4tov4','listenport=4000','listenaddress=127.0.0.1') -Wait -NoNewWindow -PassThru | Out-Null
 
-# Add portproxy rules
-netsh interface portproxy add v4tov4 listenport=4000 listenaddress=0.0.0.0 connectport=4000 connectaddress=$wslIp
-netsh interface portproxy add v4tov4 listenport=4000 listenaddress=127.0.0.1 connectport=4000 connectaddress=$wslIp
+$p1 = Start-Process -FilePath netsh.exe -ArgumentList @('interface','portproxy','add','v4tov4','listenport=4000','listenaddress=0.0.0.0','connectport=4000',"connectaddress=$wslIp") -Wait -NoNewWindow -PassThru
+if ($p1.ExitCode -ne 0) {
+    Write-Host "netsh add (0.0.0.0:4000) failed with exit $($p1.ExitCode)" -ForegroundColor Red
+    exit $p1.ExitCode
+}
+$p2 = Start-Process -FilePath netsh.exe -ArgumentList @('interface','portproxy','add','v4tov4','listenport=4000','listenaddress=127.0.0.1','connectport=4000',"connectaddress=$wslIp") -Wait -NoNewWindow -PassThru
+if ($p2.ExitCode -ne 0) {
+    Write-Host "netsh add (127.0.0.1:4000) failed with exit $($p2.ExitCode)" -ForegroundColor Red
+    exit $p2.ExitCode
+}
 
-Write-Host "Port proxy configured: 4000 -> $wslIp`:4000" -ForegroundColor Green
+Write-Host "Port proxy rules added for 4000 -> ${wslIp}:4000" -ForegroundColor Green
 
-# Firewall rule (remove existing first)
-Remove-NetFirewallRule -DisplayName "homeDX Backend 4000" -ErrorAction SilentlyContinue
-New-NetFirewallRule -DisplayName "homeDX Backend 4000" -Direction Inbound -Protocol TCP -LocalPort 4000 -Action Allow
+$show = netsh interface portproxy show all
+Write-Host ($show)
 
-Write-Host "Firewall rule added for port 4000" -ForegroundColor Green
+if ($show -notmatch [regex]::Escape($wslIp)) {
+    Write-Host "Verification failed: portproxy listing does not contain $wslIp" -ForegroundColor Red
+    exit 1
+}
+
+Remove-NetFirewallRule -DisplayName 'homeDX Backend 4000' -ErrorAction SilentlyContinue | Out-Null
+New-NetFirewallRule -DisplayName 'homeDX Backend 4000' -Direction Inbound -Protocol TCP -LocalPort 4000 -Action Allow -Profile Domain,Private,Public | Out-Null
+
+Write-Host "Firewall rule added (Domain,Private,Public) for TCP 4000" -ForegroundColor Green
 Write-Host ""
-Write-Host "Done. Use API_BASE_URL=http://<your-windows-lan-ip>:4000 in mobile .env" -ForegroundColor Yellow
+Write-Host "Done. Phone .env: API_BASE_URL=http://<Windows Wi-Fi/Ethernet IPv4>:4000 (ipconfig on Windows — not the WSL IP)." -ForegroundColor Yellow

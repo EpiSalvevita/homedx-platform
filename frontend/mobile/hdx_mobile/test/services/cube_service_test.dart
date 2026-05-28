@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hdx_mobile/services/api_service.dart';
 import 'package:hdx_mobile/services/cube_service.dart';
@@ -42,6 +43,10 @@ class _FakeApiService extends ApiService {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() {
+    dotenv.testLoad(fileInput: 'API_BASE_URL=http://test\nCUBE_VERBOSE=false\n');
+  });
 
   late CubeChannelHarness harness;
   late _FakeApiService api;
@@ -119,12 +124,12 @@ void main() {
       await harness.pushEvent({
         'type': 'message',
         'msgType': 'MT_INFO',
-        'msgCode': 0x02, // IM_TIMER_RUNNING
+        'msgCode': 5, // IM_TIMER_RUNNING (cubelib EInfoMessage code)
         'msgData': 75,
       });
 
       expect(type, 'MT_INFO');
-      expect(code, 0x02);
+      expect(code, 5);
       expect(data, 75);
     });
 
@@ -141,7 +146,7 @@ void main() {
             'value': '1.23',
             'unit': 'mg/L',
             'class': 'POSITIVE',
-            'validity': 1,
+            'validity': 0,
           },
         ],
       });
@@ -152,7 +157,7 @@ void main() {
       expect(seen![0].value, '1.23');
       expect(seen![0].unit, 'mg/L');
       expect(seen![0].resultClass, 'POSITIVE');
-      expect(seen![0].validity, 1);
+      expect(seen![0].validity, 0);
     });
 
     test('unknown event types are silently ignored', () async {
@@ -224,6 +229,25 @@ void main() {
       });
     });
 
+    test('startEvaluation forwards configAbsolutePath / configUri when set', () async {
+      harness.answerMethod('startEvaluation', true);
+
+      await cube.startEvaluation(
+        useTimer: true,
+        configAbsolutePath: '/data/user/0/.../picked.config',
+        configUri: 'content://com.android.providers.../42',
+      );
+
+      final call =
+          harness.calls.singleWhere((c) => c.method == 'startEvaluation');
+      expect(call.arguments, {
+        'useTimer': true,
+        'requireBundledConfig': false,
+        'configAbsolutePath': '/data/user/0/.../picked.config',
+        'configUri': 'content://com.android.providers.../42',
+      });
+    });
+
     test('startEvaluation omits configAssetName when not provided', () async {
       harness.answerMethod('startEvaluation', true);
 
@@ -264,7 +288,7 @@ void main() {
           'value': '0.1',
           'unit': '',
           'class': 'NEGATIVE',
-          'validity': 1,
+          'validity': 0,
         },
       ]);
 
@@ -282,7 +306,7 @@ void main() {
   group('submitResults / _determineResultString', () {
     test('classifies POSITIVE on explicit class', () async {
       harness.answerMethod('getResults', [
-        {'class': 'POSITIVE', 'name': 'X', 'value': '0', 'unit': '', 'validity': 1},
+        {'class': 'POSITIVE', 'name': 'X', 'value': '0', 'unit': '', 'validity': 0},
       ]);
 
       final out = await cube.submitResults(
@@ -298,14 +322,14 @@ void main() {
 
     test('accepts short-form POS / NEG class strings', () async {
       harness.answerMethod('getResults', [
-        {'class': 'POS', 'name': 'X', 'value': '0', 'unit': '', 'validity': 1},
+        {'class': 'POS', 'name': 'X', 'value': '0', 'unit': '', 'validity': 0},
       ]);
 
       await cube.submitResults(testTypeId: 't');
       expect(api.lastBody!['result'], 'POSITIVE');
 
       harness.answerMethod('getResults', [
-        {'class': 'NEG', 'name': 'X', 'value': '0', 'unit': '', 'validity': 1},
+        {'class': 'NEG', 'name': 'X', 'value': '0', 'unit': '', 'validity': 0},
       ]);
       await cube.submitResults(testTypeId: 't');
       expect(api.lastBody!['result'], 'NEGATIVE');
@@ -313,7 +337,7 @@ void main() {
 
     test('falls back to numeric value > 0.5 when class missing', () async {
       harness.answerMethod('getResults', [
-        {'class': '', 'name': 'X', 'value': '0.9', 'unit': '', 'validity': 1},
+        {'class': '', 'name': 'X', 'value': '0.9', 'unit': '', 'validity': 0},
       ]);
 
       await cube.submitResults(testTypeId: 't');
@@ -322,7 +346,7 @@ void main() {
 
     test('defaults to NEGATIVE when nothing classifies', () async {
       harness.answerMethod('getResults', [
-        {'class': '', 'name': 'X', 'value': '0.1', 'unit': '', 'validity': 1},
+        {'class': '', 'name': 'X', 'value': '0.1', 'unit': '', 'validity': 0},
       ]);
 
       await cube.submitResults(testTypeId: 't');
@@ -345,6 +369,125 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────
 
   group('runTestAndSubmit', () {
+    test('treats IM_* msgCodes as INFO when msgType is not MT_INFO', () async {
+      harness.answerMethod('startEvaluation', true);
+      harness.answerMethod('readDeviceDatabase', true);
+      harness.answerMethod('selectMeasurement', true);
+      harness.answerMethod('getMeasurements', [
+        {
+          'index': 0,
+          'uid': 'u',
+          'deviceSerial': 'SN',
+          'dateTime': '2026-01-01',
+          'temperature': 22.0,
+          'cfgName': 'x',
+        },
+      ]);
+      harness.answerMethod('getResults', [
+        {
+          'class': 'NEGATIVE',
+          'name': 'CRP',
+          'value': '0',
+          'unit': 'mg/L',
+          'validity': 0,
+        },
+      ]);
+      cube.startListening();
+
+      final future = cube.runTestAndSubmit(testTypeId: 'crp');
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+
+      Future<void> push(int code, {String msgType = 'MT_USER_DEFINED', int data = 0}) =>
+          harness.pushEvent({
+            'type': 'message',
+            'msgType': msgType,
+            'msgCode': code,
+            'msgData': data,
+          });
+
+      await push(3); // IM_PLACE_WHITE
+      await push(4); // IM_PLACE_TEST
+      await push(5, data: 5); // IM_TIMER_RUNNING
+      await push(6); // IM_EVALUATION_RUNNING
+      await push(8, data: 0); // IM_MEASUREMENT_DONE
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+      await push(9); // IM_MEASURE_COUNT
+
+      final result = await future;
+      expect(result.success, true);
+    });
+
+    test('infoMessage from native overrides wrong msgCode (string codes safe)', () async {
+      harness.answerMethod('startEvaluation', true);
+      harness.answerMethod('readDeviceDatabase', true);
+      harness.answerMethod('selectMeasurement', true);
+      harness.answerMethod('getMeasurements', [
+        {
+          'index': 0,
+          'uid': 'u',
+          'deviceSerial': 'SN',
+          'dateTime': '2026-01-01',
+          'temperature': 22.0,
+          'cfgName': 'x',
+        },
+      ]);
+      harness.answerMethod('getResults', [
+        {
+          'class': 'NEGATIVE',
+          'name': 'CRP',
+          'value': '0',
+          'unit': 'mg/L',
+          'validity': 0,
+        },
+      ]);
+      cube.startListening();
+
+      final future = cube.runTestAndSubmit(testTypeId: 'crp');
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+
+      await harness.pushEvent({
+        'type': 'message',
+        'msgType': 'MT_PROGRESS',
+        'msgCode': '0', // string; wrong raw assay code
+        'msgData': '0',
+        'infoMessage': 'IM_PLACE_WHITE',
+      });
+      await harness.pushEvent({
+        'type': 'message',
+        'msgType': 'MT_INFO',
+        'msgCode': 4,
+        'msgData': 0,
+      });
+      await harness.pushEvent({
+        'type': 'message',
+        'msgType': 'MT_INFO',
+        'msgCode': 5,
+        'msgData': 1,
+      });
+      await harness.pushEvent({
+        'type': 'message',
+        'msgType': 'MT_INFO',
+        'msgCode': 6,
+        'msgData': 0,
+      });
+      await harness.pushEvent({
+        'type': 'message',
+        'msgType': 'MT_INFO',
+        'msgCode': 8,
+        'msgData': 0,
+      });
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+      await harness.pushEvent({
+        'type': 'message',
+        'msgType': 'MT_INFO',
+        'msgCode': 9,
+        'msgData': 0,
+      });
+
+      final result = await future;
+      expect(result.success, true);
+    });
+
     test('drives placeWhite → placeTest → timer → evaluate → done → submit', () async {
       // Wire happy-path MethodChannel responses.
       harness.answerMethod('startEvaluation', true);
@@ -366,7 +509,7 @@ void main() {
           'name': 'Rheuma',
           'value': '1.0',
           'unit': 'mg/L',
-          'validity': 1,
+          'validity': 0,
         },
       ]);
 
@@ -391,14 +534,14 @@ void main() {
             'msgData': data,
           });
 
-      await push(0x00); // IM_PLACE_WHITE
-      await push(0x01); // IM_PLACE_TEST
-      await push(0x02, data: 30); // IM_TIMER_RUNNING (30s remaining)
-      await push(0x03); // IM_EVALUATION_RUNNING
-      await push(0x04, data: 7); // IM_MEASUREMENT_DONE on slot 7
+      await push(3); // IM_PLACE_WHITE
+      await push(4); // IM_PLACE_TEST
+      await push(5, data: 30); // IM_TIMER_RUNNING (30s remaining)
+      await push(6); // IM_EVALUATION_RUNNING
+      await push(8, data: 7); // IM_MEASUREMENT_DONE on slot 7
       // Allow stateCompleter to resolve and CubeService to call readDeviceDatabase.
       await Future<void>.delayed(const Duration(milliseconds: 30));
-      await push(0x09); // IM_MEASURE_COUNT (database read complete)
+      await push(9); // IM_MEASURE_COUNT (database read complete)
 
       final result = await future;
 
@@ -456,8 +599,33 @@ void main() {
       final result = await future;
 
       expect(result.success, false);
-      expect(result.error, contains('Code 42'));
+      expect(result.error, contains('SDK-Fehlercode 42'));
       expect(api.callCount, 0);
+    });
+
+    test('forwards configAbsolutePath via runTestAndSubmit to startEvaluation', () async {
+      harness.answerMethod('startEvaluation', true);
+      cube.startListening();
+
+      final future = cube.runTestAndSubmit(
+        testTypeId: 't',
+        useTimer: false,
+        configAbsolutePath: '/sdcard/Download/pcr_assay.config',
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+      await harness.pushEvent({
+        'type': 'message',
+        'msgType': 'MT_ERROR',
+        'msgCode': 1,
+        'msgData': 0,
+      });
+      await future;
+
+      final evalCall =
+          harness.calls.singleWhere((c) => c.method == 'startEvaluation');
+      final m = Map<String, dynamic>.from(evalCall.arguments as Map);
+      expect(m['configAbsolutePath'], '/sdcard/Download/pcr_assay.config');
+      expect(m['useTimer'], false);
     });
 
     test('forwards useTimer=false when caller opts out', () async {
@@ -482,6 +650,41 @@ void main() {
       final evalCall =
           harness.calls.singleWhere((c) => c.method == 'startEvaluation');
       expect((evalCall.arguments as Map)['useTimer'], false);
+    });
+  });
+
+  group('CubeResultData.validityLabel', () {
+    test('maps Cube SDK validity codes to German labels', () {
+      expect(
+        CubeResultData(
+          name: 'x',
+          value: '1',
+          unit: '',
+          resultClass: '',
+          validity: 0,
+        ).validityLabel,
+        'Gültig',
+      );
+      expect(
+        CubeResultData(
+          name: 'x',
+          value: '1',
+          unit: '',
+          resultClass: '',
+          validity: 1,
+        ).validityLabel,
+        'Kein Wert',
+      );
+      expect(
+        CubeResultData(
+          name: 'x',
+          value: '1',
+          unit: '',
+          resultClass: '',
+          validity: 4,
+        ).validityLabel,
+        'Gerät abgelaufen',
+      );
     });
   });
 }

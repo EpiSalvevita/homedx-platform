@@ -4,6 +4,7 @@ import '../config/app_theme.dart';
 import '../models/product.dart';
 import '../providers/cart_provider.dart';
 import '../services/shop_service.dart';
+import '../widgets/figma_ui.dart';
 import 'cart_screen.dart';
 import 'product_details_screen.dart';
 
@@ -46,29 +47,25 @@ class _ShopScreenState extends State<ShopScreen> {
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shop'),
-        actions: [
-          _CartIconButton(cartProvider: cartProvider),
-        ],
+    return FigmaScreen(
+      header: FigmaBackHeader(
+        title: 'Shop',
+        actions: [_CartIconButton(cartProvider: cartProvider)],
       ),
       body: Column(
         children: [
-          // Category filter tabs
-          Container(
-            height: 56,
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                _CategoryChip(label: 'Alle', isSelected: _selectedCategory == null, onTap: () => setState(() => _selectedCategory = null)),
-                const SizedBox(width: 8),
-                _CategoryChip(label: 'Teststreifen', isSelected: _selectedCategory == ProductCategory.testStrip, onTap: () => setState(() => _selectedCategory = ProductCategory.testStrip)),
-                const SizedBox(width: 8),
-                _CategoryChip(label: 'Testgeräte', isSelected: _selectedCategory == ProductCategory.testDevice, onTap: () => setState(() => _selectedCategory = ProductCategory.testDevice)),
-              ],
+          Padding(
+            padding: const EdgeInsets.fromLTRB(AppTheme.screenHorizontalPadding, 8, AppTheme.screenHorizontalPadding, 12),
+            child: FigmaSegmentedTabs(
+              labels: const ['Alle', 'Teststreifen', 'Testgeräte'],
+              selectedIndex: _selectedCategory == null
+                  ? 0
+                  : _selectedCategory == ProductCategory.testStrip
+                      ? 1
+                      : 2,
+              onSelected: (i) => setState(() {
+                _selectedCategory = i == 0 ? null : i == 1 ? ProductCategory.testStrip : ProductCategory.testDevice;
+              }),
             ),
           ),
           Expanded(
@@ -76,14 +73,14 @@ class _ShopScreenState extends State<ShopScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : _error != null
                     ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                        Text('Fehler: $_error'),
+                        Text('Fehler: $_error', style: FigmaUi.rubik(color: AppTheme.textColor)),
                         const SizedBox(height: 16),
-                        ElevatedButton(onPressed: _loadProducts, child: const Text('Erneut versuchen')),
+                        NeumorphicPillButton(label: 'Erneut versuchen', height: 52, onPressed: _loadProducts),
                       ]))
                     : _filteredProducts.isEmpty
-                        ? const Center(child: Text('Keine Produkte gefunden'))
+                        ? Center(child: Text('Keine Produkte gefunden', style: FigmaUi.rubik(color: AppTheme.textColor)))
                         : ListView.separated(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
                             itemCount: _filteredProducts.length,
                             separatorBuilder: (_, __) => const SizedBox(height: 14),
                             itemBuilder: (context, index) => _ProductCard(product: _filteredProducts[index], cartProvider: cartProvider),
@@ -125,38 +122,6 @@ class _CartIconButton extends StatelessWidget {
   }
 }
 
-class _CategoryChip extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-  const _CategoryChip({required this.label, required this.isSelected, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryBlue : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? AppTheme.primaryBlue : AppTheme.primaryBlue.withValues(alpha: 0.3)),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: isSelected ? Colors.white : AppTheme.primaryBlue,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _ProductCard extends StatelessWidget {
   final Product product;
   final CartProvider cartProvider;
@@ -170,11 +135,11 @@ class _ProductCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(product: product))),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppTheme.cardColor,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: AppTheme.cardShadow,
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: AppTheme.neumorphicRaised,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,13 +148,13 @@ class _ProductCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 52,
-                  height: 52,
+                  width: 56,
+                  height: 56,
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryLight,
+                    color: AppTheme.background,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.local_offer, color: AppTheme.primaryBlue, size: 24),
+                  child: const Icon(Icons.sell_outlined, color: AppTheme.primaryBlue, size: 22),
                 ),
                 const Spacer(),
                 if (isInCart)
@@ -227,13 +192,15 @@ class _ProductCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            Text(product.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
+            Text(product.name, style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor)),
             const SizedBox(height: 4),
-            Text(product.description, style: TextStyle(fontSize: 13, color: AppTheme.textColorSecondary), maxLines: 2, overflow: TextOverflow.ellipsis),
+            Text(product.description, style: FigmaUi.rubik(fontSize: 13, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary), maxLines: 2, overflow: TextOverflow.ellipsis),
+            const SizedBox(height: 10),
+            const Divider(height: 1, color: Color(0x1A142543)),
             const SizedBox(height: 10),
             Row(
               children: [
-                Text('${product.price.toStringAsFixed(2)} €', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)),
+                Text('${product.price.toStringAsFixed(2)} €', style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.primaryBlue)),
                 if (product.stock != null) ...[
                   const SizedBox(width: 14),
                   Text('${product.stock} verfügbar', style: TextStyle(fontSize: 13, color: AppTheme.textColorSecondary)),
@@ -258,12 +225,12 @@ class _QuantityControls extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _QtyBtn(icon: Icons.remove, onTap: onDecrement),
+        _QtyBtn(icon: Icons.remove, onTap: onDecrement, neumorphic: true),
         SizedBox(
           width: 36,
-          child: Center(child: Text('$quantity', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textColor))),
+          child: Center(child: Text('$quantity', style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor))),
         ),
-        _QtyBtn(icon: Icons.add, onTap: onIncrement),
+        _QtyBtn(icon: Icons.add, onTap: onIncrement, neumorphic: true),
       ],
     );
   }
@@ -272,20 +239,22 @@ class _QuantityControls extends StatelessWidget {
 class _QtyBtn extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
-  const _QtyBtn({required this.icon, required this.onTap});
+  final bool neumorphic;
+  const _QtyBtn({required this.icon, required this.onTap, this.neumorphic = false});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 34,
-        height: 34,
+        width: 56,
+        height: 56,
         decoration: BoxDecoration(
-          color: AppTheme.primaryBlue,
-          borderRadius: BorderRadius.circular(8),
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: neumorphic ? AppTheme.neumorphicRaised : null,
         ),
-        child: Icon(icon, color: Colors.white, size: 18),
+        child: Icon(icon, color: AppTheme.textColor, size: 22),
       ),
     );
   }

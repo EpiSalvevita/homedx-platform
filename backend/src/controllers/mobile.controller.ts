@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Headers, UseGuards, UploadedFile, UseInterceptors, Request } from '@nestjs/common';
+import { Controller, Post, Body, Headers, UseGuards, UploadedFile, UseInterceptors, Request, Logger } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
@@ -60,6 +60,8 @@ interface SubmitCubeDataResponse extends MobileResponse {
 
 @Controller('gg-homedx-json/gg-api/v1')
 export class MobileController {
+  private readonly logger = new Logger(MobileController.name);
+
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
@@ -198,6 +200,13 @@ export class MobileController {
           icon: 'healing',
           color: 'FF0000',
         },
+        {
+          name: 'CRP (C-reaktives Protein)',
+          id: 'crp',
+          description: 'Schnelltest für C-reaktives Protein (Entzündungsmarker)',
+          icon: 'monitor_heart',
+          color: 'E91E63',
+        },
         { 
           name: 'Vitamin D', 
           id: 'vitamind',
@@ -284,10 +293,31 @@ export class MobileController {
   ): Promise<SubmitCubeDataResponse> {
     try {
       const userId = req?.user?.sub;
+      this.logger.log(
+        `submit-cube-data enter userId=${userId ?? '(missing)'} testTypeId=${body?.testTypeId} ` +
+          `deviceSerial=${body?.deviceSerial ?? '(none)'} result=${body?.result ?? '(none)'} ` +
+          `resultDataLen=${body?.resultData?.length ?? 0} ts=${body?.measurementTimestamp ?? '(none)'}`,
+      );
+      if (Array.isArray(body?.resultData) && body.resultData.length > 0) {
+        const preview = body.resultData.slice(0, 12).map((r, idx) => ({
+          i: idx,
+          name: r?.name,
+          value:
+            typeof r?.value === 'string' && r.value.length > 32
+              ? `${r.value.slice(0, 32)}…`
+              : r?.value,
+          unit: r?.unit,
+          class: r?.class,
+          validity: r?.validity,
+        }));
+        this.logger.log(`submit-cube-data resultDataPreview=${JSON.stringify(preview)}`);
+      }
       if (!userId) {
+        this.logger.warn('submit-cube-data rejected: no user on JWT payload');
         return { success: false, error: 'Invalid token' };
       }
       if (!body?.testTypeId) {
+        this.logger.warn('submit-cube-data rejected: testTypeId missing');
         return { success: false, error: 'testTypeId is required' };
       }
 
@@ -310,6 +340,8 @@ export class MobileController {
       }
 
       const normalizedResult = this.normalizeCubeResult(body.result, body.resultData);
+      this.logger.log(`submit-cube-data normalizedResult=${normalizedResult}`);
+
       const testDate = body.measurementTimestamp
         ? new Date(body.measurementTimestamp)
         : new Date();
@@ -333,6 +365,10 @@ export class MobileController {
         },
       });
 
+      this.logger.log(
+        `submit-cube-data success rapidTestId=${rapidTest.id} testKitId=${testKit.id} normalized=${normalizedResult}`,
+      );
+
       return {
         success: true,
         testId: rapidTest.id,
@@ -340,6 +376,10 @@ export class MobileController {
         resultData: body.resultData ?? [],
       };
     } catch (error) {
+      this.logger.error(
+        `submit-cube-data exception: ${error?.message ?? error}`,
+        error?.stack,
+      );
       return {
         success: false,
         error: error.message || 'Failed to submit Cube data',
@@ -356,14 +396,36 @@ export class MobileController {
         return { success: false, error: 'Invalid token' };
       }
 
-      // Get user's tests
       const tests = await this.rapidTestService.findByUserId(user.sub);
-      const lastTests = tests.map(test => ({
-        lastTest: {
-          result: test.result || 'pending',
-          testDate: test.createdAt.getTime(),
-        },
-      }));
+      const sorted = [...tests].sort((a, b) => {
+        const aTime = (a.testDate ?? a.createdAt).getTime();
+        const bTime = (b.testDate ?? b.createdAt).getTime();
+        return bTime - aTime;
+      });
+
+      const lastTests = sorted.map((test) => {
+        let testTypeId: string | null = null;
+        let resultData: CubeResultDataItem[] = [];
+        if (test.notes) {
+          try {
+            const parsed = JSON.parse(test.notes);
+            testTypeId = parsed?.testTypeId ?? null;
+            if (Array.isArray(parsed?.resultData)) {
+              resultData = parsed.resultData;
+            }
+          } catch {
+            // ignore malformed notes
+          }
+        }
+        return {
+          id: test.id,
+          testTypeId,
+          result: test.result ?? null,
+          status: test.status,
+          testDate: (test.testDate ?? test.createdAt).getTime(),
+          resultData,
+        };
+      });
 
       return {
         success: true,

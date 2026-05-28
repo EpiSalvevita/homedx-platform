@@ -19,17 +19,23 @@ class _FakeCubeService extends CubeService {
   void Function(CubeStepUpdate step)? capturedOnStep;
   int runCount = 0;
   bool? lastUseTimer;
+  String? lastConfigAssetName;
 
   @override
   Future<CubeTestResult> runTestAndSubmit({
     required String testTypeId,
     void Function(String status)? onStatus,
     void Function(CubeStepUpdate step)? onStep,
-    Duration timeout = const Duration(minutes: 5),
+    Duration timeout = const Duration(minutes: 20),
     bool useTimer = true,
+    String? configAssetName,
+    bool requireBundledConfig = false,
+    String? configAbsolutePath,
+    String? configUri,
   }) {
     runCount++;
     lastUseTimer = useTimer;
+    lastConfigAssetName = configAssetName;
     capturedOnStep = onStep;
     return nextResult.future;
   }
@@ -68,6 +74,32 @@ void main() {
 
     expect(fake.runCount, 1);
     expect(fake.lastUseTimer, false);
+  });
+
+  testWidgets('crp test forwards bundled CRP asset to CubeService',
+      (tester) async {
+    await tester.pumpWidget(wrap(TestProgressScreen(
+      cubeService: fake,
+      testTypeId: 'crp',
+      testTypeName: 'CRP',
+    )));
+    await tester.pump();
+
+    expect(fake.runCount, 1);
+    expect(fake.lastConfigAssetName, 'CRP_250702_216.bin');
+  });
+
+  testWidgets('picked config path overrides bundled asset for crp',
+      (tester) async {
+    await tester.pumpWidget(wrap(TestProgressScreen(
+      cubeService: fake,
+      testTypeId: 'crp',
+      testTypeName: 'CRP',
+      cubeConfigAbsolutePath: '/storage/foo.bin',
+    )));
+    await tester.pump();
+
+    expect(fake.lastConfigAssetName, isNull);
   });
 
   testWidgets('placeWhite step swaps active label and icon', (tester) async {

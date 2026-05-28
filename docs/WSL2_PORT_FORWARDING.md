@@ -52,6 +52,12 @@ netsh interface portproxy show all
 Invoke-RestMethod -Uri "http://<windows-lan-ip>:4000/gg-homedx-json/gg-api/v1/get-be-status-flags" -Method Post -ContentType "application/json" -Body "{}"
 ```
 
+From **WSL** (repo root), you can run the bundled check (portproxy target vs current WSL IP, Flutter `.env` hint, backend smoke):
+
+```bash
+./deploy.sh connectivity
+```
+
 ## Flutter app: `API_BASE_URL` (physical phone)
 
 Traffic path is: **phone → Windows (LAN IP) → port proxy → WSL (backend)**. The app must use **`http://<Windows IPv4>:4000`**, where that IPv4 is the **Wi‑Fi or Ethernet** interface your PC uses on the home network — **not** the WSL address (`hostname -I` in WSL).
@@ -84,3 +90,30 @@ Then **rebuild** the Flutter app (not hot reload).
 - You must run the launcher **as Administrator** (elevated cmd or PowerShell).
 - WSL2 IP can change after restart; rerun the script if that happens.
 - Backend must listen on `0.0.0.0:4000`.
+
+## Troubleshooting
+
+### `TcpTestSucceeded: True` but login still times out (or HTTP tools fail)
+
+`Test-NetConnection` only checks **TCP**. Some WSL2 + `netsh portproxy` setups accept the connection but **reset during the HTTP response**, so phones never get JSON (Flutter shows timeouts; `curl.exe` from Windows may show *connection reset*).
+
+1. Run the full probe (TCP **and** HTTP) from **Windows PowerShell** at the repo root:
+   ```powershell
+   .\check-homedx-connectivity.ps1
+   ```
+   You need **HTTP OK** for both `http://127.0.0.1:4000/...` and `http://<your-LAN-IP>:4000/...`. If TCP is True and HTTP fails, portproxy is not enough on your machine.
+
+2. **WSL mirrored networking (Windows 11, recommended try):**  
+   Create or edit `%UserProfile%\.wslconfig`:
+   ```ini
+   [wsl2]
+   networkingMode=mirrored
+   ```
+   Then run **`wsl --shutdown`**, start WSL again, start the backend, and run **`setup-wsl-port-forward.cmd`** again as Administrator.  
+   [Microsoft: WSL networking](https://learn.microsoft.com/en-us/windows/wsl/networking)
+
+3. **Run the backend on Windows** (bypasses WSL portproxy): start Nest in PowerShell on Windows with the same `backend/` project and a `DATABASE_URL` that reaches Postgres from Windows (e.g. Docker Desktop mapping `localhost:5432`). Bind remains `0.0.0.0:4000` in `main.ts`.
+
+4. **Physical device + USB:** if you use **Windows** `adb`, you can try `adb reverse tcp:4000 tcp:4000` and set `API_BASE_URL=http://127.0.0.1:4000`, **but** that still hits Windows `127.0.0.1:4000` first — it will **not** fix the case where HTTP through portproxy is broken. Prefer mirrored networking or Windows-hosted Nest.
+
+5. Stale **`API_BASE_URL`** after DHCP: run `.\check-homedx-connectivity.ps1 -UpdateMobileEnv` and **rebuild** the app (release APK must be rebuilt; hot reload does not refresh `.env`).

@@ -17,6 +17,13 @@ void main() {
       );
     });
 
+    test('crp maps to Innere Medizin + Allgemeinmedizin fallback', () {
+      expect(
+        TestSpecializationMapping.specializationsForTestType('crp'),
+        ['Innere Medizin', 'Allgemeinmedizin'],
+      );
+    });
+
     test('covid-rapid maps to Pulmologie + Allgemeinmedizin fallback', () {
       expect(
         TestSpecializationMapping.specializationsForTestType('covid-rapid'),

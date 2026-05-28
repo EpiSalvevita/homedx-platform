@@ -67,7 +67,7 @@ class CubeChannelHarness {
   /// `CubeAnalysisMethodChannel.kt`):
   /// ```dart
   /// pushEvent({'type': 'state', 'state': 'ST_IDLE'});
-  /// pushEvent({'type': 'message', 'msgType': 'MT_INFO', 'msgCode': 0x04, 'msgData': 7});
+  /// pushEvent({'type': 'message', 'msgType': 'MT_INFO', 'msgCode': 8, 'msgData': 7});
   /// ```
   Future<void> pushEvent(Map<String, Object?> event) async {
     final data = _codec.encodeSuccessEnvelope(event);

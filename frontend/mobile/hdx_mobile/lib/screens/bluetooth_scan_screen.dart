@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
@@ -6,6 +7,7 @@ import '../providers/bluetooth_provider.dart';
 import '../services/api_service.dart';
 import '../services/bluetooth_service.dart';
 import '../services/cube_service.dart';
+import '../widgets/figma_ui.dart';
 import '../widgets/neumorphic.dart';
 
 /// Bundle of injectable dependencies used by widget tests to bypass the
@@ -44,7 +46,17 @@ class BluetoothScanScreenTestOverrides {
 class BluetoothScanScreen extends StatefulWidget {
   final BluetoothScanScreenTestOverrides? testOverrides;
 
-  const BluetoothScanScreen({super.key, this.testOverrides});
+  /// When opening the scan UI from [TestBluetoothCheckScreen], pass the same
+  /// [CubeService] the parent already uses. A second [CubeService] would
+  /// register another EventChannel listener → native `onCancel` tears down
+  /// the first subscription and the parent’s stream stays dead after scan.
+  final CubeService? sharedCubeService;
+
+  const BluetoothScanScreen({
+    super.key,
+    this.testOverrides,
+    this.sharedCubeService,
+  });
 
   @override
   State<BluetoothScanScreen> createState() => _BluetoothScanScreenState();
@@ -68,6 +80,8 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
     final overrides = widget.testOverrides;
     if (overrides != null) {
       _cubeService = overrides.cubeService;
+    } else if (widget.sharedCubeService != null) {
+      _cubeService = widget.sharedCubeService!;
     } else {
       final apiService = Provider.of<ApiService>(context, listen: false);
       _cubeService = CubeService(apiService);
@@ -81,6 +95,10 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
       final licensed = await _cubeService.licenseValid();
       if (!mounted) return;
       if (!licensed) {
+        developer.log(
+          'BluetoothScan: licenseValid=false — replace android/app/src/main/assets/cube_license.dat',
+          name: 'HDX_CUBE',
+        );
         setState(() {
           _error =
               'Cube-Lizenz ungültig oder abgelaufen. Ersetzen Sie android/app/src/main/assets/cube_license.dat durch die gültige Datei vom Anbieter und bauen Sie die App neu.';
@@ -128,7 +146,11 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
   void dispose() {
     _connectTimeoutTimer?.cancel();
     _scanTimeoutGuardTimer?.cancel();
-    _cubeService.stopListening();
+    // Only this screen’s own CubeService may unsubscribe; a [sharedCubeService]
+    // is owned by [TestBluetoothCheckScreen] (see `_navigateToScan` heal).
+    if (widget.testOverrides == null && widget.sharedCubeService == null) {
+      _cubeService.stopListening();
+    }
     super.dispose();
   }
 
@@ -165,6 +187,10 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
 
   void _onMessage(String msgType, int msgCode, int msgData) {
     if (msgType == 'MT_ERROR' && mounted) {
+      developer.log(
+        'BluetoothScan: MT_ERROR msgCode=$msgCode msgData=$msgData',
+        name: 'HDX_CUBE',
+      );
       _connectTimeoutTimer?.cancel();
       _connectTimeoutTimer = null;
       _closeConnectDialogIfOpen();
@@ -189,8 +215,13 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
     try {
       // Cube / blessed stack may need time for advertising + bonding; 30s is safer than 10s.
       const scanMs = 30000;
+      developer.log(
+        'BluetoothScan: startScan timeoutMs=$scanMs sharedCube=${widget.sharedCubeService != null}',
+        name: 'HDX_CUBE',
+      );
       final ok = await _cubeService.startScan(timeoutMs: scanMs);
       if (!ok && mounted) {
+        developer.log('BluetoothScan: startScan returned false', name: 'HDX_CUBE');
         setState(() {
           _isScanning = false;
           _error =
@@ -210,7 +241,13 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
           if (mounted) setState(() => _isScanning = false);
         },
       );
-    } catch (e) {
+    } catch (e, st) {
+      developer.log(
+        'BluetoothScan: scan error $e',
+        name: 'HDX_CUBE',
+        error: e,
+        stackTrace: st,
+      );
       if (mounted) {
         setState(() {
           _isScanning = false;
@@ -221,6 +258,10 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
   }
 
   Future<void> _connectDevice(CubeDeviceInfo device) async {
+    developer.log(
+      'BluetoothScan: connectDevice index=${device.index} name=${device.name} comm=${device.commType}',
+      name: 'HDX_CUBE',
+    );
     setState(() {
       _isConnecting = true;
       _error = null;
@@ -251,6 +292,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
       await Future<void>.delayed(const Duration(milliseconds: 400));
       // disableButton: matches vendor flow for reader hardware during connect.
       final ok = await _cubeService.connectDevice(device.index, disableButton: true);
+      developer.log('BluetoothScan: connectDevice native returned ok=$ok', name: 'HDX_CUBE');
       if (!ok && mounted) {
         _connectTimeoutTimer?.cancel();
         _connectTimeoutTimer = null;
@@ -261,7 +303,13 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
         });
       }
       // If connection succeeds, _onStateChanged will handle navigation
-    } catch (e) {
+    } catch (e, st) {
+      developer.log(
+        'BluetoothScan: connect exception $e',
+        name: 'HDX_CUBE',
+        error: e,
+        stackTrace: st,
+      );
       if (mounted) {
         _connectTimeoutTimer?.cancel();
         _connectTimeoutTimer = null;
@@ -282,22 +330,14 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cube-Gerät suchen'),
+    return FigmaScreen(
+      header: FigmaBackHeader(
+        title: 'Bluetooth',
         actions: [
           if (_isScanning)
-            IconButton(
-              icon: const Icon(Icons.stop),
-              onPressed: () => _cubeService.stopScan(),
-              tooltip: 'Suche stoppen',
-            )
+            IconButton(icon: const Icon(Icons.stop, color: AppTheme.textColor), onPressed: () => _cubeService.stopScan())
           else
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: _startScan,
-              tooltip: 'Suche starten',
-            ),
+            IconButton(icon: const Icon(Icons.refresh, color: AppTheme.textColor), onPressed: _startScan),
         ],
       ),
       body: _buildBody(),

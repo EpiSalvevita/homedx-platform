@@ -19,5 +19,30 @@ class AppConstants {
   // App Configuration
   static const String appName = 'HomeDX';
   static const String appVersion = '1.0.0';
+
+  /// Verbose Cube / assay flow logs (`HDX_CUBE`, poll loops, step UI). Disable with
+  /// `.env`: `CUBE_VERBOSE=false` to reduce log noise in production builds.
+  static bool get cubeVerboseLogging {
+    try {
+      final v = dotenv.env['CUBE_VERBOSE']?.trim().toLowerCase();
+      if (v == '0' || v == 'false' || v == 'no' || v == 'off') return false;
+      return true;
+    } catch (_) {
+      // dotenv not loaded (e.g. unit tests) — default verbose on.
+      return true;
+    }
+  }
+
+  /// When false, Cube SDK skips cassette incubation timer (dev only — not clinically valid).
+  static bool get cubeUseTimer {
+    try {
+      final v = dotenv.env['CUBE_USE_TIMER']?.trim().toLowerCase();
+      if (v == '0' || v == 'false' || v == 'no' || v == 'off') return false;
+      if (v == '1' || v == 'true' || v == 'yes' || v == 'on') return true;
+      return true;
+    } catch (_) {
+      return true;
+    }
+  }
 }
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -194,18 +195,53 @@ class ApiService {
     String? result,
     List<Map<String, dynamic>>? resultData,
   }) async {
-    return await post(
-      'submit-cube-data',
-      body: {
-        'testTypeId': testTypeId,
-        if (rawData != null) 'rawData': rawData,
-        if (deviceSerial != null) 'deviceSerial': deviceSerial,
-        if (measurementTimestamp != null) 'measurementTimestamp': measurementTimestamp,
-        if (result != null) 'result': result,
-        if (resultData != null) 'resultData': resultData,
-      },
-      includeAuth: true,
+    final authPresent = _authToken != null && _authToken!.isNotEmpty;
+    developer.log(
+      'POST submit-cube-data testTypeId=$testTypeId deviceSerial=$deviceSerial '
+      'result=$result resultDataCount=${resultData?.length ?? 0} ts=$measurementTimestamp '
+      'rawLen=${rawData?.length ?? 0} hasAuth=$authPresent baseUrl=$baseUrl',
+      name: 'HDX_CUBE_API',
     );
+    if (AppConstants.cubeVerboseLogging && resultData != null && resultData.isNotEmpty) {
+      final n = resultData.length;
+      for (var i = 0; i < n && i < 16; i++) {
+        developer.log(
+          'submit-cube-data row[$i]=$resultData[i]',
+          name: 'HDX_CUBE_API',
+        );
+      }
+      if (n > 16) {
+        developer.log(
+          'submit-cube-data … ${n - 16} more row(s) omitted',
+          name: 'HDX_CUBE_API',
+        );
+      }
+    }
+    try {
+      final map = await post(
+        '/submit-cube-data',
+        body: {
+          'testTypeId': testTypeId,
+          if (rawData != null) 'rawData': rawData,
+          if (deviceSerial != null) 'deviceSerial': deviceSerial,
+          if (measurementTimestamp != null) 'measurementTimestamp': measurementTimestamp,
+          if (result != null) 'result': result,
+          if (resultData != null) 'resultData': resultData,
+        },
+        includeAuth: true,
+      );
+      developer.log('submit-cube-data OK: $map', name: 'HDX_CUBE_API');
+      return map;
+    } catch (e, st) {
+      developer.log(
+        'submit-cube-data FAILED: $e',
+        name: 'HDX_CUBE_API',
+        error: e,
+        stackTrace: st,
+        level: 1000,
+      );
+      rethrow;
+    }
   }
 
   Map<String, dynamic> _handleResponse(http.Response response) {

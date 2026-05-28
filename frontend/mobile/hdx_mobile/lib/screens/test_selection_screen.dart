@@ -5,7 +5,7 @@ import '../config/app_theme.dart';
 import '../models/test_type.dart';
 import '../services/test_service.dart';
 import '../services/api_service.dart';
-
+import '../widgets/figma_ui.dart';
 
 class TestSelectionScreen extends StatefulWidget {
   const TestSelectionScreen({super.key});
@@ -43,87 +43,98 @@ class _TestSelectionScreenState extends State<TestSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Testtyp auswählen')),
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _loadTestTypes,
-          child: _buildBody(),
-        ),
+    return FigmaScreen(
+      header: FigmaBackHeader(
+        title: 'Testtyp auswählen',
+        blueTopBar: true,
+        onBack: () => context.go('/'),
+      ),
+      body: RefreshIndicator(
+        onRefresh: _loadTestTypes,
+        child: _buildBody(),
       ),
     );
   }
 
   Widget _buildBody() {
-    if (_isLoading) return const Center(child: CircularProgressIndicator());
+    if (_isLoading) {
+      return ListView(
+        children: const [SizedBox(height: 200, child: Center(child: CircularProgressIndicator()))],
+      );
+    }
 
     if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 64, color: AppTheme.errorColor),
-              const SizedBox(height: 16),
-              Text('Fehler beim Laden der Tests', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
-              const SizedBox(height: 24),
-              ElevatedButton(onPressed: _loadTestTypes, child: const Text('Erneut versuchen')),
-            ],
-          ),
-        ),
+      return ListView(
+        padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
+        children: [
+          const SizedBox(height: 80),
+          Icon(Icons.error_outline, size: 64, color: AppTheme.errorColor),
+          const SizedBox(height: 16),
+          Text('Fehler beim Laden der Tests', textAlign: TextAlign.center, style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor)),
+          const SizedBox(height: 24),
+          Center(child: NeumorphicPillButton(label: 'Erneut versuchen', height: 52, onPressed: _loadTestTypes)),
+        ],
       );
     }
 
     if (_testTypes.isEmpty) {
-      return const Center(child: Text('Keine Tests verfügbar', style: TextStyle(fontSize: 16)));
+      return ListView(
+        padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
+        children: [
+          const SizedBox(height: 80),
+          Center(child: Text('Keine Tests verfügbar', style: FigmaUi.rubik(fontSize: 16, color: AppTheme.textColor))),
+        ],
+      );
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
       itemCount: _testTypes.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, __) => const SizedBox(height: AppTheme.testTypeCardSpacing),
       itemBuilder: (context, index) => _buildTestCard(_testTypes[index]),
     );
   }
 
   Widget _buildTestCard(TestType testType) {
-    return GestureDetector(
+    final description = testType.description.isNotEmpty
+        ? testType.description
+        : 'Rheumatoid arthritis screening test';
+
+    return NeumorphicRaisedCard(
+      height: AppTheme.testTypeCardHeight,
+      padding: AppTheme.testTypeCardPadding,
       onTap: () => _selectTest(testType),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppTheme.cardColor,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: AppTheme.cardShadow,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(Icons.science, color: AppTheme.primaryBlue, size: 24),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: AppTheme.background,
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(testType.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
-                  if (testType.description.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(testType.description, style: TextStyle(fontSize: 13, color: AppTheme.textColorSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  ],
-                ],
-              ),
+            child: const Icon(Icons.description_outlined, color: AppTheme.primaryBlue, size: 22),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  testType.name,
+                  style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  description,
+                  style: FigmaUi.bodyLight(),
+                ),
+              ],
             ),
-            const Icon(Icons.chevron_right, color: AppTheme.textColorSecondary, size: 22),
-          ],
-        ),
+          ),
+          const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.textColorSecondary),
+        ],
       ),
     );
   }

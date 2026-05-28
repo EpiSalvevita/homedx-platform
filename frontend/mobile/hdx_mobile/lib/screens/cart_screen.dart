@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
 import '../providers/cart_provider.dart';
+import '../widgets/figma_ui.dart';
 import 'checkout_screen.dart';
 
 class CartScreen extends StatelessWidget {
@@ -11,30 +12,15 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final cart = Provider.of<CartProvider>(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Warenkorb'),
-        actions: [
-          Stack(
-            children: [
-              const IconButton(icon: Icon(Icons.shopping_cart_outlined), onPressed: null),
-              if (cart.itemCount > 0)
-                Positioned(
-                  right: 6,
-                  top: 6,
-                  child: Container(
-                    width: 18,
-                    height: 18,
-                    decoration: const BoxDecoration(color: AppTheme.errorColor, shape: BoxShape.circle),
-                    child: Center(child: Text('${cart.itemCount}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: cart.isEmpty
+    return FigmaScreen(
+      header: const FigmaBackHeader(title: 'Warenkorb'),
+      bottomBar: cart.isEmpty
+          ? null
+          : FigmaBottomActionBar(
+              buttonLabel: 'Zur Kasse',
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckoutScreen())),
+            ),
+      body: cart.isEmpty
             ? Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
@@ -62,9 +48,9 @@ class CartScreen extends StatelessWidget {
                         return Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppTheme.cardColor,
-                            borderRadius: BorderRadius.circular(14),
-                            boxShadow: AppTheme.cardShadow,
+                            color: AppTheme.surface,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: AppTheme.neumorphicRaised,
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,38 +111,27 @@ class CartScreen extends StatelessWidget {
                       },
                     ),
                   ),
-                  // Bottom total + checkout
                   Container(
-                    margin: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppTheme.cardColor,
+                      color: AppTheme.surface,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: AppTheme.cardShadow,
+                      boxShadow: AppTheme.neumorphicRaised,
                     ),
                     child: Column(
                       children: [
-                        const Text('Gesamt', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
+                        Text('Gesamt', style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor)),
                         const SizedBox(height: 6),
                         Text(
                           '${cart.totalPrice.toStringAsFixed(2)} €',
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckoutScreen())),
-                            child: const Text('Zur Kasse'),
-                          ),
+                          style: FigmaUi.rubik(fontSize: 28, fontWeight: FontWeight.w500, color: AppTheme.primaryBlue),
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-      ),
     );
   }
 }

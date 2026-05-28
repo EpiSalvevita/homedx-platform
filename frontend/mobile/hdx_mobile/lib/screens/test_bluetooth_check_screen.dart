@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:developer' as developer;
+
 import '../config/app_theme.dart';
 import '../providers/bluetooth_provider.dart';
 import '../services/api_service.dart';
 import '../services/cube_service.dart';
+import '../widgets/figma_ui.dart';
+import '../utils/constants.dart';
 import '../widgets/neumorphic.dart';
 import 'bluetooth_scan_screen.dart';
 import 'test_progress_screen.dart';
@@ -30,6 +35,14 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
   bool _cubeConnected = false;
   String _cubeState = 'ST_DISCONNECTED';
 
+  /// Picked Cube test configuration (`.config`/`.bin` — vendor binary blob), or null for RFID.
+  String? _cubeConfigAbsolutePath;
+
+  static String _fileBasename(String p) {
+    final n = p.replaceAll('\\', '/').split('/').last;
+    return n.isEmpty ? p : n;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -45,7 +58,13 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
 
   @override
   void dispose() {
-    _cubeService.stopListening();
+    // While TestProgressScreen is open we set [_isProcessing]; a GoRouter / navigator
+    // rebuild can dispose this State briefly and would otherwise call
+    // [CubeService.stopListening] → native EventChannel onCancel → missed Cube SDK
+    // messages (see log: onCancel right after ST_IDLE, before startEvaluation).
+    if (!_isProcessing) {
+      _cubeService.stopListening();
+    }
     super.dispose();
   }
 
@@ -69,6 +88,12 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
 
   void _proceedWithTest() {
     if (_isProcessing) return;
+    developer.log(
+      'TestBluetoothCheck: _proceedWithTest testTypeId=${widget.testTypeId} '
+      'connected=$_cubeConnected state=$_cubeState '
+      'pickedConfig=${_cubeConfigAbsolutePath ?? '(bundled/RFID)'}',
+      name: 'HDX_CUBE',
+    );
     setState(() => _isProcessing = true);
 
     Navigator.of(context).push(
@@ -77,23 +102,100 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
           cubeService: _cubeService,
           testTypeId: widget.testTypeId,
           testTypeName: widget.testTypeName,
+          useTimer: AppConstants.cubeUseTimer,
+          cubeConfigAbsolutePath: _cubeConfigAbsolutePath,
         ),
       ),
     ).then((_) {
-      if (mounted) setState(() => _isProcessing = false);
+      if (mounted) {
+        setState(() => _isProcessing = false);
+        // If dispose() skipped stopListening while progress was open, ensure the
+        // EventChannel is listening again for the Bluetooth-Prüfung screen.
+        _cubeService.startListening();
+      }
     });
   }
+
+  Future<void> _pickCubeConfigFile() async {
+    final pick = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['config', 'bin', 'dat', 'CFG', 'cfg'],
+      withData: false,
+    );
+    if (pick == null || pick.files.isEmpty || !mounted) return;
+    final path = pick.files.single.path;
+    if (path == null || path.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Kein Dateipfad verfügbar. Bitte über „Dateien“ wählen oder die Datei in Downloads ablegen.',
+            ),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+    setState(() => _cubeConfigAbsolutePath = path);
+  }
+
+  void _clearCubeConfigFile() => setState(() => _cubeConfigAbsolutePath = null);
 
   Future<void> _navigateToScan() async {
     final result = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (context) => const BluetoothScanScreen(),
+        builder: (context) =>
+            BluetoothScanScreen(sharedCubeService: _cubeService),
       ),
     );
 
+    if (mounted) {
+      // Scan overwrote these handlers; restore parent wiring. A second
+      // CubeService on the scan route used to replace the EventChannel
+      // listener — bounce stop/start so [startListening] can attach again.
+      _cubeService.onStateChanged = _onCubeStateChanged;
+      _cubeService.onDevicesUpdated = null;
+      _cubeService.onMessage = null;
+      _cubeService.stopListening();
+      _cubeService.startListening();
+    }
     if (result == true && mounted) {
       await _checkCubeConnection();
     }
+  }
+
+  void _goHome() {
+    if (!mounted) return;
+    context.go('/');
+  }
+
+  Future<void> _handleBack() async {
+    if (_isProcessing) {
+      final leave = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Test abbrechen?'),
+          content: const Text(
+            'Die laufende Messung wird beendet und Sie kehren zur Startseite zurück.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Weiter'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Abbrechen'),
+            ),
+          ],
+        ),
+      );
+      if (leave != true || !mounted) return;
+      await Navigator.of(context).maybePop();
+      if (!mounted) return;
+    }
+    _goHome();
   }
 
   Future<void> _disconnectCube() async {
@@ -132,15 +234,8 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('${widget.testTypeName} - Bluetooth-Prüfung'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-          tooltip: 'Zurück',
-        ),
-      ),
+    return FigmaScreen(
+      header: FigmaBackHeader(title: 'Bluetooth', onBack: _handleBack),
       body: Consumer<BluetoothProvider>(
         builder: (context, btProvider, _) {
           if (!btProvider.isBluetoothEnabled) {
@@ -241,6 +336,45 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 24),
+          NeumorphicContainer(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Messkonfiguration (Cube)',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textColor),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _cubeConfigAbsolutePath != null
+                      ? 'Konfigurationsdatei: ${_fileBasename(_cubeConfigAbsolutePath!)}'
+                      : 'Standard: Kalibrierung per RFID von der eingelegten Kassette. '
+                          'Mit „Datei wählen“ verwenden Sie stattdessen eine `.config`/`.bin` vom Anbieter '
+                          '(wie in der Cube-Beispiel-App).',
+                  style: TextStyle(fontSize: 15, color: AppTheme.textColor),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    TextButton.icon(
+                      onPressed: _isProcessing ? null : _pickCubeConfigFile,
+                      icon: Icon(Icons.folder_open, color: AppTheme.primaryColor),
+                      label: Text('Konfigurationsdatei wählen', style: TextStyle(color: AppTheme.primaryColor)),
+                    ),
+                    if (_cubeConfigAbsolutePath != null)
+                      TextButton(
+                        onPressed: _isProcessing ? null : _clearCubeConfigFile,
+                        child: Text('RFID-Modus (Datei löschen)', style: TextStyle(color: AppTheme.textColor)),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 32),
           IgnorePointer(
             ignoring: _isProcessing,
@@ -328,7 +462,7 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
             ),
             const SizedBox(height: 20),
             TextButton(
-              onPressed: () => context.pop(),
+              onPressed: _goHome,
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 minimumSize: const Size(48, 48),

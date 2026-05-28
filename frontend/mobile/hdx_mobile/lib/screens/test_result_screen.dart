@@ -18,12 +18,14 @@ class TestResultScreen extends StatelessWidget {
   final String testTypeName;
   final CubeTestResult result;
   final String? testTypeId;
+  final DateTime? testDate;
 
   const TestResultScreen({
     super.key,
     required this.testTypeName,
     required this.result,
     this.testTypeId,
+    this.testDate,
   });
 
   @override
@@ -38,15 +40,15 @@ class TestResultScreen extends StatelessWidget {
     final String badgeLabel;
 
     if (isPositive) {
-      badgeColor = const Color(0xFFE53E3E);
+      badgeColor = AppTheme.accentCoral;
       badgeIcon = Icons.warning_rounded;
       badgeLabel = 'Positiv';
     } else if (isNegative) {
-      badgeColor = const Color(0xFF48BB78);
+      badgeColor = AppTheme.successColor;
       badgeIcon = Icons.check_circle;
       badgeLabel = 'Negativ';
     } else {
-      badgeColor = const Color(0xFFED8936);
+      badgeColor = AppTheme.accentBlue;
       badgeIcon = Icons.help_outline;
       badgeLabel = 'Unbestimmt';
     }
@@ -92,7 +94,7 @@ class TestResultScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    _formatDate(DateTime.now()),
+                    _formatDate(testDate ?? DateTime.now()),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: AppTheme.textColorSecondary,
                     ),
@@ -196,17 +198,12 @@ class TestResultScreen extends StatelessWidget {
   }
 
   Widget _buildResultRow(ThemeData theme, CubeResultData data) {
-    final validity = data.validity;
-    final validityColor = validity == 1
-        ? const Color(0xFF48BB78)
-        : validity == 0
-            ? const Color(0xFFED8936)
-            : AppTheme.errorColor;
-    final validityLabel = validity == 1
-        ? 'Gültig'
-        : validity == 0
-            ? 'Unklar'
-            : 'Ungültig';
+    final validityColor = switch (data.validity) {
+      0 => AppTheme.successColor,
+      1 || 2 => AppTheme.accentBlue,
+      3 || 4 => AppTheme.accentCoral,
+      _ => AppTheme.textColorSecondary,
+    };
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -256,7 +253,7 @@ class TestResultScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                validityLabel,
+                data.validityLabel,
                 style: TextStyle(
                   color: validityColor,
                   fontWeight: FontWeight.w600,

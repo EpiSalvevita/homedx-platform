@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_stripe/flutter_stripe.dart' as stripe;
 import 'package:provider/provider.dart';
+import '../config/app_theme.dart';
 import '../services/payment_service.dart';
+import '../widgets/figma_ui.dart';
 
 class CreditCardPaymentScreen extends StatefulWidget {
   final double amount;
@@ -194,12 +196,15 @@ class _CreditCardPaymentScreenState extends State<CreditCardPaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Kreditkartenzahlung'),
+    return FigmaScreen(
+      header: const FigmaBackHeader(title: 'Kreditkartenzahlung'),
+      bottomBar: FigmaBottomActionBar(
+        buttonLabel: _isProcessing ? 'Wird verarbeitet…' : 'Bezahlen',
+        loading: _isProcessing,
+        onPressed: _isProcessing ? null : _processPayment,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
         child: Form(
           key: _formKey,
           child: Column(
@@ -373,31 +378,6 @@ class _CreditCardPaymentScreenState extends State<CreditCardPaymentScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-
-              // Pay Button
-              ElevatedButton(
-                onPressed: _isProcessing ? null : _processPayment,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.green,
-                ),
-                child: _isProcessing
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : const Text(
-                        'Jetzt zahlen',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-              ),
             ],
           ),
         ),

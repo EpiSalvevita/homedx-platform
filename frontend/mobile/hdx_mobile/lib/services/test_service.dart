@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/test_type.dart';
+import '../models/user_test_result.dart';
 import 'api_service.dart' show ApiService, ApiException;
 
 class TestService {
@@ -42,6 +43,13 @@ class TestService {
         color: Colors.red,
       ),
       TestType(
+        id: 'crp',
+        name: 'CRP (C-reaktives Protein)',
+        description: 'Schnelltest für C-reaktives Protein (Entzündungsmarker)',
+        icon: 'monitor_heart',
+        color: Colors.pink,
+      ),
+      TestType(
         id: 'vitamind',
         name: 'Vitamin D',
         description: 'Vitamin D deficiency screening test',
@@ -70,6 +78,30 @@ class TestService {
         color: Colors.purple,
       ),
     ];
+  }
+
+  /// Fetch the logged-in user's completed rapid tests (newest first).
+  Future<List<UserTestResult>> getUserTestResults() async {
+    final response = await _apiService.post(
+      '/get-last-test',
+      body: {},
+      includeAuth: true,
+    );
+
+    if (response['success'] != true) {
+      throw ApiException(
+        response['error']?.toString() ?? 'Failed to load test results',
+        0,
+      );
+    }
+
+    final raw = response['lastTests'];
+    if (raw is! List) return const [];
+
+    return raw
+        .whereType<Map>()
+        .map((item) => UserTestResult.fromJson(Map<String, dynamic>.from(item)))
+        .toList();
   }
 
   /// Add a new test (create test instance)

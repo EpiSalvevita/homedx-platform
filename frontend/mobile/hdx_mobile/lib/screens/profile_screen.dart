@@ -4,6 +4,7 @@ import '../config/app_theme.dart';
 import '../services/user_service.dart' show UserData, UserService;
 import '../services/api_service.dart';
 import '../services/cube_service.dart';
+import '../widgets/figma_ui.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -134,15 +135,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profil'),
+    return FigmaScreen(
+      header: FigmaBackHeader(
+        title: 'Profil',
         actions: [
           if (!_isLoading && _userData != null)
             IconButton(
               icon: _isSaving
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Icon(Icons.save),
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.textColor))
+                  : const Icon(Icons.save_outlined, color: AppTheme.textColor),
               onPressed: _isSaving ? null : _saveUserData,
             ),
         ],
@@ -151,7 +152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            padding: const EdgeInsets.fromLTRB(AppTheme.screenHorizontalPadding, 8, AppTheme.screenHorizontalPadding, 0),
             child: _buildCubeSdkCard(),
           ),
           Expanded(
@@ -164,79 +165,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text('Fehler beim Laden des Profils', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                              Text('Fehler beim Laden des Profils', style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500)),
                               const SizedBox(height: 16),
-                              ElevatedButton(onPressed: _loadUserData, child: const Text('Erneut versuchen')),
+                              NeumorphicPillButton(label: 'Erneut versuchen', height: 52, onPressed: _loadUserData),
                             ],
                           ),
                         ),
                       )
                     : SingleChildScrollView(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
                         child: Form(
                           key: _formKey,
                           child: Column(
                             children: [
-                        // Avatar card
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: AppTheme.cardColor,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: AppTheme.cardShadow,
-                          ),
-                          child: Column(
-                            children: [
                               Container(
-                                width: 72,
-                                height: 72,
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(24),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.primaryLight,
-                                  shape: BoxShape.circle,
+                                  color: AppTheme.surface,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: AppTheme.neumorphicRaised,
                                 ),
-                                child: const Icon(Icons.person_outline, size: 36, color: AppTheme.primaryBlue),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: 82,
+                                      height: 82,
+                                      decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(16)),
+                                      child: const Icon(Icons.person_outline, size: 32, color: AppTheme.primaryBlue),
+                                    ),
+                                    const SizedBox(height: 14),
+                                    Text(
+                                      '${_userData?.firstName ?? ''} ${_userData?.lastName ?? ''}',
+                                      style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(_userData?.email ?? '', style: FigmaUi.rubik(fontSize: 12, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary)),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 14),
-                              Text(
-                                '${_userData?.firstName ?? ''} ${_userData?.lastName ?? ''}',
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textColor),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(_userData?.email ?? '', style: TextStyle(fontSize: 14, color: AppTheme.textColorSecondary)),
+                              const SizedBox(height: 20),
+                              NeumorphicInsetField(controller: _firstNameController, label: 'Vorname', prefixIcon: Icons.person_outline, validator: (v) => (v == null || v.isEmpty) ? 'Vorname ist erforderlich' : null),
+                              const SizedBox(height: 20),
+                              NeumorphicInsetField(controller: _lastNameController, label: 'Nachname', prefixIcon: Icons.person_outline, validator: (v) => (v == null || v.isEmpty) ? 'Nachname ist erforderlich' : null),
+                              const SizedBox(height: 20),
+                              NeumorphicInsetField(controller: _emailController, label: 'E-mail', prefixIcon: Icons.mail_outline, keyboardType: TextInputType.emailAddress, validator: (v) => (v == null || v.isEmpty) ? 'E-mail ist erforderlich' : null),
+                              const SizedBox(height: 20),
+                              NeumorphicInsetField(controller: _phoneController, label: 'Handynummer', prefixIcon: Icons.phone_outlined, keyboardType: TextInputType.phone),
+                              const SizedBox(height: 20),
+                              NeumorphicInsetField(controller: _cityController, label: 'Stadt', prefixIcon: Icons.location_city_outlined),
+                              const SizedBox(height: 20),
+                              NeumorphicInsetField(controller: _countryController, label: 'Land', prefixIcon: Icons.public),
+                              const SizedBox(height: 24),
+                              NeumorphicPillButton(label: 'Änderungen speichern', loading: _isSaving, onPressed: _isSaving ? null : _saveUserData),
+                              const SizedBox(height: 16),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 20),
-
-                        _buildField(_firstNameController, 'Vorname', Icons.person_outline, required: true),
-                        const SizedBox(height: 14),
-                        _buildField(_lastNameController, 'Nachname', Icons.person_outline, required: true),
-                        const SizedBox(height: 14),
-                        _buildField(_emailController, 'E-mail', Icons.email_outlined, required: true, keyboard: TextInputType.emailAddress),
-                        const SizedBox(height: 14),
-                        _buildField(_phoneController, 'Handynummer', Icons.phone_outlined, keyboard: TextInputType.phone),
-                        const SizedBox(height: 14),
-                        _buildField(_cityController, 'Stadt', Icons.location_city_outlined),
-                        const SizedBox(height: 14),
-                        _buildField(_countryController, 'Land', Icons.public),
-                        const SizedBox(height: 24),
-
-                        SizedBox(
-                          width: double.infinity,
-                          height: 52,
-                          child: ElevatedButton(
-                            onPressed: _isSaving ? null : _saveUserData,
-                            child: _isSaving
-                                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                                : const Text('Änderungen speichern'),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                    ),
-                  ),
-                ),
+                      ),
           ),
         ],
       ),
@@ -248,9 +234,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.cardColor,
+        color: AppTheme.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.cardShadow,
+        boxShadow: AppTheme.neumorphicRaised,
       ),
       child: _cubeSdkInfoLoading
           ? const Row(
@@ -290,20 +276,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-    );
-  }
-
-  Widget _buildField(TextEditingController ctrl, String label, IconData icon, {bool required = false, TextInputType? keyboard}) {
-    return TextFormField(
-      controller: ctrl,
-      keyboardType: keyboard,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-      ),
-      validator: required
-          ? (v) => (v == null || v.isEmpty) ? '$label ist erforderlich' : null
-          : null,
     );
   }
 }

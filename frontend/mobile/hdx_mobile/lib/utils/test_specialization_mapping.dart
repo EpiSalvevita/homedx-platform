@@ -11,6 +11,7 @@ class TestSpecializationMapping {
   /// subsequent entries are accepted fallbacks.
   static const Map<String, List<String>> _byTestTypeId = {
     'rheumacheck': ['Rheumatologie'],
+    'crp': ['Innere Medizin', 'Allgemeinmedizin'],
     'vitamind': ['Endokrinologie', 'Allgemeinmedizin'],
     'covid-rapid': ['Pulmologie', 'Allgemeinmedizin'],
     'antigen': ['Allgemeinmedizin'],

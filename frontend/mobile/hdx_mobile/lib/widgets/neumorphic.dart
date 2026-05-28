@@ -77,7 +77,7 @@ class _NeumorphicButtonState extends State<NeumorphicButton> {
         padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
         decoration: BoxDecoration(
           color: _pressed
-              ? (widget.isPrimary ? AppTheme.primaryBlue.withValues(alpha: 0.85) : const Color(0xFFF0F2F8))
+              ? (widget.isPrimary ? AppTheme.primaryBlue.withValues(alpha: 0.85) : AppTheme.surface)
               : bg,
           borderRadius: BorderRadius.circular(widget.borderRadius),
           boxShadow: widget.isPrimary

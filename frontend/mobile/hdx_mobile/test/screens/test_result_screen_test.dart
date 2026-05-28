@@ -97,4 +97,39 @@ void main() {
 
     expect(find.text('Empfohlen: Allgemeinmedizin'), findsOneWidget);
   });
+
+  testWidgets('shows Cube SDK validity labels on detailed result rows',
+      (tester) async {
+    await _pumpWithRouter(
+      tester,
+      TestResultScreen(
+        testTypeName: 'CRP',
+        testTypeId: 'crp',
+        result: CubeTestResult(
+          success: true,
+          result: 'NEGATIVE',
+          resultData: [
+            CubeResultData(
+              name: 'CRP',
+              value: '3.2',
+              unit: 'mg/L',
+              resultClass: 'NEG',
+              validity: 0,
+            ),
+            CubeResultData(
+              name: 'Control',
+              value: '—',
+              unit: '',
+              resultClass: '',
+              validity: 3,
+            ),
+          ],
+        ),
+      ),
+    );
+
+    expect(find.text('Gültig'), findsOneWidget);
+    expect(find.text('Ungültig'), findsOneWidget);
+    expect(find.text('Unklar'), findsNothing);
+  });
 }

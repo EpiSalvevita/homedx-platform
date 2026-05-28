@@ -1,69 +1,172 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
+/// HomeDX brand palette (hex without #).
 class AppTheme {
-  static const Color primaryBlue = Color(0xFF4A6CF7);
-  static const Color primaryLight = Color(0xFFDCE3FF);
-  static const Color background = Color(0xFFF8F9FD);
-  static const Color cardColor = Colors.white;
-  static const Color textColor = Color(0xFF1E2A4A);
-  static const Color textColorSecondary = Color(0xFF8E92A4);
-  static const Color errorColor = Color(0xFFEF5B5B);
-  static const Color successColor = Color(0xFF48BB78);
-  static const Color fieldBackground = Color(0xFFF0F2F8);
+  static const Color navy = Color(0xFF142543);
+  static const Color surface = Color(0xFFF5F5F5);
+  static const Color primaryBlue = Color(0xFF3652A5);
+  static const Color accentBlue = Color(0xFF80A2F9);
+  static const Color accentMint = Color(0xFF8DD2CF);
+  static const Color accentCoral = Color(0xFFF8A39E);
 
-  // Keep old names as aliases for backward-compatibility with screens not yet updated
+  /// Light fill for icon chips and highlights (harmonized with [accentBlue]).
+  static const Color primaryLight = Color(0xFFE4E9FB);
+
+  static const Color background = surface;
+  static const Color cardColor = Colors.white;
+  /// Default text color for headings, body, buttons on light surfaces (#142543).
+  static const Color textColor = navy;
+  /// Muted supporting text (labels, hints, captions).
+  static const Color textColorSecondary = Color(0xFF5C6980);
+  static const Color errorColor = accentCoral;
+  static const Color successColor = accentMint;
+  static const Color fieldBackground = Colors.white;
+
   static const Color primaryColor = primaryBlue;
   static const Color baseColor = background;
-  static const Color darkShadow = Color(0xFFCDD0DB);
-  static const Color lightShadow = Colors.white;
-  static const Color secondaryColor = Color(0xFF7B8CFF);
+  static const Color darkShadow = Color(0xFFC9CED8);
+  static const Color secondaryColor = accentBlue;
+
+  /// Strong text/icons on [accentMint] or light backgrounds.
+  static const Color onMint = Color(0xFF142543);
 
   static const double minTouchTarget = 48.0;
 
   static List<BoxShadow> get cardShadow => [
         BoxShadow(
-          color: const Color(0xFF4A6CF7).withValues(alpha: 0.08),
+          color: primaryBlue.withValues(alpha: 0.08),
           offset: const Offset(0, 4),
           blurRadius: 20,
         ),
       ];
 
+  /// Deprecated for input fields — use [NeumorphicInsetSurface] (true inset paint).
+  /// Kept for non-field surfaces that still use outer neumorphic styling.
+  static List<BoxShadow> get neumorphicInset => const [
+        BoxShadow(color: Colors.white, offset: Offset(-4, -4), blurRadius: 4),
+        BoxShadow(color: Color(0x4D99A6CE), offset: Offset(4, 4), blurRadius: 10),
+      ];
+
+  /// Figma Large button (hover) drop shadows — dark first, then light highlight.
+  static List<BoxShadow> get neumorphicRaised => const [
+        BoxShadow(
+          color: Color(0x4D99A6CE),
+          offset: Offset(4, 4),
+          blurRadius: 10,
+          spreadRadius: 0,
+        ),
+        BoxShadow(
+          color: Colors.white,
+          offset: Offset(-4, -4),
+          blurRadius: 10,
+          spreadRadius: 0,
+        ),
+      ];
+
+  /// Figma Large primary button: height 59, vertical padding 20.
+  static const double buttonHeightLarge = 59;
+  static const EdgeInsets buttonPaddingLarge = EdgeInsets.symmetric(vertical: 20);
+
+  static const double screenHorizontalPadding = 24;
+  static const double fieldHeight = 72;
+  static const double pillRadius = 100;
+
+  /// Figma home quick-action cards (`50:587` etc.): 186×138, 20px grid gap.
+  static const double quickActionCardAspectRatio = 186 / 138;
+  static const double quickActionGridSpacing = 20;
+  static const double quickActionCardRadius = 16;
+
+  /// Figma home activity rows (`50:628`): 392×105, radius 14, padding 22×12.
+  static const double activityCardHeight = 105;
+  static const double activityCardRadius = 14;
+  static const EdgeInsets activityCardPadding = EdgeInsets.fromLTRB(22, 12, 22, 12);
+  static const double activityCardSpacing = 24;
+
+  /// Figma welcome card (`50:651`): 392×128, same radius/shadows as activity rows.
+  static const double welcomeCardHeight = 128;
+  static const EdgeInsets welcomeCardPadding = EdgeInsets.fromLTRB(22, 20, 22, 26);
+
+  /// Figma info banner (`50:709`): 392×44, radius 14.
+  static const double infoBannerHeight = 44;
+  static const double infoBannerHorizontalPadding = 22;
+
+  /// Figma test result cards (`50:661`): 392×136, radius 14, raised shadows only.
+  static const double testResultCardHeight = 136;
+  static const EdgeInsets testResultCardPadding = EdgeInsets.all(22);
+  static const double testResultCardSpacing = 20;
+
+  /// Figma test type cards (`50:725`): 392×116, radius 14, raised shadows only.
+  static const double testTypeCardHeight = 116;
+  static const EdgeInsets testTypeCardPadding = EdgeInsets.all(22);
+  static const double testTypeCardSpacing = 20;
+
+  /// Figma result badge (`50:670` Negativ): hug ~81×23, radius 6, padding 14×4.
+  static const EdgeInsets resultBadgePadding = EdgeInsets.fromLTRB(14, 4, 14, 4);
+  static const double resultBadgeRadius = 6;
+  /// Figma `50:674` Positiv badge fill.
+  static const Color resultBadgePositive = Color(0xFFFF6D60);
+  /// Figma `50:670` Negativ badge fill.
+  static const Color resultBadgeNegative = accentBlue;
+
+  /// Figma home top bar (`50:617`): 440×118, Clear Sky fill, single drop shadow.
+  static const double homeHeaderHeight = 118;
+  static List<BoxShadow> get homeHeaderShadow => const [
+        BoxShadow(
+          color: Color(0x4D99A6CE),
+          offset: Offset(4, 4),
+          blurRadius: 10,
+          spreadRadius: 0,
+        ),
+      ];
+
+  static const TextTheme _baseTextTheme = TextTheme(
+    displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: textColor),
+    displayMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: textColor),
+    displaySmall: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: textColor),
+    headlineLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: textColor),
+    headlineMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: textColor),
+    headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: textColor),
+    titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: textColor),
+    titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: textColor),
+    titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textColor),
+    bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: textColor),
+    bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.normal, color: textColor),
+    bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: textColorSecondary),
+    labelLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+    labelMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textColor),
+    labelSmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: textColorSecondary),
+  );
+
   static ThemeData get lightTheme {
+    final textTheme = GoogleFonts.rubikTextTheme(_baseTextTheme);
+
     return ThemeData(
       useMaterial3: true,
+      fontFamily: GoogleFonts.rubik().fontFamily,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryBlue,
         brightness: Brightness.light,
         surface: background,
         primary: primaryBlue,
+        onSurface: textColor,
+        onSurfaceVariant: textColorSecondary,
       ),
       scaffoldBackgroundColor: background,
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: textColor),
-        displayMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: textColor),
-        displaySmall: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: textColor),
-        headlineLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: textColor),
-        headlineMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: textColor),
-        headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: textColor),
-        titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: textColor),
-        titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: textColor),
-        titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textColor),
-        bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: textColor),
-        bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.normal, color: textColor),
-        bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: textColorSecondary),
-        labelLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-        labelMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textColor),
-        labelSmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: textColorSecondary),
-      ),
-      appBarTheme: const AppBarTheme(
+      textTheme: textTheme,
+      appBarTheme: AppBarTheme(
         elevation: 0,
         centerTitle: false,
         backgroundColor: primaryBlue,
         foregroundColor: Colors.white,
-        titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        iconTheme: IconThemeData(size: 24, color: Colors.white),
+        titleTextStyle: textTheme.titleLarge?.copyWith(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+        iconTheme: const IconThemeData(size: 24, color: Colors.white),
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
       ),
@@ -78,7 +181,7 @@ class AppTheme {
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(minTouchTarget),
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          textStyle: textTheme.labelLarge,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           elevation: 0,
         ),
@@ -87,8 +190,8 @@ class AppTheme {
         filled: true,
         fillColor: fieldBackground,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        labelStyle: const TextStyle(fontSize: 14, color: textColorSecondary),
-        hintStyle: const TextStyle(fontSize: 14, color: textColorSecondary),
+        labelStyle: textTheme.bodyMedium?.copyWith(color: textColorSecondary),
+        hintStyle: textTheme.bodyMedium?.copyWith(color: textColorSecondary),
         prefixIconColor: textColorSecondary,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -113,21 +216,21 @@ class AppTheme {
           iconSize: 24,
         ),
       ),
-      listTileTheme: const ListTileThemeData(
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      listTileTheme: ListTileThemeData(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         minLeadingWidth: 40,
-        titleTextStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: textColor),
-        subtitleTextStyle: TextStyle(fontSize: 14, color: textColorSecondary),
+        titleTextStyle: textTheme.titleMedium,
+        subtitleTextStyle: textTheme.bodyMedium?.copyWith(color: textColorSecondary),
       ),
       dialogTheme: DialogThemeData(
-        titleTextStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textColor),
-        contentTextStyle: const TextStyle(fontSize: 16, color: textColor),
+        titleTextStyle: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+        contentTextStyle: textTheme.bodyLarge,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       chipTheme: ChipThemeData(
         selectedColor: primaryBlue,
         backgroundColor: Colors.white,
-        labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        labelStyle: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
           side: BorderSide(color: primaryBlue.withValues(alpha: 0.3)),
@@ -135,7 +238,7 @@ class AppTheme {
         showCheckmark: false,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
-      dividerTheme: const DividerThemeData(color: Color(0xFFE8EAF0), thickness: 1),
+      dividerTheme: DividerThemeData(color: navy.withValues(alpha: 0.12), thickness: 1),
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),

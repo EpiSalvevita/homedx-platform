@@ -1,6 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'dart:developer' as developer;
 import '../config/app_theme.dart';
 import '../services/cube_service.dart';
+import '../utils/constants.dart';
+import '../utils/cube_test_config_assets.dart';
 import '../widgets/neumorphic.dart';
 import 'test_result_screen.dart';
 
@@ -22,12 +27,22 @@ class TestProgressScreen extends StatefulWidget {
   /// test configuration.
   final bool useTimer;
 
+  /// When non-null, Cube evaluation uses this file (e.g. picked `.config` / `.bin`)
+  /// instead of the cassette RFID calibration — same as the vendor app’s
+  /// “Datei” / `OpenDocument` path.
+  final String? cubeConfigAbsolutePath;
+
+  /// Android `content://` or `file://` when the picker exposes a Uri rather than a path.
+  final String? cubeConfigUri;
+
   const TestProgressScreen({
     super.key,
     required this.cubeService,
     required this.testTypeId,
     required this.testTypeName,
     this.useTimer = true,
+    this.cubeConfigAbsolutePath,
+    this.cubeConfigUri,
   });
 
   @override
@@ -46,6 +61,10 @@ class _TestProgressScreenState extends State<TestProgressScreen>
   @override
   void initState() {
     super.initState();
+    widget.cubeService.startListening();
+    if (kDebugMode) {
+      debugPrint('TestProgressScreen: Cube EventChannel listen ensured');
+    }
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
@@ -60,11 +79,60 @@ class _TestProgressScreenState extends State<TestProgressScreen>
     super.dispose();
   }
 
+  Future<void> _leaveToHome() async {
+    final leave = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Test abbrechen?'),
+        content: const Text(
+          'Möchten Sie die Messung verlassen und zur Startseite zurückkehren?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Weiter'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Zur Startseite'),
+          ),
+        ],
+      ),
+    );
+    if (leave == true && mounted) {
+      context.go('/');
+    }
+  }
+
   Future<void> _startMeasurement() async {
+    final hasPickedFile = (widget.cubeConfigAbsolutePath != null &&
+            widget.cubeConfigAbsolutePath!.trim().isNotEmpty) ||
+        (widget.cubeConfigUri != null &&
+            widget.cubeConfigUri!.trim().isNotEmpty);
+    final configAssetName = hasPickedFile
+        ? null
+        : cubeConfigAssetBasenameForTestType(widget.testTypeId);
+
+    developer.log(
+      'TestProgress: runTestAndSubmit testTypeId=${widget.testTypeId} useTimer=${widget.useTimer} '
+      'asset=$configAssetName path=${widget.cubeConfigAbsolutePath} uri=${widget.cubeConfigUri}',
+      name: 'HDX_CUBE',
+    );
+
     final result = await widget.cubeService.runTestAndSubmit(
       testTypeId: widget.testTypeId,
       useTimer: widget.useTimer,
+      configAssetName: configAssetName,
+      configAbsolutePath: widget.cubeConfigAbsolutePath,
+      configUri: widget.cubeConfigUri,
       onStep: (update) {
+        if (AppConstants.cubeVerboseLogging) {
+          developer.log(
+            'TestProgress: onStep step=${update.step.name} label="${update.label}" '
+            'secs=${update.secondsLeft} test=${widget.testTypeId}',
+            name: 'HDX_CUBE',
+          );
+        }
         if (!mounted) return;
         setState(() {
           _currentStep = update.step;
@@ -75,6 +143,11 @@ class _TestProgressScreenState extends State<TestProgressScreen>
     );
 
     if (!mounted) return;
+
+    developer.log(
+      'TestProgress: runTestAndSubmit finished success=${result.success} error=${result.error} testId=${result.testId}',
+      name: 'HDX_CUBE',
+    );
 
     if (result.success) {
       Navigator.of(context).pushReplacement(
@@ -97,14 +170,23 @@ class _TestProgressScreenState extends State<TestProgressScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _leaveToHome();
+      },
+      child: Scaffold(
       appBar: AppBar(
         title: Text(widget.testTypeName),
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: _leaveToHome,
+        ),
       ),
       body: SafeArea(
         child: _errorMessage != null ? _buildError(theme) : _buildProgress(theme),
       ),
+    ),
     );
   }
 
@@ -159,7 +241,7 @@ class _TestProgressScreenState extends State<TestProgressScreen>
           ),
           const SizedBox(height: 16),
           NeumorphicButton(
-            onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),
+            onPressed: () => context.go('/'),
             child: const Text('Zurück zum Start'),
           ),
         ],
@@ -273,7 +355,7 @@ class _TestProgressScreenState extends State<TestProgressScreen>
                 height: 40,
                 decoration: BoxDecoration(
                   color: isCompleted
-                      ? const Color(0xFF48BB78)
+                      ? AppTheme.successColor
                       : isActive
                           ? AppTheme.primaryColor
                           : AppTheme.baseColor,
@@ -284,7 +366,7 @@ class _TestProgressScreenState extends State<TestProgressScreen>
                 ),
                 child: Center(
                   child: isCompleted
-                      ? const Icon(Icons.check, color: Colors.white, size: 22)
+                      ? const Icon(Icons.check, color: AppTheme.onMint, size: 22)
                       : Text(
                           '${index + 1}',
                           style: TextStyle(
@@ -344,19 +426,19 @@ class _TestProgressScreenState extends State<TestProgressScreen>
       case CubeMeasureStep.starting:
         return AppTheme.primaryColor;
       case CubeMeasureStep.placeWhite:
-        return const Color(0xFF6B8DD6);
+        return AppTheme.accentBlue;
       case CubeMeasureStep.placeTest:
-        return const Color(0xFF8B5CF6);
+        return AppTheme.navy;
       case CubeMeasureStep.timerRunning:
-        return const Color(0xFFF59E0B);
+        return AppTheme.accentCoral;
       case CubeMeasureStep.evaluating:
-        return const Color(0xFFEC4899);
+        return AppTheme.primaryBlue;
       case CubeMeasureStep.readingResults:
-        return const Color(0xFF10B981);
+        return AppTheme.accentMint;
       case CubeMeasureStep.submitting:
         return AppTheme.primaryColor;
       case CubeMeasureStep.done:
-        return const Color(0xFF48BB78);
+        return AppTheme.successColor;
       case CubeMeasureStep.error:
         return AppTheme.errorColor;
     }

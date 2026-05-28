@@ -46,3 +46,4 @@ app.*.map.json
 
 # Cube: bundled test configuration blob (vendor-specific; copy locally — do not commit)
 /android/app/src/main/assets/cube_test_config.bin
+/android/app/src/main/assets/CRP_250702.bin

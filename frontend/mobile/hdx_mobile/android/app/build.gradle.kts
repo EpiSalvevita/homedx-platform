@@ -37,6 +37,11 @@ android {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
+    // Cube SDK config blobs must be readable via AssetManager.open(); keep them uncompressed.
+    androidResources {
+        noCompress += listOf("bin", "dat", "config", "cfg")
+    }
+
     defaultConfig {
         applicationId = "com.example.hdx_mobile"
         minSdk = maxOf(flutter.minSdkVersion, 26)
@@ -50,6 +55,10 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("debug")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }

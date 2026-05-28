@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../providers/bluetooth_provider.dart';
+import '../widgets/figma_ui.dart';
 import 'bluetooth_scan_screen.dart';
 
 class BluetoothConnectionScreen extends StatefulWidget {
@@ -15,10 +16,8 @@ class BluetoothConnectionScreen extends StatefulWidget {
 class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bluetooth-Verbindung'),
-      ),
+    return FigmaScreen(
+      header: const FigmaBackHeader(title: 'Bluetooth'),
       body: Consumer<BluetoothProvider>(
         builder: (context, provider, _) {
           if (provider.isConnected && provider.connectedDevice != null) {

@@ -33,8 +33,34 @@ Write-Host "`n=== Port proxy for 4000 ===" -ForegroundColor Cyan
 netsh interface portproxy show all
 
 Write-Host "`n=== Test TCP to localhost:4000 on Windows (needs backend up in WSL) ===" -ForegroundColor Cyan
-Test-NetConnection -ComputerName 127.0.0.1 -Port 4000 -WarningAction SilentlyContinue |
-    Select-Object ComputerName, RemotePort, TcpTestSucceeded
+$tnc = Test-NetConnection -ComputerName 127.0.0.1 -Port 4000 -WarningAction SilentlyContinue
+$tnc | Select-Object ComputerName, RemotePort, TcpTestSucceeded
+
+Write-Host "`n=== Test HTTP via portproxy (TCP can succeed while HTTP fails on some WSL2 setups) ===" -ForegroundColor Cyan
+$probeUrl = 'http://127.0.0.1:4000/gg-homedx-json/gg-api/v1/get-be-status-flags'
+try {
+    $body = Invoke-RestMethod -Uri $probeUrl -Method Post -ContentType 'application/json' -Body '{}' -TimeoutSec 10
+    Write-Host "HTTP OK: $probeUrl" -ForegroundColor Green
+    Write-Host ($body | ConvertTo-Json -Compress)
+} catch {
+    Write-Host "HTTP FAILED to $probeUrl" -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
+    Write-Host "If TcpTestSucceeded was True but HTTP fails: see docs/WSL2_PORT_FORWARDING.md → Troubleshooting (mirrored networking or run Nest on Windows)." -ForegroundColor Yellow
+}
+
+$lan = Get-PreferredWindowsLanIPv4
+if ($lan) {
+    $lanUrl = "http://${lan}:4000/gg-homedx-json/gg-api/v1/get-be-status-flags"
+    Write-Host "`n=== Test HTTP to Windows LAN IP (same path as a phone on Wi-Fi) ===" -ForegroundColor Cyan
+    try {
+        $body2 = Invoke-RestMethod -Uri $lanUrl -Method Post -ContentType 'application/json' -Body '{}' -TimeoutSec 10
+        Write-Host "HTTP OK: $lanUrl" -ForegroundColor Green
+        Write-Host ($body2 | ConvertTo-Json -Compress)
+    } catch {
+        Write-Host "HTTP FAILED to $lanUrl" -ForegroundColor Red
+        Write-Host $_.Exception.Message -ForegroundColor Red
+    }
+}
 
 Write-Host "`nIf TcpTestSucceeded is False: start backend in WSL, rerun setup-wsl-port-forward.cmd as Admin.`n" -ForegroundColor Yellow
 Write-Host "Phone .env API_BASE_URL must use the Windows IPv4 above (not the WSL IP).`n" -ForegroundColor Yellow

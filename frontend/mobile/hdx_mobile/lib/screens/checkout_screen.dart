@@ -4,6 +4,7 @@ import '../config/app_theme.dart';
 import '../providers/cart_provider.dart';
 import '../services/payment_service.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/figma_ui.dart';
 import 'payment_processing_screen.dart' show PaymentMethod, PaymentProcessingScreen;
 
 class CheckoutScreen extends StatefulWidget {
@@ -89,8 +90,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
     final paymentService = Provider.of<PaymentService>(context);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Kasse')),
+    return FigmaScreen(
+      header: const FigmaBackHeader(title: 'Kasse'),
+      bottomBar: cartProvider.isEmpty
+          ? null
+          : FigmaBottomActionBar(
+              buttonLabel: _isProcessing ? 'Wird verarbeitet…' : 'Jetzt zahlen',
+              loading: _isProcessing,
+              onPressed: _isProcessing ? null : () => _processPayment(cartProvider, authProvider, paymentService),
+            ),
       body: cartProvider.isEmpty
           ? Center(
               child: Column(
@@ -103,11 +111,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             )
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Bestellübersicht', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
+                  const FigmaSectionTitle('Bestellübersicht'),
                   const SizedBox(height: 12),
 
                   // Order items
@@ -115,9 +123,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     margin: const EdgeInsets.only(bottom: 10),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppTheme.cardColor,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: AppTheme.cardShadow,
+                      color: AppTheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: AppTheme.neumorphicRaised,
                     ),
                     child: Row(
                       children: [
@@ -141,9 +149,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     decoration: BoxDecoration(
-                      color: AppTheme.cardColor,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: AppTheme.cardShadow,
+                      color: AppTheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: AppTheme.neumorphicRaised,
                     ),
                     child: Row(
                       children: [
@@ -155,7 +163,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
 
                   const SizedBox(height: 28),
-                  const Text('Zahlungsmethode', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
+                  const FigmaSectionTitle('Zahlungsmethode'),
                   const SizedBox(height: 12),
 
                   // Payment methods
@@ -196,17 +204,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   }),
 
                   const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: _isProcessing ? null : () => _processPayment(cartProvider, authProvider, paymentService),
-                      child: _isProcessing
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                          : Text('Jetzt zahlen (${cartProvider.totalPrice.toStringAsFixed(2)} €)', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
                 ],
               ),
             ),

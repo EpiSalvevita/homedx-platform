@@ -75,7 +75,7 @@ port 4000 reaches WSL (see `docs/WSL2_PORT_FORWARDING.md`).
 
 The main Android manifest enables **cleartext HTTP** for local `API_BASE_URL` (LAN/WSL dev).
 
-If login still shows **connection timeout**, the phone is not reaching Windows on port 4000. On Windows, run `.\check-homedx-connectivity.ps1` and ensure `API_BASE_URL` uses the **Windows** IPv4 shown there (not the WSL IP), the backend is running in WSL, and `setup-wsl-port-forward.cmd` was run as Administrator after WSL restarts.
+If login still shows **connection timeout**, the phone is not reaching Windows on port 4000. On Windows, run `.\check-homedx-connectivity.ps1` and ensure `API_BASE_URL` uses the **Windows** IPv4 shown there (not the WSL IP), the backend is running in WSL, and `setup-wsl-port-forward.cmd` was run as Administrator after WSL restarts. If the script shows **TCP OK** but **HTTP FAILED**, see **Troubleshooting** in `docs/WSL2_PORT_FORWARDING.md` (WSL mirrored networking or running Nest on Windows).
 
 ### 3) Verify Setup
 
