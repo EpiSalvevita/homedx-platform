@@ -34,7 +34,12 @@ Thumbs.db
 *.zip
 
 # Flutter
+flutter/
 frontend/mobile/hdx_mobile/.dart_tool/
 frontend/mobile/hdx_mobile/build/
+frontend/mobile/hdx_mobile/android/build/
 frontend/mobile/hdx_mobile/.packages
 frontend/mobile/hdx_mobile/pubspec.lock
+
+# Legacy / duplicate tree at repo root (active app: frontend/mobile/hdx_mobile/)
+/mobile/

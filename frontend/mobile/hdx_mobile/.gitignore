@@ -43,7 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/build/
 
-# Cube: bundled test configuration blob (vendor-specific; copy locally — do not commit)
+# Cube: vendor test config blobs (copy locally — do not commit; see ENV_SETUP.md)
 /android/app/src/main/assets/cube_test_config.bin
-/android/app/src/main/assets/CRP_250702.bin
+/android/app/src/main/assets/CRP_*.bin

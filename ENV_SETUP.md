@@ -62,6 +62,42 @@ The connectivity script **`check-homedx-connectivity.ps1`** only **prints** diag
 
 For stable IPs, use a **DHCP reservation** for your PC on the router (or a fixed IPv4 on the adapter). Re-run **`setup-wsl-port-forward.cmd`** after **WSL restarts** (WSL’s internal IP changes). See `docs/WSL2_PORT_FORWARDING.md`.
 
+## Cube Android test configuration (local only)
+
+Cube assay evaluation needs vendor-specific **`.bin` config blobs** bundled into the Android APK. These files are **not in git** (see `frontend/mobile/hdx_mobile/.gitignore`).
+
+### Where to put files
+
+Copy blobs into:
+
+```text
+frontend/mobile/hdx_mobile/android/app/src/main/assets/
+```
+
+Keep `.gitkeep` in that folder; add your local blobs beside it.
+
+### Files used by the app
+
+| File | Purpose |
+|------|---------|
+| `cube_test_config.bin` | Default/fallback Cube config (generic dev blob) |
+| `CRP_250702_216.bin` | CRP assay config — required for test type id `crp` (see `lib/utils/cube_test_config_assets.dart`) |
+| `cube_license.dat` | Cube SDK license (already tracked in repo) |
+
+Obtain `.bin` files from your Cube vendor package or device calibration export. Do not commit updated vendor blobs unless your team explicitly decides to share them.
+
+### After adding or changing blobs
+
+Rebuild the Android app (hot reload does not refresh APK assets):
+
+```bash
+cd frontend/mobile/hdx_mobile
+flutter clean
+flutter run
+```
+
+If evaluation fails with “Cube config asset not found”, verify the basename matches exactly what `cubeConfigAssetBasenameForTestType()` returns for that test type.
+
 ## Getting API Keys
 
 ### Stripe
