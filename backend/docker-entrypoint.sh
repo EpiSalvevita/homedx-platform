@@ -2,7 +2,7 @@
 set -e
 
 echo "Running Prisma migrations..."
-npx prisma migrate deploy
+./node_modules/.bin/prisma migrate deploy
 
 if [ "${HOMEDX_SEED_DOCTORS:-true}" = "true" ]; then
   echo "Seeding demo doctors (safe to re-run)..."

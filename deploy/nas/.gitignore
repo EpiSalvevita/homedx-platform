@@ -1,0 +1,8 @@
+# Built artifacts — generate with build-artifacts.sh (do not commit binaries)
+web/*
+!web/.gitkeep
+downloads/*
+!downloads/.gitkeep
+
+# Local NAS secrets
+.env
