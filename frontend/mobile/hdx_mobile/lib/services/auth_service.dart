@@ -27,16 +27,28 @@ class AuthService {
     return _prefs?.getString(AppConstants.keyUserEmail);
   }
 
+  Future<String?> getStoredUserRole() async {
+    await _initPrefs();
+    return _prefs?.getString(AppConstants.keyUserRole);
+  }
+
   Future<void> _storeToken(String token) async {
     await _initPrefs();
     await _prefs?.setString(AppConstants.keyAuthToken, token);
     _apiService.setAuthToken(token);
   }
 
-  Future<void> _storeUserData(String userId, String email) async {
+  Future<void> _storeUserData(
+    String userId,
+    String email, {
+    String? role,
+  }) async {
     await _initPrefs();
     await _prefs?.setString(AppConstants.keyUserId, userId);
     await _prefs?.setString(AppConstants.keyUserEmail, email);
+    if (role != null) {
+      await _prefs?.setString(AppConstants.keyUserRole, role);
+    }
   }
 
   Future<void> _clearStoredData() async {
@@ -44,6 +56,7 @@ class AuthService {
     await _prefs?.remove(AppConstants.keyAuthToken);
     await _prefs?.remove(AppConstants.keyUserId);
     await _prefs?.remove(AppConstants.keyUserEmail);
+    await _prefs?.remove(AppConstants.keyUserRole);
     _apiService.setAuthToken(null);
   }
 
@@ -71,6 +84,7 @@ class AuthService {
             await _storeUserData(
               userData['id']?.toString() ?? '',
               userData['email']?.toString() ?? email,
+              role: userData['role']?.toString(),
             );
           }
         } catch (_) {

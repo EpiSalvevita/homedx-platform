@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../models/doctor.dart';
+import '../services/api_service.dart';
 import '../services/doctor_service.dart';
 import '../utils/test_specialization_mapping.dart';
 
@@ -41,7 +43,8 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
     });
 
     try {
-      final doctorService = DoctorService();
+      final api = Provider.of<ApiService>(context, listen: false);
+      final doctorService = DoctorService(api);
       final doctors = await doctorService.getAvailableDoctors(
         testTypeId: widget.testTypeId,
       );

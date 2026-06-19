@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
+import '../screens/landing_screen.dart';
+import '../screens/about_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
@@ -6,36 +9,76 @@ import '../screens/bluetooth_connection_screen.dart';
 import '../screens/bluetooth_scan_screen.dart';
 import '../screens/test_selection_screen.dart';
 import '../screens/test_bluetooth_check_screen.dart';
+import '../screens/cube_web_stub_screen.dart';
 import '../screens/doctor_selection_screen.dart';
 import '../screens/appointment_booking_screen.dart';
+import '../screens/appointments_list_screen.dart';
+import '../screens/appointment_detail_screen.dart';
+import '../screens/video_call_screen.dart';
+import '../screens/doctor/doctor_dashboard_screen.dart';
+import '../screens/doctor/doctor_appointments_screen.dart';
+import '../screens/doctor/doctor_availability_screen.dart';
 import '../screens/shop_screen.dart';
 import '../screens/test_results_screen.dart';
 import '../providers/auth_provider.dart';
+import 'auth_routes.dart';
 
 class AppRouter {
   static GoRouter createRouter(AuthProvider authProvider) {
     return GoRouter(
       initialLocation: '/',
+      refreshListenable: authProvider,
       redirect: (context, state) {
         final isLoggedIn = authProvider.isAuthenticated;
-        final isGoingToAuth = state.matchedLocation == '/login' || 
-                              state.matchedLocation == '/signup';
+        final isGoingToAuth = state.matchedLocation == '/login' ||
+            state.matchedLocation == '/signup';
+        final role = authProvider.userRole;
+        final isDoctor = role == 'DOCTOR';
+        final location = state.matchedLocation;
 
-        // If not logged in and trying to access protected route (including home), redirect to login
-        if (!isLoggedIn && !isGoingToAuth) {
+        if (!isLoggedIn && !isPublicRoute(location)) {
           return '/login';
         }
 
-        // If logged in and trying to access auth routes, redirect to home
         if (isLoggedIn && isGoingToAuth) {
-          return '/';
+          return homeRouteForRole(role);
         }
 
-        return null; // No redirect needed
+        if (isLoggedIn && location == '/') {
+          return homeRouteForRole(role);
+        }
+
+        if (isLoggedIn && isDoctor) {
+          if (location == '/home' ||
+              location.startsWith('/doctors') ||
+              location.startsWith('/appointments') ||
+              location.startsWith('/tests') ||
+              location.startsWith('/bluetooth') ||
+              location == '/shop' ||
+              location == '/results') {
+            return '/doctor/dashboard';
+          }
+        }
+
+        if (isLoggedIn && !isDoctor && location.startsWith('/doctor')) {
+          return '/home';
+        }
+
+        return null;
       },
       routes: [
         GoRoute(
           path: '/',
+          name: 'landing',
+          builder: (context, state) => const LandingScreen(),
+        ),
+        GoRoute(
+          path: '/about',
+          name: 'about',
+          builder: (context, state) => const AboutScreen(),
+        ),
+        GoRoute(
+          path: '/home',
           name: 'home',
           builder: (context, state) => const HomeScreen(),
         ),
@@ -57,19 +100,27 @@ class AppRouter {
         GoRoute(
           path: '/bluetooth/scan',
           name: 'bluetooth-scan',
-          builder: (context, state) => const BluetoothScanScreen(),
+          builder: (context, state) => kIsWeb
+              ? const CubeWebStubScreen(title: 'Bluetooth-Scan')
+              : const BluetoothScanScreen(),
         ),
         GoRoute(
           path: '/tests',
           name: 'tests',
-          builder: (context, state) => const TestSelectionScreen(),
+          builder: (context, state) => kIsWeb
+              ? const CubeWebStubScreen(title: 'Tests')
+              : const TestSelectionScreen(),
         ),
         GoRoute(
           path: '/tests/:testTypeId/bluetooth-check',
           name: 'test-bluetooth-check',
           builder: (context, state) {
+            if (kIsWeb) {
+              return const CubeWebStubScreen(title: 'Test vorbereiten');
+            }
             final testTypeId = state.pathParameters['testTypeId'] ?? '';
-            final testTypeName = state.uri.queryParameters['testTypeName'] ?? 'Test';
+            final testTypeName =
+                state.uri.queryParameters['testTypeName'] ?? 'Test';
             return TestBluetoothCheckScreen(
               testTypeId: testTypeId,
               testTypeName: testTypeName,
@@ -93,8 +144,10 @@ class AppRouter {
           name: 'appointment-booking',
           builder: (context, state) {
             final doctorId = state.pathParameters['doctorId'] ?? '';
-            final doctorName = state.uri.queryParameters['doctorName'] ?? 'Arzt';
-            final specialization = state.uri.queryParameters['specialization'] ?? '';
+            final doctorName =
+                state.uri.queryParameters['doctorName'] ?? 'Arzt';
+            final specialization =
+                state.uri.queryParameters['specialization'] ?? '';
             final testTypeId = state.uri.queryParameters['testTypeId'];
             final testTypeName = state.uri.queryParameters['testTypeName'];
             return AppointmentBookingScreen(
@@ -104,6 +157,58 @@ class AppRouter {
               testTypeId: testTypeId,
               testTypeName: testTypeName,
             );
+          },
+        ),
+        GoRoute(
+          path: '/appointments',
+          name: 'appointments',
+          builder: (context, state) => const AppointmentsListScreen(),
+        ),
+        GoRoute(
+          path: '/appointments/:appointmentId',
+          name: 'appointment-detail',
+          builder: (context, state) {
+            final appointmentId = state.pathParameters['appointmentId'] ?? '';
+            return AppointmentDetailScreen(appointmentId: appointmentId);
+          },
+        ),
+        GoRoute(
+          path: '/appointments/:appointmentId/call',
+          name: 'appointment-call',
+          builder: (context, state) {
+            final appointmentId = state.pathParameters['appointmentId'] ?? '';
+            return VideoCallScreen(appointmentId: appointmentId);
+          },
+        ),
+        GoRoute(
+          path: '/doctor/dashboard',
+          name: 'doctor-dashboard',
+          builder: (context, state) => const DoctorDashboardScreen(),
+        ),
+        GoRoute(
+          path: '/doctor/appointments',
+          name: 'doctor-appointments',
+          builder: (context, state) => const DoctorAppointmentsScreen(),
+        ),
+        GoRoute(
+          path: '/doctor/availability',
+          name: 'doctor-availability',
+          builder: (context, state) => const DoctorAvailabilityScreen(),
+        ),
+        GoRoute(
+          path: '/doctor/appointments/:appointmentId',
+          name: 'doctor-appointment-detail',
+          builder: (context, state) {
+            final appointmentId = state.pathParameters['appointmentId'] ?? '';
+            return AppointmentDetailScreen(appointmentId: appointmentId);
+          },
+        ),
+        GoRoute(
+          path: '/doctor/appointments/:appointmentId/call',
+          name: 'doctor-appointment-call',
+          builder: (context, state) {
+            final appointmentId = state.pathParameters['appointmentId'] ?? '';
+            return VideoCallScreen(appointmentId: appointmentId);
           },
         ),
         GoRoute(
@@ -119,6 +224,4 @@ class AppRouter {
       ],
     );
   }
-
 }
-

@@ -71,19 +71,29 @@ class Appointment {
   final String id;
   final String doctorId;
   final String doctorName;
+  final String? patientId;
+  final String? patientName;
   final DateTime appointmentTime;
-  final String type; // 'online' or 'in-person'
+  final String type;
   final String? notes;
-  final String status; // 'pending', 'confirmed', 'completed', 'cancelled'
+  final String status;
+  final int durationMin;
+  final bool canJoin;
+  final String? videoRoomUrl;
 
   Appointment({
     required this.id,
     required this.doctorId,
     required this.doctorName,
+    this.patientId,
+    this.patientName,
     required this.appointmentTime,
     required this.type,
     this.notes,
     required this.status,
+    this.durationMin = 30,
+    this.canJoin = false,
+    this.videoRoomUrl,
   });
 
   factory Appointment.fromJson(Map<String, dynamic> json) {
@@ -91,11 +101,86 @@ class Appointment {
       id: json['id'] as String,
       doctorId: json['doctorId'] as String,
       doctorName: json['doctorName'] as String,
+      patientId: json['patientId'] as String?,
+      patientName: json['patientName'] as String?,
       appointmentTime: DateTime.parse(json['appointmentTime'] as String),
-      type: json['type'] as String,
+      type: json['type'] as String? ?? 'online',
       notes: json['notes'] as String?,
-      status: json['status'] as String,
+      status: json['status'] as String? ?? 'confirmed',
+      durationMin: json['durationMin'] as int? ?? 30,
+      canJoin: json['canJoin'] as bool? ?? false,
+      videoRoomUrl: json['videoRoomUrl'] as String?,
+    );
+  }
+
+  bool get isOnline => type == 'online';
+  bool get isUpcoming =>
+      status == 'confirmed' || status == 'pending';
+}
+
+class DoctorAvailabilityRule {
+  final int dayOfWeek;
+  final String startTime;
+  final String endTime;
+  final int slotMinutes;
+
+  DoctorAvailabilityRule({
+    required this.dayOfWeek,
+    required this.startTime,
+    required this.endTime,
+    this.slotMinutes = 30,
+  });
+
+  factory DoctorAvailabilityRule.fromJson(Map<String, dynamic> json) {
+    return DoctorAvailabilityRule(
+      dayOfWeek: json['dayOfWeek'] as int,
+      startTime: json['startTime'] as String,
+      endTime: json['endTime'] as String,
+      slotMinutes: json['slotMinutes'] as int? ?? 30,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'dayOfWeek': dayOfWeek,
+        'startTime': startTime,
+        'endTime': endTime,
+        'slotMinutes': slotMinutes,
+      };
+}
+
+class BookAppointmentResult {
+  final bool success;
+  final String? appointmentId;
+  final String? error;
+
+  BookAppointmentResult.success(this.appointmentId)
+      : success = true,
+        error = null;
+
+  BookAppointmentResult.failure(this.error)
+      : success = false,
+        appointmentId = null;
+}
+
+class VideoCallToken {
+  final String roomUrl;
+  final String joinUrl;
+  final String token;
+  final DateTime expiresAt;
+
+  VideoCallToken({
+    required this.roomUrl,
+    required this.joinUrl,
+    required this.token,
+    required this.expiresAt,
+  });
+
+  factory VideoCallToken.fromJson(Map<String, dynamic> json) {
+    return VideoCallToken(
+      roomUrl: json['roomUrl'] as String,
+      joinUrl: json['joinUrl'] as String,
+      token: json['token'] as String,
+      expiresAt: DateTime.parse(json['expiresAt'] as String),
     );
   }
 }
-

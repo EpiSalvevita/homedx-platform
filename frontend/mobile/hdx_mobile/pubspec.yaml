@@ -72,6 +72,7 @@ dependencies:
   # Payment Processing
   flutter_stripe: ^11.1.0  # Stripe SDK for secure credit card payments (PCI compliant)
   webview_flutter: ^4.9.0  # For PayPal Checkout
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
@@ -104,6 +105,7 @@ flutter:
     - assets/images/brand/
     - assets/images/illustrations/
     - assets/images/icons/
+    - assets/images/marketing/
 
 # App Icon Configuration
 flutter_launcher_icons:

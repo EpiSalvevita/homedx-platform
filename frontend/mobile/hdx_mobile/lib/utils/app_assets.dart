@@ -11,6 +11,10 @@ class AppAssets {
   static const String iconHomeCalendar = 'assets/images/icons/calendar.png';
   static const String iconHomeBag = 'assets/images/icons/bag.png';
 
+  /// Bluetooth screens (Phosphor duotone).
+  static const String iconBluetooth = 'assets/images/icons/ph_bluetooth-duotone.png';
+  static const String iconBluetoothSlash = 'assets/images/icons/ph_bluetooth-slash-duotone.png';
+
   /// Figma login hero logo (`50:1560`): 189.04×40.43, color #142543.
   static const double logoLoginWidth = 189.04;
   static const double logoLoginHeight = 40.43;
@@ -18,4 +22,12 @@ class AppAssets {
   /// Figma home header logo (`50:623`): 139×23.
   static const double logoHeaderWidth = 139;
   static const double logoHeaderHeight = 23;
+
+  /// Marketing page placeholders — replace with final assets in assets/images/marketing/.
+  static const String marketingCubeProduct =
+      'assets/images/marketing/cube-product.png';
+  static const String marketingStoryTeam =
+      'assets/images/marketing/story-team.png';
+  static const String marketingLifestyleHome =
+      'assets/images/marketing/lifestyle-home.png';
 }

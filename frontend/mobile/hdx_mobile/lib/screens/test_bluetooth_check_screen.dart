@@ -9,6 +9,7 @@ import '../providers/bluetooth_provider.dart';
 import '../services/api_service.dart';
 import '../services/cube_service.dart';
 import '../widgets/figma_ui.dart';
+import '../widgets/bluetooth_icon.dart';
 import '../utils/constants.dart';
 import '../widgets/neumorphic.dart';
 import 'bluetooth_scan_screen.dart';
@@ -167,7 +168,7 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
 
   void _goHome() {
     if (!mounted) return;
-    context.go('/');
+    context.go('/home');
   }
 
   Future<void> _handleBack() async {
@@ -257,7 +258,7 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.bluetooth_disabled, size: 96, color: AppTheme.textColor),
+            const BluetoothAssetIcon.disabled(size: 96),
             const SizedBox(height: 28),
             Text(
               'Bluetooth ist deaktiviert',
@@ -278,7 +279,7 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.bluetooth, color: Colors.white),
+                  const BluetoothAssetIcon(size: 24),
                   const SizedBox(width: 8),
                   Text('Bluetooth aktivieren', style: TextStyle(color: Colors.white)),
                 ],
@@ -414,7 +415,7 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.bluetooth_disabled, color: AppTheme.textColor),
+                  const BluetoothAssetIcon.disabled(size: 24),
                   const SizedBox(width: 8),
                   Text('Gerät trennen', style: TextStyle(color: AppTheme.textColor, fontSize: 18)),
                 ],
@@ -433,7 +434,7 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.bluetooth_searching, size: 96, color: AppTheme.primaryColor),
+            const BluetoothAssetIcon(size: 96),
             const SizedBox(height: 28),
             Text(
               'Kein Cube-Gerät verbunden',
@@ -454,7 +455,7 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.bluetooth_searching, color: Colors.white),
+                  const BluetoothAssetIcon(size: 24),
                   const SizedBox(width: 8),
                   Text('Nach Cube-Geräten suchen', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
                 ],

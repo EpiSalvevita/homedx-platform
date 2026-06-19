@@ -110,6 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   FigmaQuickActionTile(assetPath: AppAssets.iconHomeHeart, label: 'Test starten', onTap: () => context.go('/tests')),
                   FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Arzttermin', onTap: () => context.push('/doctors')),
+                  FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Meine Termine', onTap: () => context.push('/appointments')),
                   FigmaQuickActionTile(assetPath: AppAssets.iconDna, label: 'Ergebnisse', onTap: () => context.push('/results')),
                   FigmaQuickActionTile(assetPath: AppAssets.iconHomeBag, label: 'Shop', onTap: () => context.push('/shop')),
                 ],

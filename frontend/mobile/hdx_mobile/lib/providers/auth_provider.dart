@@ -8,6 +8,7 @@ class AuthProvider with ChangeNotifier {
   String? _error;
   String? _userId;
   String? _userEmail;
+  String? _userRole;
 
   AuthProvider(this._authService);
 
@@ -16,6 +17,8 @@ class AuthProvider with ChangeNotifier {
   String? get error => _error;
   String? get userId => _userId;
   String? get userEmail => _userEmail;
+  String? get userRole => _userRole;
+  bool get isDoctor => _userRole == 'DOCTOR';
 
   Future<void> initialize() async {
     _setLoading(true);
@@ -25,6 +28,7 @@ class AuthProvider with ChangeNotifier {
         await _authService.restoreSession();
         _userId = await _authService.getStoredUserId();
         _userEmail = await _authService.getStoredUserEmail();
+        _userRole = await _authService.getStoredUserRole();
         _isAuthenticated = true;
       }
     } catch (e) {
@@ -44,6 +48,7 @@ class AuthProvider with ChangeNotifier {
       if (result.success) {
         _userId = await _authService.getStoredUserId();
         _userEmail = await _authService.getStoredUserEmail();
+        _userRole = await _authService.getStoredUserRole();
         _isAuthenticated = true;
         notifyListeners();
         return true;
@@ -98,6 +103,7 @@ class AuthProvider with ChangeNotifier {
       _isAuthenticated = false;
       _userId = null;
       _userEmail = null;
+      _userRole = null;
       notifyListeners();
     } catch (e) {
       _setError('Logout error: $e');

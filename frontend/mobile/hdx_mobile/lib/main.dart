@@ -1,8 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_stripe/flutter_stripe.dart' as stripe;
+import 'config/stripe_init.dart';
 import 'config/app_theme.dart';
 import 'config/app_router.dart';
 import 'services/api_service.dart';
@@ -12,6 +13,7 @@ import 'services/payment_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/bluetooth_provider.dart';
 import 'providers/cart_provider.dart';
+import 'providers/locale_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,19 +21,20 @@ Future<void> main() async {
   // Load environment variables
   await dotenv.load(fileName: '.env');
   
-  // Initialize Stripe with publishable key
-  final stripePublishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY'];
-  if (stripePublishableKey != null && stripePublishableKey.isNotEmpty) {
-    stripe.Stripe.publishableKey = stripePublishableKey;
-    // Optional: Set Stripe merchant identifier for Apple Pay
-    // stripe.Stripe.merchantIdentifier = 'merchant.com.yourapp';
+  if (!kIsWeb) {
+    await initStripe();
   }
+
+  final localeProvider = LocaleProvider();
+  await localeProvider.initialize();
   
-  runApp(const MyApp());
+  runApp(MyApp(localeProvider: localeProvider));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final LocaleProvider localeProvider;
+
+  const MyApp({super.key, required this.localeProvider});
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +62,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: authProvider),
         ChangeNotifierProvider.value(value: bluetoothProvider),
         ChangeNotifierProvider.value(value: cartProvider),
+        ChangeNotifierProvider.value(value: localeProvider),
         Provider<ApiService>.value(value: apiService),
         Provider<AuthService>.value(value: authService),
         Provider<GraphQLService>.value(value: graphQLService),
@@ -67,12 +71,13 @@ class MyApp extends StatelessWidget {
       child: Builder(
         builder: (context) {
           final auth = Provider.of<AuthProvider>(context, listen: false);
+          final locale = context.watch<LocaleProvider>().locale;
           return MaterialApp.router(
-            title: 'HomeDX Mobile',
+            title: 'HomeDX',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             routerConfig: AppRouter.createRouter(auth),
-            locale: const Locale('de', 'DE'),
+            locale: locale,
             supportedLocales: const [
               Locale('de', 'DE'), // German
               Locale('en', 'US'), // English (fallback)

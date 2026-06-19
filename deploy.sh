@@ -194,18 +194,41 @@ case "$MODE" in
         START_BACKEND=false
         START_MOBILE=true
         ;;
+    "web")
+        START_BACKEND=false
+        START_MOBILE=false
+        START_WEB=true
+        ;;
     *)
-        echo "Usage: ./deploy.sh [all|backend|mobile|connectivity]"
+        echo "Usage: ./deploy.sh [all|backend|mobile|web|connectivity]"
         echo ""
         echo "  all           - Start both backend and mobile (default)"
         echo "  backend       - Start only the backend API"
         echo "  mobile        - Start only the mobile app"
+        echo "  web           - Build Flutter web release (output: frontend/mobile/hdx_mobile/build/web)"
         echo "  connectivity  - Verify Windows→WSL port 4000 portproxy, .env hint, backend smoke (no deploy)"
         exit 1
         ;;
 esac
 
 FLUTTER_APP="frontend/mobile/hdx_mobile"
+
+if [ "${START_WEB:-false}" = true ]; then
+    echo ""
+    echo "🌐 Building Flutter Web..."
+    if [ ! -f "$FLUTTER_APP/pubspec.yaml" ]; then
+        print_error "Flutter app not found at $FLUTTER_APP"
+        exit 1
+    fi
+    cd "$FLUTTER_APP"
+    flutter pub get
+    flutter build web --release
+    cd - >/dev/null
+    print_status "Web build complete: $FLUTTER_APP/build/web"
+    print_info "Serve locally: cd $FLUTTER_APP/build/web && python3 -m http.server 8080"
+    print_info "Set API_BASE_URL=http://127.0.0.1:4000 in $FLUTTER_APP/.env for browser dev"
+    exit 0
+fi
 
 # Start PostgreSQL Database
 if [ "$START_BACKEND" = true ]; then

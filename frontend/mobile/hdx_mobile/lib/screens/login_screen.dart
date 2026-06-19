@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../config/app_theme.dart';
+import '../config/auth_routes.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/figma_ui.dart';
 
@@ -35,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (success && mounted) {
-      context.go('/');
+      context.go(homeRouteForRole(authProvider.userRole));
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

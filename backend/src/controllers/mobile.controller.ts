@@ -4,7 +4,11 @@ import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
 import { RapidTestService } from '../services/rapid-test.service';
 import { FileUploadService } from '../services/file-upload.service';
+import { DoctorService } from '../services/doctor.service';
+import { AppointmentService } from '../services/appointment.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../services/prisma.service';
 
@@ -44,6 +48,38 @@ interface LiveTokenResponse extends MobileResponse {
   liveToken?: string;
 }
 
+interface DoctorsResponse extends MobileResponse {
+  doctors?: any[];
+}
+
+interface DoctorSlotsResponse extends MobileResponse {
+  slots?: any[];
+}
+
+interface BookAppointmentResponse extends MobileResponse {
+  appointmentId?: string;
+  appointmentTime?: string;
+}
+
+interface AppointmentsResponse extends MobileResponse {
+  appointments?: any[];
+}
+
+interface AppointmentResponse extends MobileResponse {
+  appointment?: any;
+}
+
+interface VideoCallTokenResponse extends MobileResponse {
+  roomUrl?: string;
+  joinUrl?: string;
+  token?: string;
+  expiresAt?: string;
+}
+
+interface AvailabilityResponse extends MobileResponse {
+  availability?: any[];
+}
+
 interface CubeResultDataItem {
   name: string;
   value: string;
@@ -67,6 +103,8 @@ export class MobileController {
     private readonly userService: UserService,
     private readonly rapidTestService: RapidTestService,
     private readonly fileUploadService: FileUploadService,
+    private readonly doctorService: DoctorService,
+    private readonly appointmentService: AppointmentService,
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
   ) {}
@@ -144,6 +182,7 @@ export class MobileController {
           address1: userData.address,
           postcode: userData.postalCode,
           testaccount: userData.role === 'ADMIN',
+          role: userData.role,
           authorized: 'accepted', // Default for now
         },
       };
@@ -585,6 +624,244 @@ export class MobileController {
     }
   }
 
+  @Post('get-doctors')
+  @UseGuards(JwtAuthGuard)
+  async getDoctors(
+    @Request() req: any,
+    @Body() body: { testTypeId?: string; lang?: string },
+  ): Promise<DoctorsResponse> {
+    try {
+      const doctors = await this.doctorService.listDoctors(body.testTypeId);
+      return { success: true, doctors };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to get doctors',
+      };
+    }
+  }
+
+  @Post('get-doctor-slots')
+  @UseGuards(JwtAuthGuard)
+  async getDoctorSlots(
+    @Body() body: { doctorId: string; from?: string; to?: string; lang?: string },
+  ): Promise<DoctorSlotsResponse> {
+    try {
+      if (!body.doctorId) {
+        return { success: false, error: 'doctorId is required' };
+      }
+      const from = body.from ? new Date(body.from) : undefined;
+      const to = body.to ? new Date(body.to) : undefined;
+      const slots = await this.doctorService.getAvailableSlots(body.doctorId, from, to);
+      return { success: true, slots };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to get doctor slots',
+      };
+    }
+  }
+
+  @Post('book-appointment')
+  @UseGuards(JwtAuthGuard)
+  async bookAppointment(
+    @Request() req: any,
+    @Body()
+    body: {
+      doctorId: string;
+      appointmentTime: string;
+      type: string;
+      notes?: string;
+      testTypeId?: string;
+      lang?: string;
+    },
+  ): Promise<BookAppointmentResponse> {
+    try {
+      const userId = req.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+      if (!body.doctorId || !body.appointmentTime) {
+        return { success: false, error: 'doctorId and appointmentTime are required' };
+      }
+
+      const appointment = await this.appointmentService.bookAppointment({
+        patientId: userId,
+        doctorId: body.doctorId,
+        appointmentTime: new Date(body.appointmentTime),
+        type: body.type ?? 'online',
+        notes: body.notes,
+        testTypeId: body.testTypeId,
+      });
+
+      return {
+        success: true,
+        appointmentId: appointment.id,
+        appointmentTime: appointment.scheduledAt.toISOString(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to book appointment',
+      };
+    }
+  }
+
+  @Post('list-appointments')
+  @UseGuards(JwtAuthGuard)
+  async listAppointments(@Request() req: any): Promise<AppointmentsResponse> {
+    try {
+      const userId = req.user?.sub;
+      const role = await this.resolveUserRole(userId);
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+
+      const appointments = await this.appointmentService.listAppointments(userId, role);
+      return { success: true, appointments };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to list appointments',
+      };
+    }
+  }
+
+  @Post('get-appointment')
+  @UseGuards(JwtAuthGuard)
+  async getAppointment(
+    @Request() req: any,
+    @Body() body: { appointmentId: string },
+  ): Promise<AppointmentResponse> {
+    try {
+      const userId = req.user?.sub;
+      const role = await this.resolveUserRole(userId);
+      if (!userId || !body.appointmentId) {
+        return { success: false, error: 'Invalid request' };
+      }
+
+      const appointment = await this.appointmentService.getAppointment(
+        body.appointmentId,
+        userId,
+        role,
+      );
+      return { success: true, appointment };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to get appointment',
+      };
+    }
+  }
+
+  @Post('cancel-appointment')
+  @UseGuards(JwtAuthGuard)
+  async cancelAppointment(
+    @Request() req: any,
+    @Body() body: { appointmentId: string },
+  ): Promise<AppointmentResponse> {
+    try {
+      const userId = req.user?.sub;
+      const role = await this.resolveUserRole(userId);
+      if (!userId || !body.appointmentId) {
+        return { success: false, error: 'Invalid request' };
+      }
+
+      const appointment = await this.appointmentService.cancelAppointment(
+        body.appointmentId,
+        userId,
+        role,
+      );
+      return { success: true, appointment };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to cancel appointment',
+      };
+    }
+  }
+
+  @Post('get-video-call-token')
+  @UseGuards(JwtAuthGuard)
+  async getVideoCallToken(
+    @Request() req: any,
+    @Body() body: { appointmentId: string },
+  ): Promise<VideoCallTokenResponse> {
+    try {
+      const userId = req.user?.sub;
+      const role = await this.resolveUserRole(userId);
+      if (!userId || !body.appointmentId) {
+        return { success: false, error: 'Invalid request' };
+      }
+
+      const result = await this.appointmentService.getVideoCallToken(
+        body.appointmentId,
+        userId,
+        role,
+      );
+      return { success: true, ...result };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to get video call token',
+      };
+    }
+  }
+
+  @Post('get-doctor-availability')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCTOR')
+  async getDoctorAvailability(@Request() req: any): Promise<AvailabilityResponse> {
+    try {
+      const userId = req.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+
+      const availability = await this.doctorService.getAvailability(userId);
+      return { success: true, availability };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to get availability',
+      };
+    }
+  }
+
+  @Post('set-doctor-availability')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCTOR')
+  async setDoctorAvailability(
+    @Request() req: any,
+    @Body()
+    body: {
+      availability: Array<{
+        dayOfWeek: number;
+        startTime: string;
+        endTime: string;
+        slotMinutes?: number;
+      }>;
+    },
+  ): Promise<AvailabilityResponse> {
+    try {
+      const userId = req.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+
+      const availability = await this.doctorService.setAvailability(
+        userId,
+        body.availability ?? [],
+      );
+      return { success: true, availability };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to set availability',
+      };
+    }
+  }
+
   @Post('unset-authentication')
   @UseGuards(JwtAuthGuard)
   async unsetAuthentication(@Headers('x-auth-token') token: string): Promise<MobileResponse> {
@@ -602,6 +879,15 @@ export class MobileController {
         error: error.message || 'Failed to unset authentication',
       };
     }
+  }
+
+  private async resolveUserRole(userId: string): Promise<string> {
+    if (!userId) return 'USER';
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+    return user?.role ?? 'USER';
   }
 
   private normalizeCubeResult(

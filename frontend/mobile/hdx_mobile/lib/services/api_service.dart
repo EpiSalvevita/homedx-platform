@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as developer;
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import '../utils/constants.dart';
@@ -116,8 +116,9 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> uploadFile(
-    String endpoint,
-    File file, {
+    String endpoint, {
+    required Uint8List bytes,
+    required String filename,
     String fieldName = 'media',
     Map<String, String>? additionalFields,
     bool includeAuth = true,
@@ -134,13 +135,13 @@ class ApiService {
       request.headers.remove('Content-Type');
       
       // Add file
-      final fileExtension = file.path.split('.').last;
+      final fileExtension = filename.split('.').last;
       final contentType = _getContentType(fileExtension);
       request.files.add(
-        await http.MultipartFile.fromPath(
+        http.MultipartFile.fromBytes(
           fieldName,
-          file.path,
-          filename: file.path.split('/').last,
+          bytes,
+          filename: filename,
           contentType: contentType,
         ),
       );

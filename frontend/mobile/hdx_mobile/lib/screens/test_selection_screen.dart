@@ -47,7 +47,7 @@ class _TestSelectionScreenState extends State<TestSelectionScreen> {
       header: FigmaBackHeader(
         title: 'Testtyp auswählen',
         blueTopBar: true,
-        onBack: () => context.go('/'),
+        onBack: () => context.go('/home'),
       ),
       body: RefreshIndicator(
         onRefresh: _loadTestTypes,

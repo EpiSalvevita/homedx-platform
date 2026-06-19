@@ -15,6 +15,7 @@ class AppConstants {
   static const String keyAuthToken = 'auth_token';
   static const String keyUserId = 'user_id';
   static const String keyUserEmail = 'user_email';
+  static const String keyUserRole = 'user_role';
 
   // App Configuration
   static const String appName = 'HomeDX';

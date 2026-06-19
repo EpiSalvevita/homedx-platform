@@ -124,6 +124,42 @@ flutter build ios --debug
 flutter build ios --release
 ```
 
+### Flutter Web
+
+The same Flutter app runs in the browser for the public landing page (`/`), patient
+features, and the doctor portal (dashboard, availability, video calls).
+
+Edit `.env` for local web development (browser on the same machine as the backend):
+
+```env
+API_BASE_URL=http://127.0.0.1:4000
+```
+
+Run in Chrome:
+
+```bash
+cd frontend/mobile/hdx_mobile
+flutter pub get
+flutter run -d chrome
+```
+
+Build a release bundle:
+
+```bash
+flutter build web --release
+```
+
+Output is in `build/web/`. Serve locally for smoke testing:
+
+```bash
+cd build/web && python3 -m http.server 8080
+```
+
+Then open `http://127.0.0.1:8080`. Cube/Bluetooth test flows show a placeholder on
+web until Web Bluetooth support is added; use the Android app for Cube E2E.
+
+See also `docs/APPOINTMENTS_VIDEO.md` for doctor web + video call checklist.
+
 ## WSL2 Development Setup (Detailed)
 
 See:

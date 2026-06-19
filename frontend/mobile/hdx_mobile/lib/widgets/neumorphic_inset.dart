@@ -17,7 +17,7 @@ class NeumorphicInsetSurface extends StatelessWidget {
     super.key,
     required this.child,
     this.height = AppTheme.fieldHeight,
-    this.padding = const EdgeInsets.symmetric(horizontal: 26),
+    this.padding = AppTheme.fieldPadding,
     this.borderRadius = AppTheme.pillRadius,
     this.alignment = Alignment.centerLeft,
     this.shadowBand = 14,
@@ -143,35 +143,35 @@ class _NeumorphicInsetPainter extends CustomPainter {
     canvas.save();
     canvas.clipRRect(rrect);
 
-    // Figma: inset 4px 4px 10px #99A6CE4D — dark shadow on top/left inner edges.
+    // Figma: inset 4px 4px 10px #99A6CE4D — dark inner shadow toward bottom-right.
     _drawEdgeFade(
       canvas,
-      Rect.fromLTWH(0, 0, size.width, shadowBand),
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
+      Rect.fromLTWH(0, size.height - shadowBand, size.width, shadowBand),
+      begin: Alignment.bottomCenter,
+      end: Alignment.topCenter,
       edgeColor: _insetShadow,
     );
     _drawEdgeFade(
       canvas,
-      Rect.fromLTWH(0, 0, shadowBand, size.height),
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
+      Rect.fromLTWH(size.width - shadowBand, 0, shadowBand, size.height),
+      begin: Alignment.centerRight,
+      end: Alignment.centerLeft,
       edgeColor: _insetShadow,
     );
 
-    // Figma: inset -2px -2px 4px #FFFFFF — highlight on bottom/right inner edges.
+    // Figma: inset -4px -4px 4px #FFFFFF — highlight on top/left inner edges.
     _drawEdgeFade(
       canvas,
-      Rect.fromLTWH(0, size.height - highlightBand, size.width, highlightBand),
-      begin: Alignment.bottomCenter,
-      end: Alignment.topCenter,
+      Rect.fromLTWH(0, 0, size.width, highlightBand),
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
       edgeColor: Colors.white,
     );
     _drawEdgeFade(
       canvas,
-      Rect.fromLTWH(size.width - highlightBand, 0, highlightBand, size.height),
-      begin: Alignment.centerRight,
-      end: Alignment.centerLeft,
+      Rect.fromLTWH(0, 0, highlightBand, size.height),
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
       edgeColor: Colors.white,
     );
 
@@ -214,7 +214,7 @@ InputDecoration neumorphicFieldDecoration({
     ),
     prefixIcon: prefixIcon != null
         ? Padding(
-            padding: const EdgeInsets.only(right: 20),
+            padding: EdgeInsets.only(right: AppTheme.fieldContentGap),
             child: Align(
               alignment: Alignment.center,
               widthFactor: 1,

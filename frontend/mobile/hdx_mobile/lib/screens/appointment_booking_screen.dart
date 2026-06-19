@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../models/doctor.dart';
+import '../services/api_service.dart';
 import '../services/doctor_service.dart';
 
 class AppointmentBookingScreen extends StatefulWidget {
@@ -55,7 +57,8 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
     });
 
     try {
-      final doctorService = DoctorService();
+      final api = Provider.of<ApiService>(context, listen: false);
+      final doctorService = DoctorService(api);
       final slots = await doctorService.getAvailableSlots(widget.doctorId);
 
       if (mounted) {
@@ -95,9 +98,10 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
     });
 
     try {
-      final doctorService = DoctorService();
+      final api = Provider.of<ApiService>(context, listen: false);
+      final doctorService = DoctorService(api);
 
-      final success = await doctorService.bookAppointment(
+      final result = await doctorService.bookAppointment(
         doctorId: widget.doctorId,
         appointmentTime: _selectedSlot!.dateTime,
         type: _appointmentType,
@@ -110,7 +114,8 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
           _isBooking = false;
         });
 
-        if (success) {
+        if (result.success) {
+          final appointmentId = result.appointmentId;
           // Show success dialog
           showDialog(
             context: context,
@@ -149,7 +154,11 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    context.go('/');
+                    if (appointmentId != null) {
+                      context.go('/appointments/$appointmentId');
+                    } else {
+                      context.go('/appointments');
+                    }
                   },
                   child: const Text('OK'),
                 ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hdx_mobile/screens/bluetooth_scan_screen.dart';
+import 'package:hdx_mobile/widgets/bluetooth_icon.dart';
 import 'package:hdx_mobile/services/api_service.dart';
 import 'package:hdx_mobile/services/cube_service.dart';
 
@@ -79,7 +80,12 @@ void main() {
     await settleInitState(tester);
 
     expect(find.text('Bluetooth ist deaktiviert'), findsOneWidget);
-    expect(find.byIcon(Icons.bluetooth_disabled), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (w) => w is BluetoothAssetIcon && !w.enabled && w.size == 96,
+      ),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text('Bluetooth aktivieren'));
     await tester.pump();

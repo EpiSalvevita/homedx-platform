@@ -33,6 +33,10 @@ import { PayPalService } from './services/paypal.service';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { MobileController } from './controllers/mobile.controller';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { RolesGuard } from './auth/roles.guard';
+import { DoctorService } from './services/doctor.service';
+import { AppointmentService } from './services/appointment.service';
+import { VideoService } from './services/video.service';
 // import { NotificationService } from './services/notification.service';
 // import { NotificationResolver } from './graphql/resolvers/notification.resolver';
 
@@ -83,8 +87,12 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
     LegalPageResolver,
     StripeService,
     PayPalService,
+    DoctorService,
+    AppointmentService,
+    VideoService,
     JwtStrategy,
     JwtAuthGuard,
+    RolesGuard,
     // NotificationService,
     // NotificationResolver,
   ],

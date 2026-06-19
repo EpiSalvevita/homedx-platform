@@ -58,6 +58,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register jest --runInBand",
-    "prestart:dev": "fuser -k 4000/tcp || true"
+    "prestart:dev": "fuser -k 4000/tcp || true",
+    "seed:doctors": "npx ts-node prisma/seed-doctors.ts"
   }
 }

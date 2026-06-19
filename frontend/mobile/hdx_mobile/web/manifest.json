@@ -1,12 +1,12 @@
 {
-    "name": "hdx_mobile",
-    "short_name": "hdx_mobile",
+    "name": "HomeDX",
+    "short_name": "HomeDX",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "background_color": "#F5F5F5",
+    "theme_color": "#142543",
+    "description": "Gesundheitstests und Online-Versorgung für Patienten und Ärzte.",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HomeDX — About Page Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #142543;
+      --primary-blue: #3652A5;
+      --accent-blue: #80A2F9;
+      --accent-mint: #8DD2CF;
+      --accent-coral: #F8A39E;
+      --surface: #F5F5F5;
+      --text-secondary: #5C6980;
+      --card: #ffffff;
+      --max-width: 1100px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Rubik', system-ui, sans-serif;
+      color: var(--navy);
+      background: var(--surface);
+      line-height: 1.5;
+    }
+
+    .review-banner {
+      background: var(--navy);
+      color: #fff;
+      padding: 10px 24px;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .review-banner strong { color: var(--accent-mint); }
+
+    nav {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    nav img { height: 23px; }
+    nav .spacer { flex: 1; }
+
+    .lang-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--card);
+      padding: 4px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(54, 82, 165, 0.08);
+    }
+
+    .lang-toggle button {
+      border: none;
+      background: transparent;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+
+    .lang-toggle button.active {
+      background: var(--primary-blue);
+      color: #fff;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 28px;
+      border-radius: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      border: none;
+      font-family: inherit;
+      font-size: 16px;
+      cursor: default;
+    }
+
+    .btn-primary {
+      background: var(--primary-blue);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(54, 82, 165, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--card);
+      color: var(--navy);
+      box-shadow: 0 4px 20px rgba(54, 82, 165, 0.08);
+    }
+
+    .section {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 48px 24px 24px;
+    }
+
+    .section h2 {
+      font-size: 28px;
+      font-weight: 600;
+      margin: 0 0 8px;
+    }
+
+    .section .subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+      margin: 0 0 28px;
+    }
+
+    .hero {
+      background: rgba(228, 233, 251, 0.55);
+      border-radius: 0 0 32px 32px;
+      padding-bottom: 48px;
+    }
+
+    .hero-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 24px 24px 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .hero h1 {
+      font-size: 40px;
+      font-weight: 600;
+      line-height: 1.15;
+      margin: 0 0 16px;
+    }
+
+    .hero p {
+      font-size: 20px;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .hero-visual {
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .hero-visual img.doctor { max-height: 280px; }
+
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .placeholder {
+      background: rgba(128, 162, 249, 0.12);
+      border-radius: 24px;
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      font-size: 14px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .placeholder.mint { background: rgba(141, 210, 207, 0.2); }
+    .placeholder.coral { background: rgba(248, 163, 158, 0.2); }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(54, 82, 165, 0.08);
+    }
+
+    .card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 16px 0 8px;
+    }
+
+    .card p {
+      font-size: 14px;
+      font-weight: 300;
+      margin: 0;
+    }
+
+    .card .thumb {
+      height: 140px;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .step-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .doctor-cta {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(54, 82, 165, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      justify-content: space-between;
+    }
+
+    .footer-cta {
+      text-align: center;
+      padding: 32px 24px 48px;
+    }
+
+    .footer-cta h2 { font-size: 28px; margin-bottom: 12px; }
+    .footer-cta p { color: var(--text-secondary); margin-bottom: 24px; }
+    .footer-cta .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    footer {
+      background: var(--navy);
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      padding: 32px 24px;
+      font-size: 14px;
+    }
+
+    footer img {
+      height: 23px;
+      filter: brightness(0) invert(1);
+      margin-bottom: 12px;
+    }
+
+  .lang-de, .lang-en { display: none; }
+  html[data-lang="de"] .lang-de { display: block; }
+  html[data-lang="en"] .lang-en { display: block; }
+  html[data-lang="de"] span.lang-de,
+  html[data-lang="en"] span.lang-en,
+  html[data-lang="de"] a.lang-de,
+  html[data-lang="en"] a.lang-en { display: inline; }
+  html[data-lang="de"] span.lang-en,
+  html[data-lang="en"] span.lang-de,
+  html[data-lang="de"] a.lang-en,
+  html[data-lang="en"] a.lang-de { display: none; }
+
+    @media (max-width: 768px) {
+      .hero-inner, .story-grid, .cards, .steps { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 32px; }
+      .doctor-cta { flex-direction: column; text-align: center; }
+    }
+
+    @media print {
+      .review-banner, .lang-toggle, nav .spacer { display: none; }
+      body { background: #fff; }
+      .hero { background: #eef2fc; }
+      .section { page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="review-banner">
+    <strong>Design review</strong> — HomeDX marketing page (<code>/about</code>) · Version 1.0.0 · Draft for stakeholder feedback
+  </div>
+
+  <nav>
+    <img src="assets/logo.png" alt="HomeDX">
+    <div class="spacer"></div>
+    <div class="lang-toggle">
+      <button type="button" id="btn-de" class="active" onclick="setLang('de')">DE</button>
+      <button type="button" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <h1>
+          <span class="lang-de">Gesundheit beginnt<br>bei Ihnen zu Hause</span>
+          <span class="lang-en">Health starts<br>at home</span>
+        </h1>
+        <p>
+          <span class="lang-de">HomeDX verbindet Schnelltests mit dem Cube-Gerät, Online-Termine und sichere Video-Konsultationen — für Patienten und Ärzte.</span>
+          <span class="lang-en">HomeDX connects rapid tests with the Cube device, online appointments, and secure video consultations — for patients and doctors.</span>
+        </p>
+      </div>
+      <div class="hero-visual">
+        <img class="doctor" src="assets/doctor.png" alt="Doctor illustration">
+        <img src="assets/logo.png" alt="HomeDX" style="height:28px;margin-top:16px;">
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="story-grid">
+      <div>
+        <h2>
+          <span class="lang-de">Unsere Geschichte</span>
+          <span class="lang-en">Our story</span>
+        </h2>
+        <p class="subtitle">
+          <span class="lang-de">Wir glauben, dass moderne Diagnostik zugänglich, verständlich und persönlich sein sollte.</span>
+          <span class="lang-en">We believe modern diagnostics should be accessible, understandable, and personal.</span>
+        </p>
+        <p>
+          <span class="lang-de">HomeDX wurde gegründet, um die Lücke zwischen Schnelltests zu Hause und professioneller medizinischer Betreuung zu schließen. Mit dem Cube-Gerät erhalten Patienten zuverlässige Ergebnisse in Minuten — und können direkt im Anschluss einen Arzttermin buchen und per Video beraten werden. Für Ärzte bietet HomeDX ein webbasiertes Portal zur Terminverwaltung und sicheren Videokommunikation.</span>
+          <span class="lang-en">HomeDX was founded to bridge the gap between at-home rapid testing and professional medical care. With the Cube device, patients get reliable results in minutes — and can book a doctor appointment and receive video consultation right away. For doctors, HomeDX offers a web-based portal for appointment management and secure video communication.</span>
+        </p>
+      </div>
+      <div class="placeholder mint">
+        <span class="lang-de">Team-/Founder-Foto — Bild folgt in Kürze</span>
+        <span class="lang-en">Team / founder photo — image coming soon</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>
+      <span class="lang-de">Das Produkt</span>
+      <span class="lang-en">The product</span>
+    </h2>
+    <p class="subtitle">
+      <span class="lang-de">Eine Plattform für Tests, Termine und Nachsorge.</span>
+      <span class="lang-en">One platform for tests, appointments, and follow-up care.</span>
+    </p>
+    <div class="cards">
+      <div class="card">
+        <div class="thumb placeholder"><span class="lang-de">Cube Produktfoto — Bild folgt</span><span class="lang-en">Cube product photo — coming soon</span></div>
+        <h3><span class="lang-de">Cube Schnelltests</span><span class="lang-en">Cube rapid tests</span></h3>
+        <p><span class="lang-de">Schnelle, zuverlässige Diagnostik mit dem HomeDX Cube — per Bluetooth verbunden und direkt in der App ausgewertet.</span><span class="lang-en">Fast, reliable diagnostics with the HomeDX Cube — connected via Bluetooth and evaluated directly in the app.</span></p>
+      </div>
+      <div class="card">
+        <div class="thumb placeholder mint"><span class="lang-de">Lifestyle-Foto — Bild folgt</span><span class="lang-en">Lifestyle photo — coming soon</span></div>
+        <h3><span class="lang-de">Termin buchen</span><span class="lang-en">Book appointments</span></h3>
+        <p><span class="lang-de">Online-Konsultationen mit Fachärzten vereinbaren — flexibel und ohne Wartezeiten in der Praxis.</span><span class="lang-en">Schedule online consultations with specialists — flexible and without long waits at the clinic.</span></p>
+      </div>
+      <div class="card">
+        <div class="thumb placeholder coral"><span class="lang-de">Bild folgt in Kürze</span><span class="lang-en">Image coming soon</span></div>
+        <h3><span class="lang-de">Video-Konsultation</span><span class="lang-en">Video consultation</span></h3>
+        <p><span class="lang-de">Sicher per Video mit Ihrem Arzt sprechen. Ärzte können Anrufe direkt im Browser starten.</span><span class="lang-en">Speak securely with your doctor via video. Doctors can start calls directly in the browser.</span></p>
+      </div>
+      <div class="card">
+        <div class="thumb placeholder"><span class="lang-de">Bild folgt in Kürze</span><span class="lang-en">Image coming soon</span></div>
+        <h3><span class="lang-de">Ergebnisse & Shop</span><span class="lang-en">Results & shop</span></h3>
+        <p><span class="lang-de">Testergebnisse einsehen, verwalten und Testkits nachbestellen — alles in einer App.</span><span class="lang-en">View, manage test results, and reorder test kits — all in one app.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>
+      <span class="lang-de">So funktioniert es</span>
+      <span class="lang-en">How it works</span>
+    </h2>
+    <p class="subtitle">
+      <span class="lang-de">Drei Schritte von der Diagnose bis zur Beratung.</span>
+      <span class="lang-en">Three steps from diagnosis to consultation.</span>
+    </p>
+    <div class="steps">
+      <div class="card">
+        <div class="step-num" style="background:rgba(128,162,249,0.25)">1</div>
+        <h3><span class="lang-de">Test zu Hause</span><span class="lang-en">Test at home</span></h3>
+        <p><span class="lang-de">Führen Sie einen Schnelltest mit dem Cube-Gerät durch und erhalten Sie Ergebnisse in Minuten.</span><span class="lang-en">Run a rapid test with the Cube device and get results in minutes.</span></p>
+      </div>
+      <div class="card">
+        <div class="step-num" style="background:rgba(141,210,207,0.25)">2</div>
+        <h3><span class="lang-de">Arzt buchen</span><span class="lang-en">Book a doctor</span></h3>
+        <p><span class="lang-de">Wählen Sie einen Facharzt und buchen Sie einen Online-Termin.</span><span class="lang-en">Choose a specialist and book an online appointment.</span></p>
+      </div>
+      <div class="card">
+        <div class="step-num" style="background:rgba(248,163,158,0.25)">3</div>
+        <h3><span class="lang-de">Video-Beratung</span><span class="lang-en">Video consultation</span></h3>
+        <p><span class="lang-de">Sprechen Sie sicher per Video mit Ihrem Arzt über Ihre Ergebnisse.</span><span class="lang-en">Discuss your results securely via video with your doctor.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="doctor-cta">
+      <div>
+        <h2 style="margin:0 0 8px;font-size:24px;"><span class="lang-de">Für Ärzte</span><span class="lang-en">For doctors</span></h2>
+        <p class="subtitle" style="margin:0 0 12px;"><span class="lang-de">Dashboard, Verfügbarkeit und Videoanrufe im Browser.</span><span class="lang-en">Dashboard, availability, and video calls in the browser.</span></p>
+        <p style="font-size:14px;font-weight:300;margin:0;"><span class="lang-de">Melden Sie sich mit Ihrem Arztkonto an, um Termine zu verwalten, Ihre Verfügbarkeit festzulegen und Video-Konsultationen mit Patienten durchzuführen.</span><span class="lang-en">Sign in with your doctor account to manage appointments, set your availability, and conduct video consultations with patients.</span></p>
+      </div>
+      <span class="btn btn-primary"><span class="lang-de">Arzt-Login</span><span class="lang-en">Doctor login</span></span>
+    </div>
+  </section>
+
+  <section class="footer-cta">
+    <h2><span class="lang-de">Bereit für HomeDX?</span><span class="lang-en">Ready for HomeDX?</span></h2>
+    <p><span class="lang-de">Registrieren Sie sich und starten Sie mit Gesundheitstests und Online-Versorgung.</span><span class="lang-en">Register and start with health tests and online care.</span></p>
+    <div class="actions">
+      <span class="btn btn-primary"><span class="lang-de">Jetzt starten</span><span class="lang-en">Get started</span></span>
+      <span class="btn btn-secondary"><span class="lang-de">Zur App</span><span class="lang-en">Go to app</span></span>
+    </div>
+  </section>
+
+  <footer>
+    <img src="assets/logo.png" alt="HomeDX">
+    <div>HomeDX · Version 1.0.0</div>
+    <div style="margin-top:8px;font-size:13px;color:rgba(255,255,255,0.54);">
+      <span class="lang-de">Impressum · Datenschutz · AGB</span>
+      <span class="lang-en">Legal notice · Privacy · Terms</span>
+    </div>
+  </footer>
+
+  <script>
+    function setLang(lang) {
+      document.documentElement.setAttribute('data-lang', lang);
+      document.getElementById('btn-de').classList.toggle('active', lang === 'de');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    }
+    setLang('de');
+  </script>
+</body>
+</html>

@@ -100,7 +100,7 @@ class _TestProgressScreenState extends State<TestProgressScreen>
       ),
     );
     if (leave == true && mounted) {
-      context.go('/');
+      context.go('/home');
     }
   }
 
@@ -241,7 +241,7 @@ class _TestProgressScreenState extends State<TestProgressScreen>
           ),
           const SizedBox(height: 16),
           NeumorphicButton(
-            onPressed: () => context.go('/'),
+            onPressed: () => context.go('/home'),
             child: const Text('Zurück zum Start'),
           ),
         ],

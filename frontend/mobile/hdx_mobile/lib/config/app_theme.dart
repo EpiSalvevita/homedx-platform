@@ -69,8 +69,14 @@ class AppTheme {
   static const EdgeInsets buttonPaddingLarge = EdgeInsets.symmetric(vertical: 20);
 
   static const double screenHorizontalPadding = 24;
+  /// Figma pill input (`Search Box` / profile fields): 392×72, radius 100, padding 26.
   static const double fieldHeight = 72;
   static const double pillRadius = 100;
+  static const EdgeInsets fieldPadding = EdgeInsets.symmetric(horizontal: 26);
+  /// Horizontal gap between prefix icon and text inside a field.
+  static const double fieldContentGap = 25;
+  /// Vertical spacing between stacked profile/login fields.
+  static const double fieldSpacing = 25;
 
   /// Figma home quick-action cards (`50:587` etc.): 186×138, 20px grid gap.
   static const double quickActionCardAspectRatio = 186 / 138;

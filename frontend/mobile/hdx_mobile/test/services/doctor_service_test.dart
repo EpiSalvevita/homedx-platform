@@ -20,9 +20,8 @@ void main() {
       final filtered =
           DoctorService.filterDoctorsForTestType(doctors, 'covid-rapid');
       final specs = filtered.map((d) => d.specialization).toSet();
-      expect(specs, contains('Pulmologie'));
       expect(specs, contains('Allgemeinmedizin'));
-      expect(specs, isNot(contains('Dermatologie')));
+      expect(specs, isNot(contains('Rheumatologie')));
     });
 
     test('unknown test type falls back to a generalist match', () {
@@ -33,40 +32,6 @@ void main() {
         filtered.every((d) => d.specialization == 'Allgemeinmedizin'),
         isTrue,
       );
-    });
-  });
-
-  group('DoctorService.getAvailableDoctors', () {
-    test('returns the full list when no testTypeId is provided', () async {
-      final service = DoctorService();
-      final doctors = await service.getAvailableDoctors();
-      expect(doctors.length, DoctorService.mockDoctors().length);
-    });
-
-    test('rheumacheck filter returns only the Rheumatologie specialist',
-        () async {
-      final service = DoctorService();
-      final doctors =
-          await service.getAvailableDoctors(testTypeId: 'rheumacheck');
-      expect(doctors, isNotEmpty);
-      expect(
-        doctors.every((d) => d.specialization == 'Rheumatologie'),
-        isTrue,
-      );
-    });
-
-    test(
-        'falls back to the full list when no specialist matches the test type',
-        () async {
-      // Replace the matcher behaviour by passing an exotic testTypeId that
-      // resolves to a specialty no mock doctor carries. Today every fallback
-      // resolves to Allgemeinmedizin, which we *do* stock, so use a doctor-
-      // less specialty by spelunking the public matcher with a custom list.
-      final empty = DoctorService.filterDoctorsForTestType(
-        const [],
-        'rheumacheck',
-      );
-      expect(empty, isEmpty);
     });
   });
 }

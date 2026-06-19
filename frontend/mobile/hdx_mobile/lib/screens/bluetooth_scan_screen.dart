@@ -8,6 +8,7 @@ import '../services/api_service.dart';
 import '../services/bluetooth_service.dart';
 import '../services/cube_service.dart';
 import '../widgets/figma_ui.dart';
+import '../widgets/bluetooth_icon.dart';
 import '../widgets/neumorphic.dart';
 
 /// Bundle of injectable dependencies used by widget tests to bypass the
@@ -381,7 +382,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.bluetooth_disabled, size: 96, color: AppTheme.textColor),
+            const BluetoothAssetIcon.disabled(size: 96),
             const SizedBox(height: 28),
             Text(
               'Bluetooth ist deaktiviert',
@@ -402,7 +403,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.bluetooth, color: Colors.white),
+                  const BluetoothAssetIcon(size: 24),
                   const SizedBox(width: 8),
                   Text('Bluetooth aktivieren', style: TextStyle(color: Colors.white)),
                 ],
@@ -475,7 +476,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.bluetooth_searching, size: 96, color: AppTheme.textColor),
+            const BluetoothAssetIcon(size: 96),
             const SizedBox(height: 28),
             Text(
               'Kein Cube-Gerät gefunden',
