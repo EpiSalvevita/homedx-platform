@@ -7,7 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as request from 'supertest';
 
-import { MobileController } from '../src/controllers/mobile.controller';
+import { MobilePaymentController } from '../src/controllers/mobile-payment.controller';
 import { JwtAuthGuard } from '../src/auth/jwt-auth.guard';
 import { AuthService } from '../src/services/auth.service';
 import { UserService } from '../src/services/user.service';
@@ -21,6 +21,7 @@ import { MobileTestService } from '../src/services/mobile-test.service';
 import { MobileCertificateService } from '../src/services/mobile-certificate.service';
 import { MobileNotificationService } from '../src/services/mobile-notification.service';
 import { PrismaService } from '../src/services/prisma.service';
+import { bootstrapTestApp } from './test-app';
 
 const BASE = '/gg-homedx-json/gg-api/v1';
 const TEST_USER_ID = 'user-pay-1';
@@ -46,7 +47,7 @@ async function buildApp(): Promise<INestApplication> {
   };
 
   const moduleRef: TestingModule = await Test.createTestingModule({
-    controllers: [MobileController],
+    controllers: [MobilePaymentController],
     providers: [
       CubeService,
       { provide: PrismaService, useValue: {} },
@@ -73,6 +74,7 @@ async function buildApp(): Promise<INestApplication> {
     .compile();
 
   const app = moduleRef.createNestApplication();
+  bootstrapTestApp(app);
   await app.init();
   return app;
 }
@@ -116,7 +118,7 @@ describe('Mobile payment REST (e2e)', () => {
 
   it('POST create-payment rejects unauthenticated requests', async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
-      controllers: [MobileController],
+      controllers: [MobilePaymentController],
       providers: [
         CubeService,
         { provide: PrismaService, useValue: {} },
@@ -142,6 +144,7 @@ describe('Mobile payment REST (e2e)', () => {
       .compile();
 
     const unauthApp = moduleRef.createNestApplication();
+    bootstrapTestApp(unauthApp);
     await unauthApp.init();
 
     const response = await request(unauthApp.getHttpServer())

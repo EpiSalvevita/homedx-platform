@@ -7,6 +7,7 @@ import {
   Logger,
   BadRequestException,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import type { RawBodyRequest } from '@nestjs/common';
 import type { Request } from 'express';
 import { Public } from '../auth/public.decorator';
@@ -14,6 +15,7 @@ import { StripeService } from '../services/stripe.service';
 import { MobilePaymentService } from '../services/mobile-payment.service';
 import Stripe from 'stripe';
 
+@SkipThrottle()
 @Controller('webhooks')
 export class WebhooksController {
   private readonly logger = new Logger(WebhooksController.name);

@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/services/prisma.service';
+import { bootstrapTestApp } from './test-app';
 
 const TEST_JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret-for-e2e';
 const API = '/gg-homedx-json/gg-api/v1';
@@ -23,7 +24,8 @@ describe('Backlog features (e2e)', () => {
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
+    app = moduleFixture.createNestApplication({ rawBody: true });
+    bootstrapTestApp(app);
     await app.init();
 
     const prisma = moduleFixture.get(PrismaService);

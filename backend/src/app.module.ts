@@ -3,6 +3,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { MulterModule } from '@nestjs/platform-express';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { PrismaService } from './services/prisma.service';
 import { UserService } from './services/user.service';
 import { LicenseService } from './services/license.service';
@@ -18,8 +19,14 @@ import { LegalPageService } from './services/legal-page.service';
 import { StripeService } from './services/stripe.service';
 import { PayPalService } from './services/paypal.service';
 import { JwtStrategy } from './auth/jwt.strategy';
-import { MobileController } from './controllers/mobile.controller';
+import { MobileAuthController } from './controllers/mobile-auth.controller';
+import { MobileTestController } from './controllers/mobile-test.controller';
+import { MobileAppointmentController } from './controllers/mobile-appointment.controller';
+import { MobilePaymentController } from './controllers/mobile-payment.controller';
+import { MobileCertificateController } from './controllers/mobile-certificate.controller';
+import { MobileNotificationController } from './controllers/mobile-notification.controller';
 import { WebhooksController } from './controllers/webhooks.controller';
+import { MobileUserHelper } from './controllers/mobile-user.helper';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
 import { getJwtSecret } from './config/env.config';
@@ -33,9 +40,18 @@ import { MobileCertificateService } from './services/mobile-certificate.service'
 import { MobileNotificationService } from './services/mobile-notification.service';
 import { PushService } from './services/push.service';
 
+const isTestEnv = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !== undefined;
+
 @Module({
   imports: [
     PassportModule,
+    ThrottlerModule.forRoot([
+      {
+        name: 'default',
+        ttl: 60000,
+        limit: isTestEnv ? 10000 : 120,
+      },
+    ]),
     MulterModule.register({
       dest: './uploads',
     }),
@@ -44,7 +60,15 @@ import { PushService } from './services/push.service';
       signOptions: { expiresIn: '24h' },
     }),
   ],
-  controllers: [MobileController, WebhooksController],
+  controllers: [
+    MobileAuthController,
+    MobileTestController,
+    MobileAppointmentController,
+    MobilePaymentController,
+    MobileCertificateController,
+    MobileNotificationController,
+    WebhooksController,
+  ],
   providers: [
     PrismaService,
     UserService,
@@ -69,12 +93,17 @@ import { PushService } from './services/push.service';
     MobileCertificateService,
     MobileNotificationService,
     PushService,
+    MobileUserHelper,
     JwtStrategy,
     JwtAuthGuard,
     RolesGuard,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })
