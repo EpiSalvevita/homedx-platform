@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/doctor.dart';
 import '../../services/api_service.dart';
 import '../../services/appointment_service.dart';
-import '../appointment_detail_screen.dart';
 
 class DoctorAppointmentsScreen extends StatefulWidget {
   const DoctorAppointmentsScreen({super.key});
@@ -59,13 +59,7 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
                       trailing: a.canJoin
                           ? const Icon(Icons.video_call, color: Colors.green)
                           : null,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              AppointmentDetailScreen(appointmentId: a.id),
-                        ),
-                      ),
+                      onTap: () => context.push('/doctor/appointments/${a.id}'),
                     ),
                   );
                 },

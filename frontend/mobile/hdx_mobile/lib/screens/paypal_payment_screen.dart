@@ -78,6 +78,7 @@ class _PayPalPaymentScreenState extends State<PayPalPaymentScreen> {
       final orderData = await paymentService.createPayPalOrder(
         amount: widget.amount,
         currency: widget.currency,
+        paymentId: widget.paymentId,
         returnUrl: 'https://homedx.app/paypal/return',
         cancelUrl: 'https://homedx.app/paypal/cancel',
       );

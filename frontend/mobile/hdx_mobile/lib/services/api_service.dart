@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as developer;
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import '../utils/constants.dart';
@@ -10,6 +10,7 @@ class ApiService {
   final String baseUrl;
   final Map<String, String> defaultHeaders;
   String? _authToken;
+  VoidCallback? onUnauthorized;
 
   ApiService({
     String? baseUrl,
@@ -248,6 +249,7 @@ class ApiService {
   Map<String, dynamic> _handleResponse(http.Response response) {
     // Handle authentication errors
     if (response.statusCode == 401 || response.statusCode == 403) {
+      onUnauthorized?.call();
       throw UnauthorizedException('Authentication required or token expired');
     }
 

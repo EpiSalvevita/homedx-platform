@@ -21,6 +21,7 @@ export interface AppointmentListItem {
   type: string;
   status: string;
   notes: string | null;
+  testTypeId: string | null;
   durationMin: number;
   canJoin: boolean;
   videoRoomUrl: string | null;
@@ -41,6 +42,7 @@ export class AppointmentService {
     type: string;
     notes?: string;
     testTypeId?: string;
+    linkedRapidTestId?: string;
   }) {
     const doctor = await this.prisma.doctorProfile.findUnique({
       where: { id: params.doctorId },
@@ -80,7 +82,8 @@ export class AppointmentService {
         type: appointmentType,
         status: 'CONFIRMED',
         notes: params.notes,
-        rapidTestId: params.testTypeId,
+        testTypeId: params.testTypeId,
+        linkedRapidTestId: params.linkedRapidTestId,
         videoRoomName,
         videoRoomUrl,
       },
@@ -274,6 +277,7 @@ export class AppointmentService {
     type: string;
     status: string;
     notes: string | null;
+    testTypeId?: string | null;
     durationMin: number;
     videoRoomUrl: string | null;
     doctor: { user: { firstName: string; lastName: string } };
@@ -289,6 +293,7 @@ export class AppointmentService {
       type: appointment.type === 'IN_PERSON' ? 'in-person' : 'online',
       status: appointment.status.toLowerCase(),
       notes: appointment.notes,
+      testTypeId: appointment.testTypeId ?? null,
       durationMin: appointment.durationMin,
       canJoin:
         appointment.type === 'ONLINE' &&

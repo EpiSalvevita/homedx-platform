@@ -9,8 +9,11 @@ import { AppointmentService } from '../services/appointment.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { Public } from '../auth/public.decorator';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../services/prisma.service';
+import { CubeService, CubeResultDataItem } from '../services/cube.service';
+import { MobilePaymentService } from '../services/mobile-payment.service';
 
 // Mobile API Response Types
 interface MobileResponse {
@@ -80,12 +83,25 @@ interface AvailabilityResponse extends MobileResponse {
   availability?: any[];
 }
 
-interface CubeResultDataItem {
-  name: string;
-  value: string;
-  unit?: string;
-  class?: string;
-  validity?: number;
+interface PaymentAmountResponse extends MobileResponse {
+  amount?: number;
+  reducedAmount?: number;
+  discount?: number;
+  discountType?: string;
+}
+
+interface PaymentRecordResponse extends MobileResponse {
+  payment?: any;
+}
+
+interface StripeIntentResponse extends MobileResponse {
+  clientSecret?: string;
+  paymentIntentId?: string;
+}
+
+interface PayPalOrderResponse extends MobileResponse {
+  orderId?: string;
+  approvalUrl?: string;
 }
 
 interface SubmitCubeDataResponse extends MobileResponse {
@@ -105,10 +121,13 @@ export class MobileController {
     private readonly fileUploadService: FileUploadService,
     private readonly doctorService: DoctorService,
     private readonly appointmentService: AppointmentService,
+    private readonly cubeService: CubeService,
+    private readonly mobilePaymentService: MobilePaymentService,
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
   ) {}
 
+  @Public()
   @Post('login')
   async login(@Body() body: { user: string; pw: string; lang?: string }): Promise<LoginResponse> {
     try {
@@ -129,6 +148,7 @@ export class MobileController {
     }
   }
 
+  @Public()
   @Post('register-account')
   async registerAccount(@Body() body: {
     firstname: string;
@@ -227,6 +247,7 @@ export class MobileController {
     }
   }
 
+  @Public()
   @Post('get-test-type-list')
   async getTestTypeList(@Body() body: { lang?: string }): Promise<TestListResponse> {
     try {
@@ -332,88 +353,12 @@ export class MobileController {
   ): Promise<SubmitCubeDataResponse> {
     try {
       const userId = req?.user?.sub;
-      this.logger.log(
-        `submit-cube-data enter userId=${userId ?? '(missing)'} testTypeId=${body?.testTypeId} ` +
-          `deviceSerial=${body?.deviceSerial ?? '(none)'} result=${body?.result ?? '(none)'} ` +
-          `resultDataLen=${body?.resultData?.length ?? 0} ts=${body?.measurementTimestamp ?? '(none)'}`,
-      );
-      if (Array.isArray(body?.resultData) && body.resultData.length > 0) {
-        const preview = body.resultData.slice(0, 12).map((r, idx) => ({
-          i: idx,
-          name: r?.name,
-          value:
-            typeof r?.value === 'string' && r.value.length > 32
-              ? `${r.value.slice(0, 32)}…`
-              : r?.value,
-          unit: r?.unit,
-          class: r?.class,
-          validity: r?.validity,
-        }));
-        this.logger.log(`submit-cube-data resultDataPreview=${JSON.stringify(preview)}`);
-      }
       if (!userId) {
         this.logger.warn('submit-cube-data rejected: no user on JWT payload');
         return { success: false, error: 'Invalid token' };
       }
-      if (!body?.testTypeId) {
-        this.logger.warn('submit-cube-data rejected: testTypeId missing');
-        return { success: false, error: 'testTypeId is required' };
-      }
 
-      // Reuse available kit; create a fallback if inventory is empty.
-      let testKit = await this.prisma.testKit.findFirst({
-        where: { status: 'AVAILABLE' },
-      });
-      if (!testKit) {
-        testKit = await this.prisma.testKit.create({
-          data: {
-            serialNumber: `CUBE-${Date.now()}`,
-            type: 'COVID_19',
-            manufacturer: 'Cube Device',
-            model: 'Cube',
-            batchNumber: `CUBE-BATCH-${Date.now()}`,
-            expirationDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-            status: 'AVAILABLE',
-          },
-        });
-      }
-
-      const normalizedResult = this.normalizeCubeResult(body.result, body.resultData);
-      this.logger.log(`submit-cube-data normalizedResult=${normalizedResult}`);
-
-      const testDate = body.measurementTimestamp
-        ? new Date(body.measurementTimestamp)
-        : new Date();
-
-      const rapidTest = await this.prisma.rapidTest.create({
-        data: {
-          userId,
-          testKitId: testKit.id,
-          testDate,
-          completedAt: new Date(),
-          status: 'COMPLETED',
-          result: normalizedResult,
-          notes: JSON.stringify({
-            source: 'cube',
-            testTypeId: body.testTypeId,
-            deviceSerial: body.deviceSerial ?? null,
-            measurementTimestamp: body.measurementTimestamp ?? null,
-            rawData: body.rawData ?? null,
-            resultData: body.resultData ?? [],
-          }),
-        },
-      });
-
-      this.logger.log(
-        `submit-cube-data success rapidTestId=${rapidTest.id} testKitId=${testKit.id} normalized=${normalizedResult}`,
-      );
-
-      return {
-        success: true,
-        testId: rapidTest.id,
-        result: normalizedResult,
-        resultData: body.resultData ?? [],
-      };
+      return await this.cubeService.submitCubeData(userId, body);
     } catch (error) {
       this.logger.error(
         `submit-cube-data exception: ${error?.message ?? error}`,
@@ -443,19 +388,7 @@ export class MobileController {
       });
 
       const lastTests = sorted.map((test) => {
-        let testTypeId: string | null = null;
-        let resultData: CubeResultDataItem[] = [];
-        if (test.notes) {
-          try {
-            const parsed = JSON.parse(test.notes);
-            testTypeId = parsed?.testTypeId ?? null;
-            if (Array.isArray(parsed?.resultData)) {
-              resultData = parsed.resultData;
-            }
-          } catch {
-            // ignore malformed notes
-          }
-        }
+        const { testTypeId, resultData } = this.cubeService.parseCubeMetadata(test);
         return {
           id: test.id,
           testTypeId,
@@ -565,6 +498,7 @@ export class MobileController {
     }
   }
 
+  @Public()
   @Post('get-be-status-flags')
   async getBackendStatus(@Body() body: { lang?: string }): Promise<BackendStatusResponse> {
     try {
@@ -881,6 +815,133 @@ export class MobileController {
     }
   }
 
+  @Post('get-payment-amount')
+  @UseGuards(JwtAuthGuard)
+  async getPaymentAmount(): Promise<PaymentAmountResponse> {
+    try {
+      const amount = this.mobilePaymentService.getPaymentAmount();
+      return { success: true, ...amount };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to get payment amount',
+      };
+    }
+  }
+
+  @Post('create-payment')
+  @UseGuards(JwtAuthGuard)
+  async createPayment(
+    @Request() req: any,
+    @Body()
+    body: {
+      amount: number;
+      currency: string;
+      paymentMethod: string;
+      rapidTestId?: string;
+    },
+  ): Promise<PaymentRecordResponse> {
+    try {
+      const userId = req?.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+
+      const payment = await this.mobilePaymentService.createPayment(userId, body);
+      return { success: true, payment };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to create payment',
+      };
+    }
+  }
+
+  @Post('create-stripe-payment-intent')
+  @UseGuards(JwtAuthGuard)
+  async createStripePaymentIntent(
+    @Request() req: any,
+    @Body()
+    body: {
+      paymentId: string;
+      amount: number;
+      currency: string;
+    },
+  ): Promise<StripeIntentResponse> {
+    try {
+      const userId = req?.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+
+      const result = await this.mobilePaymentService.createStripePaymentIntent(userId, body);
+      return { success: true, ...result };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to create Stripe payment intent',
+      };
+    }
+  }
+
+  @Post('create-paypal-order')
+  @UseGuards(JwtAuthGuard)
+  async createPayPalOrder(
+    @Request() req: any,
+    @Body()
+    body: {
+      paymentId?: string;
+      amount: number;
+      currency: string;
+      returnUrl?: string;
+      cancelUrl?: string;
+    },
+  ): Promise<PayPalOrderResponse> {
+    try {
+      const userId = req?.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+
+      const result = await this.mobilePaymentService.createPayPalOrder(userId, body);
+      return { success: true, ...result };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to create PayPal order',
+      };
+    }
+  }
+
+  @Post('update-payment')
+  @UseGuards(JwtAuthGuard)
+  async updatePayment(
+    @Request() req: any,
+    @Body()
+    body: {
+      paymentId: string;
+      transactionId?: string;
+      status?: string;
+      paymentIntentId?: string;
+      paypalOrderId?: string;
+    },
+  ): Promise<PaymentRecordResponse> {
+    try {
+      const userId = req?.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+
+      const payment = await this.mobilePaymentService.updatePayment(userId, body);
+      return { success: true, payment };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to update payment',
+      };
+    }
+  }
+
   private async resolveUserRole(userId: string): Promise<string> {
     if (!userId) return 'USER';
     const user = await this.prisma.user.findUnique({
@@ -888,30 +949,5 @@ export class MobileController {
       select: { role: true },
     });
     return user?.role ?? 'USER';
-  }
-
-  private normalizeCubeResult(
-    result?: string,
-    resultData?: CubeResultDataItem[],
-  ): 'POSITIVE' | 'NEGATIVE' | 'INVALID' | 'INCONCLUSIVE' {
-    const normalized = (result ?? '').toUpperCase();
-    if (
-      normalized === 'POSITIVE' ||
-      normalized === 'NEGATIVE' ||
-      normalized === 'INVALID' ||
-      normalized === 'INCONCLUSIVE'
-    ) {
-      return normalized;
-    }
-
-    for (const entry of resultData ?? []) {
-      const cls = (entry.class ?? '').toUpperCase();
-      if (cls === 'POSITIVE' || cls === 'POS') return 'POSITIVE';
-      if (cls === 'NEGATIVE' || cls === 'NEG') return 'NEGATIVE';
-      if (cls === 'INVALID') return 'INVALID';
-      if (cls === 'INCONCLUSIVE') return 'INCONCLUSIVE';
-    }
-
-    return 'INCONCLUSIVE';
   }
 }

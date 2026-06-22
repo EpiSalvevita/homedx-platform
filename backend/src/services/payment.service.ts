@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { PaymentStatus, PaymentMethod, Prisma } from '@prisma/client';
 import { PrismaService } from './prisma.service';
-import { CreatePaymentInput, UpdatePaymentInput } from '../graphql/types/payment.input';
-import { PaymentStatus, PaymentMethod } from '../graphql/types/payment.type';
+import { CreatePaymentInput, UpdatePaymentInput } from '../dto/payment.dto';
 
 @Injectable()
 export class PaymentService {
@@ -11,116 +11,84 @@ export class PaymentService {
     user: true,
   };
 
-  private mapPaymentMethod(method: string): PaymentMethod {
-    switch (method) {
-      case 'CREDIT_CARD':
-        return PaymentMethod.CREDIT_CARD;
-      case 'PAYPAL':
-        return PaymentMethod.PAYPAL;
-      case 'BANK_TRANSFER':
-        return PaymentMethod.BANK_TRANSFER;
-      case 'CRYPTO':
-        return PaymentMethod.CRYPTO;
-      default:
-        return PaymentMethod.CREDIT_CARD;
-    }
-  }
-
-  private mapPaymentStatus(status: string): PaymentStatus {
-    switch (status) {
-      case 'PENDING':
-        return PaymentStatus.PENDING;
-      case 'COMPLETED':
-        return PaymentStatus.COMPLETED;
-      case 'FAILED':
-        return PaymentStatus.FAILED;
-      case 'REFUNDED':
-        return PaymentStatus.REFUNDED;
-      case 'CANCELLED':
-        return PaymentStatus.CANCELLED;
-      default:
-        return PaymentStatus.PENDING;
-    }
-  }
-
-  private mapPaymentToGraphQL(payment: any) {
-    return {
-      ...payment,
-      method: this.mapPaymentMethod(payment.method),
-      status: this.mapPaymentStatus(payment.status),
-    };
-  }
-
   async findAll() {
-    const payments = await this.prisma.payment.findMany({
-      include: this.includeRelations
+    return this.prisma.payment.findMany({
+      include: this.includeRelations,
     });
-    return payments.map(payment => this.mapPaymentToGraphQL(payment));
   }
 
   async findOne(id: string) {
-    const payment = await this.prisma.payment.findUnique({
+    return this.prisma.payment.findUnique({
       where: { id },
-      include: this.includeRelations
+      include: this.includeRelations,
     });
-    return payment ? this.mapPaymentToGraphQL(payment) : null;
   }
 
   async findByUserId(userId: string) {
-    const payments = await this.prisma.payment.findMany({
+    return this.prisma.payment.findMany({
       where: { userId },
-      include: this.includeRelations
+      include: this.includeRelations,
     });
-    return payments.map(payment => this.mapPaymentToGraphQL(payment));
   }
 
   async create(data: CreatePaymentInput) {
-    const payment = await this.prisma.payment.create({
+    return this.prisma.payment.create({
       data: {
         userId: data.userId,
         amount: data.amount,
         currency: data.currency,
-        method: data.paymentMethod as any,
-        status: 'PENDING' as any,
+        method: data.paymentMethod as PaymentMethod,
+        status: 'PENDING',
         transactionId: data.transactionId,
+        rapidTestId: data.rapidTestId,
+        stripePaymentIntentId: data.paymentIntentId,
+        paypalOrderId: data.paypalOrderId,
         description: `Payment for ${data.amount} ${data.currency}`,
       },
-      include: this.includeRelations
+      include: this.includeRelations,
     });
-    return this.mapPaymentToGraphQL(payment);
   }
 
   async update(id: string, data: UpdatePaymentInput) {
-    const updateData: any = {};
-    
+    const updateData: Prisma.PaymentUpdateInput = {};
+
     if (data.amount !== undefined) updateData.amount = data.amount;
     if (data.currency !== undefined) updateData.currency = data.currency;
-    if (data.status !== undefined) updateData.status = data.status as any;
-    if (data.paymentMethod !== undefined) updateData.method = data.paymentMethod as any;
+    if (data.status !== undefined) {
+      updateData.status = data.status as PaymentStatus;
+    }
+    if (data.paymentMethod !== undefined) {
+      updateData.method = data.paymentMethod as PaymentMethod;
+    }
     if (data.transactionId !== undefined) updateData.transactionId = data.transactionId;
-    
-    const payment = await this.prisma.payment.update({
+    if (data.paymentIntentId !== undefined) {
+      updateData.stripePaymentIntentId = data.paymentIntentId;
+    }
+    if (data.paypalOrderId !== undefined) updateData.paypalOrderId = data.paypalOrderId;
+    if (data.rapidTestId !== undefined) {
+      (updateData as Prisma.PaymentUncheckedUpdateInput).rapidTestId =
+        data.rapidTestId;
+    }
+
+    return this.prisma.payment.update({
       where: { id },
       data: updateData,
-      include: this.includeRelations
+      include: this.includeRelations,
     });
-    return this.mapPaymentToGraphQL(payment);
   }
 
   async remove(id: string) {
-    const payment = await this.prisma.payment.delete({
+    return this.prisma.payment.delete({
       where: { id },
-      include: this.includeRelations
+      include: this.includeRelations,
     });
-    return this.mapPaymentToGraphQL(payment);
   }
 
   async updateStatus(id: string, status: PaymentStatus) {
-    const payment = await this.prisma.payment.update({
+    return this.prisma.payment.update({
       where: { id },
-      data: { status: status as any },
-      include: this.includeRelations
+      data: { status },
+      include: this.includeRelations,
     });
-    return this.mapPaymentToGraphQL(payment);
   }
-} 
+}

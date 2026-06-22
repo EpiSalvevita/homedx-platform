@@ -1,11 +1,13 @@
 # Environment Variables Setup
 
+Canonical copy with full WSL2 and Cube asset notes: **[docs/ENV_SETUP.md](docs/ENV_SETUP.md)**.
+
 ## Backend Environment Variables
 
-Create or update `/backend/.env` with the following variables:
+Create or update `backend/.env` (see also `backend/.env.example`):
 
 ```bash
-# JWT Configuration
+# Required
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 
 # Database
@@ -15,16 +17,17 @@ DATABASE_URL="postgresql://user:password@localhost:5432/homedx?schema=public"
 APP_URL=http://localhost:4000
 NODE_ENV=development
 
-# Stripe Configuration
-# Get your keys from https://dashboard.stripe.com/apikeys
-STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key_here
-STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
+# CORS (optional; omit in dev = allow all)
+# CORS_ORIGINS=http://localhost:8080
 
-# PayPal Configuration
-# Get your credentials from https://developer.paypal.com/dashboard/applications/sandbox
+# Stripe
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key_here
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
+
+# PayPal
 PAYPAL_CLIENT_ID=your_paypal_client_id_here
 PAYPAL_CLIENT_SECRET=your_paypal_client_secret_here
-PAYPAL_MODE=sandbox  # Use 'live' for production
+PAYPAL_MODE=sandbox
 ```
 
 ## Flutter App Environment Variables

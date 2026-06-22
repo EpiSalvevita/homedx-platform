@@ -76,6 +76,7 @@ class Appointment {
   final DateTime appointmentTime;
   final String type;
   final String? notes;
+  final String? testTypeId;
   final String status;
   final int durationMin;
   final bool canJoin;
@@ -90,6 +91,7 @@ class Appointment {
     required this.appointmentTime,
     required this.type,
     this.notes,
+    this.testTypeId,
     required this.status,
     this.durationMin = 30,
     this.canJoin = false,
@@ -106,6 +108,7 @@ class Appointment {
       appointmentTime: DateTime.parse(json['appointmentTime'] as String),
       type: json['type'] as String? ?? 'online',
       notes: json['notes'] as String?,
+      testTypeId: json['testTypeId'] as String?,
       status: json['status'] as String? ?? 'confirmed',
       durationMin: json['durationMin'] as int? ?? 30,
       canJoin: json['canJoin'] as bool? ?? false,

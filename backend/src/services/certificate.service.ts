@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { CertificateType, CertificateStatus } from '../graphql/types/certificate.types';
+import { CertificateType, CertificateStatus } from '@prisma/client';
 
 @Injectable()
 export class CertificateService {

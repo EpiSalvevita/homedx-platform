@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from './prisma.service';
 import * as bcrypt from 'bcrypt';
+import { getJwtSecret } from '../config/env.config';
 
 @Injectable()
 export class AuthService {
@@ -70,7 +71,7 @@ export class AuthService {
   async validateToken(token: string): Promise<any> {
     try {
       const payload = this.jwtService.verify(token, {
-        secret: process.env.JWT_SECRET || 'your-secret-key',
+        secret: getJwtSecret(),
       });
       return payload;
     } catch {

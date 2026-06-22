@@ -13,6 +13,10 @@ import { AuthService } from '../src/services/auth.service';
 import { UserService } from '../src/services/user.service';
 import { RapidTestService } from '../src/services/rapid-test.service';
 import { FileUploadService } from '../src/services/file-upload.service';
+import { DoctorService } from '../src/services/doctor.service';
+import { AppointmentService } from '../src/services/appointment.service';
+import { MobilePaymentService } from '../src/services/mobile-payment.service';
+import { CubeService } from '../src/services/cube.service';
 import { PrismaService } from '../src/services/prisma.service';
 
 const ENDPOINT = '/gg-homedx-json/gg-api/v1/submit-cube-data';
@@ -68,11 +72,15 @@ async function buildApp(options?: {
   const moduleRef: TestingModule = await Test.createTestingModule({
     controllers: [MobileController],
     providers: [
+      CubeService,
       { provide: PrismaService, useValue: prisma },
       { provide: AuthService, useValue: {} },
       { provide: UserService, useValue: {} },
       { provide: RapidTestService, useValue: {} },
       { provide: FileUploadService, useValue: {} },
+      { provide: DoctorService, useValue: {} },
+      { provide: AppointmentService, useValue: {} },
+      { provide: MobilePaymentService, useValue: {} },
       { provide: JwtService, useValue: {} },
     ],
   })
@@ -84,6 +92,37 @@ async function buildApp(options?: {
   await app.init();
   return { app, prisma };
 }
+
+describe('CubeService metadata parsing', () => {
+  const service = new CubeService({} as never);
+
+  it('prefers structured columns over legacy notes JSON', () => {
+    const parsed = service.parseCubeMetadata({
+      testTypeId: 'crp',
+      cubeResultData: [{ name: 'CRP', value: '5', class: 'NEGATIVE' }],
+      notes: JSON.stringify({
+        testTypeId: 'legacy-only',
+        resultData: [{ name: 'Old', value: '1' }],
+      }),
+    });
+
+    expect(parsed.testTypeId).toBe('crp');
+    expect(parsed.resultData).toHaveLength(1);
+    expect(parsed.resultData[0].name).toBe('CRP');
+  });
+
+  it('falls back to notes JSON when structured columns are empty', () => {
+    const parsed = service.parseCubeMetadata({
+      notes: JSON.stringify({
+        testTypeId: 'rheumacheck',
+        resultData: [{ name: 'Rheuma', value: '2.1', class: 'POS' }],
+      }),
+    });
+
+    expect(parsed.testTypeId).toBe('rheumacheck');
+    expect(parsed.resultData[0].class).toBe('POS');
+  });
+});
 
 describe('POST /submit-cube-data (e2e)', () => {
   let app: INestApplication;
@@ -130,6 +169,10 @@ describe('POST /submit-cube-data (e2e)', () => {
     expect(created.status).toBe('COMPLETED');
     expect(created.result).toBe('POSITIVE');
     expect(created.testDate.getTime()).toBe(1_700_000_000_000);
+    expect(created.testTypeId).toBe('rheumacheck');
+    expect(created.source).toBe('cube');
+    expect(created.deviceSerial).toBe('SN-007');
+    expect(created.cubeResultData).toEqual(resultData);
 
     const notes = JSON.parse(created.notes);
     expect(notes.source).toBe('cube');

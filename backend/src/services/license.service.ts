@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { LicenseStatus } from '../graphql/types/license.type';
+import { LicenseStatus } from '@prisma/client';
 
 @Injectable()
 export class LicenseService {

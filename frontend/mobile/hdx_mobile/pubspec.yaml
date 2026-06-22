@@ -47,10 +47,6 @@ dependencies:
   http: ^1.2.2
   http_parser: ^4.0.2
 
-  # GraphQL Client
-  graphql: ^5.1.2
-  graphql_flutter: ^5.1.2
-
   # Environment Configuration
   flutter_dotenv: ^5.1.0
 

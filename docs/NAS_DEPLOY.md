@@ -50,7 +50,17 @@ On the NAS (SSH or Ugreen Docker UI → Compose):
 
 ```bash
 cd deploy/nas
+chmod +x deploy.sh build-artifacts.sh
+./deploy.sh
+```
+
+Uses `docker compose` or `docker-compose` automatically.
+
+Or manually:
+
+```bash
 docker compose up -d --build
+# or: docker-compose up -d --build
 ```
 
 First boot runs Prisma migrations and seeds demo doctors.

@@ -19,7 +19,12 @@ import '../screens/doctor/doctor_dashboard_screen.dart';
 import '../screens/doctor/doctor_appointments_screen.dart';
 import '../screens/doctor/doctor_availability_screen.dart';
 import '../screens/shop_screen.dart';
+import '../screens/cart_screen.dart';
+import '../screens/checkout_screen.dart';
+import '../screens/product_details_screen.dart';
+import '../screens/profile_screen.dart';
 import '../screens/test_results_screen.dart';
+import '../models/product.dart';
 import '../providers/auth_provider.dart';
 import 'auth_routes.dart';
 
@@ -215,6 +220,34 @@ class AppRouter {
           path: '/shop',
           name: 'shop',
           builder: (context, state) => const ShopScreen(),
+          routes: [
+            GoRoute(
+              path: 'cart',
+              name: 'shop-cart',
+              builder: (context, state) => const CartScreen(),
+            ),
+            GoRoute(
+              path: 'checkout',
+              name: 'shop-checkout',
+              builder: (context, state) => const CheckoutScreen(),
+            ),
+            GoRoute(
+              path: 'product',
+              name: 'shop-product',
+              builder: (context, state) {
+                final product = state.extra as Product?;
+                if (product == null) {
+                  return const ShopScreen();
+                }
+                return ProductDetailsScreen(product: product);
+              },
+            ),
+          ],
+        ),
+        GoRoute(
+          path: '/profile',
+          name: 'profile',
+          builder: (context, state) => const ProfileScreen(),
         ),
         GoRoute(
           path: '/results',

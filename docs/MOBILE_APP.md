@@ -33,8 +33,11 @@ hdx_mobile/
 │   │   ├── bluetooth_connection_screen.dart  # BLE connection management
 │   │   └── test_bluetooth_check_screen.dart  # Test with Cube device
 │   ├── services/         # Business logic and API services
-│   │   ├── api_service.dart       # HTTP client wrapper
-│   │   ├── bluetooth_service.dart # BLE (BluetoothProvider, non-Cube)
+│   │   ├── api_service.dart       # HTTP REST client (all backend calls)
+│   │   ├── auth_service.dart      # Login / register / profile
+│   │   ├── payment_service.dart   # Stripe / PayPal via REST
+│   │   ├── appointment_service.dart # Bookings and video tokens
+│   │   ├── bluetooth_service.dart # BLE (non-Cube)
 │   │   └── cube_service.dart      # Cube SDK bridge (MethodChannel/EventChannel)
 │   ├── utils/            # Utility functions and constants
 │   │   └── constants.dart     # App-wide constants
@@ -191,12 +194,14 @@ See:
 
 ### Implemented
 
-- Authentication & user management
-- Test selection screens
-- Bluetooth connectivity (scan/connect/read/write)
-- Navigation with guards
-- Cube device integration via Bluetooth
-- Cube data submission to backend for result storage
+- Authentication & user management (REST + GoRouter guards)
+- Appointments & video calls (patient mobile + doctor web)
+- Shop / checkout with Stripe and PayPal (`PaymentService`)
+- Test selection and Cube measurement flow
+- Bluetooth connectivity (scan/connect)
+- Navigation with GoRouter (no `Navigator.push` in app code)
+- Cube device integration via native Android SDK
+- Cube data submission to backend (`POST submit-cube-data`)
 
 ### Cube Device Integration
 
@@ -220,7 +225,7 @@ Scanning is filtered to Cube devices only; no Windows service is used.
 3. User connects to a Cube device
 4. User taps "Test starten"; Cube SDK runs evaluation on-device
 5. App reads measurement results from Cube SDK
-6. App sends result data to backend (`POST /submit-cube-data`)
+6. App sends result data to backend (`POST submit-cube-data`)
 7. Backend stores/normalizes and returns results to app
 
 ## Testing

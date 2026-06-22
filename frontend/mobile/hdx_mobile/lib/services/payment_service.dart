@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
-import 'graphql_service.dart';
+import '../services/api_service.dart';
 
 class PaymentService {
-  final GraphQLService _graphQLService;
+  final ApiService _api;
 
-  PaymentService(this._graphQLService);
+  PaymentService(this._api);
 
   Future<Map<String, dynamic>> createPayment({
     required String userId,
@@ -12,294 +12,121 @@ class PaymentService {
     required String currency,
     required String paymentMethod,
     required List<dynamic> items,
+    String? rapidTestId,
   }) async {
-    try {
-      const mutation = '''
-        mutation CreatePayment(\$input: CreatePaymentInput!) {
-          createPayment(input: \$input) {
-            id
-            userId
-            amount
-            currency
-            method
-            status
-            description
-            transactionId
-            createdAt
-            updatedAt
-            completedAt
-            failureReason
-          }
-        }
-      ''';
+    final response = await _api.post(
+      'create-payment',
+      body: {
+        'amount': amount,
+        'currency': currency,
+        'paymentMethod': paymentMethod,
+        if (rapidTestId != null) 'rapidTestId': rapidTestId,
+      },
+    );
 
-      final variables = {
-        'input': {
-          'userId': userId,
-          'amount': amount,
-          'currency': currency,
-          'paymentMethod': paymentMethod,
-        },
-      };
-
-      debugPrint('Creating payment with variables: $variables');
-      
-      final result = await _graphQLService.mutate(
-        mutation: mutation,
-        variables: variables,
-      );
-
-      debugPrint('Payment mutation result: hasException=${result.hasException}, data=${result.data}');
-
-      if (result.hasException) {
-        final errors = result.exception?.graphqlErrors ?? [];
-        final linkException = result.exception?.linkException;
-        
-        String errorMessage = 'Payment creation failed';
-        if (errors.isNotEmpty) {
-          errorMessage = errors.map((e) => e.message).join(', ');
-          debugPrint('GraphQL errors: ${errors.map((e) => e.message).join(', ')}');
-        } else if (linkException != null) {
-          errorMessage = linkException.toString();
-          debugPrint('Link exception: $linkException');
-        }
-        
-        throw Exception(errorMessage);
-      }
-
-      if (result.data != null && result.data!['createPayment'] != null) {
-        return Map<String, dynamic>.from(result.data!['createPayment']);
-      } else {
-        throw Exception('Invalid response from server: ${result.data}');
-      }
-    } catch (e) {
-      // Re-throw if it's already an Exception, otherwise wrap it
-      if (e is Exception) {
-        rethrow;
-      }
-      throw Exception('Failed to create payment: $e');
+    if (response['success'] != true) {
+      throw Exception(response['error']?.toString() ?? 'Payment creation failed');
     }
+
+    return Map<String, dynamic>.from(response['payment'] as Map);
   }
 
   Future<Map<String, dynamic>> getPaymentAmount() async {
-    try {
-      const query = '''
-        query GetPaymentAmount {
-          paymentAmount {
-            amount
-            discount
-            discountType
-            reducedAmount
-          }
-        }
-      ''';
+    final response = await _api.post('get-payment-amount', body: {});
 
-      final result = await _graphQLService.query(query: query);
-
-      if (result.hasException) {
-        throw Exception(result.exception?.graphqlErrors.first.message ?? 'Failed to get payment amount');
-      }
-
-      if (result.data != null && result.data!['paymentAmount'] != null) {
-        return Map<String, dynamic>.from(result.data!['paymentAmount']);
-      } else {
-        throw Exception('Invalid response from server');
-      }
-    } catch (e) {
-      throw Exception('Failed to get payment amount: $e');
+    if (response['success'] != true) {
+      throw Exception(response['error']?.toString() ?? 'Failed to get payment amount');
     }
+
+    return {
+      'amount': response['amount'],
+      'discount': response['discount'],
+      'discountType': response['discountType'],
+      'reducedAmount': response['reducedAmount'],
+    };
   }
 
   Future<List<Map<String, dynamic>>> getUserPayments(String userId) async {
-    try {
-      const query = '''
-        query GetUserPayments(\$userId: String!) {
-          userPayments(userId: \$userId) {
-            id
-            userId
-            amount
-            currency
-            method
-            status
-            description
-            transactionId
-            createdAt
-            updatedAt
-            completedAt
-            failureReason
-          }
-        }
-      ''';
-
-      final result = await _graphQLService.query(
-        query: query,
-        variables: {'userId': userId},
-      );
-
-      if (result.hasException) {
-        throw Exception(result.exception?.graphqlErrors.first.message ?? 'Failed to get user payments');
-      }
-
-      if (result.data != null && result.data!['userPayments'] != null) {
-        final List<dynamic> payments = result.data!['userPayments'];
-        return payments.map((p) => Map<String, dynamic>.from(p)).toList();
-      } else {
-        return [];
-      }
-    } catch (e) {
-      throw Exception('Failed to get user payments: $e');
-    }
+    // REST list endpoint can be added later; checkout flow does not require this yet.
+    debugPrint('getUserPayments: not implemented on REST API (userId=$userId)');
+    return [];
   }
 
-  /// Create a Stripe payment intent via backend
-  /// Returns the client secret for Stripe SDK
   Future<String> createStripePaymentIntent({
     required String paymentId,
     required double amount,
     required String currency,
   }) async {
-    try {
-      const mutation = '''
-        mutation CreatePaymentIntent(\$input: CreateStripePaymentIntentInput!) {
-          createPaymentIntent(input: \$input) {
-            clientSecret
-            paymentIntentId
-          }
-        }
-      ''';
+    final response = await _api.post(
+      'create-stripe-payment-intent',
+      body: {
+        'paymentId': paymentId,
+        'amount': amount,
+        'currency': currency,
+      },
+    );
 
-      debugPrint('Creating Stripe payment intent - paymentId: $paymentId, amount: $amount, currency: $currency');
-      
-      final result = await _graphQLService.mutate(
-        mutation: mutation,
-        variables: {
-          'input': {
-            'amount': amount,
-            'currency': currency,
-            'paymentId': paymentId,
-          },
-        },
+    if (response['success'] != true || response['clientSecret'] == null) {
+      throw Exception(
+        response['error']?.toString() ?? 'Failed to create payment intent',
       );
-
-      debugPrint('Stripe payment intent result: hasException=${result.hasException}, data=${result.data}');
-
-      if (result.hasException) {
-        final errors = result.exception?.graphqlErrors ?? [];
-        final linkException = result.exception?.linkException;
-        
-        String errorMessage = 'Failed to create payment intent';
-        if (errors.isNotEmpty) {
-          errorMessage = errors.map((e) => e.message).join(', ');
-          debugPrint('GraphQL errors: $errorMessage');
-        } else if (linkException != null) {
-          errorMessage = linkException.toString();
-          debugPrint('Link exception: $linkException');
-        }
-        
-        throw Exception(errorMessage);
-      }
-
-      if (result.data != null && result.data!['createPaymentIntent'] != null) {
-        final response = result.data!['createPaymentIntent'];
-        if (response['clientSecret'] != null) {
-          return response['clientSecret'];
-        }
-      }
-      throw Exception('Invalid response from server');
-    } catch (e) {
-      throw Exception('Failed to create Stripe payment intent: $e');
     }
+
+    return response['clientSecret'] as String;
   }
 
-  /// Create a PayPal order via backend
-  /// Returns the approval URL and order ID
   Future<Map<String, String>> createPayPalOrder({
     required double amount,
     required String currency,
+    String? paymentId,
     String? returnUrl,
     String? cancelUrl,
   }) async {
-    try {
-      const mutation = '''
-        mutation CreatePayPalOrder(\$input: CreatePayPalOrderInput!) {
-          createPayPalOrder(input: \$input) {
-            orderId
-            approvalUrl
-          }
-        }
-      ''';
-
-      final input = <String, dynamic>{
+    final response = await _api.post(
+      'create-paypal-order',
+      body: {
         'amount': amount,
         'currency': currency,
-      };
-      if (returnUrl != null) input['returnUrl'] = returnUrl;
-      if (cancelUrl != null) input['cancelUrl'] = cancelUrl;
+        if (paymentId != null) 'paymentId': paymentId,
+        if (returnUrl != null) 'returnUrl': returnUrl,
+        if (cancelUrl != null) 'cancelUrl': cancelUrl,
+      },
+    );
 
-      final result = await _graphQLService.mutate(
-        mutation: mutation,
-        variables: {'input': input},
-      );
-
-      if (result.hasException) {
-        throw Exception(result.exception?.graphqlErrors.first.message ?? 'Failed to create PayPal order');
-      }
-
-      if (result.data != null && result.data!['createPayPalOrder'] != null) {
-        final response = result.data!['createPayPalOrder'];
-        return {
-          'orderId': response['orderId'],
-          'approvalUrl': response['approvalUrl'],
-        };
-      }
-      throw Exception('Invalid response from server');
-    } catch (e) {
-      throw Exception('Failed to create PayPal order: $e');
+    if (response['success'] != true ||
+        response['orderId'] == null ||
+        response['approvalUrl'] == null) {
+      throw Exception(response['error']?.toString() ?? 'Failed to create PayPal order');
     }
+
+    return {
+      'orderId': response['orderId'] as String,
+      'approvalUrl': response['approvalUrl'] as String,
+    };
   }
 
-  /// Update payment with transaction ID and status
   Future<Map<String, dynamic>> updatePayment({
     required String paymentId,
     String? transactionId,
     String? status,
+    String? paymentIntentId,
+    String? paypalOrderId,
   }) async {
-    try {
-      const mutation = '''
-        mutation UpdatePayment(\$id: String!, \$input: UpdatePaymentInput!) {
-          updatePayment(id: \$id, input: \$input) {
-            id
-            status
-            transactionId
-            updatedAt
-          }
-        }
-      ''';
+    final response = await _api.post(
+      'update-payment',
+      body: {
+        'paymentId': paymentId,
+        if (transactionId != null) 'transactionId': transactionId,
+        if (status != null) 'status': status,
+        if (paymentIntentId != null) 'paymentIntentId': paymentIntentId,
+        if (paypalOrderId != null) 'paypalOrderId': paypalOrderId,
+      },
+    );
 
-      final input = <String, dynamic>{};
-      if (transactionId != null) input['transactionId'] = transactionId;
-      if (status != null) input['status'] = status;
-
-      final result = await _graphQLService.mutate(
-        mutation: mutation,
-        variables: {
-          'id': paymentId,
-          'input': input,
-        },
-      );
-
-      if (result.hasException) {
-        throw Exception(result.exception?.graphqlErrors.first.message ?? 'Failed to update payment');
-      }
-
-      if (result.data != null && result.data!['updatePayment'] != null) {
-        return Map<String, dynamic>.from(result.data!['updatePayment']);
-      } else {
-        throw Exception('Invalid response from server');
-      }
-    } catch (e) {
-      throw Exception('Failed to update payment: $e');
+    if (response['success'] != true) {
+      throw Exception(response['error']?.toString() ?? 'Failed to update payment');
     }
+
+    return Map<String, dynamic>.from(response['payment'] as Map);
   }
 }
-

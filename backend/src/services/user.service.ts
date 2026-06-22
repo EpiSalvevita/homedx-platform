@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import { User } from '@prisma/client';
 import { PrismaService } from './prisma.service';
-import { CreateUserInput, UpdateUserInput } from '../graphql/types/user.input';
-import { User } from '../graphql/types/user.type';
+import { CreateUserInput, UpdateUserInput } from '../dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -30,10 +31,11 @@ export class UserService {
   }
 
   async create(data: CreateUserInput): Promise<User> {
+    const hashedPassword = await bcrypt.hash(data.password, 10);
     return this.prisma.user.create({
       data: {
         email: data.email,
-        password: data.password,
+        password: hashedPassword,
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
@@ -50,8 +52,8 @@ export class UserService {
   }
 
   async update(id: string, data: UpdateUserInput): Promise<User> {
-    const updateData: any = {};
-    
+    const updateData: Record<string, unknown> = {};
+
     if (data.firstName !== undefined) updateData.firstName = data.firstName;
     if (data.lastName !== undefined) updateData.lastName = data.lastName;
     if (data.phone !== undefined) updateData.phone = data.phone;
@@ -72,4 +74,4 @@ export class UserService {
       where: { id },
     });
   }
-} 
+}

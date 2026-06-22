@@ -4,22 +4,31 @@ description: Documentation index for homeDX platform
 
 # Docs Index
 
-## Development Setup
+## Development setup
 
 - `WSL2_MOBILE_SETUP.md` – WSL2 + Flutter mobile development setup
-- `WSL2_PORT_FORWARDING.md` – WSL2 port forwarding + firewall
-- `ENV_SETUP.md` – environment variables across backend/mobile
+- `WSL2_PORT_FORWARDING.md` – WSL2 port forwarding, `API_BASE_URL`, connectivity checks
+- `ENV_SETUP.md` – Environment variables (backend + Flutter)
 
-## Component Docs
+## Component docs
 
-- `MOBILE_APP.md` – Flutter app setup and usage
-- `APP_FUNCTIONALITIES.md` – App feature matrix
-- `FOLDER_STRUCTURE.md` – Short project structure overview
+- `MOBILE_APP.md` – Flutter app setup, Cube flow, web builds
+- `APP_FUNCTIONALITIES.md` – Feature matrix, gaps, and prioritized backlog
+- `FOLDER_STRUCTURE.md` – Project layout and API entry points
+- `APPOINTMENTS_VIDEO.md` – Doctor appointments and Daily.co video calls
+- `NAS_DEPLOY.md` – LAN preview deploy (Docker on NAS)
 
 ## Frontend
 
-- `../frontend/README.md` – Frontend app index
+- `../frontend/README.md` – Frontend apps index
+- `../frontend/mobile/hdx_mobile/PAYMENT_INTEGRATION.md` – Stripe / PayPal REST flow
 
-## Platform Notes
+## API note
 
-- All detailed WSL2 guidance lives in `WSL2_PORT_FORWARDING.md`
+Clients talk to the NestJS backend over **REST only**:
+
+- Mobile API: `POST /gg-homedx-json/gg-api/v1/<endpoint>`
+- Auth: `Authorization: Bearer <jwt>` or `x-auth-token` header
+- Public routes (login, register, status flags): no token required
+
+There is no `/graphql` endpoint in this repository.

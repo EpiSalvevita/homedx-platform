@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { LegalPageType } from '../graphql/types/legal-page.types';
+import { LegalPageType } from '@prisma/client';
 
 @Injectable()
 export class LegalPageService {

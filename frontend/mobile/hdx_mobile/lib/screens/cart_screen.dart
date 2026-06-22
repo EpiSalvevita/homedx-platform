@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
 import '../providers/cart_provider.dart';
 import '../widgets/figma_ui.dart';
-import 'checkout_screen.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -18,7 +18,7 @@ class CartScreen extends StatelessWidget {
           ? null
           : FigmaBottomActionBar(
               buttonLabel: 'Zur Kasse',
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckoutScreen())),
+              onPressed: () => context.push('/shop/checkout'),
             ),
       body: cart.isEmpty
             ? Center(

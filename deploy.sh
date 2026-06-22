@@ -409,9 +409,7 @@ if [ "$START_MOBILE" = true ]; then
 fi
 
 echo ""
-echo "🔑 Test Credentials:"
-echo "   Email: epirotalija@gmail.com"
-echo "   Password: espex260"
+echo "🔑 Test credentials: use your seeded or registered user (see backend/.env.example)"
 echo ""
 
 echo "⚠️  To stop services, run: ./stop.sh"

@@ -1,78 +1,26 @@
 # homeDX Platform - Folder Structure
 
-## 📁 **Project Folders Explained**
+This file is a short pointer. The canonical copy lives in **[docs/FOLDER_STRUCTURE.md](docs/FOLDER_STRUCTURE.md)**.
 
-### **Backend (`backend/`)**
-- **Technology**: NestJS API with TypeScript
-- **Purpose**: Server-side API with GraphQL + REST endpoints
-- **Database**: PostgreSQL with Prisma ORM
-- **Status**: ✅ Active and working
+## Overview
 
-### **Mobile App (`mobile/`)**
-- **Technology**: React Native 0.66.5 with TypeScript
-- **Purpose**: Current production mobile app
-- **Status**: ✅ Active - this is the app that's currently deployed
-- **Features**: BLE, camera, video, file uploads, Cube integration
+- `backend/` – NestJS REST API (PostgreSQL + Prisma)
+- `frontend/mobile/hdx_mobile/` – Flutter app (mobile, web, desktop targets)
+- `Cube APP V0.1.21/` – Cube Android SDK reference package
+- `docs/` – Setup and feature documentation
+- `deploy.sh`, `stop.sh` – Start/stop local dev services
 
-### **Mobile Flutter (`mobile_flutter/`)**
-- **Technology**: Flutter/Dart
-- **Purpose**: New Flutter app (in progress)
-- **Status**: 🚧 Being set up - just created basic structure
-- **Why**: Switching from React Native to Flutter due to compatibility issues
-- **Current State**: Basic app with home screen, theme, navigation
+## API surface
 
-### **Legacy Mobile (`mobile_reactnative_lagacy/`)**
-- **Technology**: React Native
-- **Purpose**: Old/previous React Native version
-- **Status**: 📦 Archived - kept for reference
+All client traffic uses **REST** under:
 
-### **Flutter SDK (`flutter/`)**
-- **Purpose**: Flutter SDK installation (not a project)
-- **Status**: Used for Flutter development
-- **Note**: This is the Flutter framework itself, not an app
+`/gg-homedx-json/gg-api/v1/*`
 
-### **Cube (`Cube/`)**
-- **Purpose**: Cube device integration files (DLL, documentation)
-- **Status**: Integration files for diagnostic devices
+Payment provider webhooks: `POST /webhooks/stripe`, `POST /webhooks/paypal`.
 
-## 🎯 **Which One to Use?**
+There is **no GraphQL** endpoint in this repo.
 
-### **For Running the Current App:**
-Use `mobile/` (React Native app)
-```bash
-cd mobile
-./deploy.sh mobile
-```
+## Legacy / reference (do not use for active development)
 
-### **For Developing the New Flutter App:**
-Use `mobile_flutter/` (Flutter app)
-```bash
-cd mobile_flutter
-flutter run
-```
-
-## 📊 **Migration Status**
-
-- ✅ **React Native App**: Working and deployed
-- 🚧 **Flutter App**: Just created, needs backend integration
-- 🔄 **Planned**: Migrate all features from React Native to Flutter
-
-## 🚀 **Quick Start**
-
-**Run React Native app:**
-```bash
-./deploy.sh
-```
-
-**Run Flutter app (once setup is complete):**
-```bash
-cd mobile_flutter
-flutter pub get
-flutter run
-```
-
-
-
-
-
-
+- `mobile/` – Old React Native tree (deprecated)
+- `flutter/` – Local Flutter SDK checkout (not an app project)

@@ -8,7 +8,6 @@ import 'config/app_theme.dart';
 import 'config/app_router.dart';
 import 'services/api_service.dart';
 import 'services/auth_service.dart';
-import 'services/graphql_service.dart';
 import 'services/payment_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/bluetooth_provider.dart';
@@ -17,46 +16,64 @@ import 'providers/locale_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Load environment variables
+
   await dotenv.load(fileName: '.env');
-  
+
   if (!kIsWeb) {
     await initStripe();
   }
 
   final localeProvider = LocaleProvider();
   await localeProvider.initialize();
-  
-  runApp(MyApp(localeProvider: localeProvider));
+
+  final apiService = ApiService();
+  final authService = AuthService(apiService);
+  final paymentService = PaymentService(apiService);
+  final authProvider = AuthProvider(authService);
+  final bluetoothProvider = BluetoothProvider();
+  final cartProvider = CartProvider();
+
+  apiService.onUnauthorized = () {
+    authProvider.logout();
+  };
+
+  await authProvider.initialize();
+
+  runApp(
+    MyApp(
+      localeProvider: localeProvider,
+      authProvider: authProvider,
+      bluetoothProvider: bluetoothProvider,
+      cartProvider: cartProvider,
+      apiService: apiService,
+      authService: authService,
+      paymentService: paymentService,
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   final LocaleProvider localeProvider;
+  final AuthProvider authProvider;
+  final BluetoothProvider bluetoothProvider;
+  final CartProvider cartProvider;
+  final ApiService apiService;
+  final AuthService authService;
+  final PaymentService paymentService;
 
-  const MyApp({super.key, required this.localeProvider});
+  const MyApp({
+    super.key,
+    required this.localeProvider,
+    required this.authProvider,
+    required this.bluetoothProvider,
+    required this.cartProvider,
+    required this.apiService,
+    required this.authService,
+    required this.paymentService,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // Initialize services
-    final apiService = ApiService();
-    final authService = AuthService(apiService);
-    final graphQLService = GraphQLService(apiService);
-    final paymentService = PaymentService(graphQLService);
-    final authProvider = AuthProvider(authService);
-    final bluetoothProvider = BluetoothProvider();
-    final cartProvider = CartProvider();
-
-    // Initialize auth state
-    authProvider.initialize();
-
-    // Update GraphQL service when auth token changes
-    // The token is already set in ApiService, GraphQLService reads it from there
-    // We just need to reinitialize the client when auth state changes
-    authProvider.addListener(() {
-      graphQLService.updateAuthToken(apiService.authToken);
-    });
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: authProvider),
@@ -65,7 +82,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: localeProvider),
         Provider<ApiService>.value(value: apiService),
         Provider<AuthService>.value(value: authService),
-        Provider<GraphQLService>.value(value: graphQLService),
         Provider<PaymentService>.value(value: paymentService),
       ],
       child: Builder(
@@ -79,8 +95,8 @@ class MyApp extends StatelessWidget {
             routerConfig: AppRouter.createRouter(auth),
             locale: locale,
             supportedLocales: const [
-              Locale('de', 'DE'), // German
-              Locale('en', 'US'), // English (fallback)
+              Locale('de', 'DE'),
+              Locale('en', 'US'),
             ],
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,

@@ -13,13 +13,15 @@ This repository hosts the full homeDX stack:
 ┌─────────────┐    Bluetooth    ┌─────────────┐
 │ Cube Device │◄──────────────►│    Phone    │
 └─────────────┘                 └──────┬──────┘
-                                       │ HTTP API
+                                       │ REST API
                                        ▼
                                 ┌─────────────┐
                                 │   Backend   │
                                 │  (NestJS)   │
                                 └─────────────┘
 ```
+
+**API:** `POST /gg-homedx-json/gg-api/v1/*` (JWT auth). No GraphQL.
 
 **Data Flow:**
 1. Phone connects to Cube device via Bluetooth (Cube SDK filters scan to Cube devices only). If Android asks for a pairing PIN/passkey, use the **last six digits of the Cube serial number**.
@@ -81,6 +83,8 @@ See `docs/WSL2_PORT_FORWARDING.md` for manual setup and verification.
 - `docs/APP_FUNCTIONALITIES.md`
 - `docs/FOLDER_STRUCTURE.md`
 - `docs/ENV_SETUP.md`
+- `docs/APPOINTMENTS_VIDEO.md`
+- `docs/NAS_DEPLOY.md`
 - `frontend/README.md`
 
 

@@ -63,6 +63,11 @@ model RapidTest {
   licenseId      String?
   completedAt    DateTime?
   notes          String?
+  testTypeId     String?
+  source         String?       @default("legacy")
+  deviceSerial   String?
+  cubeResultData Json?
+  cubeRawData    Json?
   resultImageUrl String?
   testKitId      String
   status         TestStatus    @default(PENDING)
@@ -78,6 +83,8 @@ model RapidTest {
   license        License?      @relation(fields: [licenseId], references: [id])
   testKit        TestKit       @relation(fields: [testKitId], references: [id])
   user           User          @relation(fields: [userId], references: [id])
+  payments       Payment[]
+  linkedAppointments Appointment[] @relation("AppointmentLinkedTest")
 }
 
 model License {
@@ -98,19 +105,23 @@ model License {
 }
 
 model Payment {
-  id            String        @id @default(cuid())
-  userId        String
-  amount        Float
-  currency      String
-  transactionId String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  completedAt   DateTime?
-  description   String?
-  failureReason String?
-  method        PaymentMethod
-  status        PaymentStatus @default(PENDING)
-  user          User          @relation(fields: [userId], references: [id])
+  id                    String        @id @default(cuid())
+  userId                String
+  amount                Float
+  currency              String
+  transactionId         String?
+  rapidTestId           String?
+  stripePaymentIntentId String?
+  paypalOrderId         String?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  completedAt           DateTime?
+  description           String?
+  failureReason         String?
+  method                PaymentMethod
+  status                PaymentStatus @default(PENDING)
+  user                  User          @relation(fields: [userId], references: [id])
+  rapidTest             RapidTest?    @relation(fields: [rapidTestId], references: [id])
 }
 
 model Certificate {
@@ -196,21 +207,23 @@ model DoctorAvailability {
 }
 
 model Appointment {
-  id            String            @id @default(cuid())
-  patientId     String
-  doctorId      String
-  scheduledAt   DateTime
-  durationMin   Int               @default(30)
-  type          AppointmentType   @default(ONLINE)
-  status        AppointmentStatus @default(CONFIRMED)
-  notes         String?
-  rapidTestId   String?
-  videoRoomName String?
-  videoRoomUrl  String?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  patient       User              @relation("PatientAppointments", fields: [patientId], references: [id])
-  doctor        DoctorProfile     @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  id                String            @id @default(cuid())
+  patientId         String
+  doctorId          String
+  scheduledAt       DateTime
+  durationMin       Int               @default(30)
+  type              AppointmentType   @default(ONLINE)
+  status            AppointmentStatus @default(CONFIRMED)
+  notes             String?
+  testTypeId        String?
+  linkedRapidTestId String?
+  videoRoomName     String?
+  videoRoomUrl      String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  patient           User              @relation("PatientAppointments", fields: [patientId], references: [id])
+  doctor            DoctorProfile     @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  linkedRapidTest   RapidTest?        @relation("AppointmentLinkedTest", fields: [linkedRapidTestId], references: [id])
 
   @@index([patientId, scheduledAt])
   @@index([doctorId, scheduledAt])

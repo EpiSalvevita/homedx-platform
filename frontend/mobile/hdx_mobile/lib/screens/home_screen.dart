@@ -7,7 +7,6 @@ import '../services/user_service.dart';
 import '../services/api_service.dart';
 import '../widgets/figma_ui.dart';
 import '../utils/app_assets.dart';
-import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -60,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: Text('Profil', style: FigmaUi.rubik(fontWeight: FontWeight.w500, color: AppTheme.textColor)),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
+                context.push('/profile');
               },
             ),
             ListTile(
@@ -93,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
               FigmaWelcomeCard(
                 name: firstName,
                 email: email,
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
+                onTap: () => context.push('/profile'),
               ),
               if (_isLoading)
                 const Padding(padding: EdgeInsets.only(top: 12), child: LinearProgressIndicator()),
@@ -122,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Icons.person_outline,
                 title: 'Erste Schritte',
                 subtitle: 'Vervollständigen Sie Ihr Profil, um zu beginnen',
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
+                onTap: () => context.push('/profile'),
               ),
               const SizedBox(height: AppTheme.activityCardSpacing),
               FigmaActivityRow(

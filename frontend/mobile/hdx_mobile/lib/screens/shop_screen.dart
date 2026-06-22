@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../config/app_theme.dart';
 import '../models/product.dart';
 import '../providers/cart_provider.dart';
 import '../services/shop_service.dart';
 import '../widgets/figma_ui.dart';
-import 'cart_screen.dart';
-import 'product_details_screen.dart';
 
 class ShopScreen extends StatefulWidget {
   const ShopScreen({super.key});
@@ -102,7 +101,7 @@ class _CartIconButton extends StatelessWidget {
       children: [
         IconButton(
           icon: const Icon(Icons.shopping_cart_outlined),
-          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen())),
+          onPressed: () => context.push('/shop/cart'),
         ),
         if (cartProvider.itemCount > 0)
           Positioned(
@@ -133,7 +132,7 @@ class _ProductCard extends StatelessWidget {
     final isInCart = cartItem != null;
 
     return GestureDetector(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(product: product))),
+      onTap: () => context.push('/shop/product', extra: product),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
