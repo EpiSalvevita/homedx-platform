@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import '../services/api_service.dart';
 
 class PaymentService {
@@ -47,9 +46,16 @@ class PaymentService {
   }
 
   Future<List<Map<String, dynamic>>> getUserPayments(String userId) async {
-    // REST list endpoint can be added later; checkout flow does not require this yet.
-    debugPrint('getUserPayments: not implemented on REST API (userId=$userId)');
-    return [];
+    final response = await _api.post('list-payments', body: {});
+    if (response['success'] != true) {
+      throw Exception(response['error']?.toString() ?? 'Failed to load payments');
+    }
+    final raw = response['payments'];
+    if (raw is! List) return [];
+    return raw
+        .whereType<Map>()
+        .map((m) => Map<String, dynamic>.from(m))
+        .toList();
   }
 
   Future<String> createStripePaymentIntent({

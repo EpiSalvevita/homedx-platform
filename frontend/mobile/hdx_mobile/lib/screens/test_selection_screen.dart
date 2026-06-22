@@ -37,8 +37,28 @@ class _TestSelectionScreenState extends State<TestSelectionScreen> {
     }
   }
 
-  void _selectTest(TestType testType) {
-    context.push('/tests/${testType.id}/bluetooth-check?testTypeName=${Uri.encodeComponent(testType.name)}');
+  void _selectTest(TestType testType) async {
+    try {
+      final apiService = Provider.of<ApiService>(context, listen: false);
+      final testService = TestService(apiService);
+      final rapidTestId = await testService.addTest(testType.id);
+      if (!mounted) return;
+      if (rapidTestId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Test konnte nicht gestartet werden')),
+        );
+        return;
+      }
+      final name = Uri.encodeComponent(testType.name);
+      context.push(
+        '/tests/${testType.id}/bluetooth-check?testTypeName=$name&rapidTestId=$rapidTestId',
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
   }
 
   @override

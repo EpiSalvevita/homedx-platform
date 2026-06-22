@@ -33,7 +33,7 @@ Snapshot of what exists today in the backend vs the Flutter app, plus a short ba
 
 - **Backend:** certificate services (PDF, QR, storage) — no mobile REST routes yet
 - **App:** not wired in UI
-- **Gap:** view/download/share certificates; CWA export if still required
+- **Gap:** view/download/share certificates
 
 ### Licenses & coupons
 
@@ -92,10 +92,9 @@ Rough order for product work — not a commitment.
 
 **Lower**
 
-10. CWA integration (if still a product requirement)
-11. Offline queue for uploads
-12. Biometric login
-13. Two-factor authentication
+10. Offline queue for uploads
+11. Biometric login
+12. Two-factor authentication
 
 ## Technical notes
 

@@ -3,6 +3,7 @@ import { PaymentService } from './payment.service';
 import { StripeService } from './stripe.service';
 import { PayPalService } from './paypal.service';
 import { PrismaService } from './prisma.service';
+import { MobileNotificationService } from './mobile-notification.service';
 
 export interface MobilePaymentRecord {
   id: string;
@@ -29,6 +30,7 @@ export class MobilePaymentService {
     private readonly stripeService: StripeService,
     private readonly paypalService: PayPalService,
     private readonly prisma: PrismaService,
+    private readonly mobileNotificationService: MobileNotificationService,
   ) {}
 
   getPaymentAmount() {
@@ -128,7 +130,28 @@ export class MobilePaymentService {
       paypalOrderId: body.paypalOrderId,
     });
 
+    if (body.status === 'COMPLETED') {
+      await this.mobileNotificationService.notifyUser(userId, {
+        type: 'PAYMENT_SUCCESS',
+        title: 'Zahlung erfolgreich',
+        message: `Ihre Zahlung über ${payment.amount} ${payment.currency} wurde bestätigt.`,
+        data: { paymentId: payment.id },
+      });
+    } else if (body.status === 'FAILED') {
+      await this.mobileNotificationService.notifyUser(userId, {
+        type: 'PAYMENT_FAILED',
+        title: 'Zahlung fehlgeschlagen',
+        message: 'Ihre Zahlung konnte nicht abgeschlossen werden.',
+        data: { paymentId: payment.id },
+      });
+    }
+
     return this.toMobilePayment(payment);
+  }
+
+  async listByUserId(userId: string): Promise<MobilePaymentRecord[]> {
+    const payments = await this.paymentService.findByUserId(userId);
+    return payments.map((p) => this.toMobilePayment(p));
   }
 
   async markPaymentCompletedFromStripeIntent(paymentIntentId: string): Promise<void> {
@@ -144,6 +167,12 @@ export class MobilePaymentService {
           transactionId: paymentIntentId,
           completedAt: new Date(),
         },
+      });
+      await this.mobileNotificationService.notifyUser(payment.userId, {
+        type: 'PAYMENT_SUCCESS',
+        title: 'Zahlung erfolgreich',
+        message: 'Ihre Zahlung wurde bestätigt.',
+        data: { paymentId: payment.id },
       });
       return;
     }
@@ -180,6 +209,12 @@ export class MobilePaymentService {
         transactionId: orderId,
         completedAt: new Date(),
       },
+    });
+    await this.mobileNotificationService.notifyUser(payment.userId, {
+      type: 'PAYMENT_SUCCESS',
+      title: 'Zahlung erfolgreich',
+      message: 'Ihre PayPal-Zahlung wurde bestätigt.',
+      data: { paymentId: payment.id },
     });
   }
 

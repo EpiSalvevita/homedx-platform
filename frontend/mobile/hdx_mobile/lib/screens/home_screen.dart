@@ -112,6 +112,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Meine Termine', onTap: () => context.push('/appointments')),
                   FigmaQuickActionTile(assetPath: AppAssets.iconDna, label: 'Ergebnisse', onTap: () => context.push('/results')),
                   FigmaQuickActionTile(assetPath: AppAssets.iconHomeBag, label: 'Shop', onTap: () => context.push('/shop')),
+                  FigmaQuickActionTile(assetPath: AppAssets.iconHomeHeart, label: 'Zertifikate', onTap: () => context.push('/certificates')),
+                  FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Benachrichtigungen', onTap: () => context.push('/notifications')),
                 ],
               ),
               const SizedBox(height: 28),

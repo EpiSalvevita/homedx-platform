@@ -22,6 +22,7 @@ class _FakeApiService extends ApiService {
   @override
   Future<Map<String, dynamic>> submitCubeData({
     required String testTypeId,
+    String? rapidTestId,
     List<int>? rawData,
     String? deviceSerial,
     int? measurementTimestamp,
@@ -31,6 +32,7 @@ class _FakeApiService extends ApiService {
     callCount++;
     lastBody = {
       'testTypeId': testTypeId,
+      'rapidTestId': rapidTestId,
       'rawData': rawData,
       'deviceSerial': deviceSerial,
       'measurementTimestamp': measurementTimestamp,

@@ -16,6 +16,9 @@ import { FileUploadService } from '../src/services/file-upload.service';
 import { DoctorService } from '../src/services/doctor.service';
 import { AppointmentService } from '../src/services/appointment.service';
 import { MobilePaymentService } from '../src/services/mobile-payment.service';
+import { MobileTestService } from '../src/services/mobile-test.service';
+import { MobileCertificateService } from '../src/services/mobile-certificate.service';
+import { MobileNotificationService } from '../src/services/mobile-notification.service';
 import { CubeService } from '../src/services/cube.service';
 import { PrismaService } from '../src/services/prisma.service';
 
@@ -47,6 +50,17 @@ function createPrismaMock() {
         const test = { id: `test-${rapidTests.length + 1}`, ...data };
         rapidTests.push(test);
         return test;
+      }),
+      findUnique: jest.fn(async ({ where }: { where: { id: string } }) =>
+        rapidTests.find((t) => t.id === where.id) ?? null,
+      ),
+      update: jest.fn(async ({ where, data }: { where: { id: string }; data: any }) => {
+        const idx = rapidTests.findIndex((t) => t.id === where.id);
+        if (idx >= 0) {
+          rapidTests[idx] = { ...rapidTests[idx], ...data };
+          return rapidTests[idx];
+        }
+        return null;
       }),
     },
     _testKits: testKits,
@@ -81,6 +95,15 @@ async function buildApp(options?: {
       { provide: DoctorService, useValue: {} },
       { provide: AppointmentService, useValue: {} },
       { provide: MobilePaymentService, useValue: {} },
+      { provide: MobileTestService, useValue: {} },
+      {
+        provide: MobileCertificateService,
+        useValue: { issueForRapidTest: jest.fn(async () => null) },
+      },
+      {
+        provide: MobileNotificationService,
+        useValue: { notifyUser: jest.fn(async () => undefined) },
+      },
       { provide: JwtService, useValue: {} },
     ],
   })
@@ -94,7 +117,11 @@ async function buildApp(options?: {
 }
 
 describe('CubeService metadata parsing', () => {
-  const service = new CubeService({} as never);
+  const service = new CubeService(
+    {} as never,
+    { issueForRapidTest: async () => null } as never,
+    { notifyUser: async () => undefined } as never,
+  );
 
   it('prefers structured columns over legacy notes JSON', () => {
     const parsed = service.parseCubeMetadata({

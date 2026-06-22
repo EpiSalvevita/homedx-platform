@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
 import '../models/test_type.dart';
 import '../models/user_test_result.dart';
 import 'api_service.dart' show ApiService, ApiException;
@@ -104,8 +105,8 @@ class TestService {
         .toList();
   }
 
-  /// Add a new test (create test instance)
-  Future<bool> addTest(String testTypeId) async {
+  /// Add a new test (create test instance). Returns rapid test id when successful.
+  Future<String?> addTest(String testTypeId) async {
     try {
       final response = await _apiService.post(
         '/add-test',
@@ -113,11 +114,72 @@ class TestService {
         includeAuth: true,
       );
 
-      return response['success'] == true;
+      if (response['success'] == true) {
+        return response['rapidTestId'] as String?;
+      }
+      return null;
     } on ApiException {
       rethrow;
     } catch (e) {
       throw ApiException('Failed to add test: $e', 0);
+    }
+  }
+
+  Future<String> uploadTestPhoto(String rapidTestId, Uint8List bytes, String filename) async {
+    final response = await _apiService.uploadFile(
+      'add-rapid-test-photo',
+      bytes: bytes,
+      filename: filename,
+      additionalFields: {'rapidTestId': rapidTestId},
+    );
+    if (response['success'] != true) {
+      throw ApiException(response['error']?.toString() ?? 'Photo upload failed', 0);
+    }
+    return response['objectName'] as String? ?? '';
+  }
+
+  Future<String> uploadTestVideo(String rapidTestId, Uint8List bytes, String filename) async {
+    final response = await _apiService.uploadFile(
+      'add-rapid-test-video',
+      bytes: bytes,
+      filename: filename,
+      additionalFields: {'rapidTestId': rapidTestId},
+    );
+    if (response['success'] != true) {
+      throw ApiException(response['error']?.toString() ?? 'Video upload failed', 0);
+    }
+    return response['objectName'] as String? ?? '';
+  }
+
+  Future<String> uploadIdPhoto(
+    String rapidTestId,
+    Uint8List bytes,
+    String filename, {
+    required String type,
+  }) async {
+    final response = await _apiService.uploadFile(
+      'add-identification-photo',
+      bytes: bytes,
+      filename: filename,
+      additionalFields: {'rapidTestId': rapidTestId, 'type': type},
+    );
+    if (response['success'] != true) {
+      throw ApiException(response['error']?.toString() ?? 'ID upload failed', 0);
+    }
+    return response['objectName'] as String? ?? '';
+  }
+
+  Future<void> finalizeSubmission(String rapidTestId, {required bool agreementGiven}) async {
+    final response = await _apiService.post(
+      'finalize-test-submission',
+      body: {'rapidTestId': rapidTestId, 'agreementGiven': agreementGiven},
+      includeAuth: true,
+    );
+    if (response['success'] != true) {
+      throw ApiException(
+        response['error']?.toString() ?? 'Finalize failed',
+        0,
+      );
     }
   }
 }

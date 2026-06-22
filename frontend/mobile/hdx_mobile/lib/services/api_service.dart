@@ -191,6 +191,7 @@ class ApiService {
   /// Submit Cube device data/results to the backend.
   Future<Map<String, dynamic>> submitCubeData({
     required String testTypeId,
+    String? rapidTestId,
     List<int>? rawData,
     String? deviceSerial,
     int? measurementTimestamp,
@@ -224,6 +225,7 @@ class ApiService {
         '/submit-cube-data',
         body: {
           'testTypeId': testTypeId,
+          if (rapidTestId != null) 'rapidTestId': rapidTestId,
           if (rawData != null) 'rawData': rawData,
           if (deviceSerial != null) 'deviceSerial': deviceSerial,
           if (measurementTimestamp != null) 'measurementTimestamp': measurementTimestamp,

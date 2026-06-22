@@ -65,6 +65,10 @@ dependencies:
 
   file_picker: ^8.1.6
 
+  # Push notifications (optional — set FIREBASE_ENABLED=true in .env)
+  firebase_core: ^3.8.1
+  firebase_messaging: ^15.1.6
+
   # Payment Processing
   flutter_stripe: ^11.1.0  # Stripe SDK for secure credit card payments (PCI compliant)
   webview_flutter: ^4.9.0  # For PayPal Checkout

@@ -200,12 +200,15 @@ class CubeTestResult {
   final String? error;
   final List<CubeResultData>? resultData;
 
+  final String? certificateId;
+
   CubeTestResult({
     required this.success,
     this.testId,
     this.result,
     this.error,
     this.resultData,
+    this.certificateId,
   });
 
   factory CubeTestResult.fromJson(Map<String, dynamic> json) {
@@ -214,6 +217,7 @@ class CubeTestResult {
       testId: json['testId'],
       result: json['result'],
       error: json['error'],
+      certificateId: json['certificateId'] as String?,
       resultData: json['resultData'] != null
           ? (json['resultData'] as List)
               .map((r) => CubeResultData.fromJson(r))
@@ -653,6 +657,7 @@ class CubeService {
   /// cassettes.
   Future<CubeTestResult> runTestAndSubmit({
     required String testTypeId,
+    String? rapidTestId,
     void Function(String status)? onStatus,
     void Function(CubeStepUpdate step)? onStep,
     Duration timeout = const Duration(minutes: 20),
@@ -927,6 +932,7 @@ class CubeService {
       );
       final response = await _apiService.submitCubeData(
         testTypeId: testTypeId,
+        rapidTestId: rapidTestId,
         deviceSerial: deviceSerial,
         measurementTimestamp: DateTime.now().millisecondsSinceEpoch,
         result: resultString,

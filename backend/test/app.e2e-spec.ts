@@ -27,7 +27,7 @@ describe('Mobile REST API (e2e)', () => {
       .expect(201)
       .expect((res) => {
         expect(res.body.success).toBe(true);
-        expect(res.body.cwa).toBe(true);
+        expect(res.body.online).toBe(true);
       });
   });
 

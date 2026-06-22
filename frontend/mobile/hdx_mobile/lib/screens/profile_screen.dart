@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
 import '../services/user_service.dart' show UserData, UserService;
@@ -217,6 +218,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               SizedBox(height: AppTheme.fieldSpacing),
                               NeumorphicInsetField(controller: _countryController, label: 'Land', prefixIcon: Icons.public),
                               const SizedBox(height: 24),
+                              NeumorphicPillButton(
+                                label: 'Zahlungsverlauf',
+                                height: 48,
+                                onPressed: () => context.push('/payments'),
+                              ),
+                              const SizedBox(height: 16),
                               NeumorphicPillButton(label: 'Änderungen speichern', loading: _isSaving, onPressed: _isSaving ? null : _saveUserData),
                               const SizedBox(height: 16),
                             ],

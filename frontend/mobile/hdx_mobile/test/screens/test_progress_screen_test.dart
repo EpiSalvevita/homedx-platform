@@ -24,6 +24,7 @@ class _FakeCubeService extends CubeService {
   @override
   Future<CubeTestResult> runTestAndSubmit({
     required String testTypeId,
+    String? rapidTestId,
     void Function(String status)? onStatus,
     void Function(CubeStepUpdate step)? onStep,
     Duration timeout = const Duration(minutes: 20),

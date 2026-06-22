@@ -14,6 +14,9 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../services/prisma.service';
 import { CubeService, CubeResultDataItem } from '../services/cube.service';
 import { MobilePaymentService } from '../services/mobile-payment.service';
+import { MobileTestService } from '../services/mobile-test.service';
+import { MobileCertificateService } from '../services/mobile-certificate.service';
+import { MobileNotificationService } from '../services/mobile-notification.service';
 
 // Mobile API Response Types
 interface MobileResponse {
@@ -39,8 +42,15 @@ interface TestResultResponse extends MobileResponse {
 }
 
 interface BackendStatusResponse extends MobileResponse {
-  cwa?: boolean;
-  cwaLaive?: boolean;
+  online?: boolean;
+}
+
+interface AddTestResponse extends MobileResponse {
+  rapidTestId?: string;
+}
+
+interface FinalizeTestResponse extends MobileResponse {
+  rapidTest?: any;
 }
 
 interface MediaResponse extends MobileResponse {
@@ -108,6 +118,7 @@ interface SubmitCubeDataResponse extends MobileResponse {
   testId?: string;
   result?: string;
   resultData?: CubeResultDataItem[];
+  certificateId?: string;
 }
 
 @Controller('gg-homedx-json/gg-api/v1')
@@ -123,6 +134,9 @@ export class MobileController {
     private readonly appointmentService: AppointmentService,
     private readonly cubeService: CubeService,
     private readonly mobilePaymentService: MobilePaymentService,
+    private readonly mobileTestService: MobileTestService,
+    private readonly mobileCertificateService: MobileCertificateService,
+    private readonly mobileNotificationService: MobileNotificationService,
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
   ) {}
@@ -312,23 +326,21 @@ export class MobileController {
   @Post('add-test')
   @UseGuards(JwtAuthGuard)
   async addTest(
-    @Headers('x-auth-token') token: string,
+    @Request() req: any,
     @Body() body: { testTypeId: string; lang?: string },
-  ): Promise<MobileResponse> {
+  ): Promise<AddTestResponse> {
     try {
-      const user = await this.authService.validateToken(token);
-      if (!user) {
+      const userId = req?.user?.sub;
+      if (!userId) {
         return { success: false, error: 'Invalid token' };
       }
 
-      // Create rapid test
-      await this.rapidTestService.create({
-        userId: user.sub,
-        testKitId: body.testTypeId,
-        testDate: new Date(),
-      });
+      const rapidTestId = await this.mobileTestService.createPendingTest(
+        userId,
+        body.testTypeId,
+      );
 
-      return { success: true };
+      return { success: true, rapidTestId };
     } catch (error) {
       return {
         success: false,
@@ -344,6 +356,7 @@ export class MobileController {
     @Body()
     body: {
       testTypeId: string;
+      rapidTestId?: string;
       rawData?: number[];
       deviceSerial?: string;
       measurementTimestamp?: number;
@@ -415,19 +428,32 @@ export class MobileController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('media'))
   async addRapidTestPhoto(
-    @Headers('x-auth-token') token: string,
+    @Request() req: any,
     @UploadedFile() file: any,
-    @Body() body: { fileExtension: string },
+    @Body() body: { fileExtension: string; rapidTestId?: string },
   ): Promise<MediaResponse> {
     try {
-      const user = await this.authService.validateToken(token);
-      if (!user) {
+      const userId = req?.user?.sub;
+      if (!userId) {
         return { success: false, error: 'Invalid token' };
       }
 
-      // Upload file
       const uploadResult = await this.fileUploadService.uploadFile(file, 'photos');
-      
+      if (!uploadResult.success || !uploadResult.objectName) {
+        return {
+          success: false,
+          error: uploadResult.validation || 'Failed to upload photo',
+        };
+      }
+
+      if (body.rapidTestId) {
+        await this.mobileTestService.attachPhoto(
+          userId,
+          body.rapidTestId,
+          uploadResult.objectName,
+        );
+      }
+
       return {
         success: true,
         objectName: uploadResult.objectName,
@@ -444,19 +470,32 @@ export class MobileController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('media'))
   async addRapidTestVideo(
-    @Headers('x-auth-token') token: string,
+    @Request() req: any,
     @UploadedFile() file: any,
-    @Body() body: { fileExtension: string },
+    @Body() body: { fileExtension: string; rapidTestId?: string },
   ): Promise<MediaResponse> {
     try {
-      const user = await this.authService.validateToken(token);
-      if (!user) {
+      const userId = req?.user?.sub;
+      if (!userId) {
         return { success: false, error: 'Invalid token' };
       }
 
-      // Upload file
       const uploadResult = await this.fileUploadService.uploadFile(file, 'videos');
-      
+      if (!uploadResult.success || !uploadResult.objectName) {
+        return {
+          success: false,
+          error: uploadResult.validation || 'Failed to upload video',
+        };
+      }
+
+      if (body.rapidTestId) {
+        await this.mobileTestService.attachVideo(
+          userId,
+          body.rapidTestId,
+          uploadResult.objectName,
+        );
+      }
+
       return {
         success: true,
         objectName: uploadResult.objectName,
@@ -473,19 +512,33 @@ export class MobileController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('media'))
   async addIdentificationPhoto(
-    @Headers('x-auth-token') token: string,
+    @Request() req: any,
     @UploadedFile() file: any,
-    @Body() body: { fileExtension: string; type: string },
+    @Body() body: { fileExtension: string; type: string; rapidTestId?: string },
   ): Promise<MediaResponse> {
     try {
-      const user = await this.authService.validateToken(token);
-      if (!user) {
+      const userId = req?.user?.sub;
+      if (!userId) {
         return { success: false, error: 'Invalid token' };
       }
 
-      // Upload file
       const uploadResult = await this.fileUploadService.uploadFile(file, 'identification');
-      
+      if (!uploadResult.success || !uploadResult.objectName) {
+        return {
+          success: false,
+          error: uploadResult.validation || 'Failed to upload identification photo',
+        };
+      }
+
+      if (body.rapidTestId) {
+        await this.mobileTestService.attachIdentificationPhoto(
+          userId,
+          body.rapidTestId,
+          uploadResult.objectName,
+          body.type,
+        );
+      }
+
       return {
         success: true,
         objectName: uploadResult.objectName,
@@ -504,8 +557,7 @@ export class MobileController {
     try {
       return {
         success: true,
-        cwa: true,
-        cwaLaive: true,
+        online: true,
       };
     } catch (error) {
       return {
@@ -938,6 +990,218 @@ export class MobileController {
       return {
         success: false,
         error: error.message || 'Failed to update payment',
+      };
+    }
+  }
+
+  @Post('finalize-test-submission')
+  @UseGuards(JwtAuthGuard)
+  async finalizeTestSubmission(
+    @Request() req: any,
+    @Body() body: { rapidTestId: string; agreementGiven: boolean },
+  ): Promise<FinalizeTestResponse> {
+    try {
+      const userId = req?.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+
+      const rapidTest = await this.mobileTestService.finalizeSubmission(
+        userId,
+        body.rapidTestId,
+        body.agreementGiven,
+      );
+      return { success: true, rapidTest };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to finalize test submission',
+      };
+    }
+  }
+
+  @Post('list-certificates')
+  @UseGuards(JwtAuthGuard)
+  async listCertificates(@Request() req: any) {
+    try {
+      const userId = req?.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+      const certificates = await this.mobileCertificateService.listForUser(userId);
+      return { success: true, certificates };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to list certificates',
+      };
+    }
+  }
+
+  @Post('get-certificate')
+  @UseGuards(JwtAuthGuard)
+  async getCertificate(
+    @Request() req: any,
+    @Body() body: { certificateId: string },
+  ) {
+    try {
+      const userId = req?.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+      const certificate = await this.mobileCertificateService.getForUser(
+        userId,
+        body.certificateId,
+      );
+      return { success: true, certificate };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to get certificate',
+      };
+    }
+  }
+
+  @Post('get-certificate-pdf')
+  @UseGuards(JwtAuthGuard)
+  async getCertificatePdf(
+    @Request() req: any,
+    @Body() body: { certificateId: string },
+  ) {
+    try {
+      const userId = req?.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+      const pdfBuffer = await this.mobileCertificateService.getPdfBufferForUser(
+        userId,
+        body.certificateId,
+      );
+      return {
+        success: true,
+        pdfBase64: pdfBuffer.toString('base64'),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to get certificate PDF',
+      };
+    }
+  }
+
+  @Post('list-payments')
+  @UseGuards(JwtAuthGuard)
+  async listPayments(@Request() req: any) {
+    try {
+      const userId = req?.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+      const payments = await this.mobilePaymentService.listByUserId(userId);
+      return { success: true, payments };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to list payments',
+      };
+    }
+  }
+
+  @Post('list-notifications')
+  @UseGuards(JwtAuthGuard)
+  async listNotifications(@Request() req: any) {
+    try {
+      const userId = req?.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+      const notifications = await this.mobileNotificationService.listForUser(userId);
+      return { success: true, notifications };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to list notifications',
+      };
+    }
+  }
+
+  @Post('get-unread-notification-count')
+  @UseGuards(JwtAuthGuard)
+  async getUnreadNotificationCount(@Request() req: any) {
+    try {
+      const userId = req?.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+      const count = await this.mobileNotificationService.getUnreadCount(userId);
+      return { success: true, count };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to get notification count',
+      };
+    }
+  }
+
+  @Post('mark-notification-read')
+  @UseGuards(JwtAuthGuard)
+  async markNotificationRead(
+    @Request() req: any,
+    @Body() body: { notificationId: string },
+  ) {
+    try {
+      const userId = req?.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+      const notification = await this.mobileNotificationService.markRead(
+        userId,
+        body.notificationId,
+      );
+      return { success: true, notification };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to mark notification read',
+      };
+    }
+  }
+
+  @Post('mark-all-notifications-read')
+  @UseGuards(JwtAuthGuard)
+  async markAllNotificationsRead(@Request() req: any) {
+    try {
+      const userId = req?.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+      await this.mobileNotificationService.markAllRead(userId);
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to mark notifications read',
+      };
+    }
+  }
+
+  @Post('register-push-token')
+  @UseGuards(JwtAuthGuard)
+  async registerPushToken(
+    @Request() req: any,
+    @Body() body: { pushToken: string },
+  ) {
+    try {
+      const userId = req?.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+      await this.mobileNotificationService.registerPushToken(userId, body.pushToken);
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Failed to register push token',
       };
     }
   }

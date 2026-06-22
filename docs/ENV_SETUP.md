@@ -36,9 +36,14 @@ APP_URL=http://localhost:4000
 # PAYPAL_CLIENT_ID=
 # PAYPAL_CLIENT_SECRET=
 # PAYPAL_MODE=sandbox
+
+# Optional: push notifications (FCM)
+# FIREBASE_SERVICE_ACCOUNT_JSON={"type":"service_account",...}
 ```
 
 `JWT_SECRET` is **required** — the server refuses to start without it.
+
+Push delivery is optional: without `FIREBASE_SERVICE_ACCOUNT_JSON`, the backend stores in-app notifications and logs push skips.
 
 ## Flutter App Environment Variables
 
@@ -52,9 +57,23 @@ API_BASE_URL=http://<windows-lan-ip>:4000   # Physical phone on same Wi-Fi
 
 # Stripe (mobile / native targets)
 STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
+
+# Optional: Firebase Cloud Messaging (native Android/iOS only)
+# FIREBASE_ENABLED=true
 ```
 
 After any `.env` change, rebuild the app (`flutter run` or `flutter clean && flutter run`). Hot reload does not refresh bundled env values.
+
+### Optional push notifications (FCM)
+
+In-app notifications work without Firebase. For device push alerts:
+
+1. Create a Firebase project and add an Android app with your `applicationId`.
+2. Download `google-services.json` into `frontend/mobile/hdx_mobile/android/app/` (do **not** commit this file).
+3. Set `FIREBASE_ENABLED=true` in `.env` and rebuild.
+4. On the backend, set `FIREBASE_SERVICE_ACCOUNT_JSON` to the service account JSON (single line or file path via your deploy env).
+
+The app calls `register-push-token` when FCM returns a token. Without Firebase config, push registration is skipped.
 
 ## Cube Android integration
 

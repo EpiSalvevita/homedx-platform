@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
 import '../models/user_test_result.dart';
 import '../services/api_service.dart';
-import '../services/cube_service.dart';
 import '../services/test_service.dart';
 import '../widgets/figma_ui.dart';
-import 'test_result_screen.dart';
 
 class TestResultsScreen extends StatefulWidget {
   const TestResultsScreen({super.key});
@@ -53,22 +52,9 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
   }
 
   void _openResultDetail(UserTestResult item) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => TestResultScreen(
-          testTypeName: item.displayTestName,
-          testTypeId: item.testTypeId,
-          testDate: item.testDate,
-          result: CubeTestResult(
-            success: true,
-            testId: item.id,
-            result: item.result,
-            resultData: item.resultData
-                .map(CubeResultData.fromJson)
-                .toList(),
-          ),
-        ),
-      ),
+    context.push(
+      '/results/detail',
+      extra: item,
     );
   }
 

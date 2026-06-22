@@ -24,7 +24,15 @@ import '../screens/checkout_screen.dart';
 import '../screens/product_details_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/test_results_screen.dart';
+import '../screens/test_submission_screen.dart';
+import '../screens/certificates_list_screen.dart';
+import '../screens/certificate_detail_screen.dart';
+import '../screens/payments_history_screen.dart';
+import '../screens/notifications_screen.dart';
 import '../models/product.dart';
+import '../models/user_test_result.dart';
+import '../services/cube_service.dart';
+import '../screens/test_result_screen.dart';
 import '../providers/auth_provider.dart';
 import 'auth_routes.dart';
 
@@ -126,9 +134,28 @@ class AppRouter {
             final testTypeId = state.pathParameters['testTypeId'] ?? '';
             final testTypeName =
                 state.uri.queryParameters['testTypeName'] ?? 'Test';
+            final rapidTestId = state.uri.queryParameters['rapidTestId'];
             return TestBluetoothCheckScreen(
               testTypeId: testTypeId,
               testTypeName: testTypeName,
+              rapidTestId: rapidTestId,
+            );
+          },
+        ),
+        GoRoute(
+          path: '/tests/:testTypeId/submission',
+          name: 'test-submission',
+          builder: (context, state) {
+            final testTypeId = state.pathParameters['testTypeId'] ?? '';
+            final testTypeName =
+                state.uri.queryParameters['testTypeName'] ?? 'Test';
+            final rapidTestId = state.uri.queryParameters['rapidTestId'] ?? '';
+            return TestSubmissionScreen(
+              testTypeId: testTypeId,
+              testTypeName: testTypeName,
+              rapidTestId: rapidTestId,
+              cubeResult: state.uri.queryParameters['cubeResult'],
+              certificateId: state.uri.queryParameters['certificateId'],
             );
           },
         ),
@@ -253,6 +280,54 @@ class AppRouter {
           path: '/results',
           name: 'results',
           builder: (context, state) => const TestResultsScreen(),
+          routes: [
+            GoRoute(
+              path: 'detail',
+              name: 'result-detail',
+              builder: (context, state) {
+                final item = state.extra as UserTestResult?;
+                if (item == null) {
+                  return const TestResultsScreen();
+                }
+                return TestResultScreen(
+                  testTypeName: item.displayTestName,
+                  testTypeId: item.testTypeId,
+                  testDate: item.testDate,
+                  result: CubeTestResult(
+                    success: true,
+                    testId: item.id,
+                    result: item.result,
+                    resultData: item.resultData
+                        .map(CubeResultData.fromJson)
+                        .toList(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+        GoRoute(
+          path: '/certificates',
+          name: 'certificates',
+          builder: (context, state) => const CertificatesListScreen(),
+        ),
+        GoRoute(
+          path: '/certificates/:certificateId',
+          name: 'certificate-detail',
+          builder: (context, state) {
+            final id = state.pathParameters['certificateId'] ?? '';
+            return CertificateDetailScreen(certificateId: id);
+          },
+        ),
+        GoRoute(
+          path: '/payments',
+          name: 'payments',
+          builder: (context, state) => const PaymentsHistoryScreen(),
+        ),
+        GoRoute(
+          path: '/notifications',
+          name: 'notifications',
+          builder: (context, state) => const NotificationsScreen(),
         ),
       ],
     );

@@ -28,6 +28,10 @@ import { AppointmentService } from './services/appointment.service';
 import { VideoService } from './services/video.service';
 import { CubeService } from './services/cube.service';
 import { MobilePaymentService } from './services/mobile-payment.service';
+import { MobileTestService } from './services/mobile-test.service';
+import { MobileCertificateService } from './services/mobile-certificate.service';
+import { MobileNotificationService } from './services/mobile-notification.service';
+import { PushService } from './services/push.service';
 
 @Module({
   imports: [
@@ -61,6 +65,10 @@ import { MobilePaymentService } from './services/mobile-payment.service';
     VideoService,
     CubeService,
     MobilePaymentService,
+    MobileTestService,
+    MobileCertificateService,
+    MobileNotificationService,
+    PushService,
     JwtStrategy,
     JwtAuthGuard,
     RolesGuard,

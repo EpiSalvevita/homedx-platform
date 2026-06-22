@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'config/stripe_init.dart';
+import 'config/push_init.dart';
 import 'config/app_theme.dart';
 import 'config/app_router.dart';
 import 'services/api_service.dart';
@@ -13,6 +14,8 @@ import 'providers/auth_provider.dart';
 import 'providers/bluetooth_provider.dart';
 import 'providers/cart_provider.dart';
 import 'providers/locale_provider.dart';
+import 'services/notification_service.dart';
+import 'providers/notification_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +32,8 @@ Future<void> main() async {
   final apiService = ApiService();
   final authService = AuthService(apiService);
   final paymentService = PaymentService(apiService);
+  final notificationService = NotificationService(apiService);
+  final notificationProvider = NotificationProvider(notificationService);
   final authProvider = AuthProvider(authService);
   final bluetoothProvider = BluetoothProvider();
   final cartProvider = CartProvider();
@@ -39,6 +44,10 @@ Future<void> main() async {
 
   await authProvider.initialize();
 
+  if (!kIsWeb && authProvider.isAuthenticated) {
+    await initPush(notificationService);
+  }
+
   runApp(
     MyApp(
       localeProvider: localeProvider,
@@ -48,6 +57,7 @@ Future<void> main() async {
       apiService: apiService,
       authService: authService,
       paymentService: paymentService,
+      notificationProvider: notificationProvider,
     ),
   );
 }
@@ -60,6 +70,7 @@ class MyApp extends StatelessWidget {
   final ApiService apiService;
   final AuthService authService;
   final PaymentService paymentService;
+  final NotificationProvider notificationProvider;
 
   const MyApp({
     super.key,
@@ -70,6 +81,7 @@ class MyApp extends StatelessWidget {
     required this.apiService,
     required this.authService,
     required this.paymentService,
+    required this.notificationProvider,
   });
 
   @override
@@ -80,6 +92,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: bluetoothProvider),
         ChangeNotifierProvider.value(value: cartProvider),
         ChangeNotifierProvider.value(value: localeProvider),
+        ChangeNotifierProvider.value(value: notificationProvider),
         Provider<ApiService>.value(value: apiService),
         Provider<AuthService>.value(value: authService),
         Provider<PaymentService>.value(value: paymentService),

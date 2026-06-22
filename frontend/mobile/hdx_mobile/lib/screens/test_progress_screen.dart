@@ -7,7 +7,6 @@ import '../services/cube_service.dart';
 import '../utils/constants.dart';
 import '../utils/cube_test_config_assets.dart';
 import '../widgets/neumorphic.dart';
-import 'test_result_screen.dart';
 
 /// Full-screen step-by-step measurement progress.
 ///
@@ -34,12 +33,14 @@ class TestProgressScreen extends StatefulWidget {
 
   /// Android `content://` or `file://` when the picker exposes a Uri rather than a path.
   final String? cubeConfigUri;
+  final String? rapidTestId;
 
   const TestProgressScreen({
     super.key,
     required this.cubeService,
     required this.testTypeId,
     required this.testTypeName,
+    this.rapidTestId,
     this.useTimer = true,
     this.cubeConfigAbsolutePath,
     this.cubeConfigUri,
@@ -121,6 +122,7 @@ class _TestProgressScreenState extends State<TestProgressScreen>
 
     final result = await widget.cubeService.runTestAndSubmit(
       testTypeId: widget.testTypeId,
+      rapidTestId: widget.rapidTestId,
       useTimer: widget.useTimer,
       configAssetName: configAssetName,
       configAbsolutePath: widget.cubeConfigAbsolutePath,
@@ -150,14 +152,15 @@ class _TestProgressScreenState extends State<TestProgressScreen>
     );
 
     if (result.success) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => TestResultScreen(
-            testTypeName: widget.testTypeName,
-            result: result,
-            testTypeId: widget.testTypeId,
-          ),
-        ),
+      final rapidTestId = widget.rapidTestId ?? result.testId ?? '';
+      final query = Uri(queryParameters: {
+        'testTypeName': widget.testTypeName,
+        'rapidTestId': rapidTestId,
+        if (result.result != null) 'cubeResult': result.result!,
+        if (result.certificateId != null) 'certificateId': result.certificateId!,
+      }).query;
+      context.pushReplacement(
+        '/tests/${widget.testTypeId}/submission?$query',
       );
     } else {
       setState(() {

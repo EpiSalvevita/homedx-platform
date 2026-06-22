@@ -18,11 +18,13 @@ import 'test_progress_screen.dart';
 class TestBluetoothCheckScreen extends StatefulWidget {
   final String testTypeId;
   final String testTypeName;
+  final String? rapidTestId;
 
   const TestBluetoothCheckScreen({
     super.key,
     required this.testTypeId,
     required this.testTypeName,
+    this.rapidTestId,
   });
 
   @override
@@ -103,6 +105,7 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
           cubeService: _cubeService,
           testTypeId: widget.testTypeId,
           testTypeName: widget.testTypeName,
+          rapidTestId: widget.rapidTestId,
           useTimer: AppConstants.cubeUseTimer,
           cubeConfigAbsolutePath: _cubeConfigAbsolutePath,
         ),

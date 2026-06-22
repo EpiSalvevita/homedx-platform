@@ -17,6 +17,9 @@ import { DoctorService } from '../src/services/doctor.service';
 import { AppointmentService } from '../src/services/appointment.service';
 import { CubeService } from '../src/services/cube.service';
 import { MobilePaymentService } from '../src/services/mobile-payment.service';
+import { MobileTestService } from '../src/services/mobile-test.service';
+import { MobileCertificateService } from '../src/services/mobile-certificate.service';
+import { MobileNotificationService } from '../src/services/mobile-notification.service';
 import { PrismaService } from '../src/services/prisma.service';
 
 const BASE = '/gg-homedx-json/gg-api/v1';
@@ -54,6 +57,9 @@ async function buildApp(): Promise<INestApplication> {
       { provide: DoctorService, useValue: {} },
       { provide: AppointmentService, useValue: {} },
       { provide: MobilePaymentService, useValue: mobilePaymentService },
+      { provide: MobileTestService, useValue: {} },
+      { provide: MobileCertificateService, useValue: { issueForRapidTest: jest.fn() } },
+      { provide: MobileNotificationService, useValue: { notifyUser: jest.fn() } },
       { provide: JwtService, useValue: {} },
     ],
   })
@@ -121,6 +127,9 @@ describe('Mobile payment REST (e2e)', () => {
         { provide: DoctorService, useValue: {} },
         { provide: AppointmentService, useValue: {} },
         { provide: MobilePaymentService, useValue: {} },
+        { provide: MobileTestService, useValue: {} },
+        { provide: MobileCertificateService, useValue: {} },
+        { provide: MobileNotificationService, useValue: {} },
         { provide: JwtService, useValue: {} },
       ],
     })
