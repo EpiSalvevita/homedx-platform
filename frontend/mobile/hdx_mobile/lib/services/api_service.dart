@@ -208,13 +208,13 @@ class ApiService {
     List<Map<String, dynamic>>? resultData,
   }) async {
     final authPresent = _authToken != null && _authToken!.isNotEmpty;
-    developer.log(
-      'POST submit-cube-data testTypeId=$testTypeId deviceSerial=$deviceSerial '
-      'result=$result resultDataCount=${resultData?.length ?? 0} ts=$measurementTimestamp '
-      'rawLen=${rawData?.length ?? 0} hasAuth=$authPresent baseUrl=$baseUrl',
-      name: 'HDX_CUBE_API',
-    );
-    if (AppConstants.cubeVerboseLogging && resultData != null && resultData.isNotEmpty) {
+    if (!kReleaseMode) {
+      developer.log(
+        'POST submit-cube-data testTypeId=$testTypeId hasAuth=$authPresent',
+        name: 'HDX_CUBE_API',
+      );
+    }
+    if (!kReleaseMode && AppConstants.cubeVerboseLogging && resultData != null && resultData.isNotEmpty) {
       final n = resultData.length;
       for (var i = 0; i < n && i < 16; i++) {
         developer.log(
@@ -243,16 +243,20 @@ class ApiService {
         },
         includeAuth: true,
       );
-      developer.log('submit-cube-data OK: $map', name: 'HDX_CUBE_API');
+      if (!kReleaseMode) {
+        developer.log('submit-cube-data OK', name: 'HDX_CUBE_API');
+      }
       return map;
     } catch (e, st) {
-      developer.log(
-        'submit-cube-data FAILED: $e',
-        name: 'HDX_CUBE_API',
-        error: e,
-        stackTrace: st,
-        level: 1000,
-      );
+      if (!kReleaseMode) {
+        developer.log(
+          'submit-cube-data FAILED: $e',
+          name: 'HDX_CUBE_API',
+          error: e,
+          stackTrace: st,
+          level: 1000,
+        );
+      }
       rethrow;
     }
   }

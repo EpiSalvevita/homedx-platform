@@ -62,7 +62,7 @@ export class LicenseService {
   }
 
   async create(data: any) {
-    console.log('CreateLicenseInput received:', JSON.stringify(data, null, 2));
+    // License input validated via DTO before reaching this service.
     const license = await this.prisma.license.create({
       data: {
         userId: data.userId,

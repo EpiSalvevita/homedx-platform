@@ -12,6 +12,7 @@ import type { RawBodyRequest } from '@nestjs/common';
 import type { Request } from 'express';
 import { Public } from '../auth/public.decorator';
 import { StripeService } from '../services/stripe.service';
+import { PayPalService } from '../services/paypal.service';
 import { MobilePaymentService } from '../services/mobile-payment.service';
 import Stripe from 'stripe';
 
@@ -22,6 +23,7 @@ export class WebhooksController {
 
   constructor(
     private readonly stripeService: StripeService,
+    private readonly paypalService: PayPalService,
     private readonly mobilePaymentService: MobilePaymentService,
   ) {}
 
@@ -57,9 +59,19 @@ export class WebhooksController {
   @Public()
   @Post('paypal')
   @HttpCode(200)
-  async handlePayPalWebhook(@Req() req: Request): Promise<{ received: boolean }> {
-    const eventType = req.body?.event_type as string | undefined;
-    const resource = req.body?.resource;
+  async handlePayPalWebhook(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string | undefined>,
+  ): Promise<{ received: boolean }> {
+    const body = req.body as Record<string, unknown>;
+    const verified = await this.paypalService.verifyWebhookSignature(headers, body);
+    if (!verified) {
+      this.logger.warn('PayPal webhook rejected: invalid signature');
+      throw new BadRequestException('Invalid PayPal webhook signature');
+    }
+
+    const eventType = body?.event_type as string | undefined;
+    const resource = body?.resource as Record<string, unknown> | undefined;
     const orderId = resource?.id as string | undefined;
 
     if (eventType === 'CHECKOUT.ORDER.APPROVED' && orderId) {

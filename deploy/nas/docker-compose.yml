@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-homedx}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-homedx}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-homedx}
     volumes:
       - homedx_pgdata:/var/lib/postgresql/data
@@ -27,9 +27,9 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-homedx}:${POSTGRES_PASSWORD:-homedx}@postgres:5432/${POSTGRES_DB:-homedx}?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER:-homedx}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-homedx}?schema=public
       PORT: "4000"
-      HOMEDX_SEED_DOCTORS: ${HOMEDX_SEED_DOCTORS:-true}
+      HOMEDX_SEED_DOCTORS: ${HOMEDX_SEED_DOCTORS:-false}
     ports:
       - "${BACKEND_PORT:-4000}:4000"
 

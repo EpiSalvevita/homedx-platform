@@ -37,9 +37,9 @@ async function buildApp(): Promise<INestApplication> {
     createPayment: jest.fn(async (_userId: string, body: Record<string, unknown>) => ({
       id: 'pay-1',
       userId: TEST_USER_ID,
-      amount: body.amount,
-      currency: body.currency,
-      method: body.paymentMethod,
+      amount: 24.99,
+      currency: 'EUR',
+      method: body.paymentMethod ?? 'CREDIT_CARD',
       status: 'PENDING',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -94,15 +94,13 @@ describe('Mobile payment REST (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post(`${BASE}/create-payment`)
       .send({
-        amount: 49.99,
-        currency: 'EUR',
         paymentMethod: 'CREDIT_CARD',
       })
       .expect(201);
 
     expect(response.body.success).toBe(true);
     expect(response.body.payment.id).toBe('pay-1');
-    expect(response.body.payment.amount).toBe(49.99);
+    expect(response.body.payment.amount).toBe(24.99);
   });
 
   it('POST get-payment-amount returns pricing', async () => {
@@ -150,8 +148,6 @@ describe('Mobile payment REST (e2e)', () => {
     const response = await request(unauthApp.getHttpServer())
       .post(`${BASE}/create-payment`)
       .send({
-        amount: 10,
-        currency: 'EUR',
         paymentMethod: 'PAYPAL',
       })
       .expect(401);

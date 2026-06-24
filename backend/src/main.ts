@@ -6,7 +6,13 @@ import { configureApp } from './config/app.bootstrap';
 async function bootstrap() {
   validateEnvironment();
 
-  const app = await NestFactory.create(AppModule, { rawBody: true });
+  const app = await NestFactory.create(AppModule, {
+    rawBody: true,
+    bodyParser: {
+      json: { limit: '2mb' },
+      urlencoded: { limit: '2mb', extended: true },
+    },
+  });
   configureApp(app);
 
   const port = parseInt(process.env.PORT || '4000', 10);

@@ -12,6 +12,10 @@ backend.pid
 backend.log
 frontend/flutter.log
 frontend/flutter.pid
+*.log
+
+# User uploads (PHI — never commit)
+backend/uploads/
 
 # Environment
 .env

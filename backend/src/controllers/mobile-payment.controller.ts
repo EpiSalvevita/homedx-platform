@@ -2,8 +2,10 @@ import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { MobilePaymentService } from '../services/mobile-payment.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
+  CapturePayPalOrderDto,
   CreatePaymentDto,
   PayPalOrderDto,
+  PaymentIdDto,
   StripeIntentDto,
   UpdatePaymentDto,
 } from '../dto/mobile/payment.dto';
@@ -49,6 +51,24 @@ export class MobilePaymentController {
     }
   }
 
+  @Post('get-payment')
+  @UseGuards(JwtAuthGuard)
+  async getPayment(
+    @Request() req: { user?: { sub: string } },
+    @Body() body: PaymentIdDto,
+  ): Promise<PaymentRecordResponse> {
+    try {
+      const userId = req.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+      const payment = await this.mobilePaymentService.getPayment(userId, body.paymentId);
+      return { success: true, payment };
+    } catch (error) {
+      return sanitizeMobileError(error, 'Failed to get payment');
+    }
+  }
+
   @Post('create-stripe-payment-intent')
   @UseGuards(JwtAuthGuard)
   async createStripePaymentIntent(
@@ -67,6 +87,24 @@ export class MobilePaymentController {
     }
   }
 
+  @Post('confirm-stripe-payment')
+  @UseGuards(JwtAuthGuard)
+  async confirmStripePayment(
+    @Request() req: { user?: { sub: string } },
+    @Body() body: PaymentIdDto,
+  ): Promise<PaymentRecordResponse> {
+    try {
+      const userId = req.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+      const payment = await this.mobilePaymentService.confirmStripePayment(userId, body.paymentId);
+      return { success: true, payment };
+    } catch (error) {
+      return sanitizeMobileError(error, 'Failed to confirm Stripe payment');
+    }
+  }
+
   @Post('create-paypal-order')
   @UseGuards(JwtAuthGuard)
   async createPayPalOrder(
@@ -82,6 +120,28 @@ export class MobilePaymentController {
       return { success: true, ...result };
     } catch (error) {
       return sanitizeMobileError(error, 'Failed to create PayPal order');
+    }
+  }
+
+  @Post('capture-paypal-order')
+  @UseGuards(JwtAuthGuard)
+  async capturePayPalOrder(
+    @Request() req: { user?: { sub: string } },
+    @Body() body: CapturePayPalOrderDto,
+  ): Promise<PaymentRecordResponse> {
+    try {
+      const userId = req.user?.sub;
+      if (!userId) {
+        return { success: false, error: 'Invalid token' };
+      }
+      const payment = await this.mobilePaymentService.capturePayPalOrder(
+        userId,
+        body.paymentId,
+        body.paypalOrderId,
+      );
+      return { success: true, payment };
+    } catch (error) {
+      return sanitizeMobileError(error, 'Failed to capture PayPal order');
     }
   }
 

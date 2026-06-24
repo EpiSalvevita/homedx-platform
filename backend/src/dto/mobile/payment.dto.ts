@@ -1,49 +1,26 @@
-import { IsNumber, IsOptional, IsString, Min, MinLength } from 'class-validator';
+import { IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreatePaymentDto {
-  @IsNumber()
-  @Min(0)
-  amount: number;
-
-  @IsString()
-  @MinLength(1)
-  currency: string;
-
-  @IsString()
-  @MinLength(1)
-  paymentMethod: string;
-
   @IsOptional()
   @IsString()
   rapidTestId?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  paymentMethod?: string;
 }
 
 export class StripeIntentDto {
   @IsString()
   @MinLength(1)
   paymentId: string;
-
-  @IsNumber()
-  @Min(0)
-  amount: number;
-
-  @IsString()
-  @MinLength(1)
-  currency: string;
 }
 
 export class PayPalOrderDto {
   @IsOptional()
   @IsString()
   paymentId?: string;
-
-  @IsNumber()
-  @Min(0)
-  amount: number;
-
-  @IsString()
-  @MinLength(1)
-  currency: string;
 
   @IsOptional()
   @IsString()
@@ -54,18 +31,26 @@ export class PayPalOrderDto {
   cancelUrl?: string;
 }
 
-export class UpdatePaymentDto {
+export class PaymentIdDto {
+  @IsString()
+  @MinLength(1)
+  paymentId: string;
+}
+
+export class CapturePayPalOrderDto {
   @IsString()
   @MinLength(1)
   paymentId: string;
 
   @IsOptional()
   @IsString()
-  transactionId?: string;
+  paypalOrderId?: string;
+}
 
-  @IsOptional()
+export class UpdatePaymentDto {
   @IsString()
-  status?: string;
+  @MinLength(1)
+  paymentId: string;
 
   @IsOptional()
   @IsString()

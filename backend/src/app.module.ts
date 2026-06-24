@@ -54,6 +54,7 @@ const isTestEnv = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID 
     ]),
     MulterModule.register({
       dest: './uploads',
+      limits: { fileSize: 10 * 1024 * 1024 },
     }),
     JwtModule.register({
       secret: getJwtSecret(),

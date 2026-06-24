@@ -8,6 +8,13 @@ export function validateEnvironment(): void {
       'JWT_SECRET environment variable is required. Set it in backend/.env or your deployment environment.',
     );
   }
+
+  const isProd = process.env.NODE_ENV === 'production';
+  if (isProd && !process.env.CORS_ORIGINS?.trim()) {
+    throw new Error(
+      'CORS_ORIGINS is required in production. Set an explicit allowlist of origins.',
+    );
+  }
 }
 
 export function getJwtSecret(): string {

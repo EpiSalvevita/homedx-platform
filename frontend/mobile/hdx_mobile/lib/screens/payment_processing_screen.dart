@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
-import '../services/payment_service.dart';
 import 'credit_card_payment_screen.dart';
 import 'paypal_payment_screen.dart';
 import 'sepa_payment_screen.dart';
@@ -17,7 +16,7 @@ class PaymentProcessingScreen extends StatelessWidget {
   final PaymentMethod paymentMethod;
   final double amount;
   final String currency;
-  final String paymentId; // Payment ID from backend
+  final String paymentId;
 
   const PaymentProcessingScreen({
     super.key,
@@ -30,7 +29,6 @@ class PaymentProcessingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
-    final paymentService = Provider.of<PaymentService>(context);
 
     switch (paymentMethod) {
       case PaymentMethod.creditCard:
@@ -38,9 +36,7 @@ class PaymentProcessingScreen extends StatelessWidget {
           amount: amount,
           currency: currency,
           paymentId: paymentId,
-          onPaymentComplete: (transactionId) async {
-            // Update payment status to COMPLETED
-            await _completePayment(context, paymentService, paymentId, transactionId);
+          onPaymentComplete: () async {
             cartProvider.clear();
             if (!context.mounted) return;
             Navigator.of(context).pushAndRemoveUntil(
@@ -70,9 +66,7 @@ class PaymentProcessingScreen extends StatelessWidget {
           amount: amount,
           currency: currency,
           paymentId: paymentId,
-          onPaymentComplete: (transactionId) async {
-            // Update payment status to COMPLETED
-            await _completePayment(context, paymentService, paymentId, transactionId);
+          onPaymentComplete: () async {
             cartProvider.clear();
             if (!context.mounted) return;
             Navigator.of(context).pushAndRemoveUntil(
@@ -112,7 +106,6 @@ class PaymentProcessingScreen extends StatelessWidget {
           currency: currency,
           paymentId: paymentId,
           onPaymentComplete: () async {
-            // SEPA payments are marked as PENDING (awaiting bank transfer)
             cartProvider.clear();
             if (!context.mounted) return;
             Navigator.of(context).pushAndRemoveUntil(
@@ -134,26 +127,4 @@ class PaymentProcessingScreen extends StatelessWidget {
         );
     }
   }
-
-  Future<void> _completePayment(
-    BuildContext context,
-    PaymentService paymentService,
-    String paymentId,
-    String transactionId,
-  ) async {
-    try {
-      // Update payment with transaction ID and status
-      await paymentService.updatePayment(
-        paymentId: paymentId,
-        transactionId: transactionId,
-        status: 'COMPLETED',
-      );
-
-      debugPrint('Payment updated successfully: $paymentId');
-    } catch (e) {
-      debugPrint('Error updating payment: $e');
-      // Don't show error to user as payment was already processed
-    }
-  }
 }
-

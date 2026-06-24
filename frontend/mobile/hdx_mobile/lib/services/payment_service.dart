@@ -7,17 +7,16 @@ class PaymentService {
 
   Future<Map<String, dynamic>> createPayment({
     required String userId,
-    required double amount,
-    required String currency,
     required String paymentMethod,
-    required List<dynamic> items,
     String? rapidTestId,
+    // Legacy params kept for call-site compatibility; server computes amount.
+    double? amount,
+    String? currency,
+    List<dynamic>? items,
   }) async {
     final response = await _api.post(
       'create-payment',
       body: {
-        'amount': amount,
-        'currency': currency,
         'paymentMethod': paymentMethod,
         if (rapidTestId != null) 'rapidTestId': rapidTestId,
       },
@@ -25,6 +24,19 @@ class PaymentService {
 
     if (response['success'] != true) {
       throw Exception(response['error']?.toString() ?? 'Payment creation failed');
+    }
+
+    return Map<String, dynamic>.from(response['payment'] as Map);
+  }
+
+  Future<Map<String, dynamic>> getPayment(String paymentId) async {
+    final response = await _api.post(
+      'get-payment',
+      body: {'paymentId': paymentId},
+    );
+
+    if (response['success'] != true) {
+      throw Exception(response['error']?.toString() ?? 'Failed to get payment');
     }
 
     return Map<String, dynamic>.from(response['payment'] as Map);
@@ -60,15 +72,11 @@ class PaymentService {
 
   Future<String> createStripePaymentIntent({
     required String paymentId,
-    required double amount,
-    required String currency,
   }) async {
     final response = await _api.post(
       'create-stripe-payment-intent',
       body: {
         'paymentId': paymentId,
-        'amount': amount,
-        'currency': currency,
       },
     );
 
@@ -81,18 +89,32 @@ class PaymentService {
     return response['clientSecret'] as String;
   }
 
+  Future<Map<String, dynamic>> confirmStripePayment({
+    required String paymentId,
+  }) async {
+    final response = await _api.post(
+      'confirm-stripe-payment',
+      body: {'paymentId': paymentId},
+    );
+
+    if (response['success'] != true) {
+      throw Exception(response['error']?.toString() ?? 'Failed to confirm payment');
+    }
+
+    return Map<String, dynamic>.from(response['payment'] as Map);
+  }
+
   Future<Map<String, String>> createPayPalOrder({
-    required double amount,
-    required String currency,
     String? paymentId,
     String? returnUrl,
     String? cancelUrl,
+    // Legacy — server uses payment record amount when paymentId is set.
+    double? amount,
+    String? currency,
   }) async {
     final response = await _api.post(
       'create-paypal-order',
       body: {
-        'amount': amount,
-        'currency': currency,
         if (paymentId != null) 'paymentId': paymentId,
         if (returnUrl != null) 'returnUrl': returnUrl,
         if (cancelUrl != null) 'cancelUrl': cancelUrl,
@@ -111,28 +133,41 @@ class PaymentService {
     };
   }
 
-  Future<Map<String, dynamic>> updatePayment({
+  Future<Map<String, dynamic>> capturePayPalOrder({
     required String paymentId,
-    String? transactionId,
-    String? status,
-    String? paymentIntentId,
     String? paypalOrderId,
   }) async {
     final response = await _api.post(
-      'update-payment',
+      'capture-paypal-order',
       body: {
         'paymentId': paymentId,
-        if (transactionId != null) 'transactionId': transactionId,
-        if (status != null) 'status': status,
-        if (paymentIntentId != null) 'paymentIntentId': paymentIntentId,
         if (paypalOrderId != null) 'paypalOrderId': paypalOrderId,
       },
     );
 
     if (response['success'] != true) {
-      throw Exception(response['error']?.toString() ?? 'Failed to update payment');
+      throw Exception(response['error']?.toString() ?? 'Failed to capture PayPal order');
     }
 
     return Map<String, dynamic>.from(response['payment'] as Map);
+  }
+
+  Future<Map<String, dynamic>> waitForPaymentCompleted(
+    String paymentId, {
+    int maxAttempts = 30,
+    Duration interval = const Duration(seconds: 2),
+  }) async {
+    for (var i = 0; i < maxAttempts; i++) {
+      final payment = await getPayment(paymentId);
+      final status = payment['status']?.toString();
+      if (status == 'COMPLETED') {
+        return payment;
+      }
+      if (status == 'FAILED') {
+        throw Exception('Payment failed');
+      }
+      await Future.delayed(interval);
+    }
+    throw Exception('Payment confirmation timed out');
   }
 }

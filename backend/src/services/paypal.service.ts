@@ -156,5 +156,90 @@ export class PayPalService {
       throw new Error(`Failed to get PayPal order: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
-}
 
+  /**
+   * Verify PayPal webhook signature via REST API.
+   */
+  async verifyWebhookSignature(
+    headers: Record<string, string | undefined>,
+    body: Record<string, unknown>,
+  ): Promise<boolean> {
+    const webhookId = process.env.PAYPAL_WEBHOOK_ID;
+    if (!webhookId) {
+      console.warn('PAYPAL_WEBHOOK_ID not set — rejecting PayPal webhook');
+      return false;
+    }
+
+    const transmissionId = headers['paypal-transmission-id'];
+    const transmissionTime = headers['paypal-transmission-time'];
+    const transmissionSig = headers['paypal-transmission-sig'];
+    const certUrl = headers['paypal-cert-url'];
+    const authAlgo = headers['paypal-auth-algo'];
+
+    if (!transmissionId || !transmissionTime || !transmissionSig || !certUrl || !authAlgo) {
+      return false;
+    }
+
+    const accessToken = await this.getAccessToken();
+    if (!accessToken) {
+      return false;
+    }
+
+    const mode = process.env.PAYPAL_MODE || 'sandbox';
+    const baseUrl =
+      mode === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+
+    const response = await fetch(`${baseUrl}/v1/notifications/verify-webhook-signature`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        auth_algo: authAlgo,
+        cert_url: certUrl,
+        transmission_id: transmissionId,
+        transmission_sig: transmissionSig,
+        transmission_time: transmissionTime,
+        webhook_id: webhookId,
+        webhook_event: body,
+      }),
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const result = (await response.json()) as { verification_status?: string };
+    return result.verification_status === 'SUCCESS';
+  }
+
+  private async getAccessToken(): Promise<string | null> {
+    const clientId = process.env.PAYPAL_CLIENT_ID;
+    const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
+    if (!clientId || !clientSecret) {
+      return null;
+    }
+
+    const mode = process.env.PAYPAL_MODE || 'sandbox';
+    const baseUrl =
+      mode === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+
+    const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${credentials}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'grant_type=client_credentials',
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = (await response.json()) as { access_token?: string };
+    return data.access_token ?? null;
+  }
+}

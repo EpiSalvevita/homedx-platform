@@ -55,19 +55,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       final payment = await paymentService.createPayment(
         userId: userId,
-        amount: totalAmount,
-        currency: 'EUR',
         paymentMethod: _methodBackend(_selectedPaymentMethod),
-        items: cartProvider.items,
       );
+
+      final paymentAmount = (payment['amount'] as num?)?.toDouble() ?? totalAmount;
 
       if (mounted) {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) => PaymentProcessingScreen(
               paymentMethod: _selectedPaymentMethod,
-              amount: totalAmount,
-              currency: 'EUR',
+              amount: paymentAmount,
+              currency: payment['currency']?.toString() ?? 'EUR',
               paymentId: payment['id'],
             ),
           ),

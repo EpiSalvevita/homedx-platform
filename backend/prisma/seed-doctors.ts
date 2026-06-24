@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -65,7 +66,10 @@ const defaultAvailability = [
 ];
 
 async function main() {
-  const password = await bcrypt.hash('Doctor123!', 10);
+  const seedPassword = process.env.SEED_DOCTOR_PASSWORD?.trim();
+  const password = seedPassword
+    ? await bcrypt.hash(seedPassword, 12)
+    : await bcrypt.hash(crypto.randomBytes(24).toString('hex'), 12);
 
   for (const doc of doctors) {
     const user = await prisma.user.upsert({
@@ -115,7 +119,7 @@ async function main() {
       });
     }
 
-    console.log(`Seeded doctor: ${doc.email} (password: Doctor123!)`);
+    console.log(`Seeded doctor: ${doc.email}`);
   }
 }
 

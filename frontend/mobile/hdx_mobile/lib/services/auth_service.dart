@@ -1,3 +1,4 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/constants.dart';
 import 'api_service.dart';
@@ -5,6 +6,9 @@ import 'api_service.dart';
 class AuthService {
   final ApiService _apiService;
   SharedPreferences? _prefs;
+  static const _secureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
 
   AuthService(this._apiService);
 
@@ -13,28 +17,45 @@ class AuthService {
   }
 
   Future<String?> getStoredToken() async {
+    final secureToken = await _secureStorage.read(key: AppConstants.keyAuthToken);
+    if (secureToken != null) {
+      return secureToken;
+    }
+
     await _initPrefs();
-    return _prefs?.getString(AppConstants.keyAuthToken);
+    final legacyToken = _prefs?.getString(AppConstants.keyAuthToken);
+    if (legacyToken != null) {
+      await _storeToken(legacyToken);
+      return legacyToken;
+    }
+    return null;
   }
 
   Future<String?> getStoredUserId() async {
+    final secure = await _secureStorage.read(key: AppConstants.keyUserId);
+    if (secure != null) return secure;
     await _initPrefs();
     return _prefs?.getString(AppConstants.keyUserId);
   }
 
   Future<String?> getStoredUserEmail() async {
+    final secure = await _secureStorage.read(key: AppConstants.keyUserEmail);
+    if (secure != null) return secure;
     await _initPrefs();
     return _prefs?.getString(AppConstants.keyUserEmail);
   }
 
   Future<String?> getStoredUserRole() async {
+    final secure = await _secureStorage.read(key: AppConstants.keyUserRole);
+    if (secure != null) return secure;
     await _initPrefs();
     return _prefs?.getString(AppConstants.keyUserRole);
   }
 
   Future<void> _storeToken(String token) async {
+    await _secureStorage.write(key: AppConstants.keyAuthToken, value: token);
     await _initPrefs();
-    await _prefs?.setString(AppConstants.keyAuthToken, token);
+    await _prefs?.remove(AppConstants.keyAuthToken);
     _apiService.setAuthToken(token);
   }
 
@@ -43,15 +64,24 @@ class AuthService {
     String email, {
     String? role,
   }) async {
-    await _initPrefs();
-    await _prefs?.setString(AppConstants.keyUserId, userId);
-    await _prefs?.setString(AppConstants.keyUserEmail, email);
+    await _secureStorage.write(key: AppConstants.keyUserId, value: userId);
+    await _secureStorage.write(key: AppConstants.keyUserEmail, value: email);
     if (role != null) {
-      await _prefs?.setString(AppConstants.keyUserRole, role);
+      await _secureStorage.write(key: AppConstants.keyUserRole, value: role);
     }
+
+    await _initPrefs();
+    await _prefs?.remove(AppConstants.keyUserId);
+    await _prefs?.remove(AppConstants.keyUserEmail);
+    await _prefs?.remove(AppConstants.keyUserRole);
   }
 
   Future<void> _clearStoredData() async {
+    await _secureStorage.delete(key: AppConstants.keyAuthToken);
+    await _secureStorage.delete(key: AppConstants.keyUserId);
+    await _secureStorage.delete(key: AppConstants.keyUserEmail);
+    await _secureStorage.delete(key: AppConstants.keyUserRole);
+
     await _initPrefs();
     await _prefs?.remove(AppConstants.keyAuthToken);
     await _prefs?.remove(AppConstants.keyUserId);
@@ -74,8 +104,7 @@ class AuthService {
       if (response['success'] == true && response['token'] != null) {
         final token = response['token'] as String;
         await _storeToken(token);
-        
-        // Try to get user data to store user info
+
         try {
           _apiService.setAuthToken(token);
           final userDataResponse = await _apiService.post('/get-user-data');
@@ -88,7 +117,6 @@ class AuthService {
             );
           }
         } catch (_) {
-          // If we can't get user data, just store email
           await _storeUserData('', email);
         }
 
@@ -194,4 +222,3 @@ class RegisterResult {
   RegisterResult.failure(this.error)
       : success = false;
 }
-

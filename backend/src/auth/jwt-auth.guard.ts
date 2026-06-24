@@ -8,12 +8,14 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { getJwtSecret } from '../config/env.config';
 import { IS_PUBLIC_KEY } from './public.decorator';
+import { PrismaService } from '../services/prisma.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private reflector: Reflector,
+    private prisma: PrismaService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -35,10 +37,24 @@ export class JwtAuthGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: getJwtSecret(),
+        algorithms: ['HS256'],
       });
-      request.user = payload;
+
+      const user = await this.prisma.user.findUnique({
+        where: { id: payload.sub as string },
+        select: { id: true, status: true, role: true, email: true },
+      });
+
+      if (!user || user.status !== 'ACTIVE') {
+        throw new UnauthorizedException('User account is not active');
+      }
+
+      request.user = { ...payload, role: user.role, email: user.email };
       return true;
-    } catch {
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
       throw new UnauthorizedException('Invalid token');
     }
   }
