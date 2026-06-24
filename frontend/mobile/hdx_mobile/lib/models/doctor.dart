@@ -109,7 +109,7 @@ class Appointment {
       type: json['type'] as String? ?? 'online',
       notes: json['notes'] as String?,
       testTypeId: json['testTypeId'] as String?,
-      status: json['status'] as String? ?? 'confirmed',
+      status: (json['status'] as String? ?? 'confirmed').toLowerCase().trim(),
       durationMin: json['durationMin'] as int? ?? 30,
       canJoin: json['canJoin'] as bool? ?? false,
       videoRoomUrl: json['videoRoomUrl'] as String?,
@@ -119,6 +119,24 @@ class Appointment {
   bool get isOnline => type == 'online';
   bool get isUpcoming =>
       status == 'confirmed' || status == 'pending';
+
+  /// German UI label for appointment status (API values stay English).
+  String get statusLabelDe {
+    switch (status.toLowerCase()) {
+      case 'confirmed':
+        return 'Bestätigt';
+      case 'pending':
+        return 'Ausstehend';
+      case 'cancelled':
+        return 'Storniert';
+      case 'completed':
+        return 'Abgeschlossen';
+      case 'no_show':
+        return 'Nicht erschienen';
+      default:
+        return status;
+    }
+  }
 }
 
 class DoctorAvailabilityRule {

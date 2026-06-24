@@ -12,6 +12,8 @@ class AppTheme {
 
   /// Light fill for icon chips and highlights (harmonized with [accentBlue]).
   static const Color primaryLight = Color(0xFFE4E9FB);
+  /// Slightly recessed fill for inverted inset info cards (reads clearly on web).
+  static const Color insetWellFill = Color(0xFFEBEBEB);
 
   static const Color background = surface;
   static const Color cardColor = Colors.white;
@@ -95,7 +97,10 @@ class AppTheme {
 
   /// Figma info banner (`50:709`): 392×44, radius 14.
   static const double infoBannerHeight = 44;
+  static const double infoInsetCardHeight = 72;
+  static const EdgeInsets infoInsetCardPadding = EdgeInsets.symmetric(horizontal: 22, vertical: 14);
   static const double infoBannerHorizontalPadding = 22;
+  static const double infoInsetCardSpacing = 12;
 
   /// Figma test result cards (`50:661`): 392×136, radius 14, raised shadows only.
   static const double testResultCardHeight = 136;

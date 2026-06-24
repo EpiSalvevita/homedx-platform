@@ -5,6 +5,7 @@ import '../models/doctor.dart';
 import '../services/api_service.dart';
 import '../services/doctor_service.dart';
 import '../utils/test_specialization_mapping.dart';
+import '../widgets/web/adaptive_screen.dart';
 
 class DoctorSelectionScreen extends StatefulWidget {
   /// When set, the doctor list is pre-filtered to specialists matching the
@@ -87,46 +88,40 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Wählen Sie einen Arzt'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-          tooltip: 'Zurück',
-        ),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            if (widget.testTypeId != null && widget.testTypeId!.isNotEmpty)
-              _buildTestContextBanner(context),
-            // Search Bar
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Arzt oder Fachrichtung suchen...',
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[100],
+    return AdaptiveScreen(
+      title: 'Wählen Sie einen Arzt',
+      onBack: () {
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go('/home');
+        }
+      },
+      body: Column(
+        children: [
+          if (widget.testTypeId != null && widget.testTypeId!.isNotEmpty)
+            _buildTestContextBanner(context),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Arzt oder Fachrichtung suchen...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
-                  });
-                },
+                filled: true,
+                fillColor: Colors.grey[100],
               ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
             ),
-            // Doctor List
-            Expanded(
-              child: _buildBody(),
-            ),
-          ],
-        ),
+          ),
+          Expanded(child: _buildBody()),
+        ],
       ),
     );
   }

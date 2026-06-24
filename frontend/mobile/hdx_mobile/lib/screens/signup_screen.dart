@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../config/app_theme.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/figma_ui.dart';
+import '../widgets/web/adaptive_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -57,8 +58,9 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FigmaScreen(
-      header: FigmaBackHeader(title: 'Registrieren', onBack: () => context.go('/login')),
+    return AdaptiveScreen(
+      title: 'Registrieren',
+      onBack: () => context.go('/login'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
         child: Form(

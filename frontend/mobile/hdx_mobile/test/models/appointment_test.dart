@@ -36,5 +36,19 @@ void main() {
 
       expect(appointment.isUpcoming, isFalse);
     });
+
+    test('statusLabelDe maps API status to German', () {
+      expect(
+        Appointment.fromJson({
+          'id': 'a',
+          'doctorId': 'd',
+          'doctorName': 'Dr.',
+          'appointmentTime': '2026-06-05T10:00:00.000Z',
+          'type': 'online',
+          'status': 'confirmed',
+        }).statusLabelDe,
+        'Bestätigt',
+      );
+    });
   });
 }

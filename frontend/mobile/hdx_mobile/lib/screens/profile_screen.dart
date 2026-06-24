@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +7,7 @@ import '../services/user_service.dart' show UserData, UserService;
 import '../services/api_service.dart';
 import '../services/cube_service.dart';
 import '../widgets/figma_ui.dart';
+import '../widgets/web/adaptive_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -40,7 +42,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _loadUserData();
-    _loadCubeSdkInfo();
+    if (!kIsWeb) {
+      _loadCubeSdkInfo();
+    } else {
+      _cubeSdkInfoLoading = false;
+    }
   }
 
   Future<void> _loadCubeSdkInfo() async {
@@ -136,153 +142,290 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FigmaScreen(
-      header: FigmaBackHeader(
-        title: 'Profil',
-        actions: [
-          if (!_isLoading && _userData != null)
-            IconButton(
-              icon: _isSaving
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.textColor))
-                  : const Icon(Icons.save_outlined, color: AppTheme.textColor),
-              onPressed: _isSaving ? null : _saveUserData,
-            ),
-        ],
-      ),
+    return AdaptiveScreen(
+      title: 'Profil',
+      showBackOnMobile: false,
+      onBack: () => context.go('/home'),
+      actions: [
+        if (!_isLoading && _userData != null)
+          IconButton(
+            icon: _isSaving
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.textColor))
+                : const Icon(Icons.save_outlined, color: AppTheme.textColor),
+            onPressed: _isSaving ? null : _saveUserData,
+          ),
+      ],
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(AppTheme.screenHorizontalPadding, 8, AppTheme.screenHorizontalPadding, 0),
-            child: _buildCubeSdkCard(),
-          ),
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null && _userData == null
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text('Fehler beim Laden des Profils', style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500)),
-                              const SizedBox(height: 16),
-                              NeumorphicPillButton(label: 'Erneut versuchen', height: 52, onPressed: _loadUserData),
-                            ],
-                          ),
-                        ),
-                      )
-                    : SingleChildScrollView(
-                        padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(24),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.surface,
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: AppTheme.neumorphicRaised,
-                                ),
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      width: 82,
-                                      height: 82,
-                                      decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(16)),
-                                      child: const Icon(Icons.person_outline, size: 32, color: AppTheme.primaryBlue),
-                                    ),
-                                    const SizedBox(height: 14),
-                                    Text(
-                                      '${_userData?.firstName ?? ''} ${_userData?.lastName ?? ''}',
-                                      style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w500, color: AppTheme.textColor),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(_userData?.email ?? '', style: FigmaUi.rubik(fontSize: 12, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary)),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: AppTheme.fieldSpacing),
-                              NeumorphicInsetField(controller: _firstNameController, label: 'Vorname', prefixIcon: Icons.person_outline, validator: (v) => (v == null || v.isEmpty) ? 'Vorname ist erforderlich' : null),
-                              SizedBox(height: AppTheme.fieldSpacing),
-                              NeumorphicInsetField(controller: _lastNameController, label: 'Nachname', prefixIcon: Icons.person_outline, validator: (v) => (v == null || v.isEmpty) ? 'Nachname ist erforderlich' : null),
-                              SizedBox(height: AppTheme.fieldSpacing),
-                              NeumorphicInsetField(controller: _emailController, label: 'E-mail', prefixIcon: Icons.mail_outline, keyboardType: TextInputType.emailAddress, validator: (v) => (v == null || v.isEmpty) ? 'E-mail ist erforderlich' : null),
-                              SizedBox(height: AppTheme.fieldSpacing),
-                              NeumorphicInsetField(controller: _phoneController, label: 'Handynummer', prefixIcon: Icons.phone_outlined, keyboardType: TextInputType.phone),
-                              SizedBox(height: AppTheme.fieldSpacing),
-                              NeumorphicInsetField(controller: _cityController, label: 'Stadt', prefixIcon: Icons.location_city_outlined),
-                              SizedBox(height: AppTheme.fieldSpacing),
-                              NeumorphicInsetField(controller: _countryController, label: 'Land', prefixIcon: Icons.public),
-                              const SizedBox(height: 24),
-                              NeumorphicPillButton(
-                                label: 'Zahlungsverlauf',
-                                height: 48,
-                                onPressed: () => context.push('/payments'),
-                              ),
-                              const SizedBox(height: 16),
-                              NeumorphicPillButton(label: 'Änderungen speichern', loading: _isSaving, onPressed: _isSaving ? null : _saveUserData),
-                              const SizedBox(height: 16),
-                            ],
-                          ),
-                        ),
-                      ),
-          ),
+          Expanded(child: _buildBody()),
         ],
       ),
     );
   }
 
-  Widget _buildCubeSdkCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.neumorphicRaised,
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error != null && _userData == null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Fehler beim Laden des Profils', style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500)),
+              const SizedBox(height: 16),
+              NeumorphicPillButton(label: 'Erneut versuchen', height: 52, onPressed: _loadUserData),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      padding: kIsWeb ? const EdgeInsets.fromLTRB(24, 0, 24, 24) : const EdgeInsets.all(AppTheme.screenHorizontalPadding),
+      child: Form(
+        key: _formKey,
+        child: kIsWeb ? _buildWebForm() : _buildMobileForm(),
       ),
-      child: _cubeSdkInfoLoading
-          ? const Row(
-              children: [
-                SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2)),
-                SizedBox(width: 12),
-                Text('Cube-SDK wird geprüft…'),
-              ],
+    );
+  }
+
+  Widget _buildProfileSummary() {
+    final name = '${_userData?.firstName ?? ''} ${_userData?.lastName ?? ''}'.trim();
+    final email = _userData?.email ?? '';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (name.isNotEmpty)
+          Text(
+            name,
+            style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+          ),
+        if (email.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          Text(
+            email,
+            style: FigmaUi.rubik(fontSize: 12, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _profileField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
+    return ProfileInsetField(
+      controller: controller,
+      label: label,
+      icon: icon,
+      keyboardType: keyboardType,
+      validator: validator,
+    );
+  }
+
+  Widget _profileFieldSpacer() => const SizedBox(height: AppTheme.infoInsetCardSpacing);
+
+  Widget _buildSaveTile() {
+    return FigmaInsetInfoCard(
+      icon: Icons.save_outlined,
+      title: 'Änderungen speichern',
+      trailing: _isSaving
+          ? const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryBlue),
             )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Cube-Gerät (SDK)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
-                const SizedBox(height: 8),
-                Text(
-                  _cubeSdkVersion.isEmpty ? 'Version: —' : 'Version: $_cubeSdkVersion',
-                  style: TextStyle(fontSize: 14, color: AppTheme.textColorSecondary),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(
-                      _cubeLicenseValid == true ? Icons.check_circle : Icons.warning_amber_rounded,
-                      size: 20,
-                      color: _cubeLicenseValid == true ? AppTheme.successColor : AppTheme.errorColor,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _cubeLicenseValid == true
-                            ? 'Bundled-Lizenz: gültig (laut SDK)'
-                            : 'Bundled-Lizenz: ungültig oder abgelaufen — neue cube_license.dat vom Anbieter einspielen und App neu bauen.',
-                        style: const TextStyle(fontSize: 14, color: AppTheme.textColor),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+          : null,
+      onTap: _isSaving ? null : _saveUserData,
+    );
+  }
+
+  Widget _buildMobileForm() {
+    return Column(
+      children: [
+        if (!kIsWeb) ...[
+          _buildCubeSdkCard(),
+          _profileFieldSpacer(),
+        ],
+        _buildProfileSummary(),
+        _profileFieldSpacer(),
+        _profileField(
+          controller: _firstNameController,
+          label: 'Vorname',
+          icon: Icons.person_outline,
+          validator: (v) => (v == null || v.isEmpty) ? 'Vorname ist erforderlich' : null,
+        ),
+        _profileFieldSpacer(),
+        _profileField(
+          controller: _lastNameController,
+          label: 'Nachname',
+          icon: Icons.person_outline,
+          validator: (v) => (v == null || v.isEmpty) ? 'Nachname ist erforderlich' : null,
+        ),
+        _profileFieldSpacer(),
+        _profileField(
+          controller: _emailController,
+          label: 'E-mail',
+          icon: Icons.mail_outline,
+          keyboardType: TextInputType.emailAddress,
+          validator: (v) => (v == null || v.isEmpty) ? 'E-mail ist erforderlich' : null,
+        ),
+        _profileFieldSpacer(),
+        _profileField(
+          controller: _phoneController,
+          label: 'Handynummer',
+          icon: Icons.phone_outlined,
+          keyboardType: TextInputType.phone,
+        ),
+        _profileFieldSpacer(),
+        _profileField(controller: _cityController, label: 'Stadt', icon: Icons.location_city_outlined),
+        _profileFieldSpacer(),
+        _profileField(controller: _countryController, label: 'Land', icon: Icons.public),
+        const SizedBox(height: 16),
+        FigmaInsetInfoCard(
+          icon: Icons.payment_outlined,
+          title: 'Zahlungsverlauf',
+          subtitle: 'Zahlungen und Belege anzeigen',
+          onTap: () => context.push('/payments'),
+        ),
+        _profileFieldSpacer(),
+        _buildSaveTile(),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildWebForm() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final twoCol = constraints.maxWidth >= 640;
+        Widget field(Widget w) => Padding(padding: const EdgeInsets.only(bottom: AppTheme.infoInsetCardSpacing), child: w);
+
+        final left = Column(
+          children: [
+            field(_profileField(
+              controller: _firstNameController,
+              label: 'Vorname',
+              icon: Icons.person_outline,
+              validator: (v) => (v == null || v.isEmpty) ? 'Vorname ist erforderlich' : null,
+            )),
+            field(_profileField(
+              controller: _lastNameController,
+              label: 'Nachname',
+              icon: Icons.person_outline,
+              validator: (v) => (v == null || v.isEmpty) ? 'Nachname ist erforderlich' : null,
+            )),
+            field(_profileField(
+              controller: _emailController,
+              label: 'E-mail',
+              icon: Icons.mail_outline,
+              keyboardType: TextInputType.emailAddress,
+              validator: (v) => (v == null || v.isEmpty) ? 'E-mail ist erforderlich' : null,
+            )),
+            field(_profileField(
+              controller: _phoneController,
+              label: 'Handynummer',
+              icon: Icons.phone_outlined,
+              keyboardType: TextInputType.phone,
+            )),
+          ],
+        );
+
+        final right = Column(
+          children: [
+            field(_profileField(controller: _cityController, label: 'Stadt', icon: Icons.location_city_outlined)),
+            field(_profileField(controller: _countryController, label: 'Land', icon: Icons.public)),
+            field(_profileField(controller: _addressController, label: 'Adresse', icon: Icons.home_outlined)),
+            field(_profileField(controller: _postcodeController, label: 'PLZ', icon: Icons.markunread_mailbox_outlined)),
+          ],
+        );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildProfileSummary(),
+            const SizedBox(height: AppTheme.infoInsetCardSpacing),
+            if (twoCol)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: left),
+                  const SizedBox(width: 24),
+                  Expanded(child: right),
+                ],
+              )
+            else
+              Column(children: [left, right]),
+            const SizedBox(height: 8),
+            FigmaInsetInfoCard(
+              icon: Icons.payment_outlined,
+              title: 'Zahlungsverlauf',
+              subtitle: 'Zahlungen und Belege anzeigen',
+              onTap: () => context.push('/payments'),
             ),
+            const SizedBox(height: AppTheme.infoInsetCardSpacing),
+            _buildSaveTile(),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCubeSdkCard() {
+    if (_cubeSdkInfoLoading) {
+      return const FigmaInsetInfoCard(
+        icon: Icons.bluetooth_searching,
+        title: 'Cube-Gerät (SDK)',
+        subtitle: 'Cube-SDK wird geprüft…',
+      );
+    }
+
+    final licenseValid = _cubeLicenseValid == true;
+    return FigmaInsetInfoCard(
+      height: 96,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Cube-Gerät (SDK)',
+            style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _cubeSdkVersion.isEmpty ? 'Version: —' : 'Version: $_cubeSdkVersion',
+            style: FigmaUi.rubik(fontSize: 13, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(
+                licenseValid ? Icons.check_circle : Icons.warning_amber_rounded,
+                size: 18,
+                color: licenseValid ? AppTheme.successColor : AppTheme.errorColor,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  licenseValid
+                      ? 'Bundled-Lizenz: gültig (laut SDK)'
+                      : 'Bundled-Lizenz: ungültig oder abgelaufen — neue cube_license.dat vom Anbieter einspielen und App neu bauen.',
+                  style: FigmaUi.rubik(fontSize: 13, fontWeight: FontWeight.w300, color: AppTheme.textColor),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

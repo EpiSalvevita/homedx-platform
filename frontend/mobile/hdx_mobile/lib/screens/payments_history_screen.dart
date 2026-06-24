@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../services/payment_service.dart';
-import '../widgets/figma_ui.dart';
+import '../widgets/web/adaptive_screen.dart';
 
 class PaymentsHistoryScreen extends StatefulWidget {
   const PaymentsHistoryScreen({super.key});
@@ -48,12 +48,10 @@ class _PaymentsHistoryScreenState extends State<PaymentsHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FigmaScreen(
-      header: FigmaBackHeader(
-        title: 'Zahlungen',
-        blueTopBar: true,
-        onBack: () => context.go('/profile'),
-      ),
+    return AdaptiveScreen(
+      title: 'Zahlungen',
+      blueTopBar: true,
+      onBack: () => context.go('/profile'),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null

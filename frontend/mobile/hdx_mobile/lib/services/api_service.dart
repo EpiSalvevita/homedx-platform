@@ -45,6 +45,15 @@ class ApiService {
     return headers;
   }
 
+  String _apiEndpoint(String endpoint) {
+    if (endpoint.startsWith('/')) return endpoint;
+    return '/$endpoint';
+  }
+
+  Uri _apiUri(String endpoint) {
+    return Uri.parse('$baseUrl${AppConstants.apiPath}${_apiEndpoint(endpoint)}');
+  }
+
   Future<Map<String, dynamic>> get(
     String endpoint, {
     Map<String, String>? headers,
@@ -52,7 +61,7 @@ class ApiService {
     bool includeAuth = true,
   }) async {
     try {
-      final uri = Uri.parse('$baseUrl${AppConstants.apiPath}$endpoint').replace(
+      final uri = _apiUri(endpoint).replace(
         queryParameters: queryParameters?.map(
           (key, value) => MapEntry(key, value.toString()),
         ),
@@ -89,7 +98,7 @@ class ApiService {
     bool includeAuth = true,
   }) async {
     try {
-      final uri = Uri.parse('$baseUrl${AppConstants.apiPath}$endpoint');
+      final uri = _apiUri(endpoint);
 
       final response = await http
           .post(
@@ -125,7 +134,7 @@ class ApiService {
     bool includeAuth = true,
   }) async {
     try {
-      final uri = Uri.parse('$baseUrl${AppConstants.apiPath}$endpoint');
+      final uri = _apiUri(endpoint);
       final request = http.MultipartRequest('POST', uri);
       
       // Add headers

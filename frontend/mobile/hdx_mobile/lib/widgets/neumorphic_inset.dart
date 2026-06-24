@@ -12,6 +12,8 @@ class NeumorphicInsetSurface extends StatelessWidget {
   final Alignment alignment;
   final double shadowBand;
   final double highlightBand;
+  final bool invertedInset;
+  final Color? backgroundColor;
 
   const NeumorphicInsetSurface({
     super.key,
@@ -22,19 +24,25 @@ class NeumorphicInsetSurface extends StatelessWidget {
     this.alignment = Alignment.centerLeft,
     this.shadowBand = 14,
     this.highlightBand = 7,
+    this.invertedInset = false,
+    this.backgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final fill = backgroundColor ??
+        (invertedInset ? AppTheme.insetWellFill : AppTheme.background);
+
     return SizedBox(
       height: height,
       width: double.infinity,
       child: CustomPaint(
         painter: _NeumorphicInsetPainter(
           borderRadius: borderRadius,
-          backgroundColor: AppTheme.background,
+          backgroundColor: fill,
           shadowBand: shadowBand,
           highlightBand: highlightBand,
+          invertedInset: invertedInset,
         ),
         child: Padding(
           padding: padding,
@@ -49,7 +57,46 @@ class NeumorphicInsetSurface extends StatelessWidget {
   }
 }
 
-/// Figma home card: raised drop shadow + subtle inset (activity rows, welcome card).
+/// Pure inset card — same footprint as activity rows but without raised drop shadow.
+class NeumorphicInsetCard extends StatelessWidget {
+  final Widget child;
+  final double height;
+  final double borderRadius;
+  final EdgeInsetsGeometry padding;
+  final double shadowBand;
+  final double highlightBand;
+  final bool invertedInset;
+  final Color? backgroundColor;
+
+  const NeumorphicInsetCard({
+    super.key,
+    required this.child,
+    this.height = AppTheme.activityCardHeight,
+    this.borderRadius = AppTheme.activityCardRadius,
+    this.padding = AppTheme.activityCardPadding,
+    this.shadowBand = 7,
+    this.highlightBand = 5,
+    this.invertedInset = false,
+    this.backgroundColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return NeumorphicInsetSurface(
+      height: height,
+      borderRadius: borderRadius,
+      padding: padding,
+      alignment: Alignment.centerLeft,
+      shadowBand: shadowBand,
+      highlightBand: highlightBand,
+      invertedInset: invertedInset,
+      backgroundColor: backgroundColor,
+      child: child,
+    );
+  }
+}
+
+/// Figma home card: raised drop shadow + subtle inset (activity rows).
 class NeumorphicActivityCard extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
@@ -102,17 +149,20 @@ class NeumorphicActivityCard extends StatelessWidget {
 
 class _NeumorphicInsetPainter extends CustomPainter {
   static const Color _insetShadow = Color(0x4D99A6CE);
+  static const Color _insetShadowStrong = Color(0x8099A6CE);
 
   final double borderRadius;
   final Color backgroundColor;
   final double shadowBand;
   final double highlightBand;
+  final bool invertedInset;
 
   _NeumorphicInsetPainter({
     required this.borderRadius,
     required this.backgroundColor,
     this.shadowBand = 14,
     this.highlightBand = 7,
+    this.invertedInset = false,
   });
 
   void _drawEdgeFade(
@@ -133,17 +183,84 @@ class _NeumorphicInsetPainter extends CustomPainter {
     );
   }
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
+  void _drawInnerShadow(
+    Canvas canvas,
+    RRect rrect,
+    Offset offset,
+    Color color,
+    double blurSigma,
+  ) {
+    final outerRect = rrect.outerRect.inflate(blurSigma * 2);
+    final outerRRect = RRect.fromRectAndRadius(
+      outerRect,
+      Radius.circular(rrect.blRadiusX + blurSigma),
+    );
+    final ring = Path()
+      ..fillType = PathFillType.evenOdd
+      ..addRRect(outerRRect)
+      ..addRRect(rrect);
 
-    canvas.drawRRect(rrect, Paint()..color = backgroundColor);
+    canvas.save();
+    canvas.translate(offset.dx, offset.dy);
+    canvas.drawPath(
+      ring,
+      Paint()
+        ..color = color
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, blurSigma),
+    );
+    canvas.restore();
+  }
+
+  void _paintInvertedInset(Canvas canvas, Size size, RRect rrect) {
+    // Mirror of [AppTheme.neumorphicRaised] pushed inward:
+    // inset 4px 4px 10px #99A6CE (top/left shadow), inset -4px -4px 10px #FFFFFF (bottom/right highlight).
+    const blurSigma = 7.0;
+    const offset = 4.0;
+    const shadowBand = 10.0;
+    const highlightBand = 6.0;
 
     canvas.save();
     canvas.clipRRect(rrect);
 
-    // Figma: inset 4px 4px 10px #99A6CE4D — dark inner shadow toward bottom-right.
+    _drawInnerShadow(canvas, rrect, const Offset(offset, offset), _insetShadowStrong, blurSigma);
+    _drawInnerShadow(canvas, rrect, const Offset(-offset, -offset), Colors.white, blurSigma);
+
+    _drawEdgeFade(
+      canvas,
+      Rect.fromLTWH(0, 0, size.width, shadowBand),
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      edgeColor: _insetShadowStrong,
+    );
+    _drawEdgeFade(
+      canvas,
+      Rect.fromLTWH(0, 0, shadowBand, size.height),
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      edgeColor: _insetShadowStrong,
+    );
+    _drawEdgeFade(
+      canvas,
+      Rect.fromLTWH(0, size.height - highlightBand, size.width, highlightBand),
+      begin: Alignment.bottomCenter,
+      end: Alignment.topCenter,
+      edgeColor: Colors.white,
+    );
+    _drawEdgeFade(
+      canvas,
+      Rect.fromLTWH(size.width - highlightBand, 0, highlightBand, size.height),
+      begin: Alignment.centerRight,
+      end: Alignment.centerLeft,
+      edgeColor: Colors.white,
+    );
+
+    canvas.restore();
+  }
+
+  void _paintStandardInset(Canvas canvas, Size size, RRect rrect) {
+    canvas.save();
+    canvas.clipRRect(rrect);
+
     _drawEdgeFade(
       canvas,
       Rect.fromLTWH(0, size.height - shadowBand, size.width, shadowBand),
@@ -158,8 +275,6 @@ class _NeumorphicInsetPainter extends CustomPainter {
       end: Alignment.centerLeft,
       edgeColor: _insetShadow,
     );
-
-    // Figma: inset -4px -4px 4px #FFFFFF — highlight on top/left inner edges.
     _drawEdgeFade(
       canvas,
       Rect.fromLTWH(0, 0, size.width, highlightBand),
@@ -179,11 +294,26 @@ class _NeumorphicInsetPainter extends CustomPainter {
   }
 
   @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
+
+    canvas.drawRRect(rrect, Paint()..color = backgroundColor);
+
+    if (invertedInset) {
+      _paintInvertedInset(canvas, size, rrect);
+    } else {
+      _paintStandardInset(canvas, size, rrect);
+    }
+  }
+
+  @override
   bool shouldRepaint(covariant _NeumorphicInsetPainter oldDelegate) {
     return oldDelegate.borderRadius != borderRadius ||
         oldDelegate.backgroundColor != backgroundColor ||
         oldDelegate.shadowBand != shadowBand ||
-        oldDelegate.highlightBand != highlightBand;
+        oldDelegate.highlightBand != highlightBand ||
+        oldDelegate.invertedInset != invertedInset;
   }
 }
 

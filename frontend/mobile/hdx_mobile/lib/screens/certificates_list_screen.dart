@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/certificate.dart';
 import '../services/api_service.dart';
 import '../services/certificate_service.dart';
-import '../widgets/figma_ui.dart';
+import '../widgets/web/adaptive_screen.dart';
 
 class CertificatesListScreen extends StatefulWidget {
   const CertificatesListScreen({super.key});
@@ -49,12 +49,11 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FigmaScreen(
-      header: FigmaBackHeader(
-        title: 'Zertifikate',
-        blueTopBar: true,
-        onBack: () => context.go('/home'),
-      ),
+    return AdaptiveScreen(
+      title: 'Zertifikate',
+      blueTopBar: true,
+      showBackOnMobile: false,
+      onBack: () => context.go('/home'),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -69,16 +68,20 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                           ],
                         )
                       : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                           itemCount: _items.length,
                           itemBuilder: (context, index) {
                             final c = _items[index];
-                            return ListTile(
-                              title: Text(c.certificateNumber),
-                              subtitle: Text(
-                                '${c.testTypeId ?? 'Test'} · ${c.testResult ?? c.status}',
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                title: Text(c.certificateNumber),
+                                subtitle: Text(
+                                  '${c.testTypeId ?? 'Test'} · ${c.testResult ?? c.status}',
+                                ),
+                                trailing: const Icon(Icons.chevron_right),
+                                onTap: () => context.push('/certificates/${c.id}'),
                               ),
-                              trailing: const Icon(Icons.chevron_right),
-                              onTap: () => context.push('/certificates/${c.id}'),
                             );
                           },
                         ),

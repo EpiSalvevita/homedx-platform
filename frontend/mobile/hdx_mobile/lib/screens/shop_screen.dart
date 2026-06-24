@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +7,8 @@ import '../models/product.dart';
 import '../providers/cart_provider.dart';
 import '../services/shop_service.dart';
 import '../widgets/figma_ui.dart';
+import '../widgets/web/adaptive_screen.dart';
+import '../widgets/web/web_action_chip.dart';
 
 class ShopScreen extends StatefulWidget {
   const ShopScreen({super.key});
@@ -46,11 +49,10 @@ class _ShopScreenState extends State<ShopScreen> {
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
 
-    return FigmaScreen(
-      header: FigmaBackHeader(
-        title: 'Shop',
-        actions: [_CartIconButton(cartProvider: cartProvider)],
-      ),
+    return AdaptiveScreen(
+      title: 'Shop',
+      onBack: () => context.go('/home'),
+      actions: [_CartIconButton(cartProvider: cartProvider)],
       body: Column(
         children: [
           Padding(
@@ -78,6 +80,26 @@ class _ShopScreenState extends State<ShopScreen> {
                       ]))
                     : _filteredProducts.isEmpty
                         ? Center(child: Text('Keine Produkte gefunden', style: FigmaUi.rubik(color: AppTheme.textColor)))
+                        : kIsWeb
+                        ? LayoutBuilder(
+                            builder: (context, constraints) {
+                              final cols = webGridColumnCount(constraints.maxWidth);
+                              return GridView.builder(
+                                padding: const EdgeInsets.all(24),
+                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: cols,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 16,
+                                  childAspectRatio: 0.85,
+                                ),
+                                itemCount: _filteredProducts.length,
+                                itemBuilder: (context, index) => _ProductCard(
+                                  product: _filteredProducts[index],
+                                  cartProvider: cartProvider,
+                                ),
+                              );
+                            },
+                          )
                         : ListView.separated(
                             padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
                             itemCount: _filteredProducts.length,

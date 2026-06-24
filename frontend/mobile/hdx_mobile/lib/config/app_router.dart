@@ -25,8 +25,6 @@ import '../screens/product_details_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/test_results_screen.dart';
 import '../screens/test_submission_screen.dart';
-import '../screens/certificates_list_screen.dart';
-import '../screens/certificate_detail_screen.dart';
 import '../screens/payments_history_screen.dart';
 import '../screens/notifications_screen.dart';
 import '../models/product.dart';
@@ -34,6 +32,7 @@ import '../models/user_test_result.dart';
 import '../services/cube_service.dart';
 import '../screens/test_result_screen.dart';
 import '../providers/auth_provider.dart';
+import '../layout/web_app_shell.dart';
 import 'auth_routes.dart';
 
 class AppRouter {
@@ -73,7 +72,7 @@ class AppRouter {
           }
         }
 
-        if (isLoggedIn && !isDoctor && location.startsWith('/doctor')) {
+        if (isLoggedIn && !isDoctor && location.startsWith('/doctor/')) {
           return '/home';
         }
 
@@ -91,11 +90,6 @@ class AppRouter {
           builder: (context, state) => const AboutScreen(),
         ),
         GoRoute(
-          path: '/home',
-          name: 'home',
-          builder: (context, state) => const HomeScreen(),
-        ),
-        GoRoute(
           path: '/login',
           name: 'login',
           builder: (context, state) => const LoginScreen(),
@@ -105,11 +99,24 @@ class AppRouter {
           name: 'signup',
           builder: (context, state) => const SignupScreen(),
         ),
-        GoRoute(
-          path: '/bluetooth',
-          name: 'bluetooth',
-          builder: (context, state) => const BluetoothConnectionScreen(),
-        ),
+        ShellRoute(
+          builder: (context, state, child) {
+            if (kIsWeb) {
+              return WebAppShell(child: child);
+            }
+            return child;
+          },
+          routes: [
+            GoRoute(
+              path: '/home',
+              name: 'home',
+              builder: (context, state) => const HomeScreen(),
+            ),
+            GoRoute(
+              path: '/bluetooth',
+              name: 'bluetooth',
+              builder: (context, state) => const BluetoothConnectionScreen(),
+            ),
         GoRoute(
           path: '/bluetooth/scan',
           name: 'bluetooth-scan',
@@ -146,6 +153,9 @@ class AppRouter {
           path: '/tests/:testTypeId/submission',
           name: 'test-submission',
           builder: (context, state) {
+            if (kIsWeb) {
+              return const CubeWebStubScreen(title: 'Test einreichen');
+            }
             final testTypeId = state.pathParameters['testTypeId'] ?? '';
             final testTypeName =
                 state.uri.queryParameters['testTypeName'] ?? 'Test';
@@ -155,7 +165,6 @@ class AppRouter {
               testTypeName: testTypeName,
               rapidTestId: rapidTestId,
               cubeResult: state.uri.queryParameters['cubeResult'],
-              certificateId: state.uri.queryParameters['certificateId'],
             );
           },
         ),
@@ -307,27 +316,16 @@ class AppRouter {
           ],
         ),
         GoRoute(
-          path: '/certificates',
-          name: 'certificates',
-          builder: (context, state) => const CertificatesListScreen(),
-        ),
-        GoRoute(
-          path: '/certificates/:certificateId',
-          name: 'certificate-detail',
-          builder: (context, state) {
-            final id = state.pathParameters['certificateId'] ?? '';
-            return CertificateDetailScreen(certificateId: id);
-          },
-        ),
-        GoRoute(
           path: '/payments',
           name: 'payments',
           builder: (context, state) => const PaymentsHistoryScreen(),
         ),
-        GoRoute(
-          path: '/notifications',
-          name: 'notifications',
-          builder: (context, state) => const NotificationsScreen(),
+            GoRoute(
+              path: '/notifications',
+              name: 'notifications',
+              builder: (context, state) => const NotificationsScreen(),
+            ),
+          ],
         ),
       ],
     );

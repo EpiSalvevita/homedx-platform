@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +7,8 @@ import '../models/user_test_result.dart';
 import '../services/api_service.dart';
 import '../services/test_service.dart';
 import '../widgets/figma_ui.dart';
+import '../widgets/web/adaptive_screen.dart';
+import '../widgets/test_result_badge.dart';
 
 class TestResultsScreen extends StatefulWidget {
   const TestResultsScreen({super.key});
@@ -60,8 +63,11 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FigmaScreen(
-      header: FigmaBackHeader(title: 'Testergebnisse', blueTopBar: true),
+    return AdaptiveScreen(
+      title: 'Testergebnisse',
+      blueTopBar: true,
+      showBackOnMobile: false,
+      onBack: () => context.go('/home'),
       body: RefreshIndicator(
         onRefresh: _loadResults,
         child: ListView(
@@ -92,7 +98,9 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
                   child: const Icon(Icons.assignment_outlined, color: AppTheme.primaryBlue),
                 ),
                 title: 'Noch keine Testergebnisse',
-                subtitle: 'Starten Sie einen Test, um Ergebnisse zu sehen.',
+                subtitle: kIsWeb
+                    ? 'Ergebnisse erscheinen hier nach einem Test in der Android-App.'
+                    : 'Starten Sie einen Test, um Ergebnisse zu sehen.',
               )
             else
               ..._results.map((item) => Padding(
@@ -125,6 +133,8 @@ class _ResultCard extends StatelessWidget {
         ? '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}'
         : '';
 
+    final kind = item.resultKind;
+
     return NeumorphicRaisedCard(
       onTap: onTap,
       child: Column(
@@ -136,8 +146,8 @@ class _ResultCard extends StatelessWidget {
                 height: 38,
                 decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
                 child: Icon(
-                  item.isPositive ? Icons.error_outline : Icons.check_circle_outline,
-                  color: item.isPositive ? AppTheme.errorColor : AppTheme.successColor,
+                  TestResultBadge.iconForKind(kind),
+                  color: TestResultBadge.iconColorForKind(kind),
                   size: 20,
                 ),
               ),
@@ -145,7 +155,7 @@ class _ResultCard extends StatelessWidget {
               Expanded(
                 child: Text(item.displayTestName, style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor)),
               ),
-              FigmaResultBadge(label: item.resultLabel, isPositive: item.isPositive),
+              TestResultBadge(result: item),
               const SizedBox(width: 8),
               const Icon(Icons.arrow_forward_ios, size: 14, color: AppTheme.textColorSecondary),
             ],

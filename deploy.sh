@@ -259,6 +259,9 @@ if [ "$START_BACKEND" = true ]; then
         cd ..
         print_status "Backend dependencies installed"
     fi
+
+    print_info "Seeding demo doctors (upsert — safe to re-run)..."
+    (cd backend && npm run seed:doctors) && print_status "Demo doctors ready" || print_info "Doctor seed skipped (check DATABASE_URL / Postgres)"
     
     # Check if backend is already running
     if pgrep -f "npm run start:dev" > /dev/null; then

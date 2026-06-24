@@ -1,11 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../../config/app_theme.dart';
 import '../../models/doctor.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../services/appointment_service.dart';
+import '../../widgets/figma_ui.dart';
+import '../../widgets/web/adaptive_screen.dart';
 
 class DoctorDashboardScreen extends StatefulWidget {
   const DoctorDashboardScreen({super.key});
@@ -56,62 +60,44 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Arzt-Dashboard'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.schedule),
-            tooltip: 'Verfügbarkeit',
-            onPressed: () => context.push('/doctor/availability'),
-          ),
+    return AdaptiveScreen(
+      title: 'Dashboard',
+      showBackOnMobile: false,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.schedule),
+          tooltip: 'Verfügbarkeit',
+          onPressed: () => context.push('/doctor/availability'),
+        ),
+        if (!kIsWeb)
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: _logout,
           ),
-        ],
-      ),
+      ],
       body: RefreshIndicator(
         onRefresh: _loadAppointments,
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                 children: [
-                  const Text(
+                  Text(
                     'Heutige Termine',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor),
                   ),
                   const SizedBox(height: 12),
                   if (_appointments.isEmpty)
-                    const Card(
+                    Card(
                       child: Padding(
-                        padding: EdgeInsets.all(24),
-                        child: Text('Keine Termine für heute'),
+                        padding: const EdgeInsets.all(24),
+                        child: Text('Keine Termine für heute', style: FigmaUi.rubik(color: AppTheme.textColorSecondary)),
                       ),
                     )
+                  else if (kIsWeb)
+                    _buildWebTable()
                   else
-                    ..._appointments.map((a) {
-                      final time =
-                          DateFormat('HH:mm').format(a.appointmentTime);
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        child: ListTile(
-                          title: Text(a.patientName ?? 'Patient'),
-                          subtitle: Text('$time • ${a.status}'),
-                          trailing: a.canJoin
-                              ? IconButton(
-                                  icon: const Icon(Icons.video_call,
-                                      color: Colors.green),
-                                  onPressed: () => context.push(
-                                      '/doctor/appointments/${a.id}/call'),
-                                )
-                              : null,
-                          onTap: () =>
-                              context.push('/doctor/appointments/${a.id}'),
-                        ),
-                      );
-                    }),
+                    ..._appointments.map(_buildMobileTile),
                   const SizedBox(height: 16),
                   OutlinedButton(
                     onPressed: () => context.push('/doctor/appointments'),
@@ -119,6 +105,61 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                   ),
                 ],
               ),
+      ),
+    );
+  }
+
+  Widget _buildWebTable() {
+    return Material(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: AppTheme.navy.withValues(alpha: 0.08)),
+      ),
+      child: DataTable(
+        columns: const [
+          DataColumn(label: Text('Patient')),
+          DataColumn(label: Text('Zeit')),
+          DataColumn(label: Text('Status')),
+          DataColumn(label: Text('Aktion')),
+        ],
+        rows: _appointments.map((a) {
+          final time = DateFormat('HH:mm').format(a.appointmentTime);
+          return DataRow(
+            onSelectChanged: (_) => context.push('/doctor/appointments/${a.id}'),
+            cells: [
+              DataCell(Text(a.patientName ?? 'Patient')),
+              DataCell(Text(time)),
+              DataCell(Text(a.statusLabelDe)),
+              DataCell(
+                a.canJoin
+                    ? IconButton(
+                        icon: const Icon(Icons.video_call, color: Colors.green),
+                        onPressed: () => context.push('/doctor/appointments/${a.id}/call'),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildMobileTile(Appointment a) {
+    final time = DateFormat('HH:mm').format(a.appointmentTime);
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        title: Text(a.patientName ?? 'Patient'),
+        subtitle: Text('$time • ${a.statusLabelDe}'),
+        trailing: a.canJoin
+            ? IconButton(
+                icon: const Icon(Icons.video_call, color: Colors.green),
+                onPressed: () => context.push('/doctor/appointments/${a.id}/call'),
+              )
+            : null,
+        onTap: () => context.push('/doctor/appointments/${a.id}'),
       ),
     );
   }

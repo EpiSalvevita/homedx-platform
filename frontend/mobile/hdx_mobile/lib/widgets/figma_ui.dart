@@ -214,22 +214,194 @@ class FigmaInfoBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NeumorphicActivityCard(
-      height: AppTheme.infoBannerHeight,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppTheme.infoBannerHorizontalPadding),
-        child: Row(
+    return FigmaInsetInfoCard(
+      icon: Icons.info_outline,
+      title: message,
+    );
+  }
+}
+
+/// Inset info row — same inverted neumorphic surface as [FigmaInfoBanner].
+class FigmaInsetInfoCard extends StatelessWidget {
+  final IconData? icon;
+  final String? title;
+  final String? subtitle;
+  final Widget? trailing;
+  final Widget? child;
+  final VoidCallback? onTap;
+  final double? height;
+  final Color? iconColor;
+
+  const FigmaInsetInfoCard({
+    super.key,
+    this.icon,
+    this.title,
+    this.subtitle,
+    this.trailing,
+    this.child,
+    this.onTap,
+    this.height,
+    this.iconColor,
+  });
+
+  double _resolveHeight() {
+    if (height != null) return height!;
+    if (child != null) return AppTheme.activityCardHeight;
+    if (subtitle != null && subtitle!.isNotEmpty) return AppTheme.infoInsetCardHeight;
+    return AppTheme.infoBannerHeight;
+  }
+
+  EdgeInsetsGeometry _resolvePadding() {
+    if (child != null) return AppTheme.activityCardPadding;
+    if (subtitle != null && subtitle!.isNotEmpty) return AppTheme.infoInsetCardPadding;
+    return const EdgeInsets.symmetric(horizontal: AppTheme.infoBannerHorizontalPadding);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final content = child ??
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Icon(Icons.info_outline, color: AppTheme.primaryBlue, size: 21),
-            const SizedBox(width: 12),
+            if (icon != null) ...[
+              Icon(icon, color: iconColor ?? AppTheme.primaryBlue, size: 21),
+              const SizedBox(width: 12),
+            ],
             Expanded(
-              child: Text(
-                message,
-                style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w400, color: AppTheme.textColor),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (title != null)
+                    Text(
+                      title!,
+                      style: FigmaUi.rubik(
+                        fontSize: subtitle != null ? 15 : 14,
+                        fontWeight: FontWeight.w500,
+                        color: AppTheme.textColor,
+                      ),
+                    ),
+                  if (subtitle != null && subtitle!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle!,
+                      style: FigmaUi.rubik(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w300,
+                        color: AppTheme.textColorSecondary,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
+            if (trailing != null) ...[
+              const SizedBox(width: 8),
+              trailing!,
+            ],
           ],
-        ),
+        );
+
+    final card = NeumorphicInsetCard(
+      height: _resolveHeight(),
+      padding: _resolvePadding(),
+      invertedInset: true,
+      backgroundColor: AppTheme.insetWellFill,
+      child: content,
+    );
+
+    if (onTap == null) return card;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: card,
+      ),
+    );
+  }
+}
+
+/// Profile input using the exact same inset tile shell as [FigmaInsetInfoCard].
+class ProfileInsetField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final IconData icon;
+  final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
+  final bool obscureText;
+  final Widget? suffix;
+
+  const ProfileInsetField({
+    super.key,
+    required this.controller,
+    required this.label,
+    required this.icon,
+    this.keyboardType,
+    this.validator,
+    this.obscureText = false,
+    this.suffix,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return NeumorphicInsetCard(
+      height: AppTheme.fieldHeight,
+      padding: AppTheme.infoInsetCardPadding,
+      invertedInset: true,
+      backgroundColor: AppTheme.insetWellFill,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(icon, color: AppTheme.primaryBlue, size: 21),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Theme(
+              data: neumorphicFieldTheme(context),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    label,
+                    style: FigmaUi.rubik(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w300,
+                      color: AppTheme.primaryBlue,
+                    ),
+                  ),
+                  TextFormField(
+                    controller: controller,
+                    obscureText: obscureText,
+                    keyboardType: keyboardType,
+                    validator: validator,
+                    cursorColor: AppTheme.textColor,
+                    style: FigmaUi.rubik(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w300,
+                      color: AppTheme.textColor,
+                      height: 1.2,
+                    ),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      isCollapsed: true,
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      disabledBorder: InputBorder.none,
+                      errorBorder: InputBorder.none,
+                      focusedErrorBorder: InputBorder.none,
+                      suffixIcon: suffix,
+                      suffixIconConstraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                      contentPadding: const EdgeInsets.only(top: 2),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -422,30 +594,74 @@ class LoginHeroBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.only(
-        bottomLeft: Radius.circular(24),
-        bottomRight: Radius.circular(24),
-      ),
-      child: Container(
-        width: double.infinity,
-        height: 412,
-        color: AppTheme.surface,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned(
-              left: 15,
-              bottom: 24,
-              child: Image.asset(AppAssets.loginDoctor, height: 280, fit: BoxFit.contain),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final heroHeight = (width * 0.85).clamp(280.0, 412.0);
+
+        return ClipRRect(
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(24),
+            bottomRight: Radius.circular(24),
+          ),
+          child: SizedBox(
+            width: width,
+            height: heroHeight,
+            child: ColoredBox(
+              color: AppTheme.surface,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned(
+                    left: width * 0.04,
+                    bottom: 24,
+                    child: Image.asset(
+                      AppAssets.loginDoctor,
+                      height: heroHeight * 0.68,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  Positioned(
+                    top: heroHeight * 0.21,
+                    left: width * 0.52,
+                    child: Image.asset(
+                      AppAssets.iconDna,
+                      width: width * 0.18,
+                      height: heroHeight * 0.13,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  Positioned(
+                    top: heroHeight * 0.37,
+                    right: width * 0.18,
+                    child: Image.asset(
+                      AppAssets.iconHeartbeat,
+                      width: width * 0.14,
+                      height: heroHeight * 0.09,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  Positioned(
+                    top: heroHeight * 0.56,
+                    right: width * 0.2,
+                    child: Image.asset(
+                      AppAssets.iconFirstAid,
+                      width: width * 0.15,
+                      height: heroHeight * 0.11,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  Positioned(
+                    right: width * 0.11,
+                    bottom: 24,
+                    child: _loginLogo(),
+                  ),
+                ],
+              ),
             ),
-            Positioned(top: 88, left: 215, child: Image.asset(AppAssets.iconDna, width: 72, height: 52)),
-            Positioned(top: 151, right: 70, child: Image.asset(AppAssets.iconHeartbeat, width: 56, height: 38)),
-            Positioned(top: 233, right: 80, child: Image.asset(AppAssets.iconFirstAid, width: 60, height: 44)),
-            Positioned(right: 45, bottom: 24, child: _loginLogo()),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -460,6 +676,55 @@ class LoginHeroBanner extends StatelessWidget {
   }
 }
 
+/// Raised home surface: #F5F5F5 + dual drop shadow (quick-action tiles, welcome card).
+class FigmaRaisedTapCard extends StatelessWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+  final double borderRadius;
+  final double? height;
+  final bool expandHeight;
+
+  const FigmaRaisedTapCard({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.borderRadius = AppTheme.quickActionCardRadius,
+    this.height,
+    this.expandHeight = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(borderRadius);
+    final card = Container(
+      margin: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: AppTheme.background,
+        borderRadius: radius,
+        boxShadow: AppTheme.neumorphicRaised,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: radius,
+        child: expandHeight
+            ? SizedBox(width: double.infinity, height: double.infinity, child: child)
+            : SizedBox(height: height, width: double.infinity, child: child),
+      ),
+    );
+
+    if (onTap == null) return card;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: card,
+      ),
+    );
+  }
+}
+
 class FigmaWelcomeCard extends StatelessWidget {
   final String name;
   final String email;
@@ -469,21 +734,19 @@ class FigmaWelcomeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NeumorphicActivityCard(
+    return FigmaRaisedTapCard(
       height: AppTheme.welcomeCardHeight,
       onTap: onTap,
       child: Padding(
         padding: AppTheme.welcomeCardPadding,
         child: Row(
           children: [
-            Container(
+            SizedBox(
               width: 82,
               height: 82,
-              decoration: BoxDecoration(
-                color: AppTheme.background,
-                borderRadius: BorderRadius.circular(16),
+              child: Center(
+                child: Icon(Icons.person_outline, size: 48, color: AppTheme.primaryBlue),
               ),
-              child: const Icon(Icons.person_outline, size: 32, color: AppTheme.primaryBlue),
             ),
             const SizedBox(width: 24),
             Expanded(
@@ -574,39 +837,26 @@ class FigmaQuickActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.background,
-        borderRadius: BorderRadius.circular(AppTheme.quickActionCardRadius),
-        boxShadow: AppTheme.neumorphicRaised,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(AppTheme.quickActionCardRadius),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppTheme.quickActionCardRadius),
-          splashFactory: NoSplash.splashFactory,
-          highlightColor: Colors.transparent,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 20, 12, 16),
-            child: Column(
-              children: [
-                Expanded(
-                  child: Center(
-                    child: assetPath != null
-                        ? Image.asset(assetPath!, height: iconHeight, fit: BoxFit.contain)
-                        : Icon(icon!, size: 40, color: AppTheme.primaryBlue),
-                  ),
-                ),
-                Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.textColor),
-                ),
-              ],
+    return FigmaRaisedTapCard(
+      expandHeight: true,
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 20, 12, 16),
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: assetPath != null
+                    ? Image.asset(assetPath!, height: iconHeight, fit: BoxFit.contain)
+                    : Icon(icon!, size: 40, color: AppTheme.primaryBlue),
+              ),
             ),
-          ),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+            ),
+          ],
         ),
       ),
     );
@@ -629,20 +879,17 @@ class FigmaActivityRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NeumorphicActivityCard(
+    return FigmaRaisedTapCard(
+      height: AppTheme.activityCardHeight,
       onTap: onTap,
       child: Padding(
         padding: AppTheme.activityCardPadding,
         child: Row(
           children: [
-            Container(
+            SizedBox(
               width: 38,
               height: 38,
-              decoration: BoxDecoration(
-                color: AppTheme.background,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, size: 22, color: AppTheme.primaryBlue),
+              child: Center(child: Icon(icon, size: 22, color: AppTheme.primaryBlue)),
             ),
             const SizedBox(width: 20),
             Expanded(

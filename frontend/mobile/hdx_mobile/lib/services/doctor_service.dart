@@ -28,8 +28,8 @@ class DoctorService {
         return filtered.isEmpty ? doctors : filtered;
       }
       return [];
-    } catch (_) {
-      return [];
+    } catch (e) {
+      throw Exception('Ärzte konnten nicht geladen werden: $e');
     }
   }
 

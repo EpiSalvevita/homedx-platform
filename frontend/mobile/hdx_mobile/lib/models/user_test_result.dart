@@ -65,19 +65,73 @@ class UserTestResult {
   }
 
   String get resultLabel {
-    switch (result?.toUpperCase()) {
-      case 'POSITIVE':
-        return 'Positiv';
-      case 'NEGATIVE':
-        return 'Negativ';
-      case 'INCONCLUSIVE':
-        return 'Unbestimmt';
-      case 'INVALID':
-        return 'Ungültig';
-      default:
-        return 'Ausstehend';
+    final canonical = _canonicalResult();
+    if (canonical != null) {
+      switch (canonical) {
+        case 'POSITIVE':
+          return 'Positiv';
+        case 'NEGATIVE':
+          return 'Negativ';
+        case 'INCONCLUSIVE':
+          return 'Unbestimmt';
+        case 'INVALID':
+          return 'Ungültig';
+      }
     }
+    return _isAwaitingResult ? 'Ausstehend' : 'Unbestimmt';
   }
 
-  bool get isPositive => result?.toUpperCase() == 'POSITIVE';
+  /// Result category for badge colors (distinct pending vs negative).
+  TestResultKind get resultKind {
+    final canonical = _canonicalResult();
+    if (canonical != null) {
+      switch (canonical) {
+        case 'POSITIVE':
+          return TestResultKind.positive;
+        case 'NEGATIVE':
+          return TestResultKind.negative;
+        case 'INCONCLUSIVE':
+          return TestResultKind.inconclusive;
+        case 'INVALID':
+          return TestResultKind.invalid;
+      }
+    }
+    return _isAwaitingResult ? TestResultKind.pending : TestResultKind.inconclusive;
+  }
+
+  bool get isPositive => resultKind == TestResultKind.positive;
+
+  bool get _isAwaitingResult {
+    final s = status?.trim().toUpperCase();
+    return s == null || s.isEmpty || s == 'PENDING' || s == 'IN_PROGRESS';
+  }
+
+  String? _canonicalResult() {
+    final raw = result?.trim().toUpperCase();
+    if (raw != null && raw.isNotEmpty) {
+      if (raw == 'POS' || raw.startsWith('POS')) return 'POSITIVE';
+      if (raw == 'NEG' || raw.startsWith('NEG')) return 'NEGATIVE';
+      if (raw == 'INCONCLUSIVE') return 'INCONCLUSIVE';
+      if (raw == 'INVALID') return 'INVALID';
+      return raw;
+    }
+
+    for (final row in resultData) {
+      final cls = row['class']?.toString().toUpperCase() ?? '';
+      if (cls.contains('POS')) return 'POSITIVE';
+      if (cls.contains('NEG')) return 'NEGATIVE';
+      if (cls.contains('INCONCLUSIVE')) return 'INCONCLUSIVE';
+      if (cls.contains('INVALID')) return 'INVALID';
+    }
+
+    return null;
+  }
+}
+
+enum TestResultKind {
+  positive,
+  negative,
+  inconclusive,
+  invalid,
+  pending,
 }

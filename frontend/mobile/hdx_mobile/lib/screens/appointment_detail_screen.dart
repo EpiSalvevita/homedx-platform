@@ -157,8 +157,6 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                             : 'Vor-Ort-Termin'),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text('Status: ${appointment.status}'),
                     if (appointment.notes != null &&
                         appointment.notes!.isNotEmpty) ...[
                       const SizedBox(height: 12),
@@ -182,8 +180,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                   ),
                 ),
               ),
-            if (appointment.status == 'confirmed' ||
-                appointment.status == 'pending') ...[
+            if (appointment.isUpcoming) ...[
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,

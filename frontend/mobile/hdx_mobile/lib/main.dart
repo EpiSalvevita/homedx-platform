@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'config/stripe_init.dart';
 import 'config/push_init.dart';
@@ -19,6 +21,10 @@ import 'providers/notification_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (kIsWeb) {
+    usePathUrlStrategy();
+  }
 
   await dotenv.load(fileName: '.env');
 
@@ -62,7 +68,7 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final LocaleProvider localeProvider;
   final AuthProvider authProvider;
   final BluetoothProvider bluetoothProvider;
@@ -85,27 +91,39 @@ class MyApp extends StatelessWidget {
   });
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    _router = AppRouter.createRouter(widget.authProvider);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: authProvider),
-        ChangeNotifierProvider.value(value: bluetoothProvider),
-        ChangeNotifierProvider.value(value: cartProvider),
-        ChangeNotifierProvider.value(value: localeProvider),
-        ChangeNotifierProvider.value(value: notificationProvider),
-        Provider<ApiService>.value(value: apiService),
-        Provider<AuthService>.value(value: authService),
-        Provider<PaymentService>.value(value: paymentService),
+        ChangeNotifierProvider.value(value: widget.authProvider),
+        ChangeNotifierProvider.value(value: widget.bluetoothProvider),
+        ChangeNotifierProvider.value(value: widget.cartProvider),
+        ChangeNotifierProvider.value(value: widget.localeProvider),
+        ChangeNotifierProvider.value(value: widget.notificationProvider),
+        Provider<ApiService>.value(value: widget.apiService),
+        Provider<AuthService>.value(value: widget.authService),
+        Provider<PaymentService>.value(value: widget.paymentService),
       ],
       child: Builder(
         builder: (context) {
-          final auth = Provider.of<AuthProvider>(context, listen: false);
           final locale = context.watch<LocaleProvider>().locale;
           return MaterialApp.router(
             title: 'HomeDX',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
-            routerConfig: AppRouter.createRouter(auth),
+            routerConfig: _router,
             locale: locale,
             supportedLocales: const [
               Locale('de', 'DE'),

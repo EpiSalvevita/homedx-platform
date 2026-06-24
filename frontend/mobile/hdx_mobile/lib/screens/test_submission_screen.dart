@@ -12,7 +12,6 @@ class TestSubmissionScreen extends StatefulWidget {
   final String testTypeName;
   final String rapidTestId;
   final String? cubeResult;
-  final String? certificateId;
 
   const TestSubmissionScreen({
     super.key,
@@ -20,7 +19,6 @@ class TestSubmissionScreen extends StatefulWidget {
     required this.testTypeName,
     required this.rapidTestId,
     this.cubeResult,
-    this.certificateId,
   });
 
   @override
@@ -165,14 +163,6 @@ class _TestSubmissionScreenState extends State<TestSubmissionScreen> {
             height: 52,
             onPressed: _submitting ? null : _submit,
           ),
-          if (widget.certificateId != null) ...[
-            const SizedBox(height: 16),
-            NeumorphicPillButton(
-              label: 'Zertifikat anzeigen',
-              height: 48,
-              onPressed: () => context.push('/certificates/${widget.certificateId}'),
-            ),
-          ],
         ],
       ),
     );

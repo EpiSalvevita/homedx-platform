@@ -157,7 +157,6 @@ class _TestProgressScreenState extends State<TestProgressScreen>
         'testTypeName': widget.testTypeName,
         'rapidTestId': rapidTestId,
         if (result.result != null) 'cubeResult': result.result!,
-        if (result.certificateId != null) 'certificateId': result.certificateId!,
       }).query;
       context.pushReplacement(
         '/tests/${widget.testTypeId}/submission?$query',

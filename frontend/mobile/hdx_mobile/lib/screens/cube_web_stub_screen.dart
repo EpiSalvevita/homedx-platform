@@ -18,8 +18,9 @@ class CubeWebStubScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final body = message ??
-        'Cube-Tests sind derzeit in der mobilen App verfügbar. '
-            'Web-Unterstützung folgt.';
+        'Gesundheitstests mit dem Cube-Gerät sind nur in der Android-App verfügbar '
+            '(Bluetooth). Installieren Sie die mobile App oder nutzen Sie die Web-Version '
+            'für Termine und Ergebnisse.';
 
     return FigmaScreen(
       header: FigmaBackHeader(title: title),
