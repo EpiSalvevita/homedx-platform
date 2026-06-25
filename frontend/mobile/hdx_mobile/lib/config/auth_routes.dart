@@ -8,5 +8,10 @@ bool isPublicRoute(String location) {
   return location == '/' ||
       location == '/about' ||
       location == '/login' ||
-      location == '/signup';
+      location == '/login/doctor' ||
+      location == '/signup' ||
+      location == '/signup/doctor' ||
+      location == '/forgot-password' ||
+      location == '/forgot-password/doctor' ||
+      location == '/reset-password';
 }

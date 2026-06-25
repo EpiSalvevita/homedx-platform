@@ -13,6 +13,7 @@ class ApiService {
   final http.Client _client;
   String? _authToken;
   VoidCallback? onUnauthorized;
+  bool _suppressUnauthorizedCallback = false;
 
   ApiService({
     String? baseUrl,
@@ -34,12 +35,17 @@ class ApiService {
     _authToken = token;
   }
 
+  /// Prevents [onUnauthorized] during login profile fetch or server logout calls.
+  void setSuppressUnauthorizedCallback(bool suppress) {
+    _suppressUnauthorizedCallback = suppress;
+  }
+
   String? get authToken => _authToken;
 
   Map<String, String> _buildHeaders({Map<String, String>? additionalHeaders, bool includeAuth = true}) {
     final headers = Map<String, String>.from(defaultHeaders);
     
-    if (includeAuth && _authToken != null) {
+    if (includeAuth && _authToken != null && _authToken!.isNotEmpty) {
       // Support both Authorization Bearer and x-auth-token header
       headers['Authorization'] = 'Bearer $_authToken';
       headers['x-auth-token'] = _authToken!;
@@ -271,7 +277,9 @@ class ApiService {
   Map<String, dynamic> _handleResponse(http.Response response) {
     // Handle authentication errors
     if (response.statusCode == 401 || response.statusCode == 403) {
-      onUnauthorized?.call();
+      if (!_suppressUnauthorizedCallback) {
+        onUnauthorized?.call();
+      }
       throw UnauthorizedException('Authentication required or token expired');
     }
 

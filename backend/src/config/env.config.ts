@@ -33,3 +33,16 @@ export function getCorsOrigins(): string[] | boolean {
   }
   return raw.split(',').map((o) => o.trim()).filter(Boolean);
 }
+
+/** Base URL of the web app (used for password-reset links in logs / email). */
+export function getFrontendUrl(): string {
+  const raw = process.env.FRONTEND_URL?.trim() || process.env.WEB_APP_URL?.trim();
+  if (raw) {
+    return raw.replace(/\/$/, '');
+  }
+  return 'http://localhost:8080';
+}
+
+export function isProductionEnv(): boolean {
+  return process.env.NODE_ENV === 'production';
+}

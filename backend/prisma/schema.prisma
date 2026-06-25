@@ -26,6 +26,10 @@ model User {
   role          UserRole       @default(USER)
   status        UserStatus     @default(ACTIVE)
   pushToken     String?
+  /// Bumped on password reset to invalidate outstanding JWTs.
+  tokenVersion  Int            @default(0)
+  passwordResetTokenHash   String?
+  passwordResetExpiresAt   DateTime?
   auditLogs     AuditLog[]
   certificates  Certificate[]
   licenses      License[]

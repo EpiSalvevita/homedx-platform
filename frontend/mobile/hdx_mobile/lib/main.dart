@@ -9,6 +9,7 @@ import 'config/stripe_init.dart';
 import 'config/push_init.dart';
 import 'config/app_theme.dart';
 import 'config/app_router.dart';
+import 'config/app_scroll_behavior.dart';
 import 'services/api_service.dart';
 import 'services/auth_service.dart';
 import 'services/payment_service.dart';
@@ -45,8 +46,15 @@ Future<void> main() async {
   final cartProvider = CartProvider();
 
   apiService.onUnauthorized = () {
-    authProvider.logout();
+    if (authProvider.isEstablishingSession) return;
+    if (authProvider.isAuthenticated) {
+      authProvider.logout();
+    }
   };
+
+  if (kIsWeb) {
+    await authService.clearLegacyWebAuthStorage();
+  }
 
   await authProvider.initialize();
 
@@ -123,6 +131,7 @@ class _MyAppState extends State<MyApp> {
             title: 'HomeDX',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
+            scrollBehavior: const AppScrollBehavior(),
             routerConfig: _router,
             locale: locale,
             supportedLocales: const [

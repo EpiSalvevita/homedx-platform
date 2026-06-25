@@ -374,7 +374,7 @@ class _DoctorsSection extends StatelessWidget {
                       const SizedBox(width: 24),
                       NeumorphicButton(
                         isPrimary: true,
-                        onPressed: () => context.go('/login'),
+                        onPressed: () => context.go('/login/doctor'),
                         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                         child: Text(
                           strings.doctorsCta,
@@ -415,7 +415,7 @@ class _DoctorsSection extends StatelessWidget {
                       const SizedBox(height: 20),
                       NeumorphicButton(
                         isPrimary: true,
-                        onPressed: () => context.go('/login'),
+                        onPressed: () => context.go('/login/doctor'),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         child: Text(
                           strings.doctorsCta,

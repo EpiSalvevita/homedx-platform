@@ -3,6 +3,7 @@ import { CubeResultDataItem } from '../services/cube.service';
 export interface MobileResponse {
   success: boolean;
   error?: string;
+  message?: string;
   validation?: string[];
 }
 

@@ -149,7 +149,6 @@ class NeumorphicActivityCard extends StatelessWidget {
 
 class _NeumorphicInsetPainter extends CustomPainter {
   static const Color _insetShadow = Color(0x4D99A6CE);
-  static const Color _insetShadowStrong = Color(0x8099A6CE);
 
   final double borderRadius;
   final Color backgroundColor;
@@ -212,46 +211,27 @@ class _NeumorphicInsetPainter extends CustomPainter {
   }
 
   void _paintInvertedInset(Canvas canvas, Size size, RRect rrect) {
-    // Mirror of [AppTheme.neumorphicRaised] pushed inward:
-    // inset 4px 4px 10px #99A6CE (top/left shadow), inset -4px -4px 10px #FFFFFF (bottom/right highlight).
-    const blurSigma = 7.0;
+    // Inward mirror of [AppTheme.neumorphicRaised] only — same offset, blur, and alpha.
+    // No extra edge bands; those made fields read darker than the Anmelden button.
+    const blurSigma = 10.0;
     const offset = 4.0;
-    const shadowBand = 10.0;
-    const highlightBand = 6.0;
 
     canvas.save();
     canvas.clipRRect(rrect);
 
-    _drawInnerShadow(canvas, rrect, const Offset(offset, offset), _insetShadowStrong, blurSigma);
-    _drawInnerShadow(canvas, rrect, const Offset(-offset, -offset), Colors.white, blurSigma);
-
-    _drawEdgeFade(
+    _drawInnerShadow(
       canvas,
-      Rect.fromLTWH(0, 0, size.width, shadowBand),
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      edgeColor: _insetShadowStrong,
+      rrect,
+      const Offset(offset, offset),
+      _insetShadow,
+      blurSigma,
     );
-    _drawEdgeFade(
+    _drawInnerShadow(
       canvas,
-      Rect.fromLTWH(0, 0, shadowBand, size.height),
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-      edgeColor: _insetShadowStrong,
-    );
-    _drawEdgeFade(
-      canvas,
-      Rect.fromLTWH(0, size.height - highlightBand, size.width, highlightBand),
-      begin: Alignment.bottomCenter,
-      end: Alignment.topCenter,
-      edgeColor: Colors.white,
-    );
-    _drawEdgeFade(
-      canvas,
-      Rect.fromLTWH(size.width - highlightBand, 0, highlightBand, size.height),
-      begin: Alignment.centerRight,
-      end: Alignment.centerLeft,
-      edgeColor: Colors.white,
+      rrect,
+      const Offset(-offset, -offset),
+      Colors.white,
+      blurSigma,
     );
 
     canvas.restore();

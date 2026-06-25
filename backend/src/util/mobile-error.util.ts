@@ -4,6 +4,8 @@ import {
   HttpException,
   NotFoundException,
 } from '@nestjs/common';
+import { LOGIN_ERROR_CODES } from './login-messages';
+import { REGISTRATION_EMAIL_EXISTS_CODES } from './registration-messages';
 
 export interface MobileErrorBody {
   success: false;
@@ -24,6 +26,12 @@ export function sanitizeMobileError(
     if (typeof response === 'object' && response !== null && 'message' in response) {
       const raw = (response as { message: string | string[] }).message;
       const messages = Array.isArray(raw) ? raw : [String(raw)];
+      if (
+        messages.length === 1 &&
+        REGISTRATION_EMAIL_EXISTS_CODES.includes(messages[0])
+      ) {
+        return { success: false, error: messages[0] };
+      }
       return {
         success: false,
         error: 'Invalid request',
@@ -59,6 +67,9 @@ export function sanitizeMobileError(
     const safe = [
       'Invalid token',
       'User already exists',
+      'Email already exists',
+      ...REGISTRATION_EMAIL_EXISTS_CODES,
+      ...LOGIN_ERROR_CODES,
       'Login failed',
       'Registration failed',
       'Rapid test not found',

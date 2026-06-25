@@ -5,6 +5,8 @@ import '../screens/about_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
+import '../screens/forgot_password_screen.dart';
+import '../screens/reset_password_screen.dart';
 import '../screens/bluetooth_connection_screen.dart';
 import '../screens/bluetooth_scan_screen.dart';
 import '../screens/test_selection_screen.dart';
@@ -43,7 +45,12 @@ class AppRouter {
       redirect: (context, state) {
         final isLoggedIn = authProvider.isAuthenticated;
         final isGoingToAuth = state.matchedLocation == '/login' ||
-            state.matchedLocation == '/signup';
+            state.matchedLocation == '/login/doctor' ||
+            state.matchedLocation == '/signup' ||
+            state.matchedLocation == '/signup/doctor' ||
+            state.matchedLocation == '/forgot-password' ||
+            state.matchedLocation == '/forgot-password/doctor' ||
+            state.matchedLocation == '/reset-password';
         final role = authProvider.userRole;
         final isDoctor = role == 'DOCTOR';
         final location = state.matchedLocation;
@@ -95,9 +102,37 @@ class AppRouter {
           builder: (context, state) => const LoginScreen(),
         ),
         GoRoute(
+          path: '/login/doctor',
+          name: 'login-doctor',
+          builder: (context, state) => const LoginScreen(isDoctor: true),
+        ),
+        GoRoute(
           path: '/signup',
           name: 'signup',
           builder: (context, state) => const SignupScreen(),
+        ),
+        GoRoute(
+          path: '/signup/doctor',
+          name: 'signup-doctor',
+          builder: (context, state) => const SignupScreen(isDoctor: true),
+        ),
+        GoRoute(
+          path: '/forgot-password',
+          name: 'forgot-password',
+          builder: (context, state) => const ForgotPasswordScreen(),
+        ),
+        GoRoute(
+          path: '/forgot-password/doctor',
+          name: 'forgot-password-doctor',
+          builder: (context, state) => const ForgotPasswordScreen(isDoctor: true),
+        ),
+        GoRoute(
+          path: '/reset-password',
+          name: 'reset-password',
+          builder: (context, state) {
+            final token = state.uri.queryParameters['token'];
+            return ResetPasswordScreen(token: token);
+          },
         ),
         ShellRoute(
           builder: (context, state, child) {

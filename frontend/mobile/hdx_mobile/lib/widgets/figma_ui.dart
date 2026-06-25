@@ -323,7 +323,7 @@ class FigmaInsetInfoCard extends StatelessWidget {
   }
 }
 
-/// Profile input using the exact same inset tile shell as [FigmaInsetInfoCard].
+/// Profile input — same pill inset tile as login ([NeumorphicInsetField]).
 class ProfileInsetField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
@@ -346,68 +346,48 @@ class ProfileInsetField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NeumorphicInsetCard(
-      height: AppTheme.fieldHeight,
-      padding: AppTheme.infoInsetCardPadding,
-      invertedInset: true,
-      backgroundColor: AppTheme.insetWellFill,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(icon, color: AppTheme.primaryBlue, size: 21),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Theme(
-              data: neumorphicFieldTheme(context),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    label,
-                    style: FigmaUi.rubik(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w300,
-                      color: AppTheme.primaryBlue,
-                    ),
-                  ),
-                  TextFormField(
-                    controller: controller,
-                    obscureText: obscureText,
-                    keyboardType: keyboardType,
-                    validator: validator,
-                    cursorColor: AppTheme.textColor,
-                    style: FigmaUi.rubik(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w300,
-                      color: AppTheme.textColor,
-                      height: 1.2,
-                    ),
-                    decoration: InputDecoration(
-                      isDense: true,
-                      isCollapsed: true,
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      disabledBorder: InputBorder.none,
-                      errorBorder: InputBorder.none,
-                      focusedErrorBorder: InputBorder.none,
-                      suffixIcon: suffix,
-                      suffixIconConstraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                      contentPadding: const EdgeInsets.only(top: 2),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+    return NeumorphicInsetField(
+      controller: controller,
+      label: label,
+      prefixIcon: icon,
+      keyboardType: keyboardType,
+      validator: validator,
+      obscureText: obscureText,
+      suffix: suffix,
+    );
+  }
+}
+
+/// Error line shown directly below neumorphic inset fields.
+class NeumorphicFieldError extends StatelessWidget {
+  final String? text;
+
+  const NeumorphicFieldError({super.key, this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    if (text == null || text!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, left: 12, right: 12),
+      child: Text(
+        text!,
+        style: FigmaUi.rubik(
+          fontSize: 13,
+          fontWeight: FontWeight.w400,
+          color: AppTheme.errorColor,
+          height: 1.3,
+        ),
       ),
     );
   }
 }
 
-/// Neumorphic pill input with floating label (login / profile fields).
+/// Neumorphic pill input with floating label (login / signup fields).
+/// Uses inverted inset — mirror of [NeumorphicPillButton] raised shadows pushed inward
+/// (shadow top/left, highlight bottom/right).
 class NeumorphicInsetField extends StatelessWidget {
   final TextEditingController? controller;
   final String label;
@@ -417,6 +397,9 @@ class NeumorphicInsetField extends StatelessWidget {
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
   final Widget? suffix;
+  final FocusNode? focusNode;
+  final TextInputAction? textInputAction;
+  final VoidCallback? onFieldSubmitted;
 
   const NeumorphicInsetField({
     super.key,
@@ -428,55 +411,181 @@ class NeumorphicInsetField extends StatelessWidget {
     this.keyboardType,
     this.validator,
     this.suffix,
+    this.focusNode,
+    this.textInputAction,
+    this.onFieldSubmitted,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Stack(
-          clipBehavior: Clip.none,
+    return FormField<String>(
+      validator: (fieldValue) {
+        final value = controller?.text ?? fieldValue ?? '';
+        return validator?.call(value.isEmpty ? null : value);
+      },
+      builder: (field) {
+        final textStyle = FigmaUi.rubik(
+          fontSize: 16,
+          fontWeight: FontWeight.w300,
+          color: AppTheme.textColor,
+          height: 1.0,
+        );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            NeumorphicInsetSurface(
-              child: Theme(
-                data: neumorphicFieldTheme(context),
-                child: TextFormField(
-                  controller: controller,
-                  obscureText: obscureText,
-                  keyboardType: keyboardType,
-                  validator: validator,
-                  expands: !obscureText,
-                  maxLines: obscureText ? 1 : null,
-                  textAlignVertical: TextAlignVertical.center,
-                  cursorColor: AppTheme.textColor,
-                  style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w300, color: AppTheme.textColor, height: 1.0),
-                  decoration: neumorphicFieldDecoration(
-                    hint: hint,
-                    prefixIcon: prefixIcon,
-                    suffix: suffix,
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                NeumorphicInsetSurface(
+                  invertedInset: true,
+                  backgroundColor: AppTheme.background,
+                  child: Theme(
+                    data: neumorphicFieldTheme(context),
+                    child: TextField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      onChanged: field.didChange,
+                      obscureText: obscureText,
+                      keyboardType: keyboardType,
+                      textInputAction: textInputAction,
+                      onSubmitted: onFieldSubmitted != null ? (_) => onFieldSubmitted!() : null,
+                      textAlignVertical: TextAlignVertical.center,
+                      cursorColor: AppTheme.textColor,
+                      style: textStyle,
+                      decoration: neumorphicFieldDecoration(
+                        hint: hint,
+                        prefixIcon: prefixIcon,
+                        suffix: suffix,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            Positioned(
-              left: 38,
-              top: -10,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppTheme.background,
-                  borderRadius: BorderRadius.circular(38),
+                Positioned(
+                  left: 38,
+                  top: -10,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppTheme.background,
+                      borderRadius: BorderRadius.circular(38),
+                    ),
+                    child: Text(
+                      label,
+                      style: FigmaUi.rubik(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w300,
+                        color: AppTheme.primaryBlue,
+                      ),
+                    ),
+                  ),
                 ),
-                child: Text(
-                  label,
-                  style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w300, color: AppTheme.primaryBlue),
-                ),
-              ),
+              ],
             ),
+            NeumorphicFieldError(text: field.errorText),
           ],
-        ),
-      ],
+        );
+      },
+    );
+  }
+}
+
+/// Neumorphic pill dropdown with floating label (doctor signup Fachrichtung).
+class NeumorphicInsetDropdown extends StatelessWidget {
+  final String label;
+  final IconData? prefixIcon;
+  final String? value;
+  final List<String> items;
+  final ValueChanged<String?> onChanged;
+  final String? Function(String?)? validator;
+
+  const NeumorphicInsetDropdown({
+    super.key,
+    required this.label,
+    this.prefixIcon,
+    required this.value,
+    required this.items,
+    required this.onChanged,
+    this.validator,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FormField<String>(
+      initialValue: value,
+      validator: validator,
+      builder: (field) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                NeumorphicInsetSurface(
+                  invertedInset: true,
+                  backgroundColor: AppTheme.background,
+                  child: Theme(
+                    data: neumorphicFieldTheme(context),
+                    child: InputDecorator(
+                      decoration: neumorphicFieldDecoration(prefixIcon: prefixIcon),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: field.value,
+                          items: items
+                              .map(
+                                (item) => DropdownMenuItem<String>(
+                                  value: item,
+                                  child: Text(
+                                    item,
+                                    style: FigmaUi.rubik(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w300,
+                                      color: AppTheme.textColor,
+                                      height: 1.0,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (selected) {
+                            field.didChange(selected);
+                            onChanged(selected);
+                          },
+                          isExpanded: true,
+                          icon: const Icon(Icons.keyboard_arrow_down, color: AppTheme.textColorSecondary),
+                          style: FigmaUi.rubik(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w300,
+                            color: AppTheme.textColor,
+                            height: 1.0,
+                          ),
+                          dropdownColor: AppTheme.background,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 38,
+                  top: -10,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppTheme.background,
+                      borderRadius: BorderRadius.circular(38),
+                    ),
+                    child: Text(
+                      label,
+                      style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w300, color: AppTheme.primaryBlue),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            NeumorphicFieldError(text: field.errorText),
+          ],
+        );
+      },
     );
   }
 }

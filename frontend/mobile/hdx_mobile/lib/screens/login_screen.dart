@@ -6,10 +6,13 @@ import '../config/app_theme.dart';
 import '../config/auth_routes.dart';
 import '../providers/auth_provider.dart';
 import '../utils/app_assets.dart';
+import '../utils/login_errors.dart';
 import '../widgets/figma_ui.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final bool isDoctor;
+
+  const LoginScreen({super.key, this.isDoctor = false});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -19,17 +22,40 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _passwordFocusNode = FocusNode();
   bool _obscurePassword = true;
+  String? _loginError;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(_clearLoginError);
+    _passwordController.addListener(_clearLoginError);
+  }
+
+  void _clearLoginError() {
+    if (_loginError != null) {
+      setState(() => _loginError = null);
+    }
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
+  }
+
+  void _submitLogin() {
+    if (context.read<AuthProvider>().isLoading) return;
+    _handleLogin();
   }
 
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _loginError = null);
 
     final authProvider = context.read<AuthProvider>();
     final success = await authProvider.login(
@@ -40,14 +66,13 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success && mounted) {
       context.go(homeRouteForRole(authProvider.userRole));
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authProvider.error ?? 'Anmeldung fehlgeschlagen'),
-          backgroundColor: AppTheme.errorColor,
-        ),
-      );
+      final error = localizeLoginError(authProvider.error ?? 'Anmeldung fehlgeschlagen');
+      setState(() => _loginError = error);
     }
   }
+
+  String get _forgotPasswordRoute =>
+      widget.isDoctor ? '/forgot-password/doctor' : '/forgot-password';
 
   Widget _buildForm() {
     return Column(
@@ -70,12 +95,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               if (kIsWeb) const SizedBox(height: 24),
               Text(
-                'In Ihr Konto einloggen',
+                widget.isDoctor ? 'Arzt-Login' : 'In Ihr Konto einloggen',
                 style: FigmaUi.rubik(fontSize: 24, fontWeight: FontWeight.w500, color: AppTheme.textColor),
               ),
               const SizedBox(height: 8),
               Text(
-                'Geben Sie Ihre Anmeldedaten ein.',
+                widget.isDoctor
+                    ? 'Melden Sie sich mit Ihrem Arztkonto an.'
+                    : 'Geben Sie Ihre Anmeldedaten ein.',
                 style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w400, color: AppTheme.primaryBlue),
               ),
               const SizedBox(height: 32),
@@ -85,6 +112,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 hint: 'email@example.com',
                 prefixIcon: Icons.mail_outline,
                 keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: () => _passwordFocusNode.requestFocus(),
                 validator: (v) {
                   if (v == null || v.isEmpty) return 'Bitte E-Mail eingeben';
                   if (!v.contains('@')) return 'Ungültige E-Mail';
@@ -94,12 +123,14 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 24),
               NeumorphicInsetField(
                 controller: _passwordController,
+                focusNode: _passwordFocusNode,
                 label: 'Passwort',
                 prefixIcon: Icons.lock_outline,
                 obscureText: _obscurePassword,
+                textInputAction: TextInputAction.done,
+                onFieldSubmitted: _submitLogin,
                 validator: (v) {
                   if (v == null || v.isEmpty) return 'Bitte Passwort eingeben';
-                  if (v.length < 6) return 'Mindestens 6 Zeichen';
                   return null;
                 },
                 suffix: IconButton(
@@ -116,6 +147,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                 ),
               ),
+              if (_loginError != null) ...[
+                const SizedBox(height: 16),
+                NeumorphicFieldError(text: _loginError),
+              ],
               const SizedBox(height: 32),
               Consumer<AuthProvider>(
                 builder: (context, auth, _) => NeumorphicPillButton(
@@ -127,7 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 24),
               Center(
                 child: GestureDetector(
-                  onTap: () => context.go('/signup'),
+                  onTap: () => context.go(widget.isDoctor ? '/signup/doctor' : '/signup'),
                   child: Text.rich(
                     TextSpan(
                       text: 'Noch kein Konto? ',
@@ -139,6 +174,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: GestureDetector(
+                  onTap: () => context.go(_forgotPasswordRoute),
+                  child: Text(
+                    'Passwort vergessen?',
+                    style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.primaryBlue),
                   ),
                 ),
               ),

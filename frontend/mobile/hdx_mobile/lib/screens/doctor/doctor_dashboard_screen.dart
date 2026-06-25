@@ -55,7 +55,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
 
   Future<void> _logout() async {
     await context.read<AuthProvider>().logout();
-    if (mounted) context.go('/login');
+    if (mounted) context.go('/login/doctor');
   }
 
   @override

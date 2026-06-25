@@ -254,6 +254,10 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
       ),
+      scrollbarTheme: const ScrollbarThemeData(
+        thumbVisibility: WidgetStatePropertyAll(false),
+        trackVisibility: WidgetStatePropertyAll(false),
+      ),
     );
   }
 }

@@ -1,4 +1,7 @@
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsIn, IsOptional, IsString, MinLength, ValidateIf } from 'class-validator';
+import { IsStrongPassword } from '../../auth/is-strong-password.decorator';
+import { PASSWORD_MIN_LENGTH } from '../../auth/password-policy';
+import { MEDICAL_SPECIALIZATIONS } from '../../utils/medical-specializations';
 import { LangBodyDto } from './common.dto';
 
 export class LoginDto extends LangBodyDto {
@@ -23,8 +26,23 @@ export class RegisterDto extends LangBodyDto {
   email: string;
 
   @IsString()
-  @MinLength(6)
+  @MinLength(PASSWORD_MIN_LENGTH)
+  @IsStrongPassword()
   password: string;
+
+  @IsOptional()
+  @IsIn(['DOCTOR'])
+  role?: 'DOCTOR';
+
+  @ValidateIf((body) => body.role === 'DOCTOR')
+  @IsString()
+  @IsIn(MEDICAL_SPECIALIZATIONS as unknown as string[])
+  specialization?: string;
+
+  @ValidateIf((body) => body.role === 'DOCTOR')
+  @IsString()
+  @MinLength(1)
+  clinic_address?: string;
 }
 
 export class UpdateUserDataDto extends LangBodyDto {
@@ -58,4 +76,20 @@ export class UpdateUserDataDto extends LangBodyDto {
   @IsOptional()
   @IsString()
   postcode?: string;
+}
+
+export class RequestPasswordResetDto extends LangBodyDto {
+  @IsEmail()
+  email: string;
+}
+
+export class ResetPasswordDto extends LangBodyDto {
+  @IsString()
+  @MinLength(1)
+  token: string;
+
+  @IsString()
+  @MinLength(PASSWORD_MIN_LENGTH)
+  @IsStrongPassword()
+  password: string;
 }

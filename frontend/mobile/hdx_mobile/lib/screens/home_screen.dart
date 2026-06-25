@@ -7,6 +7,7 @@ import '../providers/auth_provider.dart';
 import '../services/user_service.dart';
 import '../services/api_service.dart';
 import '../widgets/figma_ui.dart';
+import '../widgets/responsive_layout.dart';
 import '../utils/app_assets.dart';
 import '../utils/platform_capabilities.dart';
 
@@ -144,27 +145,87 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Fixed tile width (Figma ~186px) so asset icons stay proportional on wide web layouts.
+  /// Rows of quick-action tiles that span the same width as welcome/activity cards.
   Widget _buildQuickActionGrid(BuildContext context) {
-    return GridView.extent(
-      maxCrossAxisExtent: 186,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: AppTheme.quickActionGridSpacing,
-      mainAxisSpacing: AppTheme.quickActionGridSpacing,
-      childAspectRatio: AppTheme.quickActionCardAspectRatio,
+    final tiles = <Widget>[
+      if (PlatformCapabilities.canRunCubeTests)
+        FigmaQuickActionTile(
+          assetPath: AppAssets.iconHomeHeart,
+          label: 'Test starten',
+          onTap: () => context.go('/tests'),
+        ),
+      FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Arzttermin', onTap: () => context.pushNamed('doctors')),
+      FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Meine Termine', onTap: () => context.push('/appointments')),
+      FigmaQuickActionTile(assetPath: AppAssets.iconDna, label: 'Ergebnisse', onTap: () => context.push('/results')),
+      FigmaQuickActionTile(assetPath: AppAssets.iconHomeBag, label: 'Shop', onTap: () => context.push('/shop')),
+      FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Benachrichtigungen', onTap: () => context.goNamed('notifications')),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final spacing = AppTheme.quickActionGridSpacing;
+        final aspectRatio = AppTheme.quickActionCardAspectRatio;
+        final crossAxisCount = AppBreakpoints.quickActionCrossAxisCount(
+          width,
+          tiles.length,
+          spacing: spacing,
+        );
+
+        final rows = <List<Widget>>[];
+        for (var i = 0; i < tiles.length; i += crossAxisCount) {
+          final end = i + crossAxisCount > tiles.length ? tiles.length : i + crossAxisCount;
+          rows.add(tiles.sublist(i, end));
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var r = 0; r < rows.length; r++) ...[
+              if (r > 0) SizedBox(height: spacing),
+              _QuickActionRow(
+                width: width,
+                spacing: spacing,
+                aspectRatio: aspectRatio,
+                children: rows[r],
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _QuickActionRow extends StatelessWidget {
+  final List<Widget> children;
+  final double spacing;
+  final double width;
+  final double aspectRatio;
+
+  const _QuickActionRow({
+    required this.width,
+    required this.spacing,
+    required this.aspectRatio,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final count = children.length;
+    final tileWidth = (width - spacing * (count - 1)) / count;
+    final tileHeight = tileWidth / aspectRatio;
+
+    return Row(
       children: [
-        if (PlatformCapabilities.canRunCubeTests)
-          FigmaQuickActionTile(
-            assetPath: AppAssets.iconHomeHeart,
-            label: 'Test starten',
-            onTap: () => context.go('/tests'),
+        for (var i = 0; i < count; i++) ...[
+          SizedBox(
+            width: tileWidth,
+            height: tileHeight,
+            child: children[i],
           ),
-        FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Arzttermin', onTap: () => context.pushNamed('doctors')),
-        FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Meine Termine', onTap: () => context.push('/appointments')),
-        FigmaQuickActionTile(assetPath: AppAssets.iconDna, label: 'Ergebnisse', onTap: () => context.push('/results')),
-        FigmaQuickActionTile(assetPath: AppAssets.iconHomeBag, label: 'Shop', onTap: () => context.push('/shop')),
-        FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Benachrichtigungen', onTap: () => context.goNamed('notifications')),
+          if (i < count - 1) SizedBox(width: spacing),
+        ],
       ],
     );
   }

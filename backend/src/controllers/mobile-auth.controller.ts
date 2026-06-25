@@ -10,8 +10,9 @@ import {
   getAuthCookieClearOptions,
   getAuthCookieOptions,
 } from '../config/auth-cookie.config';
-import { LoginDto, RegisterDto, UpdateUserDataDto } from '../dto/mobile/auth.dto';
+import { LoginDto, RegisterDto, RequestPasswordResetDto, ResetPasswordDto, UpdateUserDataDto } from '../dto/mobile/auth.dto';
 import { sanitizeMobileError } from '../util/mobile-error.util';
+import { registrationEmailExistsMessage } from '../util/registration-messages';
 import {
   BackendStatusResponse,
   LiveTokenResponse,
@@ -35,11 +36,35 @@ export class MobileAuthController {
   @Post('login')
   async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response): Promise<LoginResponse> {
     try {
-      const result = await this.authService.login(body.user, body.pw);
+      const result = await this.authService.login(body.user, body.pw, body.lang);
       res.cookie(AUTH_COOKIE_NAME, result.access_token, getAuthCookieOptions());
       return { success: true, token: result.access_token };
     } catch (error) {
-      return sanitizeMobileError(error, 'Login failed');
+      return sanitizeMobileError(error, 'Anmeldung fehlgeschlagen');
+    }
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Post('request-password-reset')
+  async requestPasswordReset(@Body() body: RequestPasswordResetDto): Promise<MobileResponse> {
+    try {
+      const result = await this.authService.requestPasswordReset(body.email, body.lang);
+      return { success: true, message: result.message };
+    } catch (error) {
+      return sanitizeMobileError(error, 'Passwort zurücksetzen fehlgeschlagen');
+    }
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Post('reset-password')
+  async resetPassword(@Body() body: ResetPasswordDto): Promise<MobileResponse> {
+    try {
+      const result = await this.authService.resetPassword(body.token, body.password, body.lang);
+      return { success: true, message: result.message };
+    } catch (error) {
+      return sanitizeMobileError(error, 'Passwort zurücksetzen fehlgeschlagen');
     }
   }
 
@@ -50,12 +75,28 @@ export class MobileAuthController {
     try {
       const existingUser = await this.userService.findByEmail(body.email);
       if (existingUser) {
-        return { success: false, error: 'User already exists' };
+        return {
+          success: false,
+          error: registrationEmailExistsMessage(body.lang),
+        };
       }
-      await this.authService.signup(body.email, body.password, body.firstname, body.lastname);
+      await this.authService.signup(
+        body.email,
+        body.password,
+        body.firstname,
+        body.lastname,
+        body.role === 'DOCTOR'
+          ? {
+              asDoctor: true,
+              specialization: body.specialization,
+              clinicAddress: body.clinic_address,
+              lang: body.lang,
+            }
+          : { lang: body.lang },
+      );
       return { success: true };
     } catch (error) {
-      return sanitizeMobileError(error, 'Registration failed');
+      return sanitizeMobileError(error, 'Registrierung fehlgeschlagen');
     }
   }
 

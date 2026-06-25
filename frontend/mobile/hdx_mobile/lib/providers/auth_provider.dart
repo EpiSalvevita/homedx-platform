@@ -19,6 +19,9 @@ class AuthProvider with ChangeNotifier {
   String? get userEmail => _userEmail;
   String? get userRole => _userRole;
   bool get isDoctor => _userRole == 'DOCTOR';
+  bool get isEstablishingSession => _isEstablishingSession;
+
+  bool _isEstablishingSession = false;
 
   Future<void> initialize() async {
     _setLoading(true);
@@ -39,24 +42,31 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<bool> login(String email, String password) async {
+    _isEstablishingSession = true;
     _setLoading(true);
     _setError(null);
-    
+
     try {
       final result = await _authService.login(email, password);
-      
+
       if (result.success) {
+        if (result.token != null) {
+          await _authService.applySessionToken(result.token!);
+        }
         _userId = await _authService.getStoredUserId();
         _userEmail = await _authService.getStoredUserEmail();
         _userRole = await _authService.getStoredUserRole();
         _isAuthenticated = true;
         notifyListeners();
+        Future.microtask(() => _isEstablishingSession = false);
         return true;
       } else {
+        _isEstablishingSession = false;
         _setError(result.error ?? 'Login failed');
         return false;
       }
     } catch (e) {
+      _isEstablishingSession = false;
       _setError('Unexpected error: $e');
       return false;
     } finally {
@@ -69,6 +79,9 @@ class AuthProvider with ChangeNotifier {
     required String password,
     required String firstName,
     required String lastName,
+    bool registerAsDoctor = false,
+    String? specialization,
+    String? clinicAddress,
   }) async {
     _setLoading(true);
     _setError(null);
@@ -79,6 +92,9 @@ class AuthProvider with ChangeNotifier {
         password: password,
         firstName: firstName,
         lastName: lastName,
+        registerAsDoctor: registerAsDoctor,
+        specialization: specialization,
+        clinicAddress: clinicAddress,
       );
       
       if (result.success) {
@@ -97,14 +113,17 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
+    if (!_isAuthenticated) return;
+
+    _isAuthenticated = false;
+    _userId = null;
+    _userEmail = null;
+    _userRole = null;
+    notifyListeners();
+
     _setLoading(true);
     try {
       await _authService.logout();
-      _isAuthenticated = false;
-      _userId = null;
-      _userEmail = null;
-      _userRole = null;
-      notifyListeners();
     } catch (e) {
       _setError('Logout error: $e');
     } finally {

@@ -46,11 +46,6 @@ class LandingScreen extends StatelessWidget {
                         title: 'Video-Konsultation',
                         description: 'Sicher per Video mit Ihrem Arzt sprechen.',
                       ),
-                      _FeatureItem(
-                        iconPath: AppAssets.iconHomeBag,
-                        title: 'Ergebnisse & Shop',
-                        description: 'Testergebnisse einsehen und Testkits bestellen.',
-                      ),
                     ],
                     isWide: isWide,
                   ),
@@ -214,7 +209,7 @@ class _HeroSection extends StatelessWidget {
               ),
             ),
             NeumorphicButton(
-              onPressed: () => context.go('/login'),
+              onPressed: () => context.go('/login/doctor'),
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               child: Text(
                 'Für Ärzte',
@@ -472,8 +467,21 @@ class _DoctorCta extends StatelessWidget {
                       ),
                       const SizedBox(width: 24),
                       NeumorphicButton(
+                        onPressed: () => context.go('/signup/doctor'),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        child: Text(
+                          'Arzt registrieren',
+                          style: FigmaUi.rubik(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: AppTheme.textColor,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      NeumorphicButton(
                         isPrimary: true,
-                        onPressed: () => context.go('/login'),
+                        onPressed: () => context.go('/login/doctor'),
                         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                         child: Text(
                           'Arzt-Login',
@@ -508,8 +516,21 @@ class _DoctorCta extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       NeumorphicButton(
+                        onPressed: () => context.go('/signup/doctor'),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Text(
+                          'Arzt registrieren',
+                          style: FigmaUi.rubik(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: AppTheme.textColor,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      NeumorphicButton(
                         isPrimary: true,
-                        onPressed: () => context.go('/login'),
+                        onPressed: () => context.go('/login/doctor'),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         child: Text(
                           'Arzt-Login',

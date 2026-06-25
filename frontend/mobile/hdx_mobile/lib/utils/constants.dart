@@ -5,8 +5,8 @@ class AppConstants {
   static String get apiBaseUrl {
     final u = dotenv.env['API_BASE_URL']?.trim();
     if (u != null && u.isNotEmpty) return u;
-    // Prefer API_BASE_URL in `.env`; this fallback is for USB + `adb reverse tcp:4000`.
-    return 'http://127.0.0.1:4000';
+    // Use the same host as the web app (localhost) so httpOnly cookies work.
+    return 'http://localhost:4010';
   }
   static const Duration apiTimeout = Duration(seconds: 30);
   static const String apiPath = '/gg-homedx-json/gg-api/v1';
