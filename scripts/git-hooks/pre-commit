@@ -1,0 +1,16 @@
+#!/bin/sh
+# Install: ./scripts/install-git-hooks.sh
+set -e
+
+if git diff --cached --name-only | grep -qE '^backend/uploads/'; then
+  echo "ERROR: Refusing to commit backend/uploads/ (patient PHI — use local storage only)."
+  exit 1
+fi
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact --config .gitleaks.toml
+elif [ -x scripts/gitleaks ]; then
+  scripts/gitleaks protect --staged --redact --config .gitleaks.toml
+else
+  echo "WARN: gitleaks not installed — skipping secret scan (install: see scripts/install-git-hooks.sh)"
+fi

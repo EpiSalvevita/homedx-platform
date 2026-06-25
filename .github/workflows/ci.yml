@@ -49,6 +49,25 @@ jobs:
         working-directory: backend
         run: npm run test:e2e
 
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Block tracked patient uploads
+        run: |
+          if git log --all --name-only --pretty=format: | grep -qE '^backend/uploads/'; then
+            echo "backend/uploads/ found in git history — run history purge"
+            exit 1
+          fi
+
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+
   flutter:
     runs-on: ubuntu-latest
     steps:

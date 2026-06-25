@@ -1,0 +1,12 @@
+title = "homeDX gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Template env files and documented examples"
+paths = [
+  '''\.env\.example$''',
+  '''PAYMENT_INTEGRATION\.md$''',
+  '''deploy/nas/\.env\.example$''',
+]

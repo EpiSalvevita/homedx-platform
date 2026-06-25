@@ -17,6 +17,9 @@ frontend/flutter.pid
 # User uploads (PHI — never commit)
 backend/uploads/
 
+# Local gitleaks binary (scripts/install-git-hooks.sh)
+scripts/gitleaks
+
 # Environment
 .env
 backend/.env

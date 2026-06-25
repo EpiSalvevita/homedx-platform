@@ -22,6 +22,11 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   bool _isLoading = true;
   String? _error;
 
+  static bool _isAllowedVideoHost(String host) {
+    final h = host.toLowerCase();
+    return h == 'daily.co' || h.endsWith('.daily.co');
+  }
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +49,15 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         return;
       }
 
+      final joinUri = Uri.parse(token.joinUrl);
+      if (!_isAllowedVideoHost(joinUri.host)) {
+        setState(() {
+          _error = 'Ungültige Video-URL';
+          _isLoading = false;
+        });
+        return;
+      }
+
       final controller = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
         ..setNavigationDelegate(
@@ -51,9 +65,16 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
             onPageFinished: (_) {
               if (mounted) setState(() => _isLoading = false);
             },
+            onNavigationRequest: (request) {
+              final uri = Uri.tryParse(request.url);
+              if (uri == null || !_isAllowedVideoHost(uri.host)) {
+                return NavigationDecision.prevent;
+              }
+              return NavigationDecision.navigate;
+            },
           ),
         );
-      await controller.loadRequest(Uri.parse(token.joinUrl));
+      await controller.loadRequest(joinUri);
 
       setState(() {
         _controller = controller;
@@ -61,7 +82,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = e.toString();
+          _error = 'Videoanruf konnte nicht gestartet werden';
           _isLoading = false;
         });
       }
@@ -79,30 +100,10 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         ),
       ),
       body: _error != null
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                    const SizedBox(height: 16),
-                    Text(_error!, textAlign: TextAlign.center),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => context.pop(),
-                      child: const Text('Zurück'),
-                    ),
-                  ],
-                ),
-              ),
-            )
+          ? Center(child: Text(_error!))
           : Stack(
               children: [
-                if (_controller != null)
-                  WebViewWidget(controller: _controller!)
-                else
-                  const SizedBox.shrink(),
+                if (_controller != null) WebViewWidget(controller: _controller!),
                 if (_isLoading)
                   const Center(child: CircularProgressIndicator()),
               ],

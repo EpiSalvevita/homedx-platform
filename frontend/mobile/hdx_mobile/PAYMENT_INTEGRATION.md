@@ -3,26 +3,31 @@
 Payments use the **mobile REST API** and payment-provider SDKs on the client. Card data never touches your servers.
 
 **Flutter client:** `lib/services/payment_service.dart`  
-**Backend:** `MobilePaymentService` + routes in `mobile.controller.ts`  
+**Backend:** `MobilePaymentService` + `mobile-payment.controller.ts`  
 **Webhooks:** `POST /webhooks/stripe`, `POST /webhooks/paypal`
 
 All mobile payment routes require JWT auth (`Authorization: Bearer …` or `x-auth-token`).
 
 Base path: `/gg-homedx-json/gg-api/v1`
 
+## Security model
+
+- **Server computes charge amount** — clients cannot set arbitrary prices.
+- **Only the server marks payments `COMPLETED`** — via Stripe webhook / `confirm-stripe-payment`, or PayPal `capture-paypal-order` / verified webhook.
+- **`update-payment` does not accept `status`** — only links provider IDs before capture.
+
 ## Payment methods
 
 ### 1. Credit card (Stripe)
 
-**Package:** `flutter_stripe`
+**Package:** `flutter_stripe` (PaymentSheet — no custom PAN fields)
 
 **Flow:**
 
-1. App calls `POST create-payment` → payment record (`PENDING`)
-2. App calls `POST create-stripe-payment-intent` with `paymentId`, `amount`, `currency` → `clientSecret`
-3. Stripe SDK confirms the PaymentIntent on the device
-4. App calls `POST update-payment` with `paymentId`, `status`, optional `transactionId`
-5. Optionally Stripe webhook (`payment_intent.succeeded`) updates status server-side
+1. App calls `POST create-payment` → payment record (`PENDING`, server amount)
+2. App calls `POST create-stripe-payment-intent` with `paymentId` → `clientSecret`
+3. Stripe PaymentSheet confirms on device
+4. App calls `POST confirm-stripe-payment` with `paymentId` (or polls `get-payment` until webhook completes)
 
 **Setup:**
 
@@ -33,37 +38,36 @@ STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 ```
 
-Flutter `frontend/mobile/hdx_mobile/.env`:
+Flutter `frontend/mobile/hdx_mobile/.env` (bundled asset — **publishable key only**):
 
 ```env
 STRIPE_PUBLISHABLE_KEY=pk_test_...
 ```
 
-Stripe is initialized in `lib/config/stripe_init.dart` (skipped on web where not configured).
-
 ### 2. PayPal
 
-**Package:** `webview_flutter`
+**Package:** `webview_flutter` (navigation restricted to PayPal hosts)
 
 **Flow:**
 
-1. App calls `POST create-payment` (or reuses an existing `paymentId`)
-2. App calls `POST create-paypal-order` with `paymentId`, `amount`, `currency`, optional `returnUrl` / `cancelUrl` → `orderId`, `approvalUrl`
+1. App calls `POST create-payment`
+2. App calls `POST create-paypal-order` with `paymentId`, optional `returnUrl` / `cancelUrl`
 3. User completes checkout in PayPal WebView
-4. App calls `POST update-payment` with `paymentId` and completion status
-5. PayPal webhook can confirm capture server-side
+4. App calls `POST capture-paypal-order` with `paymentId` (server captures funds)
+5. PayPal webhook (`CHECKOUT.ORDER.APPROVED`) can also complete after signature verification
 
 **Setup:**
 
 ```env
 PAYPAL_CLIENT_ID=...
 PAYPAL_CLIENT_SECRET=...
+PAYPAL_WEBHOOK_ID=...
 PAYPAL_MODE=sandbox
 ```
 
 ### 3. SEPA bank transfer
 
-Manual flow: create payment with `PENDING`, user transfers offline, admin marks `COMPLETED` (no SDK).
+Manual flow: payment stays `PENDING` until admin confirms bank receipt.
 
 ## REST endpoints
 
@@ -71,50 +75,42 @@ Manual flow: create payment with `PENDING`, user transfers offline, admin marks 
 
 `POST /gg-homedx-json/gg-api/v1/get-payment-amount`
 
-```json
-{}
-```
-
-Response (example):
-
-```json
-{
-  "success": true,
-  "amount": 29.99,
-  "discount": 0,
-  "discountType": null,
-  "reducedAmount": 29.99
-}
-```
-
 ### Create payment
 
 `POST /gg-homedx-json/gg-api/v1/create-payment`
 
 ```json
 {
-  "amount": 29.99,
-  "currency": "EUR",
   "paymentMethod": "CREDIT_CARD",
   "rapidTestId": "optional-rapid-test-id"
 }
 ```
 
-Response: `{ "success": true, "payment": { "id", "status", ... } }`
+Amount and currency are set server-side.
+
+### Get payment status
+
+`POST /gg-homedx-json/gg-api/v1/get-payment`
+
+```json
+{ "paymentId": "payment-uuid" }
+```
 
 ### Create Stripe PaymentIntent
 
 `POST /gg-homedx-json/gg-api/v1/create-stripe-payment-intent`
 
 ```json
-{
-  "paymentId": "payment-uuid",
-  "amount": 29.99,
-  "currency": "EUR"
-}
+{ "paymentId": "payment-uuid" }
 ```
 
-Response: `{ "success": true, "clientSecret": "pi_..._secret_..." }`
+### Confirm Stripe payment (server checks PaymentIntent)
+
+`POST /gg-homedx-json/gg-api/v1/confirm-stripe-payment`
+
+```json
+{ "paymentId": "payment-uuid" }
+```
 
 ### Create PayPal order
 
@@ -123,50 +119,42 @@ Response: `{ "success": true, "clientSecret": "pi_..._secret_..." }`
 ```json
 {
   "paymentId": "payment-uuid",
-  "amount": 29.99,
-  "currency": "EUR",
-  "returnUrl": "https://example.com/return",
-  "cancelUrl": "https://example.com/cancel"
+  "returnUrl": "https://example.com/paypal/return",
+  "cancelUrl": "https://example.com/paypal/cancel"
 }
 ```
 
-Response: `{ "success": true, "orderId": "...", "approvalUrl": "https://..." }`
+### Capture PayPal order (server-side)
 
-### Update payment
+`POST /gg-homedx-json/gg-api/v1/capture-paypal-order`
+
+```json
+{
+  "paymentId": "payment-uuid",
+  "paypalOrderId": "optional-if-not-stored"
+}
+```
+
+### Update payment (metadata only)
 
 `POST /gg-homedx-json/gg-api/v1/update-payment`
 
 ```json
 {
   "paymentId": "payment-uuid",
-  "status": "COMPLETED",
-  "transactionId": "optional-provider-reference"
+  "paymentIntentId": "optional",
+  "paypalOrderId": "optional"
 }
 ```
 
 ## Webhooks (backend)
 
-Configure in provider dashboards:
-
-| Provider | URL | Secret env |
-|----------|-----|------------|
+| Provider | URL | Verification |
+|----------|-----|--------------|
 | Stripe | `https://your-host/webhooks/stripe` | `STRIPE_WEBHOOK_SECRET` |
-| PayPal | `https://your-host/webhooks/paypal` | (uses PayPal client credentials) |
+| PayPal | `https://your-host/webhooks/paypal` | `PAYPAL_WEBHOOK_ID` + transmission headers |
 
-The Nest app uses `rawBody: true` so Stripe signature verification works.
-
-## Why use SDKs?
-
-### Don't build custom card forms
-
-- PCI scope and liability stay with the processor
-- No built-in fraud tools or 3D Secure on DIY forms
-
-### Do use Stripe / PayPal SDKs
-
-- PCI handled by the processor
-- 3D Secure / SCA where required
-- Standard UX and security updates from vendors
+The Nest app uses `rawBody: true` for Stripe signature verification.
 
 ## Testing
 
@@ -178,4 +166,3 @@ The Nest app uses `rawBody: true` so Stripe signature verification works.
 
 - [Stripe Flutter SDK](https://pub.dev/packages/flutter_stripe)
 - [PayPal Checkout](https://developer.paypal.com/docs/checkout/)
-- [PCI DSS](https://www.pcisecuritystandards.org/)

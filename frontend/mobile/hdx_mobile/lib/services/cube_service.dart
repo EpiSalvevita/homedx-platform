@@ -13,6 +13,7 @@ import '../utils/constants.dart';
 const String _kCubeLogScope = 'HDX_CUBE';
 
 void _cubeTrace(String phase, String message) {
+  if (kReleaseMode && !AppConstants.cubeVerboseLogging) return;
   developer.log('[$phase] $message', name: _kCubeLogScope);
 }
 
