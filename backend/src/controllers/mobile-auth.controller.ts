@@ -118,6 +118,7 @@ export class MobileAuthController {
           phone: userData.phone,
           address1: userData.address,
           postcode: userData.postalCode,
+          gender: userData.gender ?? null,
           testaccount: userData.role === 'ADMIN',
           role: userData.role,
           authorized: 'accepted',
@@ -144,6 +145,7 @@ export class MobileAuthController {
         phone: body.phone,
         address1: body.address1,
         postcode: body.postcode,
+        gender: body.gender,
       });
       return { success: true };
     } catch (error) {

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../models/doctor.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/gender_labels.dart';
 import '../../services/api_service.dart';
 import '../../services/appointment_service.dart';
 import '../../widgets/figma_ui.dart';
@@ -119,6 +120,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
       child: DataTable(
         columns: const [
           DataColumn(label: Text('Patient')),
+          DataColumn(label: Text('Geschlecht')),
           DataColumn(label: Text('Zeit')),
           DataColumn(label: Text('Status')),
           DataColumn(label: Text('Aktion')),
@@ -129,6 +131,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
             onSelectChanged: (_) => context.push('/doctor/appointments/${a.id}'),
             cells: [
               DataCell(Text(a.patientName ?? 'Patient')),
+              DataCell(Text(formatGenderDe(a.patientGender))),
               DataCell(Text(time)),
               DataCell(Text(a.statusLabelDe)),
               DataCell(
@@ -152,7 +155,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         title: Text(a.patientName ?? 'Patient'),
-        subtitle: Text('$time • ${a.statusLabelDe}'),
+        subtitle: Text('${formatGenderDe(a.patientGender)} • $time • ${a.statusLabelDe}'),
         trailing: a.canJoin
             ? IconButton(
                 icon: const Icon(Icons.video_call, color: Colors.green),

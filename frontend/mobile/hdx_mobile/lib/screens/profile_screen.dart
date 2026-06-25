@@ -6,6 +6,7 @@ import '../config/app_theme.dart';
 import '../services/user_service.dart' show UserData, UserService;
 import '../services/api_service.dart';
 import '../services/cube_service.dart';
+import '../utils/gender_labels.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/web/adaptive_screen.dart';
 
@@ -37,6 +38,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _countryController = TextEditingController();
   final _addressController = TextEditingController();
   final _postcodeController = TextEditingController();
+  String? _selectedGenderLabel;
 
   @override
   void initState() {
@@ -99,6 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _countryController.text = userData.country ?? '';
         _addressController.text = userData.address1 ?? '';
         _postcodeController.text = userData.postcode ?? '';
+        _selectedGenderLabel = genderApiToLabel(userData.gender);
         _isLoading = false;
       });
     } catch (e) {
@@ -121,6 +124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         country: _countryController.text.trim().isEmpty ? null : _countryController.text.trim(),
         address1: _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
         postcode: _postcodeController.text.trim().isEmpty ? null : _postcodeController.text.trim(),
+        gender: labelToGenderApi(_selectedGenderLabel),
         dateOfBirth: _userData!.dateOfBirth,
         testAccount: _userData!.testAccount,
         authorized: _userData!.authorized,
@@ -234,18 +238,141 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _profileFieldSpacer() => const SizedBox(height: AppTheme.infoInsetCardSpacing);
 
-  Widget _buildSaveTile() {
-    return FigmaInsetInfoCard(
-      icon: Icons.save_outlined,
-      title: 'Änderungen speichern',
-      trailing: _isSaving
-          ? const SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryBlue),
-            )
-          : null,
-      onTap: _isSaving ? null : _saveUserData,
+  Widget _fieldRowSpacer() => const SizedBox(width: 16);
+
+  Widget _firstNameField() => _profileField(
+        controller: _firstNameController,
+        label: 'Vorname',
+        icon: Icons.person_outline,
+        validator: (v) => (v == null || v.isEmpty) ? 'Vorname ist erforderlich' : null,
+      );
+
+  Widget _lastNameField() => _profileField(
+        controller: _lastNameController,
+        label: 'Nachname',
+        icon: Icons.person_outline,
+        validator: (v) => (v == null || v.isEmpty) ? 'Nachname ist erforderlich' : null,
+      );
+
+  Widget _emailField() => _profileField(
+        controller: _emailController,
+        label: 'E-mail',
+        icon: Icons.mail_outline,
+        keyboardType: TextInputType.emailAddress,
+        validator: (v) => (v == null || v.isEmpty) ? 'E-mail ist erforderlich' : null,
+      );
+
+  Widget _phoneField() => _profileField(
+        controller: _phoneController,
+        label: 'Handynummer',
+        icon: Icons.phone_outlined,
+        keyboardType: TextInputType.phone,
+      );
+
+  Widget _addressField() => _profileField(
+        controller: _addressController,
+        label: 'Adresse',
+        icon: Icons.home_outlined,
+      );
+
+  Widget _postcodeField() => _profileField(
+        controller: _postcodeController,
+        label: 'PLZ',
+        icon: Icons.markunread_mailbox_outlined,
+      );
+
+  Widget _cityField() => _profileField(
+        controller: _cityController,
+        label: 'Stadt',
+        icon: Icons.location_city_outlined,
+      );
+
+  Widget _countryField() => _profileField(
+        controller: _countryController,
+        label: 'Land',
+        icon: Icons.public,
+      );
+
+  Widget _profileFieldPair({
+    required bool pairedRows,
+    required Widget left,
+    required Widget right,
+  }) {
+    if (!pairedRows) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          left,
+          _profileFieldSpacer(),
+          right,
+        ],
+      );
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: left),
+        _fieldRowSpacer(),
+        Expanded(child: right),
+      ],
+    );
+  }
+
+  Widget _buildProfileFields({required bool pairedRows}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _profileFieldPair(
+          pairedRows: pairedRows,
+          left: _firstNameField(),
+          right: _lastNameField(),
+        ),
+        _profileFieldSpacer(),
+        _profileFieldPair(
+          pairedRows: pairedRows,
+          left: _emailField(),
+          right: _phoneField(),
+        ),
+        _profileFieldSpacer(),
+        _profileFieldPair(
+          pairedRows: pairedRows,
+          left: _addressField(),
+          right: _postcodeField(),
+        ),
+        _profileFieldSpacer(),
+        _profileFieldPair(
+          pairedRows: pairedRows,
+          left: _cityField(),
+          right: _countryField(),
+        ),
+        _profileFieldSpacer(),
+        _buildGenderField(),
+      ],
+    );
+  }
+
+  Widget _buildGenderField() {
+    return NeumorphicInsetDropdown(
+      label: 'Geschlecht',
+      prefixIcon: Icons.wc_outlined,
+      value: _selectedGenderLabel,
+      items: genderPickerLabels,
+      onChanged: (value) => setState(() => _selectedGenderLabel = value),
+    );
+  }
+
+  Widget _buildPaymentsButton() {
+    return NeumorphicPillButton(
+      label: 'Zahlungsverlauf',
+      onPressed: () => context.push('/payments'),
+    );
+  }
+
+  Widget _buildSaveButton() {
+    return NeumorphicPillButton(
+      label: 'Änderungen speichern',
+      loading: _isSaving,
+      onPressed: _isSaving ? null : _saveUserData,
     );
   }
 
@@ -258,47 +385,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
         _buildProfileSummary(),
         _profileFieldSpacer(),
-        _profileField(
-          controller: _firstNameController,
-          label: 'Vorname',
-          icon: Icons.person_outline,
-          validator: (v) => (v == null || v.isEmpty) ? 'Vorname ist erforderlich' : null,
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final pairedRows = constraints.maxWidth >= 480;
+            return _buildProfileFields(pairedRows: pairedRows);
+          },
         ),
-        _profileFieldSpacer(),
-        _profileField(
-          controller: _lastNameController,
-          label: 'Nachname',
-          icon: Icons.person_outline,
-          validator: (v) => (v == null || v.isEmpty) ? 'Nachname ist erforderlich' : null,
-        ),
-        _profileFieldSpacer(),
-        _profileField(
-          controller: _emailController,
-          label: 'E-mail',
-          icon: Icons.mail_outline,
-          keyboardType: TextInputType.emailAddress,
-          validator: (v) => (v == null || v.isEmpty) ? 'E-mail ist erforderlich' : null,
-        ),
-        _profileFieldSpacer(),
-        _profileField(
-          controller: _phoneController,
-          label: 'Handynummer',
-          icon: Icons.phone_outlined,
-          keyboardType: TextInputType.phone,
-        ),
-        _profileFieldSpacer(),
-        _profileField(controller: _cityController, label: 'Stadt', icon: Icons.location_city_outlined),
-        _profileFieldSpacer(),
-        _profileField(controller: _countryController, label: 'Land', icon: Icons.public),
+        const SizedBox(height: 24),
+        _buildPaymentsButton(),
         const SizedBox(height: 16),
-        FigmaInsetInfoCard(
-          icon: Icons.payment_outlined,
-          title: 'Zahlungsverlauf',
-          subtitle: 'Zahlungen und Belege anzeigen',
-          onTap: () => context.push('/payments'),
-        ),
-        _profileFieldSpacer(),
-        _buildSaveTile(),
+        _buildSaveButton(),
         const SizedBox(height: 16),
       ],
     );
@@ -307,73 +403,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildWebForm() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final twoCol = constraints.maxWidth >= 640;
-        Widget field(Widget w) => Padding(padding: const EdgeInsets.only(bottom: AppTheme.infoInsetCardSpacing), child: w);
-
-        final left = Column(
-          children: [
-            field(_profileField(
-              controller: _firstNameController,
-              label: 'Vorname',
-              icon: Icons.person_outline,
-              validator: (v) => (v == null || v.isEmpty) ? 'Vorname ist erforderlich' : null,
-            )),
-            field(_profileField(
-              controller: _lastNameController,
-              label: 'Nachname',
-              icon: Icons.person_outline,
-              validator: (v) => (v == null || v.isEmpty) ? 'Nachname ist erforderlich' : null,
-            )),
-            field(_profileField(
-              controller: _emailController,
-              label: 'E-mail',
-              icon: Icons.mail_outline,
-              keyboardType: TextInputType.emailAddress,
-              validator: (v) => (v == null || v.isEmpty) ? 'E-mail ist erforderlich' : null,
-            )),
-            field(_profileField(
-              controller: _phoneController,
-              label: 'Handynummer',
-              icon: Icons.phone_outlined,
-              keyboardType: TextInputType.phone,
-            )),
-          ],
-        );
-
-        final right = Column(
-          children: [
-            field(_profileField(controller: _cityController, label: 'Stadt', icon: Icons.location_city_outlined)),
-            field(_profileField(controller: _countryController, label: 'Land', icon: Icons.public)),
-            field(_profileField(controller: _addressController, label: 'Adresse', icon: Icons.home_outlined)),
-            field(_profileField(controller: _postcodeController, label: 'PLZ', icon: Icons.markunread_mailbox_outlined)),
-          ],
-        );
+        final pairedRows = constraints.maxWidth >= 640;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildProfileSummary(),
             const SizedBox(height: AppTheme.infoInsetCardSpacing),
-            if (twoCol)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(child: left),
-                  const SizedBox(width: 24),
-                  Expanded(child: right),
-                ],
-              )
-            else
-              Column(children: [left, right]),
-            const SizedBox(height: 8),
-            FigmaInsetInfoCard(
-              icon: Icons.payment_outlined,
-              title: 'Zahlungsverlauf',
-              subtitle: 'Zahlungen und Belege anzeigen',
-              onTap: () => context.push('/payments'),
-            ),
-            const SizedBox(height: AppTheme.infoInsetCardSpacing),
-            _buildSaveTile(),
+            _buildProfileFields(pairedRows: pairedRows),
+            const SizedBox(height: 24),
+            _buildPaymentsButton(),
+            const SizedBox(height: 16),
+            _buildSaveButton(),
           ],
         );
       },

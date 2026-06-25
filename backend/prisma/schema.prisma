@@ -13,6 +13,7 @@ model User {
   password      String
   firstName     String
   lastName      String
+  gender        Gender?
   dateOfBirth   DateTime?
   city          String?
   country       String?
@@ -260,6 +261,11 @@ enum UserRole {
   USER
   MODERATOR
   DOCTOR
+}
+
+enum Gender {
+  MALE
+  FEMALE
 }
 
 enum AppointmentType {

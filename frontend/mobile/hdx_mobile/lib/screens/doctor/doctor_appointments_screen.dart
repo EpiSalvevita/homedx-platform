@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../models/doctor.dart';
+import '../../utils/gender_labels.dart';
 import '../../services/api_service.dart';
 import '../../services/appointment_service.dart';
 import '../../widgets/web/adaptive_screen.dart';
@@ -63,6 +64,7 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
                         child: DataTable(
                           columns: const [
                             DataColumn(label: Text('Patient')),
+                            DataColumn(label: Text('Geschlecht')),
                             DataColumn(label: Text('Datum')),
                             DataColumn(label: Text('Status')),
                           ],
@@ -71,6 +73,7 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
                               onSelectChanged: (_) => context.push('/doctor/appointments/${a.id}'),
                               cells: [
                                 DataCell(Text(a.patientName ?? 'Patient')),
+                                DataCell(Text(formatGenderDe(a.patientGender))),
                                 DataCell(Text(DateFormat('dd.MM.yyyy HH:mm').format(a.appointmentTime))),
                                 DataCell(Text(a.statusLabelDe)),
                               ],
@@ -89,7 +92,9 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
                         margin: const EdgeInsets.only(bottom: 12),
                         child: ListTile(
                           title: Text(a.patientName ?? 'Patient'),
-                          subtitle: Text(DateFormat('dd.MM.yyyy HH:mm').format(a.appointmentTime)),
+                          subtitle: Text(
+                            '${formatGenderDe(a.patientGender)} • ${DateFormat('dd.MM.yyyy HH:mm').format(a.appointmentTime)}',
+                          ),
                           trailing: a.canJoin
                               ? const Icon(Icons.video_call, color: Colors.green)
                               : null,

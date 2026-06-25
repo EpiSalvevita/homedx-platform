@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/doctor.dart';
+import '../utils/gender_labels.dart';
 import '../services/api_service.dart';
 import '../services/appointment_service.dart';
 
@@ -133,6 +134,10 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                     if (appointment.patientName != null) ...[
                       const SizedBox(height: 8),
                       Text('Patient: ${appointment.patientName}'),
+                    ],
+                    if (appointment.patientGender != null) ...[
+                      const SizedBox(height: 8),
+                      Text('Geschlecht: ${formatGenderDe(appointment.patientGender)}'),
                     ],
                     const SizedBox(height: 12),
                     Row(

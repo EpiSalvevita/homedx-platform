@@ -11,6 +11,7 @@ class UserData {
   final String? phone;
   final String? address1;
   final String? postcode;
+  final String? gender;
   final bool testAccount;
   final String authorized;
 
@@ -25,6 +26,7 @@ class UserData {
     this.phone,
     this.address1,
     this.postcode,
+    this.gender,
     this.testAccount = false,
     this.authorized = 'accepted',
   });
@@ -41,6 +43,7 @@ class UserData {
       phone: json['phone']?.toString(),
       address1: json['address1']?.toString(),
       postcode: json['postcode']?.toString(),
+      gender: json['gender']?.toString(),
       testAccount: json['testaccount'] == true,
       authorized: json['authorized']?.toString() ?? 'accepted',
     );
@@ -57,6 +60,7 @@ class UserData {
       'phone': phone,
       'address1': address1,
       'postcode': postcode,
+      'gender': gender,
     };
   }
 }

@@ -17,6 +17,7 @@ export interface AppointmentListItem {
   doctorName: string;
   patientId: string;
   patientName: string;
+  patientGender: string | null;
   appointmentTime: string;
   type: string;
   status: string;
@@ -281,7 +282,7 @@ export class AppointmentService {
     durationMin: number;
     videoRoomUrl: string | null;
     doctor: { user: { firstName: string; lastName: string } };
-    patient: { firstName: string; lastName: string };
+    patient: { firstName: string; lastName: string; gender: string | null };
   }): AppointmentListItem {
     return {
       id: appointment.id,
@@ -289,6 +290,7 @@ export class AppointmentService {
       doctorName: `Dr. ${appointment.doctor.user.firstName} ${appointment.doctor.user.lastName}`,
       patientId: appointment.patientId,
       patientName: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+      patientGender: appointment.patient.gender ?? null,
       appointmentTime: appointment.scheduledAt.toISOString(),
       type: appointment.type === 'IN_PERSON' ? 'in-person' : 'online',
       status: appointment.status.toLowerCase(),

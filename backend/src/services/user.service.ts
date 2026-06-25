@@ -62,6 +62,7 @@ export class UserService {
     if (data.city !== undefined) updateData.city = data.city;
     if (data.postcode !== undefined) updateData.postalCode = data.postcode;
     if (data.country !== undefined) updateData.country = data.country;
+    if (data.gender !== undefined) updateData.gender = data.gender;
 
     return this.prisma.user.update({
       where: { id },

@@ -73,6 +73,7 @@ class Appointment {
   final String doctorName;
   final String? patientId;
   final String? patientName;
+  final String? patientGender;
   final DateTime appointmentTime;
   final String type;
   final String? notes;
@@ -88,6 +89,7 @@ class Appointment {
     required this.doctorName,
     this.patientId,
     this.patientName,
+    this.patientGender,
     required this.appointmentTime,
     required this.type,
     this.notes,
@@ -105,6 +107,7 @@ class Appointment {
       doctorName: json['doctorName'] as String,
       patientId: json['patientId'] as String?,
       patientName: json['patientName'] as String?,
+      patientGender: json['patientGender'] as String?,
       appointmentTime: DateTime.parse(json['appointmentTime'] as String),
       type: json['type'] as String? ?? 'online',
       notes: json['notes'] as String?,
