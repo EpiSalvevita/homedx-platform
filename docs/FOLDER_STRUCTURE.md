@@ -30,8 +30,8 @@
 
 ## Reference / vendor (not the active app)
 
-- `Cube APP V0.1.21/` – Vendor Cube sample and SDK bits
-- `Cube/` – License and integration reference files
+- `Cube APP V0.1.21/` – Vendor Cube sample and SDK bits (**gitignored** — keep a local copy for reference; AAR is vendored in `frontend/mobile/hdx_mobile/android/app/libs/`)
+- `Cube/` – License and integration reference files (tracked reference only)
 - `mobile/` – Deprecated React Native tree (use `frontend/mobile/hdx_mobile/`)
 - `flutter/` – Local Flutter SDK checkout (framework, not a project)
 

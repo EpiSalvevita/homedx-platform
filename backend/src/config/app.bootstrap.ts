@@ -1,10 +1,12 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { MobileExceptionFilter } from '../filters/mobile-exception.filter';
 import { getCorsOrigins } from './env.config';
 
 export function configureApp(app: INestApplication): void {
   app.use(helmet());
+  app.use(cookieParser());
   app.useGlobalFilters(new MobileExceptionFilter());
 
   app.enableCors({

@@ -50,3 +50,6 @@ frontend/mobile/hdx_mobile/pubspec.lock
 
 # Legacy / duplicate tree at repo root (active app: frontend/mobile/hdx_mobile/)
 /mobile/
+
+# Vendor Cube SDK reference (keep locally; do not commit)
+Cube APP V0.1.21/

@@ -4,11 +4,13 @@ import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'http_client_factory.dart';
 import '../utils/constants.dart';
 
 class ApiService {
   final String baseUrl;
   final Map<String, String> defaultHeaders;
+  final http.Client _client;
   String? _authToken;
   VoidCallback? onUnauthorized;
 
@@ -21,7 +23,12 @@ class ApiService {
         defaultHeaders = headers ?? {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-        };
+        },
+        _client = createPlatformHttpClient();
+
+  void dispose() {
+    _client.close();
+  }
 
   void setAuthToken(String? token) {
     _authToken = token;
@@ -67,7 +74,7 @@ class ApiService {
         ),
       );
 
-      final response = await http
+      final response = await _client
           .get(
             uri,
             headers: _buildHeaders(additionalHeaders: headers, includeAuth: includeAuth),
@@ -100,7 +107,7 @@ class ApiService {
     try {
       final uri = _apiUri(endpoint);
 
-      final response = await http
+      final response = await _client
           .post(
             uri,
             headers: _buildHeaders(additionalHeaders: headers, includeAuth: includeAuth),

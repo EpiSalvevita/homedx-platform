@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/constants.dart';
@@ -17,6 +18,10 @@ class AuthService {
   }
 
   Future<String?> getStoredToken() async {
+    if (kIsWeb) {
+      return _apiService.authToken;
+    }
+
     final secureToken = await _secureStorage.read(key: AppConstants.keyAuthToken);
     if (secureToken != null) {
       return secureToken;
@@ -53,10 +58,16 @@ class AuthService {
   }
 
   Future<void> _storeToken(String token) async {
+    _apiService.setAuthToken(token);
+
+    if (kIsWeb) {
+      // Web: httpOnly cookie is the persistent session; token stays in memory only.
+      return;
+    }
+
     await _secureStorage.write(key: AppConstants.keyAuthToken, value: token);
     await _initPrefs();
     await _prefs?.remove(AppConstants.keyAuthToken);
-    _apiService.setAuthToken(token);
   }
 
   Future<void> _storeUserData(
@@ -77,6 +88,8 @@ class AuthService {
   }
 
   Future<void> _clearStoredData() async {
+    _apiService.setAuthToken(null);
+
     await _secureStorage.delete(key: AppConstants.keyAuthToken);
     await _secureStorage.delete(key: AppConstants.keyUserId);
     await _secureStorage.delete(key: AppConstants.keyUserEmail);
@@ -87,7 +100,6 @@ class AuthService {
     await _prefs?.remove(AppConstants.keyUserId);
     await _prefs?.remove(AppConstants.keyUserEmail);
     await _prefs?.remove(AppConstants.keyUserRole);
-    _apiService.setAuthToken(null);
   }
 
   Future<LoginResult> login(String email, String password) async {
@@ -106,7 +118,6 @@ class AuthService {
         await _storeToken(token);
 
         try {
-          _apiService.setAuthToken(token);
           final userDataResponse = await _apiService.post('/get-user-data');
           if (userDataResponse['success'] == true && userDataResponse['userdata'] != null) {
             final userData = userDataResponse['userdata'] as Map<String, dynamic>;
@@ -176,11 +187,37 @@ class AuthService {
     }
   }
 
+  Future<void> refreshUserProfileFromServer() async {
+    final userDataResponse = await _apiService.post('/get-user-data');
+    if (userDataResponse['success'] == true && userDataResponse['userdata'] != null) {
+      final userData = userDataResponse['userdata'] as Map<String, dynamic>;
+      await _storeUserData(
+        userData['id']?.toString() ?? '',
+        userData['email']?.toString() ?? '',
+        role: userData['role']?.toString(),
+      );
+    }
+  }
+
   Future<void> logout() async {
+    try {
+      await _apiService.post('/unset-authentication');
+    } catch (_) {
+      // Clear local state even if the server call fails.
+    }
     await _clearStoredData();
   }
 
   Future<bool> isLoggedIn() async {
+    if (kIsWeb) {
+      try {
+        final response = await _apiService.post('/init-authentication');
+        return response['success'] == true;
+      } catch (_) {
+        return false;
+      }
+    }
+
     final token = await getStoredToken();
     if (token != null) {
       _apiService.setAuthToken(token);
@@ -190,6 +227,16 @@ class AuthService {
   }
 
   Future<void> restoreSession() async {
+    if (kIsWeb) {
+      final loggedIn = await isLoggedIn();
+      if (!loggedIn) {
+        _apiService.setAuthToken(null);
+        return;
+      }
+      await refreshUserProfileFromServer();
+      return;
+    }
+
     final token = await getStoredToken();
     if (token != null) {
       _apiService.setAuthToken(token);

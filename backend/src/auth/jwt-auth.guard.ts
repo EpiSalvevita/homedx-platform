@@ -7,6 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { getJwtSecret } from '../config/env.config';
+import { AUTH_COOKIE_NAME } from '../config/auth-cookie.config';
 import { IS_PUBLIC_KEY } from './public.decorator';
 import { PrismaService } from '../services/prisma.service';
 
@@ -72,6 +73,12 @@ export class JwtAuthGuard implements CanActivate {
     const xAuthToken = headers?.['x-auth-token'];
     if (xAuthToken) {
       return xAuthToken;
+    }
+
+    const cookies = request.cookies as Record<string, string> | undefined;
+    const cookieToken = cookies?.[AUTH_COOKIE_NAME];
+    if (cookieToken) {
+      return cookieToken;
     }
 
     return undefined;

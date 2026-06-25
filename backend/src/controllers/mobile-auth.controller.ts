@@ -1,9 +1,15 @@
-import { Body, Controller, Logger, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Logger, Post, Request, Res, UseGuards } from '@nestjs/common';
+import type { Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Public } from '../auth/public.decorator';
+import {
+  AUTH_COOKIE_NAME,
+  getAuthCookieClearOptions,
+  getAuthCookieOptions,
+} from '../config/auth-cookie.config';
 import { LoginDto, RegisterDto, UpdateUserDataDto } from '../dto/mobile/auth.dto';
 import { sanitizeMobileError } from '../util/mobile-error.util';
 import {
@@ -27,9 +33,10 @@ export class MobileAuthController {
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('login')
-  async login(@Body() body: LoginDto): Promise<LoginResponse> {
+  async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response): Promise<LoginResponse> {
     try {
       const result = await this.authService.login(body.user, body.pw);
+      res.cookie(AUTH_COOKIE_NAME, result.access_token, getAuthCookieOptions());
       return { success: true, token: result.access_token };
     } catch (error) {
       return sanitizeMobileError(error, 'Login failed');
@@ -131,10 +138,14 @@ export class MobileAuthController {
 
   @Post('unset-authentication')
   @UseGuards(JwtAuthGuard)
-  async unsetAuthentication(@Request() req: { user: { sub: string } }): Promise<MobileResponse> {
+  async unsetAuthentication(
+    @Request() req: { user: { sub: string } },
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<MobileResponse> {
     if (!req.user?.sub) {
       return { success: false, error: 'Invalid token' };
     }
+    res.clearCookie(AUTH_COOKIE_NAME, getAuthCookieClearOptions());
     return { success: true };
   }
 }
