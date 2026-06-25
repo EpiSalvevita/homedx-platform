@@ -137,7 +137,7 @@ class DoctorService {
           rating: 4.8,
           reviewCount: 112,
           bio: 'Rheumatologe mit Schwerpunkt auf entzündlichen Gelenkerkrankungen',
-          languages: ['Deutsch', 'Englisch'],
+          languages: ['Deutsch'],
           availableSlots: [],
         ),
       ];

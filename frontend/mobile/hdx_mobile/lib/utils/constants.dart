@@ -1,12 +1,23 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConstants {
   // API Configuration — set API_BASE_URL in `.env` (LAN IP + port forwarding, or 127.0.0.1 with `adb reverse`).
   static String get apiBaseUrl {
-    final u = dotenv.env['API_BASE_URL']?.trim();
-    if (u != null && u.isNotEmpty) return u;
-    // Use the same host as the web app (localhost) so httpOnly cookies work.
-    return 'http://localhost:4010';
+    final fromEnv = dotenv.env['API_BASE_URL']?.trim();
+    var url = (fromEnv != null && fromEnv.isNotEmpty)
+        ? fromEnv
+        : 'http://127.0.0.1:4000';
+
+    // Windows + WSL2: browsers resolve localhost to ::1; backend listens IPv4 only.
+    if (kIsWeb) {
+      final uri = Uri.tryParse(url);
+      if (uri != null && uri.host == 'localhost') {
+        url = uri.replace(host: '127.0.0.1').toString();
+      }
+    }
+
+    return url.endsWith('/') ? url.substring(0, url.length - 1) : url;
   }
   static const Duration apiTimeout = Duration(seconds: 30);
   static const String apiPath = '/gg-homedx-json/gg-api/v1';

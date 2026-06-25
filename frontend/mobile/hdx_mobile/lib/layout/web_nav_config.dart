@@ -30,6 +30,7 @@ class WebNavConfig {
     WebNavItem(label: 'Ergebnisse', icon: Icons.assignment_outlined, path: '/results', routeName: 'results'),
     WebNavItem(label: 'Shop', icon: Icons.shopping_bag_outlined, path: '/shop', routeName: 'shop'),
     WebNavItem(label: 'Benachrichtigungen', icon: Icons.notifications_outlined, path: '/notifications', routeName: 'notifications'),
+    WebNavItem(label: 'Zahlungsverlauf', icon: Icons.payment_outlined, path: '/payments', routeName: 'payments'),
     WebNavItem(label: 'Profil', icon: Icons.person_outline, path: '/profile', routeName: 'profile'),
   ];
 

@@ -9,6 +9,33 @@ description: Detailed WSL2 port forwarding setup
 When running the backend in WSL2 and the Flutter app on an Android emulator or phone,
 you may see timeouts because the app cannot reach the WSL2 backend.
 
+> **Diagnose first:** On WSL2, a "network error" / "Failed to fetch" is almost always
+> an **environment** issue (port ownership, `netsh` portproxy, IPv4 vs IPv6) — **not**
+> app code. Before debugging Nest or Prisma, check who owns port 4000 and what the
+> portproxy table says (see [Web app in the browser](#web-app-in-the-browser-same-pc)
+> and [Troubleshooting](#troubleshooting)).
+
+## Web app in the browser (same PC)
+
+Running the Flutter **web** build in a browser on the same machine as WSL2 is the simplest
+path and behaves differently from the phone/emulator case below.
+
+- **You usually do NOT need any portproxy.** If WSL can bind `0.0.0.0:4000`, the Windows
+  browser reaches the backend directly. Only add `netsh` rules for a **physical phone**
+  on your LAN (see below).
+- **Use `http://127.0.0.1:4000`, not `http://localhost:4000`.** On Windows, `localhost`
+  resolves to IPv6 `::1`, but the backend binds IPv4 only (`backend/src/main.ts` →
+  `app.listen(port, '0.0.0.0')`). So `localhost:4000` **times out** while `127.0.0.1:4000`
+  works. The app already accounts for this: `frontend/mobile/hdx_mobile/lib/utils/constants.dart`
+  rewrites `localhost` → `127.0.0.1` on web, and `.env` ships `API_BASE_URL=http://127.0.0.1:4000`.
+- **Serve with SPA fallback** so deep links / refreshes on routes like `/home`, `/doctors`,
+  `/results` don't return 404:
+  ```bash
+  cd frontend/mobile/hdx_mobile && ./serve-web.sh 8080
+  ```
+  Plain `python3 -m http.server` only serves real files on disk, so any non-root path 404s.
+  Then open `http://127.0.0.1:8080`.
+
 ## Quick Setup (Recommended)
 
 From the repo root, run **as Administrator**. Prefer the batch launcher so Windows
@@ -117,3 +144,35 @@ Then **rebuild** the Flutter app (not hot reload).
 4. **Physical device + USB:** if you use **Windows** `adb`, you can try `adb reverse tcp:4000 tcp:4000` and set `API_BASE_URL=http://127.0.0.1:4000`, **but** that still hits Windows `127.0.0.1:4000` first — it will **not** fix the case where HTTP through portproxy is broken. Prefer mirrored networking or Windows-hosted Nest.
 
 5. Stale **`API_BASE_URL`** after DHCP: run `.\check-homedx-connectivity.ps1 -UpdateMobileEnv` and **rebuild** the app (release APK must be rebuilt; hot reload does not refresh `.env`).
+
+### Stale portproxy blocks WSL from binding 4000
+
+**Symptoms:** the backend logs `EADDRINUSE: address already in use 0.0.0.0:4000` even though nothing is running in WSL, and the browser shows "Failed to fetch".
+
+**Cause:** a leftover `netsh` rule (often `127.0.0.1 4000 → <old WSL IP> 4010`, left behind after a WSL restart changed the IP) holds the port on the **Windows** side and forwards to a dead target. Because Windows owns `127.0.0.1:4000`, WSL can no longer bind it, and `localhost:4000` from the browser is routed to nothing.
+
+**Diagnose / fix:**
+
+1. Show the current rules (from WSL or Windows):
+   ```bash
+   powershell.exe -NoProfile -Command "netsh interface portproxy show all"
+   ```
+   Look for any `4000` row whose connect target is not your **current** WSL IP, or that points at a different port (e.g. `4010`).
+
+2. Test whether WSL can bind port 4000:
+   ```bash
+   node -e "require('net').createServer().listen(4000,'0.0.0.0',function(){this.close();console.log('ok')}).on('error',e=>console.log('fail',e.message))"
+   ```
+   `fail ... EADDRINUSE` with no WSL process listening points to a stale Windows rule.
+
+3. Delete the stale rules (PowerShell **Admin**), then let WSL bind 4000 directly:
+   ```powershell
+   netsh interface portproxy delete v4tov4 listenport=4000 listenaddress=0.0.0.0
+   netsh interface portproxy delete v4tov4 listenport=4000 listenaddress=127.0.0.1
+   ```
+   Or, from WSL, re-create correct rules for the **current** IP:
+   ```bash
+   ./run-wsl-port-forward-elevated.sh
+   ```
+
+4. After deleting, WSL can bind `0.0.0.0:4000` again and `http://127.0.0.1:4000` works from the browser. For **web-only dev on the same PC you do not need to re-add any portproxy** — only re-run the setup script when a physical phone needs the LAN path.

@@ -302,6 +302,9 @@ InputDecoration neumorphicFieldDecoration({
   String? hint,
   IconData? prefixIcon,
   Widget? suffix,
+  double? iconSize,
+  double? hintFontSize,
+  double? contentGap,
 }) {
   const none = InputBorder.none;
   return InputDecoration(
@@ -317,19 +320,23 @@ InputDecoration neumorphicFieldDecoration({
     focusedErrorBorder: none,
     hintText: hint,
     hintStyle: GoogleFonts.rubik(
-      fontSize: 16,
+      fontSize: hintFontSize ?? 16,
       fontWeight: FontWeight.w300,
       color: AppTheme.textColor.withValues(alpha: 0.5),
       height: 1.0,
     ),
     prefixIcon: prefixIcon != null
         ? Padding(
-            padding: EdgeInsets.only(right: AppTheme.fieldContentGap),
+            padding: EdgeInsets.only(right: contentGap ?? AppTheme.fieldContentGap),
             child: Align(
               alignment: Alignment.center,
               widthFactor: 1,
               heightFactor: 1,
-              child: Icon(prefixIcon, color: AppTheme.textColor, size: 21),
+              child: Icon(
+                prefixIcon,
+                color: AppTheme.textColor,
+                size: iconSize ?? 21,
+              ),
             ),
           )
         : null,

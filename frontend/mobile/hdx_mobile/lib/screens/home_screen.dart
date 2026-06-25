@@ -66,6 +66,14 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.payment_outlined, color: AppTheme.textColor),
+              title: Text('Zahlungsverlauf', style: FigmaUi.rubik(fontWeight: FontWeight.w500, color: AppTheme.textColor)),
+              onTap: () {
+                Navigator.pop(context);
+                context.push('/payments');
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.logout, color: AppTheme.errorColor),
               title: Text('Abmelden', style: FigmaUi.rubik(fontWeight: FontWeight.w500, color: AppTheme.errorColor)),
               onTap: () { Navigator.pop(context); _handleLogout(); },

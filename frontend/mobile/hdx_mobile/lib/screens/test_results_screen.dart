@@ -65,7 +65,6 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
   Widget build(BuildContext context) {
     return AdaptiveScreen(
       title: 'Testergebnisse',
-      blueTopBar: true,
       showBackOnMobile: false,
       onBack: () => context.go('/home'),
       body: RefreshIndicator(
@@ -74,7 +73,24 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
           padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
-            const FigmaInfoBanner(message: 'Tippen Sie auf einen Eintrag für Details.'),
+            if (kIsWeb) ...[
+              Text(
+                'Testergebnisse',
+                style: FigmaUi.rubik(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textColor,
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+            Text(
+              'Tippen Sie auf einen Eintrag für Details.',
+              style: FigmaUi.bodyLight(
+                fontSize: 14,
+                color: AppTheme.textColorSecondary,
+              ),
+            ),
             const SizedBox(height: 16),
             if (_isLoading)
               const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator()))

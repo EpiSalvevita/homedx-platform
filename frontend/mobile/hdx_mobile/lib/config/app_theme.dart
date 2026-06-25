@@ -80,10 +80,24 @@ class AppTheme {
   /// Vertical spacing between stacked profile/login fields.
   static const double fieldSpacing = 25;
 
+  /// Profile form: pill fields 15% smaller than [fieldHeight].
+  static const double profileFieldHeight = fieldHeight * 0.85;
+  static const EdgeInsets profileFieldPadding = EdgeInsets.symmetric(horizontal: 22.1);
+  static const double profileFieldFontSize = 13.6;
+  static const double profileFieldLabelFontSize = 11.9;
+  static const double profileFieldIconSize = 17.85;
+  static const double profileFieldContentGap = fieldContentGap * 0.85;
+  static const double profileFieldLabelOffsetLeft = 32.3;
+  static const double profileFieldLabelOffsetTop = -8.5;
+  /// Vertical gap between profile field rows (+20% vs default 12px inset spacing).
+  static const double profileFieldRowSpacing = 14.4;
+
   /// Figma home quick-action cards (`50:587` etc.): 186×138, 20px grid gap.
   static const double quickActionCardAspectRatio = 186 / 138;
   static const double quickActionGridSpacing = 20;
   static const double quickActionCardRadius = 16;
+  /// Doctor picker tiles: same width logic as quick actions, slightly taller for text.
+  static const double doctorSelectionCardAspectRatio = 186 / 200;
 
   /// Figma home activity rows (`50:628`): 392×105, radius 14, padding 22×12.
   static const double activityCardHeight = 105;

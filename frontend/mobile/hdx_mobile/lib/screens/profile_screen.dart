@@ -7,6 +7,7 @@ import '../services/user_service.dart' show UserData, UserService;
 import '../services/api_service.dart';
 import '../services/cube_service.dart';
 import '../utils/gender_labels.dart';
+import '../utils/profile_field_metrics.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/web/adaptive_screen.dart';
 
@@ -150,15 +151,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       title: 'Profil',
       showBackOnMobile: false,
       onBack: () => context.go('/home'),
-      actions: [
-        if (!_isLoading && _userData != null)
-          IconButton(
-            icon: _isSaving
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.textColor))
-                : const Icon(Icons.save_outlined, color: AppTheme.textColor),
-            onPressed: _isSaving ? null : _saveUserData,
-          ),
-      ],
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -221,6 +213,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _profileField({
+    required ProfileFieldMetrics metrics,
     required TextEditingController controller,
     required String label,
     required IconData icon,
@@ -228,6 +221,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String? Function(String?)? validator,
   }) {
     return ProfileInsetField(
+      metrics: metrics,
       controller: controller,
       label: label,
       icon: icon,
@@ -236,25 +230,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _profileFieldSpacer() => const SizedBox(height: AppTheme.infoInsetCardSpacing);
+  Widget _profileFieldSpacer(ProfileFieldMetrics metrics) =>
+      SizedBox(height: metrics.rowSpacing);
 
-  Widget _fieldRowSpacer() => const SizedBox(width: 16);
+  Widget _fieldRowSpacer(ProfileFieldMetrics metrics) => SizedBox(width: metrics.rowGap);
 
-  Widget _firstNameField() => _profileField(
+  Widget _firstNameField(ProfileFieldMetrics metrics) => _profileField(
+        metrics: metrics,
         controller: _firstNameController,
         label: 'Vorname',
         icon: Icons.person_outline,
         validator: (v) => (v == null || v.isEmpty) ? 'Vorname ist erforderlich' : null,
       );
 
-  Widget _lastNameField() => _profileField(
+  Widget _lastNameField(ProfileFieldMetrics metrics) => _profileField(
+        metrics: metrics,
         controller: _lastNameController,
         label: 'Nachname',
         icon: Icons.person_outline,
         validator: (v) => (v == null || v.isEmpty) ? 'Nachname ist erforderlich' : null,
       );
 
-  Widget _emailField() => _profileField(
+  Widget _emailField(ProfileFieldMetrics metrics) => _profileField(
+        metrics: metrics,
         controller: _emailController,
         label: 'E-mail',
         icon: Icons.mail_outline,
@@ -262,32 +260,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
         validator: (v) => (v == null || v.isEmpty) ? 'E-mail ist erforderlich' : null,
       );
 
-  Widget _phoneField() => _profileField(
+  Widget _phoneField(ProfileFieldMetrics metrics) => _profileField(
+        metrics: metrics,
         controller: _phoneController,
         label: 'Handynummer',
         icon: Icons.phone_outlined,
         keyboardType: TextInputType.phone,
       );
 
-  Widget _addressField() => _profileField(
+  Widget _addressField(ProfileFieldMetrics metrics) => _profileField(
+        metrics: metrics,
         controller: _addressController,
         label: 'Adresse',
         icon: Icons.home_outlined,
       );
 
-  Widget _postcodeField() => _profileField(
+  Widget _postcodeField(ProfileFieldMetrics metrics) => _profileField(
+        metrics: metrics,
         controller: _postcodeController,
         label: 'PLZ',
         icon: Icons.markunread_mailbox_outlined,
       );
 
-  Widget _cityField() => _profileField(
+  Widget _cityField(ProfileFieldMetrics metrics) => _profileField(
+        metrics: metrics,
         controller: _cityController,
         label: 'Stadt',
         icon: Icons.location_city_outlined,
       );
 
-  Widget _countryField() => _profileField(
+  Widget _countryField(ProfileFieldMetrics metrics) => _profileField(
+        metrics: metrics,
         controller: _countryController,
         label: 'Land',
         icon: Icons.public,
@@ -295,6 +298,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _profileFieldPair({
     required bool pairedRows,
+    required ProfileFieldMetrics metrics,
     required Widget left,
     required Widget right,
   }) {
@@ -303,7 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           left,
-          _profileFieldSpacer(),
+          _profileFieldSpacer(metrics),
           right,
         ],
       );
@@ -312,108 +316,122 @@ class _ProfileScreenState extends State<ProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(child: left),
-        _fieldRowSpacer(),
+        _fieldRowSpacer(metrics),
         Expanded(child: right),
       ],
     );
   }
 
-  Widget _buildProfileFields({required bool pairedRows}) {
+  Widget _buildProfileFields({
+    required bool pairedRows,
+    required ProfileFieldMetrics metrics,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _profileFieldPair(
           pairedRows: pairedRows,
-          left: _firstNameField(),
-          right: _lastNameField(),
+          metrics: metrics,
+          left: _firstNameField(metrics),
+          right: _lastNameField(metrics),
         ),
-        _profileFieldSpacer(),
+        _profileFieldSpacer(metrics),
         _profileFieldPair(
           pairedRows: pairedRows,
-          left: _emailField(),
-          right: _phoneField(),
+          metrics: metrics,
+          left: _emailField(metrics),
+          right: _phoneField(metrics),
         ),
-        _profileFieldSpacer(),
+        _profileFieldSpacer(metrics),
         _profileFieldPair(
           pairedRows: pairedRows,
-          left: _addressField(),
-          right: _postcodeField(),
+          metrics: metrics,
+          left: _addressField(metrics),
+          right: _postcodeField(metrics),
         ),
-        _profileFieldSpacer(),
+        _profileFieldSpacer(metrics),
         _profileFieldPair(
           pairedRows: pairedRows,
-          left: _cityField(),
-          right: _countryField(),
+          metrics: metrics,
+          left: _cityField(metrics),
+          right: _countryField(metrics),
         ),
-        _profileFieldSpacer(),
-        _buildGenderField(),
+        _profileFieldSpacer(metrics),
+        _buildGenderField(metrics),
       ],
     );
   }
 
-  Widget _buildGenderField() {
+  Widget _buildGenderField(ProfileFieldMetrics metrics) {
     return NeumorphicInsetDropdown(
       label: 'Geschlecht',
       prefixIcon: Icons.wc_outlined,
       value: _selectedGenderLabel,
       items: genderPickerLabels,
       onChanged: (value) => setState(() => _selectedGenderLabel = value),
-    );
-  }
-
-  Widget _buildPaymentsButton() {
-    return NeumorphicPillButton(
-      label: 'Zahlungsverlauf',
-      onPressed: () => context.push('/payments'),
+      fieldHeight: metrics.fieldHeight,
+      fieldPadding: metrics.fieldPadding,
+      fontSize: metrics.fontSize,
+      labelFontSize: metrics.labelFontSize,
+      labelOffsetLeft: metrics.labelOffsetLeft,
+      labelOffsetTop: metrics.labelOffsetTop,
+      iconSize: metrics.iconSize,
+      contentGap: metrics.contentGap,
     );
   }
 
   Widget _buildSaveButton() {
-    return NeumorphicPillButton(
-      label: 'Änderungen speichern',
-      loading: _isSaving,
-      onPressed: _isSaving ? null : _saveUserData,
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: NeumorphicPillButton(
+        label: 'Änderungen speichern',
+        leadingIcon: Icons.save_outlined,
+        expanded: false,
+        backgroundColor: AppTheme.accentMint,
+        foregroundColor: AppTheme.onMint,
+        loading: _isSaving,
+        onPressed: _isSaving ? null : _saveUserData,
+      ),
     );
   }
 
   Widget _buildMobileForm() {
-    return Column(
-      children: [
-        if (!kIsWeb) ...[
-          _buildCubeSdkCard(),
-          _profileFieldSpacer(),
-        ],
-        _buildProfileSummary(),
-        _profileFieldSpacer(),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final pairedRows = constraints.maxWidth >= 480;
-            return _buildProfileFields(pairedRows: pairedRows);
-          },
-        ),
-        const SizedBox(height: 24),
-        _buildPaymentsButton(),
-        const SizedBox(height: 16),
-        _buildSaveButton(),
-        const SizedBox(height: 16),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final metrics = ProfileFieldMetrics.fromWidth(constraints.maxWidth);
+        final pairedRows = constraints.maxWidth >= 480;
+
+        return Column(
+          children: [
+            if (!kIsWeb) ...[
+              _buildCubeSdkCard(),
+              _profileFieldSpacer(metrics),
+            ],
+            _buildProfileSummary(),
+            _profileFieldSpacer(metrics),
+            _buildProfileFields(pairedRows: pairedRows, metrics: metrics),
+            const SizedBox(height: 24),
+            _buildSaveButton(),
+            const SizedBox(height: 16),
+          ],
+        );
+      },
     );
   }
 
   Widget _buildWebForm() {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final metrics = ProfileFieldMetrics.fromWidth(constraints.maxWidth);
         final pairedRows = constraints.maxWidth >= 640;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildProfileSummary(),
-            const SizedBox(height: AppTheme.infoInsetCardSpacing),
-            _buildProfileFields(pairedRows: pairedRows),
+            _profileFieldSpacer(metrics),
+            _buildProfileFields(pairedRows: pairedRows, metrics: metrics),
             const SizedBox(height: 24),
-            _buildPaymentsButton(),
-            const SizedBox(height: 16),
             _buildSaveButton(),
           ],
         );

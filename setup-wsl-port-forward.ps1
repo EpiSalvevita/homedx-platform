@@ -7,39 +7,54 @@
 #>
 $ErrorActionPreference = 'Stop'
 
-# Prefer eth0 (mirrored networking / single primary NIC); fall back to first hostname -I token.
-$wslIp = (& wsl.exe -e /bin/sh -c 'ip -4 -o addr show eth0 2>/dev/null | awk ''{print $4}'' | cut -d/ -f1' 2>$null).Trim()
-if (-not $wslIp) {
-    $wslLine = (& wsl.exe hostname -I 2>$null)
-    if (-not $wslLine) {
-        Write-Host "Error: Could not read WSL IP (eth0 or hostname -I). Is WSL running?" -ForegroundColor Red
-        exit 1
+function Get-WslBackendIp {
+    # Prefer primary WSL NIC (eth0 mirrored, or eth1 LAN); skip docker bridges.
+    $raw = (& wsl.exe -e /bin/sh -c @'
+for iface in eth0 eth1; do
+  ip -4 -o addr show "$iface" 2>/dev/null | awk '{print $4}' | cut -d/ -f1
+done
+ip -4 -o addr show 2>/dev/null | awk '{print $4}' | cut -d/ -f1
+'@ 2>$null)
+    $ips = @($raw -split "`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ -match '^\d{1,3}(\.\d{1,3}){3}$' })
+    foreach ($ip in $ips) {
+        if ($ip -match '^127\.' -or $ip -match '^10\.255\.255\.') { continue }
+        if ($ip -match '^172\.(1[6-9]|2[0-9]|3[0-1])\.' -and $ip -notmatch '^172\.(25|26)\.') { continue }
+        return $ip
     }
-    $wslIp = ($wslLine.Trim() -split '\s+')[0]
-}
-if ($wslIp -notmatch '^\d{1,3}(\.\d{1,3}){3}$') {
-    Write-Host "Error: Unexpected WSL IP value: $wslIp" -ForegroundColor Red
-    exit 1
+    if ($ips.Count -gt 0) { return $ips[0] }
+    throw "Could not read a usable WSL IP (eth0/eth1 / ip addr)."
 }
 
+function Get-WslBackendPort {
+    $port = (& wsl.exe -e /bin/sh -c @'
+node -e "require('net').createServer().listen(4000,'0.0.0.0',function(){this.close();process.exit(0)}).on('error',()=>process.exit(1))" 2>/dev/null && echo 4000 || echo 4010
+'@ 2>$null).Trim()
+    if ($port -notmatch '^(4000|4010)$') { return '4010' }
+    return $port
+}
+
+$wslIp = Get-WslBackendIp
+$connectPort = Get-WslBackendPort
+
 Write-Host "WSL2 IP (connect target): $wslIp" -ForegroundColor Cyan
+Write-Host "WSL backend port: $connectPort (Windows still listens on 4000)" -ForegroundColor Cyan
 
 # Remove stale rules (ignore exit code if missing)
 Start-Process -FilePath netsh.exe -ArgumentList @('interface','portproxy','delete','v4tov4','listenport=4000','listenaddress=0.0.0.0') -Wait -NoNewWindow -PassThru | Out-Null
 Start-Process -FilePath netsh.exe -ArgumentList @('interface','portproxy','delete','v4tov4','listenport=4000','listenaddress=127.0.0.1') -Wait -NoNewWindow -PassThru | Out-Null
 
-$p1 = Start-Process -FilePath netsh.exe -ArgumentList @('interface','portproxy','add','v4tov4','listenport=4000','listenaddress=0.0.0.0','connectport=4000',"connectaddress=$wslIp") -Wait -NoNewWindow -PassThru
+$p1 = Start-Process -FilePath netsh.exe -ArgumentList @('interface','portproxy','add','v4tov4','listenport=4000','listenaddress=0.0.0.0','connectport=' + $connectPort,"connectaddress=$wslIp") -Wait -NoNewWindow -PassThru
 if ($p1.ExitCode -ne 0) {
     Write-Host "netsh add (0.0.0.0:4000) failed with exit $($p1.ExitCode)" -ForegroundColor Red
     exit $p1.ExitCode
 }
-$p2 = Start-Process -FilePath netsh.exe -ArgumentList @('interface','portproxy','add','v4tov4','listenport=4000','listenaddress=127.0.0.1','connectport=4000',"connectaddress=$wslIp") -Wait -NoNewWindow -PassThru
+$p2 = Start-Process -FilePath netsh.exe -ArgumentList @('interface','portproxy','add','v4tov4','listenport=4000','listenaddress=127.0.0.1','connectport=' + $connectPort,"connectaddress=$wslIp") -Wait -NoNewWindow -PassThru
 if ($p2.ExitCode -ne 0) {
     Write-Host "netsh add (127.0.0.1:4000) failed with exit $($p2.ExitCode)" -ForegroundColor Red
     exit $p2.ExitCode
 }
 
-Write-Host "Port proxy rules added for 4000 -> ${wslIp}:4000" -ForegroundColor Green
+Write-Host "Port proxy rules added for 4000 -> ${wslIp}:${connectPort}" -ForegroundColor Green
 
 $show = netsh interface portproxy show all
 Write-Host ($show)
@@ -54,4 +69,7 @@ New-NetFirewallRule -DisplayName 'homeDX Backend 4000' -Direction Inbound -Proto
 
 Write-Host "Firewall rule added (Domain,Private,Public) for TCP 4000" -ForegroundColor Green
 Write-Host ""
-Write-Host "Done. Phone .env: API_BASE_URL=http://<Windows Wi-Fi/Ethernet IPv4>:4000 (ipconfig on Windows — not the WSL IP)." -ForegroundColor Yellow
+Write-Host "Done. Flutter .env: API_BASE_URL=http://localhost:4000 (browser) or http://<Windows Wi-Fi IPv4>:4000 (phone)." -ForegroundColor Yellow
+if ($connectPort -eq '4010') {
+    Write-Host "Note: WSL could not bind 4000; backend should run with PORT=4010 in backend/.env" -ForegroundColor Yellow
+}

@@ -139,13 +139,13 @@ class _LandingNav extends StatelessWidget {
               ],
               NeumorphicButton(
                 isPrimary: true,
-                onPressed: () => context.go('/signup'),
+                onPressed: () => context.go(isWide ? '/signup' : '/login'),
                 padding: EdgeInsets.symmetric(
                   horizontal: isWide ? 28 : 20,
                   vertical: 14,
                 ),
                 child: Text(
-                  isWide ? 'Registrieren' : 'Start',
+                  isWide ? 'Registrieren' : (isGerman ? 'Anmelden' : 'Login'),
                   style: FigmaUi.rubik(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,

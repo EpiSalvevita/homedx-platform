@@ -92,4 +92,24 @@ void main() {
     expect(uri.queryParameters['testTypeName'], 'RheumaCheck');
     expect(uri.queryParameters['specialization'], 'Rheumatologie');
   });
+
+  testWidgets('language filter shows only doctors speaking selected language',
+      (tester) async {
+    await _pumpScreen(tester);
+
+    expect(find.text('Sprache'), findsOneWidget);
+    expect(find.byKey(const ValueKey('doctor-lang-filter-Deutsch')), findsOneWidget);
+    expect(find.byKey(const ValueKey('doctor-lang-filter-Englisch')), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('doctor-lang-filter-Englisch')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Dr. Sarah Müller'), findsOneWidget);
+    expect(find.text('Dr. Klaus Becker'), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('doctor-lang-filter-all')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Dr. Klaus Becker'), findsOneWidget);
+  });
 }

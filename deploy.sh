@@ -225,7 +225,7 @@ if [ "${START_WEB:-false}" = true ]; then
     flutter build web --release
     cd - >/dev/null
     print_status "Web build complete: $FLUTTER_APP/build/web"
-    print_info "Serve locally: cd $FLUTTER_APP/build/web && python3 -m http.server 8080"
+    print_info "Serve locally: cd $FLUTTER_APP && ./serve-web.sh 8080"
     print_info "Set API_BASE_URL=http://127.0.0.1:4000 in $FLUTTER_APP/.env for browser dev"
     exit 0
 fi

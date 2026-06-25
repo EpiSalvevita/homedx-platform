@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../config/app_theme.dart';
 import '../utils/app_assets.dart';
+import '../utils/profile_field_metrics.dart';
 import 'neumorphic_inset.dart';
 
 /// Shared UI primitives matching the homeDX Figma "Final" page.
@@ -325,6 +326,7 @@ class FigmaInsetInfoCard extends StatelessWidget {
 
 /// Profile input — same pill inset tile as login ([NeumorphicInsetField]).
 class ProfileInsetField extends StatelessWidget {
+  final ProfileFieldMetrics metrics;
   final TextEditingController controller;
   final String label;
   final IconData icon;
@@ -335,6 +337,7 @@ class ProfileInsetField extends StatelessWidget {
 
   const ProfileInsetField({
     super.key,
+    required this.metrics,
     required this.controller,
     required this.label,
     required this.icon,
@@ -354,6 +357,14 @@ class ProfileInsetField extends StatelessWidget {
       validator: validator,
       obscureText: obscureText,
       suffix: suffix,
+      fieldHeight: metrics.fieldHeight,
+      fieldPadding: metrics.fieldPadding,
+      fontSize: metrics.fontSize,
+      labelFontSize: metrics.labelFontSize,
+      labelOffsetLeft: metrics.labelOffsetLeft,
+      labelOffsetTop: metrics.labelOffsetTop,
+      iconSize: metrics.iconSize,
+      contentGap: metrics.contentGap,
     );
   }
 }
@@ -400,6 +411,14 @@ class NeumorphicInsetField extends StatelessWidget {
   final FocusNode? focusNode;
   final TextInputAction? textInputAction;
   final VoidCallback? onFieldSubmitted;
+  final double fieldHeight;
+  final EdgeInsetsGeometry fieldPadding;
+  final double fontSize;
+  final double labelFontSize;
+  final double labelOffsetLeft;
+  final double labelOffsetTop;
+  final double iconSize;
+  final double contentGap;
 
   const NeumorphicInsetField({
     super.key,
@@ -414,6 +433,14 @@ class NeumorphicInsetField extends StatelessWidget {
     this.focusNode,
     this.textInputAction,
     this.onFieldSubmitted,
+    this.fieldHeight = AppTheme.fieldHeight,
+    this.fieldPadding = AppTheme.fieldPadding,
+    this.fontSize = 16,
+    this.labelFontSize = 14,
+    this.labelOffsetLeft = 38,
+    this.labelOffsetTop = -10,
+    this.iconSize = 21,
+    this.contentGap = AppTheme.fieldContentGap,
   });
 
   @override
@@ -425,7 +452,7 @@ class NeumorphicInsetField extends StatelessWidget {
       },
       builder: (field) {
         final textStyle = FigmaUi.rubik(
-          fontSize: 16,
+          fontSize: fontSize,
           fontWeight: FontWeight.w300,
           color: AppTheme.textColor,
           height: 1.0,
@@ -438,6 +465,8 @@ class NeumorphicInsetField extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 NeumorphicInsetSurface(
+                  height: fieldHeight,
+                  padding: fieldPadding,
                   invertedInset: true,
                   backgroundColor: AppTheme.background,
                   child: Theme(
@@ -457,13 +486,16 @@ class NeumorphicInsetField extends StatelessWidget {
                         hint: hint,
                         prefixIcon: prefixIcon,
                         suffix: suffix,
+                        iconSize: iconSize,
+                        hintFontSize: fontSize,
+                        contentGap: contentGap,
                       ),
                     ),
                   ),
                 ),
                 Positioned(
-                  left: 38,
-                  top: -10,
+                  left: labelOffsetLeft,
+                  top: labelOffsetTop,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
@@ -473,7 +505,7 @@ class NeumorphicInsetField extends StatelessWidget {
                     child: Text(
                       label,
                       style: FigmaUi.rubik(
-                        fontSize: 14,
+                        fontSize: labelFontSize,
                         fontWeight: FontWeight.w300,
                         color: AppTheme.primaryBlue,
                       ),
@@ -498,6 +530,14 @@ class NeumorphicInsetDropdown extends StatelessWidget {
   final List<String> items;
   final ValueChanged<String?> onChanged;
   final String? Function(String?)? validator;
+  final double fieldHeight;
+  final EdgeInsetsGeometry fieldPadding;
+  final double fontSize;
+  final double labelFontSize;
+  final double labelOffsetLeft;
+  final double labelOffsetTop;
+  final double iconSize;
+  final double contentGap;
 
   const NeumorphicInsetDropdown({
     super.key,
@@ -507,6 +547,14 @@ class NeumorphicInsetDropdown extends StatelessWidget {
     required this.items,
     required this.onChanged,
     this.validator,
+    this.fieldHeight = AppTheme.fieldHeight,
+    this.fieldPadding = AppTheme.fieldPadding,
+    this.fontSize = 16,
+    this.labelFontSize = 14,
+    this.labelOffsetLeft = 38,
+    this.labelOffsetTop = -10,
+    this.iconSize = 21,
+    this.contentGap = AppTheme.fieldContentGap,
   });
 
   @override
@@ -522,12 +570,18 @@ class NeumorphicInsetDropdown extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 NeumorphicInsetSurface(
+                  height: fieldHeight,
+                  padding: fieldPadding,
                   invertedInset: true,
                   backgroundColor: AppTheme.background,
                   child: Theme(
                     data: neumorphicFieldTheme(context),
                     child: InputDecorator(
-                      decoration: neumorphicFieldDecoration(prefixIcon: prefixIcon),
+                      decoration: neumorphicFieldDecoration(
+                        prefixIcon: prefixIcon,
+                        iconSize: iconSize,
+                        contentGap: contentGap,
+                      ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: field.value,
@@ -538,7 +592,7 @@ class NeumorphicInsetDropdown extends StatelessWidget {
                                   child: Text(
                                     item,
                                     style: FigmaUi.rubik(
-                                      fontSize: 16,
+                                      fontSize: fontSize,
                                       fontWeight: FontWeight.w300,
                                       color: AppTheme.textColor,
                                       height: 1.0,
@@ -554,7 +608,7 @@ class NeumorphicInsetDropdown extends StatelessWidget {
                           isExpanded: true,
                           icon: const Icon(Icons.keyboard_arrow_down, color: AppTheme.textColorSecondary),
                           style: FigmaUi.rubik(
-                            fontSize: 16,
+                            fontSize: fontSize,
                             fontWeight: FontWeight.w300,
                             color: AppTheme.textColor,
                             height: 1.0,
@@ -566,8 +620,8 @@ class NeumorphicInsetDropdown extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  left: 38,
-                  top: -10,
+                  left: labelOffsetLeft,
+                  top: labelOffsetTop,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
@@ -576,7 +630,11 @@ class NeumorphicInsetDropdown extends StatelessWidget {
                     ),
                     child: Text(
                       label,
-                      style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w300, color: AppTheme.primaryBlue),
+                      style: FigmaUi.rubik(
+                        fontSize: labelFontSize,
+                        fontWeight: FontWeight.w300,
+                        color: AppTheme.primaryBlue,
+                      ),
                     ),
                   ),
                 ),
@@ -595,6 +653,11 @@ class NeumorphicPillButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool loading;
   final double height;
+  final IconData? leadingIcon;
+  /// When false, the pill hugs [label] (+ optional [leadingIcon]) instead of filling width.
+  final bool expanded;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
   /// When true, uses inset styling (input fields). Default is Figma Large raised button.
   final bool inset;
 
@@ -604,27 +667,55 @@ class NeumorphicPillButton extends StatelessWidget {
     this.onPressed,
     this.loading = false,
     this.height = AppTheme.buttonHeightLarge,
+    this.leadingIcon,
+    this.expanded = true,
+    this.backgroundColor,
+    this.foregroundColor,
     this.inset = false,
   });
 
+  Widget _buildContent(Color foreground) {
+    if (loading) {
+      return SizedBox(
+        width: 22,
+        height: 22,
+        child: CircularProgressIndicator(strokeWidth: 2, color: foreground),
+      );
+    }
+
+    final text = Text(
+      label,
+      style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: foreground),
+    );
+
+    if (leadingIcon == null) return text;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(leadingIcon, size: 22, color: foreground),
+        const SizedBox(width: 10),
+        text,
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final labelWidget = loading
-        ? const SizedBox(
-            width: 22,
-            height: 22,
-            child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.textColor),
-          )
-        : Text(
-            label,
-            style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor),
-          );
+    final fill = backgroundColor ?? AppTheme.background;
+    final foreground = foregroundColor ?? AppTheme.textColor;
+    final labelWidget = _buildContent(foreground);
+    final horizontalPadding = expanded ? null : const EdgeInsets.symmetric(horizontal: 26);
+
+    Widget pill;
 
     if (inset) {
-      return NeumorphicInsetSurface(
+      pill = NeumorphicInsetSurface(
         height: height,
-        padding: const EdgeInsets.symmetric(horizontal: 26),
+        padding: horizontalPadding ?? const EdgeInsets.symmetric(horizontal: 26),
         alignment: Alignment.center,
+        backgroundColor: fill,
         child: Material(
           color: Colors.transparent,
           child: InkWell(
@@ -633,38 +724,44 @@ class NeumorphicPillButton extends StatelessWidget {
             splashFactory: NoSplash.splashFactory,
             highlightColor: Colors.transparent,
             child: SizedBox(
-              width: double.infinity,
+              width: expanded ? double.infinity : null,
               height: double.infinity,
-              child: Center(child: labelWidget),
+              child: expanded ? Center(child: labelWidget) : labelWidget,
+            ),
+          ),
+        ),
+      );
+    } else {
+      final enabled = onPressed != null || loading;
+      pill = Container(
+        width: expanded ? double.infinity : null,
+        height: height,
+        decoration: BoxDecoration(
+          color: fill,
+          borderRadius: BorderRadius.circular(AppTheme.pillRadius),
+          boxShadow: enabled ? AppTheme.neumorphicRaised : null,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: loading ? null : onPressed,
+            borderRadius: BorderRadius.circular(AppTheme.pillRadius),
+            splashFactory: NoSplash.splashFactory,
+            highlightColor: Colors.transparent,
+            child: Padding(
+              padding: expanded ? AppTheme.buttonPaddingLarge : horizontalPadding!,
+              child: expanded ? Center(child: labelWidget) : labelWidget,
             ),
           ),
         ),
       );
     }
 
-    final enabled = onPressed != null || loading;
-    return Container(
-      width: double.infinity,
-      height: height,
-      decoration: BoxDecoration(
-        color: AppTheme.background,
-        borderRadius: BorderRadius.circular(AppTheme.pillRadius),
-        boxShadow: enabled ? AppTheme.neumorphicRaised : null,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: loading ? null : onPressed,
-          borderRadius: BorderRadius.circular(AppTheme.pillRadius),
-          splashFactory: NoSplash.splashFactory,
-          highlightColor: Colors.transparent,
-          child: Padding(
-            padding: AppTheme.buttonPaddingLarge,
-            child: Center(child: labelWidget),
-          ),
-        ),
-      ),
-    );
+    if (!expanded) {
+      pill = IntrinsicWidth(child: pill);
+    }
+
+    return pill;
   }
 }
 
