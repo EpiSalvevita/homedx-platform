@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:typed_data';
 import '../models/test_type.dart';
 import '../models/user_test_result.dart';
 import 'api_service.dart' show ApiService, ApiException;
