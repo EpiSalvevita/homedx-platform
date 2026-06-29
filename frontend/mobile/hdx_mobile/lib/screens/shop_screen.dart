@@ -52,21 +52,28 @@ class _ShopScreenState extends State<ShopScreen> {
     return AdaptiveScreen(
       title: 'Shop',
       onBack: () => context.go('/home'),
-      actions: [_CartIconButton(cartProvider: cartProvider)],
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(AppTheme.screenHorizontalPadding, 8, AppTheme.screenHorizontalPadding, 12),
-            child: FigmaSegmentedTabs(
-              labels: const ['Alle', 'Teststreifen', 'Testgeräte'],
-              selectedIndex: _selectedCategory == null
-                  ? 0
-                  : _selectedCategory == ProductCategory.testStrip
-                      ? 1
-                      : 2,
-              onSelected: (i) => setState(() {
-                _selectedCategory = i == 0 ? null : i == 1 ? ProductCategory.testStrip : ProductCategory.testDevice;
-              }),
+            child: Row(
+              children: [
+                Expanded(
+                  child: FigmaSegmentedTabs(
+                    labels: const ['Alle', 'Teststreifen', 'Testgeräte'],
+                    selectedIndex: _selectedCategory == null
+                        ? 0
+                        : _selectedCategory == ProductCategory.testStrip
+                            ? 1
+                            : 2,
+                    onSelected: (i) => setState(() {
+                      _selectedCategory = i == 0 ? null : i == 1 ? ProductCategory.testStrip : ProductCategory.testDevice;
+                    }),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                _CartIconButton(cartProvider: cartProvider),
+              ],
             ),
           ),
           Expanded(
@@ -119,26 +126,35 @@ class _CartIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        IconButton(
-          icon: const Icon(Icons.shopping_cart_outlined),
-          onPressed: () => context.push('/shop/cart'),
-        ),
-        if (cartProvider.itemCount > 0)
-          Positioned(
-            right: 6,
-            top: 6,
-            child: Container(
-              width: 18,
-              height: 18,
-              decoration: const BoxDecoration(color: AppTheme.errorColor, shape: BoxShape.circle),
-              child: Center(
-                child: Text('${cartProvider.itemCount}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+    return SizedBox(
+      height: 39,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 39, minHeight: 39),
+            icon: const Icon(Icons.shopping_cart_outlined),
+            onPressed: () => context.push('/shop/cart'),
+          ),
+          if (cartProvider.itemCount > 0)
+            Positioned(
+              right: 4,
+              top: 4,
+              child: Container(
+                width: 18,
+                height: 18,
+                decoration: const BoxDecoration(color: AppTheme.errorColor, shape: BoxShape.circle),
+                child: Center(
+                  child: Text(
+                    '${cartProvider.itemCount}',
+                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -20,5 +20,5 @@ export interface UpdateUserInput {
   city?: string;
   postcode?: string;
   country?: string;
-  gender?: 'MALE' | 'FEMALE';
+  gender?: 'MALE' | 'FEMALE' | 'DIVERS';
 }

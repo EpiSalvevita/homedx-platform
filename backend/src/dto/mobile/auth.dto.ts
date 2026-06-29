@@ -78,8 +78,8 @@ export class UpdateUserDataDto extends LangBodyDto {
   postcode?: string;
 
   @IsOptional()
-  @IsIn(['MALE', 'FEMALE'])
-  gender?: 'MALE' | 'FEMALE';
+  @IsIn(['MALE', 'FEMALE', 'DIVERS'])
+  gender?: 'MALE' | 'FEMALE' | 'DIVERS';
 }
 
 export class RequestPasswordResetDto extends LangBodyDto {

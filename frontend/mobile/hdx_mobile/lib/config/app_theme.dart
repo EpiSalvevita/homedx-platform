@@ -91,6 +91,9 @@ class AppTheme {
   static const double profileFieldLabelOffsetTop = -8.5;
   /// Vertical gap between profile field rows (+20% vs default 12px inset spacing).
   static const double profileFieldRowSpacing = 14.4;
+  /// Profile page: minimum space above the name; content centers vertically when viewport allows.
+  static const double profilePageTopPadding = 48;
+  static const double profilePageBottomPadding = 32;
 
   /// Figma home quick-action cards (`50:587` etc.): 186×138, 20px grid gap.
   static const double quickActionCardAspectRatio = 186 / 138;

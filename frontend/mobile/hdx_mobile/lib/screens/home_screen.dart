@@ -162,11 +162,20 @@ class _HomeScreenState extends State<HomeScreen> {
           label: 'Test starten',
           onTap: () => context.go('/tests'),
         ),
-      FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Arzttermin', onTap: () => context.pushNamed('doctors')),
+      FigmaQuickActionTile(
+        assetPath: AppAssets.loginDoctor,
+        label: 'Online Sprechstunde',
+        iconHeight: 52,
+        onTap: () => context.pushNamed('doctors'),
+      ),
       FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Meine Termine', onTap: () => context.push('/appointments')),
       FigmaQuickActionTile(assetPath: AppAssets.iconDna, label: 'Ergebnisse', onTap: () => context.push('/results')),
       FigmaQuickActionTile(assetPath: AppAssets.iconHomeBag, label: 'Shop', onTap: () => context.push('/shop')),
-      FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Benachrichtigungen', onTap: () => context.goNamed('notifications')),
+      FigmaQuickActionTile(
+        icon: Icons.notifications_outlined,
+        label: 'Benachrichtigungen',
+        onTap: () => context.goNamed('notifications'),
+      ),
     ];
 
     return LayoutBuilder(

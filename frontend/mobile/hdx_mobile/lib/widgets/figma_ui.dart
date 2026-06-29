@@ -522,14 +522,70 @@ class NeumorphicInsetField extends StatelessWidget {
   }
 }
 
-/// Neumorphic pill dropdown with floating label (doctor signup Fachrichtung).
-class NeumorphicInsetDropdown extends StatelessWidget {
+/// Styled picker menu aligned to inset fields (replaces Material [DropdownButton] menu).
+Future<String?> showNeumorphicInsetPickerMenu({
+  required BuildContext context,
+  required List<String> items,
+  required Rect anchor,
+  required Size overlaySize,
+  String? current,
+}) {
+  return showMenu<String>(
+    context: context,
+    position: RelativeRect.fromSize(
+      Rect.fromLTWH(anchor.left, anchor.top + anchor.height + 6, anchor.width, 0),
+      overlaySize,
+    ),
+    color: AppTheme.background,
+    elevation: 0,
+    surfaceTintColor: Colors.transparent,
+    shadowColor: const Color(0x4D99A6CE),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppTheme.activityCardRadius),
+      side: BorderSide(color: AppTheme.navy.withValues(alpha: 0.08)),
+    ),
+    constraints: BoxConstraints(
+      minWidth: anchor.width,
+      maxWidth: anchor.width,
+    ),
+    items: items
+        .map(
+          (item) => PopupMenuItem<String>(
+            value: item,
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: item == current ? AppTheme.primaryLight : Colors.transparent,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                item,
+                style: FigmaUi.rubik(
+                  fontSize: 15,
+                  fontWeight: item == current ? FontWeight.w500 : FontWeight.w300,
+                  color: AppTheme.textColor,
+                  height: 1.0,
+                ),
+              ),
+            ),
+          ),
+        )
+        .toList(),
+  );
+}
+
+/// Neumorphic pill dropdown with floating label (profile Geschlecht, doctor signup Fachrichtung).
+class NeumorphicInsetDropdown extends StatefulWidget {
   final String label;
   final IconData? prefixIcon;
   final String? value;
   final List<String> items;
   final ValueChanged<String?> onChanged;
   final String? Function(String?)? validator;
+  final String hint;
   final double fieldHeight;
   final EdgeInsetsGeometry fieldPadding;
   final double fontSize;
@@ -538,6 +594,7 @@ class NeumorphicInsetDropdown extends StatelessWidget {
   final double labelOffsetTop;
   final double iconSize;
   final double contentGap;
+  final bool isExpanded;
 
   const NeumorphicInsetDropdown({
     super.key,
@@ -547,6 +604,7 @@ class NeumorphicInsetDropdown extends StatelessWidget {
     required this.items,
     required this.onChanged,
     this.validator,
+    this.hint = 'Auswählen',
     this.fieldHeight = AppTheme.fieldHeight,
     this.fieldPadding = AppTheme.fieldPadding,
     this.fontSize = 16,
@@ -555,73 +613,114 @@ class NeumorphicInsetDropdown extends StatelessWidget {
     this.labelOffsetTop = -10,
     this.iconSize = 21,
     this.contentGap = AppTheme.fieldContentGap,
+    this.isExpanded = true,
   });
 
   @override
+  State<NeumorphicInsetDropdown> createState() => _NeumorphicInsetDropdownState();
+}
+
+class _NeumorphicInsetDropdownState extends State<NeumorphicInsetDropdown> {
+  final GlobalKey _anchorKey = GlobalKey();
+
+  Future<void> _openMenu(BuildContext context, FormFieldState<String> field) async {
+    final box = _anchorKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+
+    final overlay = Navigator.of(context).overlay!;
+    final overlayBox = overlay.context.findRenderObject()! as RenderBox;
+    final topLeft = box.localToGlobal(Offset.zero, ancestor: overlayBox);
+    final anchorInOverlay = topLeft & box.size;
+
+    final selected = await showNeumorphicInsetPickerMenu(
+      context: context,
+      items: widget.items,
+      anchor: anchorInOverlay,
+      overlaySize: overlayBox.size,
+      current: field.value,
+    );
+    if (selected == null) return;
+    field.didChange(selected);
+    widget.onChanged(selected);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final textStyle = FigmaUi.rubik(
+      fontSize: widget.fontSize,
+      fontWeight: FontWeight.w300,
+      color: AppTheme.textColor,
+      height: 1.0,
+    );
+
     return FormField<String>(
-      initialValue: value,
-      validator: validator,
+      key: ValueKey(widget.value),
+      initialValue: widget.value,
+      validator: widget.validator,
       builder: (field) {
+        final display = field.value;
+        final hasValue = display != null && display.isNotEmpty;
+        final selectedLabel = hasValue ? display : widget.hint;
+        final valueStyle = hasValue
+            ? textStyle
+            : textStyle.copyWith(color: AppTheme.textColor.withValues(alpha: 0.5));
+
+        final valueRow = Row(
+          children: [
+            if (widget.prefixIcon != null) ...[
+              Icon(widget.prefixIcon, size: widget.iconSize, color: AppTheme.textColor),
+              SizedBox(width: widget.contentGap),
+            ],
+            if (widget.isExpanded)
+              Expanded(
+                child: Text(
+                  selectedLabel,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: valueStyle,
+                ),
+              )
+            else
+              Text(
+                selectedLabel,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: valueStyle,
+              ),
+            const SizedBox(width: 8),
+            Icon(Icons.keyboard_arrow_down_rounded, size: 22, color: AppTheme.textColorSecondary),
+          ],
+        );
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Stack(
+              key: _anchorKey,
               clipBehavior: Clip.none,
               children: [
                 NeumorphicInsetSurface(
-                  height: fieldHeight,
-                  padding: fieldPadding,
+                  height: widget.fieldHeight,
+                  padding: widget.fieldPadding,
                   invertedInset: true,
                   backgroundColor: AppTheme.background,
-                  child: Theme(
-                    data: neumorphicFieldTheme(context),
-                    child: InputDecorator(
-                      decoration: neumorphicFieldDecoration(
-                        prefixIcon: prefixIcon,
-                        iconSize: iconSize,
-                        contentGap: contentGap,
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: field.value,
-                          items: items
-                              .map(
-                                (item) => DropdownMenuItem<String>(
-                                  value: item,
-                                  child: Text(
-                                    item,
-                                    style: FigmaUi.rubik(
-                                      fontSize: fontSize,
-                                      fontWeight: FontWeight.w300,
-                                      color: AppTheme.textColor,
-                                      height: 1.0,
-                                    ),
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (selected) {
-                            field.didChange(selected);
-                            onChanged(selected);
-                          },
-                          isExpanded: true,
-                          icon: const Icon(Icons.keyboard_arrow_down, color: AppTheme.textColorSecondary),
-                          style: FigmaUi.rubik(
-                            fontSize: fontSize,
-                            fontWeight: FontWeight.w300,
-                            color: AppTheme.textColor,
-                            height: 1.0,
-                          ),
-                          dropdownColor: AppTheme.background,
-                        ),
-                      ),
+                  alignment: Alignment.centerLeft,
+                  child: valueRow,
+                ),
+                Positioned.fill(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => _openMenu(context, field),
+                      splashFactory: NoSplash.splashFactory,
+                      highlightColor: Colors.transparent,
+                      child: const SizedBox.expand(),
                     ),
                   ),
                 ),
                 Positioned(
-                  left: labelOffsetLeft,
-                  top: labelOffsetTop,
+                  left: widget.labelOffsetLeft,
+                  top: widget.labelOffsetTop,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
@@ -629,9 +728,9 @@ class NeumorphicInsetDropdown extends StatelessWidget {
                       borderRadius: BorderRadius.circular(38),
                     ),
                     child: Text(
-                      label,
+                      widget.label,
                       style: FigmaUi.rubik(
-                        fontSize: labelFontSize,
+                        fontSize: widget.labelFontSize,
                         fontWeight: FontWeight.w300,
                         color: AppTheme.primaryBlue,
                       ),
@@ -690,15 +789,24 @@ class NeumorphicPillButton extends StatelessWidget {
 
     if (leadingIcon == null) return text;
 
+    const iconSize = 22.0;
+    const iconGap = 10.0;
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(leadingIcon, size: 22, color: foreground),
-        const SizedBox(width: 10),
+        Icon(leadingIcon, size: iconSize, color: foreground),
+        const SizedBox(width: iconGap),
         text,
+        // Balance leading icon so label text sits on the pill's horizontal center.
+        const SizedBox(width: iconSize + iconGap),
       ],
     );
+  }
+
+  EdgeInsetsGeometry _pillPadding() {
+    if (expanded) return AppTheme.buttonPaddingLarge;
+    return const EdgeInsets.symmetric(horizontal: 26);
   }
 
   @override
@@ -706,14 +814,14 @@ class NeumorphicPillButton extends StatelessWidget {
     final fill = backgroundColor ?? AppTheme.background;
     final foreground = foregroundColor ?? AppTheme.textColor;
     final labelWidget = _buildContent(foreground);
-    final horizontalPadding = expanded ? null : const EdgeInsets.symmetric(horizontal: 26);
+    final pillPadding = _pillPadding();
 
     Widget pill;
 
     if (inset) {
       pill = NeumorphicInsetSurface(
         height: height,
-        padding: horizontalPadding ?? const EdgeInsets.symmetric(horizontal: 26),
+        padding: pillPadding,
         alignment: Alignment.center,
         backgroundColor: fill,
         child: Material(
@@ -734,6 +842,7 @@ class NeumorphicPillButton extends StatelessWidget {
     } else {
       final enabled = onPressed != null || loading;
       pill = Container(
+        margin: const EdgeInsets.all(2),
         width: expanded ? double.infinity : null,
         height: height,
         decoration: BoxDecoration(
@@ -749,8 +858,8 @@ class NeumorphicPillButton extends StatelessWidget {
             splashFactory: NoSplash.splashFactory,
             highlightColor: Colors.transparent,
             child: Padding(
-              padding: expanded ? AppTheme.buttonPaddingLarge : horizontalPadding!,
-              child: expanded ? Center(child: labelWidget) : labelWidget,
+              padding: pillPadding,
+              child: Center(child: labelWidget),
             ),
           ),
         ),
@@ -758,7 +867,10 @@ class NeumorphicPillButton extends StatelessWidget {
     }
 
     if (!expanded) {
-      pill = IntrinsicWidth(child: pill);
+      pill = Padding(
+        padding: const EdgeInsets.all(4),
+        child: IntrinsicWidth(child: pill),
+      );
     }
 
     return pill;
@@ -984,7 +1096,8 @@ class FigmaWelcomeCard extends StatelessWidget {
 class NeumorphicRaisedCard extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
-  final double height;
+  /// When null, the card hugs [child] height (e.g. single-row list tiles).
+  final double? height;
   final double borderRadius;
   final EdgeInsetsGeometry padding;
 
@@ -1014,11 +1127,16 @@ class NeumorphicRaisedCard extends StatelessWidget {
           borderRadius: radius,
           splashFactory: NoSplash.splashFactory,
           highlightColor: Colors.transparent,
-          child: SizedBox(
-            height: height,
-            width: double.infinity,
-            child: Padding(padding: padding, child: child),
-          ),
+          child: height != null
+              ? SizedBox(
+                  height: height,
+                  width: double.infinity,
+                  child: Padding(padding: padding, child: child),
+                )
+              : SizedBox(
+                  width: double.infinity,
+                  child: Padding(padding: padding, child: child),
+                ),
         ),
       ),
     );

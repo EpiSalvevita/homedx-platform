@@ -180,12 +180,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
-    return SingleChildScrollView(
-      padding: kIsWeb ? const EdgeInsets.fromLTRB(24, 0, 24, 24) : const EdgeInsets.all(AppTheme.screenHorizontalPadding),
-      child: Form(
-        key: _formKey,
-        child: kIsWeb ? _buildWebForm() : _buildMobileForm(),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final horizontal = kIsWeb ? 24.0 : AppTheme.screenHorizontalPadding;
+        final top = AppTheme.profilePageTopPadding;
+        final bottom = AppTheme.profilePageBottomPadding;
+        final minContentHeight = constraints.maxHeight - top - bottom;
+
+        return SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(horizontal, top, horizontal, bottom),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: minContentHeight.clamp(0.0, double.infinity)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Form(
+                  key: _formKey,
+                  child: kIsWeb ? _buildWebForm() : _buildMobileForm(),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -363,26 +381,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildGenderField(ProfileFieldMetrics metrics) {
-    return NeumorphicInsetDropdown(
-      label: 'Geschlecht',
-      prefixIcon: Icons.wc_outlined,
-      value: _selectedGenderLabel,
-      items: genderPickerLabels,
-      onChanged: (value) => setState(() => _selectedGenderLabel = value),
-      fieldHeight: metrics.fieldHeight,
-      fieldPadding: metrics.fieldPadding,
-      fontSize: metrics.fontSize,
-      labelFontSize: metrics.labelFontSize,
-      labelOffsetLeft: metrics.labelOffsetLeft,
-      labelOffsetTop: metrics.labelOffsetTop,
-      iconSize: metrics.iconSize,
-      contentGap: metrics.contentGap,
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 260),
+        child: NeumorphicInsetDropdown(
+          label: 'Geschlecht',
+          prefixIcon: Icons.wc_outlined,
+          value: _selectedGenderLabel,
+          items: genderPickerLabels,
+          isExpanded: false,
+          onChanged: (value) => setState(() => _selectedGenderLabel = value),
+          fieldHeight: metrics.fieldHeight,
+          fieldPadding: metrics.fieldPadding,
+          fontSize: metrics.fontSize,
+          labelFontSize: metrics.labelFontSize,
+          labelOffsetLeft: metrics.labelOffsetLeft,
+          labelOffsetTop: metrics.labelOffsetTop,
+          iconSize: metrics.iconSize,
+          contentGap: metrics.contentGap,
+        ),
+      ),
     );
   }
 
   Widget _buildSaveButton() {
-    return Align(
-      alignment: Alignment.centerLeft,
+    return Center(
       child: NeumorphicPillButton(
         label: 'Änderungen speichern',
         leadingIcon: Icons.save_outlined,

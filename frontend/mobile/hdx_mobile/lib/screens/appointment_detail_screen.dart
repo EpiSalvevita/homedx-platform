@@ -1,11 +1,16 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../config/app_theme.dart';
 import '../models/doctor.dart';
 import '../utils/gender_labels.dart';
 import '../services/api_service.dart';
 import '../services/appointment_service.dart';
+import '../widgets/appointment_status_badge.dart';
+import '../widgets/figma_ui.dart';
+import '../widgets/web/adaptive_screen.dart';
 
 class AppointmentDetailScreen extends StatefulWidget {
   final String appointmentId;
@@ -16,8 +21,7 @@ class AppointmentDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<AppointmentDetailScreen> createState() =>
-      _AppointmentDetailScreenState();
+  State<AppointmentDetailScreen> createState() => _AppointmentDetailScreenState();
 }
 
 class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
@@ -91,115 +95,160 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Termindetails')),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
+  Widget _buildDetailCard(Appointment appointment, String formatted) {
+    final bodyStyle = FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w400, color: AppTheme.textColor);
+    final labelStyle = FigmaUi.rubik(fontSize: 13, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary);
 
-    final appointment = _appointment;
-    if (appointment == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Termindetails')),
-        body: const Center(child: Text('Termin nicht gefunden')),
-      );
-    }
-
-    final formatted =
-        DateFormat('EEEE, dd.MM.yyyy HH:mm', 'de_DE').format(appointment.appointmentTime);
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Termindetails')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      appointment.doctorName,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    if (appointment.patientName != null) ...[
-                      const SizedBox(height: 8),
-                      Text('Patient: ${appointment.patientName}'),
-                    ],
-                    if (appointment.patientGender != null) ...[
-                      const SizedBox(height: 8),
-                      Text('Geschlecht: ${formatGenderDe(appointment.patientGender)}'),
-                    ],
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        const Icon(Icons.calendar_today, size: 18),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(formatted)),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(
-                          appointment.isOnline
-                              ? Icons.video_call
-                              : Icons.location_on,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(appointment.isOnline
-                            ? 'Online-Beratung'
-                            : 'Vor-Ort-Termin'),
-                      ],
-                    ),
-                    if (appointment.notes != null &&
-                        appointment.notes!.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Text('Notizen: ${appointment.notes}'),
-                    ],
-                  ],
+    return NeumorphicRaisedCard(
+      height: null,
+      padding: const EdgeInsets.all(22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  appointment.doctorName,
+                  style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w500, color: AppTheme.textColor),
                 ),
               ),
-            ),
-            const Spacer(),
-            if (appointment.canJoin && appointment.isOnline)
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () =>
-                      context.push('/appointments/${appointment.id}/call'),
-                  icon: const Icon(Icons.video_call),
-                  label: const Text('Videoanruf beitreten'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
+              AppointmentStatusBadge(appointment: appointment),
+            ],
+          ),
+          if (appointment.patientName != null) ...[
+            const SizedBox(height: 12),
+            Text('Patient', style: labelStyle),
+            const SizedBox(height: 4),
+            Text(appointment.patientName!, style: bodyStyle),
+          ],
+          if (appointment.patientGender != null) ...[
+            const SizedBox(height: 12),
+            Text('Geschlecht', style: labelStyle),
+            const SizedBox(height: 4),
+            Text(formatGenderDe(appointment.patientGender), style: bodyStyle),
+          ],
+          const SizedBox(height: 12),
+          Text('Termin', style: labelStyle),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(Icons.calendar_today_outlined, size: 18, color: AppTheme.primaryBlue),
+              const SizedBox(width: 8),
+              Expanded(child: Text(formatted, style: bodyStyle)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text('Art', style: labelStyle),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(
+                appointment.isOnline ? Icons.videocam_outlined : Icons.location_on_outlined,
+                size: 18,
+                color: AppTheme.primaryBlue,
               ),
-            if (appointment.isUpcoming) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: _isCancelling ? null : _cancelAppointment,
-                  child: Text(_isCancelling
-                      ? 'Wird storniert...'
-                      : 'Termin stornieren'),
-                ),
+              const SizedBox(width: 8),
+              Text(
+                appointment.isOnline ? 'Online-Beratung' : 'Vor-Ort-Termin',
+                style: bodyStyle,
               ),
             ],
+          ),
+          if (appointment.notes != null && appointment.notes!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text('Notizen', style: labelStyle),
+            const SizedBox(height: 4),
+            Text(appointment.notes!, style: bodyStyle),
           ],
-        ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildActions(Appointment appointment) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (appointment.canJoin && appointment.isOnline) ...[
+          NeumorphicPillButton(
+            label: 'Videoanruf beitreten',
+            leadingIcon: Icons.videocam_outlined,
+            height: 48,
+            onPressed: () => context.push('/appointments/${appointment.id}/call'),
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (appointment.isUpcoming)
+          Center(
+            child: NeumorphicPillButton(
+              label: 'Termin stornieren',
+              height: 48,
+              expanded: false,
+              loading: _isCancelling,
+              backgroundColor: AppTheme.accentCoral,
+              foregroundColor: AppTheme.navy,
+              onPressed: _isCancelling ? null : _cancelAppointment,
+            ),
+          ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AdaptiveScreen(
+      title: 'Termindetails',
+      onBack: () => context.pop(),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _appointment == null
+              ? Center(
+                  child: Text(
+                    'Termin nicht gefunden',
+                    style: FigmaUi.rubik(color: AppTheme.textColor),
+                  ),
+                )
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    final appointment = _appointment!;
+                    final formatted = DateFormat('EEEE, dd.MM.yyyy HH:mm', 'de_DE')
+                        .format(appointment.appointmentTime);
+
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppTheme.screenHorizontalPadding,
+                        8,
+                        AppTheme.screenHorizontalPadding,
+                        24,
+                      ),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(minHeight: constraints.maxHeight - 32),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (kIsWeb) ...[
+                              Text(
+                                'Termindetails',
+                                textAlign: TextAlign.center,
+                                style: FigmaUi.rubik(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.textColor,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                            ],
+                            _buildDetailCard(appointment, formatted),
+                            const SizedBox(height: 24),
+                            _buildActions(appointment),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }

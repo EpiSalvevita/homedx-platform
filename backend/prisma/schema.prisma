@@ -266,6 +266,7 @@ enum UserRole {
 enum Gender {
   MALE
   FEMALE
+  DIVERS
 }
 
 enum AppointmentType {

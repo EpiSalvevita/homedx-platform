@@ -1,4 +1,4 @@
-const genderPickerLabels = ['Männlich', 'Weiblich'];
+const genderPickerLabels = ['Männlich', 'Weiblich', 'Divers'];
 
 String? genderApiToLabel(String? api) {
   switch (api) {
@@ -6,6 +6,8 @@ String? genderApiToLabel(String? api) {
       return 'Männlich';
     case 'FEMALE':
       return 'Weiblich';
+    case 'DIVERS':
+      return 'Divers';
     default:
       return null;
   }
@@ -17,6 +19,8 @@ String? labelToGenderApi(String? label) {
       return 'MALE';
     case 'Weiblich':
       return 'FEMALE';
+    case 'Divers':
+      return 'DIVERS';
     default:
       return null;
   }
