@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 /// Sidebar navigation entries for the web app shell.
 class WebNavItem {
@@ -43,5 +44,13 @@ class WebNavConfig {
 
   static List<WebNavItem> itemsForRole(String? role) {
     return role == 'DOCTOR' ? doctorItems : patientItems;
+  }
+
+  static void goAppHome(BuildContext context, {String? role}) {
+    if (role == 'DOCTOR') {
+      context.goNamed('doctor-dashboard');
+    } else {
+      context.goNamed('home');
+    }
   }
 }

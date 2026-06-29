@@ -73,12 +73,18 @@ class _WebSidebar extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
-              child: Image.asset(
-                AppAssets.logo,
-                height: 28,
-                fit: BoxFit.contain,
-                color: Colors.white,
-                colorBlendMode: BlendMode.srcIn,
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () => WebNavConfig.goAppHome(context, role: context.read<AuthProvider>().userRole),
+                  child: Image.asset(
+                    AppAssets.logo,
+                    height: 28,
+                    fit: BoxFit.contain,
+                    color: Colors.white,
+                    colorBlendMode: BlendMode.srcIn,
+                  ),
+                ),
               ),
             ),
             Expanded(
