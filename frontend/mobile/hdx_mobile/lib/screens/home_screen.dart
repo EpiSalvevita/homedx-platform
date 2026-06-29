@@ -147,15 +147,44 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 28),
         const FigmaSectionTitle('Letzte Aktivität'),
         const SizedBox(height: 16),
-        FigmaActivityRow(
-          icon: Icons.person_outline,
-          title: 'Erste Schritte',
-          subtitle: 'Vervollständigen Sie Ihr Profil, um zu beginnen',
-          onTap: () => context.push('/profile'),
-        ),
+        _buildProfileActivityRow(context),
         const SizedBox(height: AppTheme.quickActionGridSpacing),
         _buildNotificationActivityRow(context),
       ],
+    );
+  }
+
+
+  Widget _buildProfileActivityRow(BuildContext context) {
+    final user = _userData;
+
+    if (_isLoading && user == null) {
+      return const FigmaActivityRow(
+        icon: Icons.person_outline,
+        title: 'Profil wird geladen…',
+        subtitle: '',
+      );
+    }
+
+    if (user != null && user.isProfileComplete) {
+      final location = [user.city, user.country]
+          .whereType<String>()
+          .map((part) => part.trim())
+          .where((part) => part.isNotEmpty)
+          .join(', ');
+      return FigmaActivityRow(
+        icon: Icons.check_circle_outline,
+        title: 'Profil vollständig',
+        subtitle: location.isNotEmpty ? location : user.profileCompletionHint,
+        onTap: () => context.push('/profile'),
+      );
+    }
+
+    return FigmaActivityRow(
+      icon: Icons.person_outline,
+      title: 'Erste Schritte',
+      subtitle: user?.profileCompletionHint ?? 'Vervollständigen Sie Ihr Profil, um zu beginnen',
+      onTap: () => context.push('/profile'),
     );
   }
 

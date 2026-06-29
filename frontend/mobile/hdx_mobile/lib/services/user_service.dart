@@ -49,6 +49,40 @@ class UserData {
     );
   }
 
+
+  bool _filled(String? value) => value != null && value.trim().isNotEmpty;
+
+  /// True when all editable profile fields from the profile form are set.
+  bool get isProfileComplete =>
+      _filled(firstName) &&
+      _filled(lastName) &&
+      _filled(email) &&
+      _filled(phone) &&
+      _filled(address1) &&
+      _filled(postcode) &&
+      _filled(city) &&
+      _filled(country) &&
+      _filled(gender);
+
+  /// Short hint for the home activity row when profile is incomplete.
+  String get profileCompletionHint {
+    if (isProfileComplete) return 'Ihre Profildaten sind hinterlegt';
+    final missing = <String>[];
+    if (!_filled(phone)) missing.add('Telefon');
+    if (!_filled(address1)) missing.add('Adresse');
+    if (!_filled(postcode)) missing.add('PLZ');
+    if (!_filled(city)) missing.add('Stadt');
+    if (!_filled(country)) missing.add('Land');
+    if (!_filled(gender)) missing.add('Geschlecht');
+    if (missing.isEmpty) {
+      return 'Vervollständigen Sie Ihr Profil, um zu beginnen';
+    }
+    if (missing.length == 1) {
+      return 'Noch ausstehend: ${missing.first}';
+    }
+    return 'Noch ausstehend: ${missing.take(2).join(', ')}${missing.length > 2 ? '…' : ''}';
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'first_name': firstName,
