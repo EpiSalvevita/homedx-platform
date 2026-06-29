@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../config/app_theme.dart';
 import '../providers/auth_provider.dart';
+import '../providers/notification_provider.dart';
+import '../models/app_notification.dart';
 import '../services/user_service.dart';
 import '../services/api_service.dart';
 import '../widgets/figma_ui.dart';
@@ -25,16 +27,25 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadHomeData();
   }
 
-  Future<void> _loadUserData() async {
+  Future<void> _loadHomeData() async {
     setState(() => _isLoading = true);
     try {
       final apiService = Provider.of<ApiService>(context, listen: false);
       final userService = UserService(apiService);
-      final userData = await userService.getUserData();
-      if (mounted) setState(() { _userData = userData; _isLoading = false; });
+      final notificationProvider = context.read<NotificationProvider>();
+      final results = await Future.wait([
+        userService.getUserData(),
+        notificationProvider.refresh(),
+      ]);
+      if (mounted) {
+        setState(() {
+          _userData = results[0] as UserData;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -91,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final email = _userData?.email ?? authProvider.userEmail ?? '';
 
     final homeContent = RefreshIndicator(
-      onRefresh: _loadUserData,
+      onRefresh: _loadHomeData,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.fromLTRB(
@@ -143,17 +154,57 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: () => context.push('/profile'),
         ),
         const SizedBox(height: AppTheme.quickActionGridSpacing),
-        FigmaActivityRow(
-          icon: Icons.notifications_none,
-          title: 'Keine Aktuellen Benachrichtigungen',
-          subtitle: 'Sie sind auf dem neuesten Stand',
-          onTap: () => context.goNamed('notifications'),
-        ),
+        _buildNotificationActivityRow(context),
       ],
     );
   }
 
-  /// Rows of quick-action tiles that span the same width as welcome/activity cards.
+  Widget _buildNotificationActivityRow(BuildContext context) {
+    final provider = context.watch<NotificationProvider>();
+    final notifications = provider.notifications;
+    AppNotification? latestUnread;
+    for (final notification in notifications) {
+      if (notification.isUnread) {
+        latestUnread = notification;
+        break;
+      }
+    }
+    final latest = notifications.isNotEmpty ? notifications.first : null;
+
+    if (provider.isLoading && notifications.isEmpty) {
+      return const FigmaActivityRow(
+        icon: Icons.notifications_none,
+        title: 'Benachrichtigungen werden geladen…',
+        subtitle: '',
+      );
+    }
+
+    if (latestUnread != null) {
+      return FigmaActivityRow(
+        icon: Icons.notifications_active_outlined,
+        title: latestUnread.title,
+        subtitle: latestUnread.message,
+        onTap: () => context.goNamed('notifications'),
+      );
+    }
+
+    if (latest != null) {
+      return FigmaActivityRow(
+        icon: Icons.notifications_outlined,
+        title: latest.title,
+        subtitle: 'Alle Benachrichtigungen gelesen',
+        onTap: () => context.goNamed('notifications'),
+      );
+    }
+
+    return FigmaActivityRow(
+      icon: Icons.notifications_none,
+      title: 'Keine Benachrichtigungen',
+      subtitle: 'Sie sind auf dem neuesten Stand',
+      onTap: () => context.goNamed('notifications'),
+    );
+  }
+
   Widget _buildQuickActionGrid(BuildContext context) {
     final tiles = <Widget>[
       if (PlatformCapabilities.canRunCubeTests)
