@@ -145,91 +145,68 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 16),
         _buildQuickActionGrid(context),
         const SizedBox(height: 28),
-        const FigmaSectionTitle('Letzte Aktivität'),
-        const SizedBox(height: 16),
-        _buildProfileActivityRow(context),
-        const SizedBox(height: AppTheme.quickActionGridSpacing),
-        _buildNotificationActivityRow(context),
+        _buildRecentActivitySection(context),
       ],
     );
   }
 
-
-  Widget _buildProfileActivityRow(BuildContext context) {
+  Widget _buildRecentActivitySection(BuildContext context) {
     final user = _userData;
-
-    if (_isLoading && user == null) {
-      return const FigmaActivityRow(
-        icon: Icons.person_outline,
-        title: 'Profil wird geladen…',
-        subtitle: '',
-      );
-    }
-
-    if (user != null && user.isProfileComplete) {
-      final location = [user.city, user.country]
-          .whereType<String>()
-          .map((part) => part.trim())
-          .where((part) => part.isNotEmpty)
-          .join(', ');
-      return FigmaActivityRow(
-        icon: Icons.check_circle_outline,
-        title: 'Profil vollständig',
-        subtitle: location.isNotEmpty ? location : user.profileCompletionHint,
-        onTap: () => context.push('/profile'),
-      );
-    }
-
-    return FigmaActivityRow(
-      icon: Icons.person_outline,
-      title: 'Erste Schritte',
-      subtitle: user?.profileCompletionHint ?? 'Vervollständigen Sie Ihr Profil, um zu beginnen',
-      onTap: () => context.push('/profile'),
-    );
-  }
-
-  Widget _buildNotificationActivityRow(BuildContext context) {
     final provider = context.watch<NotificationProvider>();
-    final notifications = provider.notifications;
+    final showProfileReminder = user != null && !user.isProfileComplete;
+
     AppNotification? latestUnread;
-    for (final notification in notifications) {
+    for (final notification in provider.notifications) {
       if (notification.isUnread) {
         latestUnread = notification;
         break;
       }
     }
-    final latest = notifications.isNotEmpty ? notifications.first : null;
 
-    if (provider.isLoading && notifications.isEmpty) {
-      return const FigmaActivityRow(
-        icon: Icons.notifications_none,
-        title: 'Benachrichtigungen werden geladen…',
-        subtitle: '',
-      );
+    final rows = <Widget>[];
+    if (showProfileReminder) {
+      rows.add(_buildProfileActivityRow(context));
     }
-
     if (latestUnread != null) {
-      return FigmaActivityRow(
-        icon: Icons.notifications_active_outlined,
-        title: latestUnread.title,
-        subtitle: latestUnread.message,
-        onTap: () => context.goNamed('notifications'),
-      );
+      rows.add(_buildUnreadNotificationActivityRow(latestUnread));
     }
 
-    if (latest != null) {
-      return FigmaActivityRow(
-        icon: Icons.notifications_outlined,
-        title: latest.title,
-        subtitle: 'Alle Benachrichtigungen gelesen',
-        onTap: () => context.goNamed('notifications'),
-      );
+    if (rows.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const FigmaSectionTitle('Letzte Aktivität'),
+        const SizedBox(height: 16),
+        for (var i = 0; i < rows.length; i++) ...[
+          if (i > 0) const SizedBox(height: AppTheme.quickActionGridSpacing),
+          rows[i],
+        ],
+      ],
+    );
+  }
+
+  Widget _buildProfileActivityRow(BuildContext context) {
+    final user = _userData;
+    if (user == null || user.isProfileComplete) {
+      return const SizedBox.shrink();
     }
 
     return FigmaActivityRow(
-      icon: Icons.notifications_none,
-      title: 'Keine Benachrichtigungen',
-      subtitle: 'Sie sind auf dem neuesten Stand',
+      icon: Icons.person_outline,
+      title: 'Erste Schritte',
+      subtitle: user.profileCompletionHint,
+      onTap: () => context.push('/profile'),
+    );
+  }
+
+  Widget _buildUnreadNotificationActivityRow(AppNotification notification) {
+    return FigmaActivityRow(
+      icon: Icons.notifications_active_outlined,
+      title: notification.title,
+      subtitle: notification.message,
       onTap: () => context.goNamed('notifications'),
     );
   }
