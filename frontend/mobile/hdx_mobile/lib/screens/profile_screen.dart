@@ -86,12 +86,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _loadUserData() async {
-    setState(() { _isLoading = true; _error = null; });
+  Future<void> _loadUserData({bool showPageLoader = true}) async {
+    if (showPageLoader) {
+      setState(() { _isLoading = true; _error = null; });
+    }
     try {
       final apiService = Provider.of<ApiService>(context, listen: false);
       _userService = UserService(apiService);
       final userData = await _userService.getUserData();
+      if (!mounted) return;
       setState(() {
         _userData = userData;
         _firstNameController.text = userData.firstName;
@@ -103,10 +106,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _addressController.text = userData.address1 ?? '';
         _postcodeController.text = userData.postcode ?? '';
         _selectedGenderLabel = genderApiToLabel(userData.gender);
-        _isLoading = false;
+        if (showPageLoader) _isLoading = false;
       });
     } catch (e) {
-      setState(() { _error = e.toString(); _isLoading = false; });
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
+        if (showPageLoader) _isLoading = false;
+      });
     }
   }
 
@@ -133,8 +140,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       await _userService.updateUserData(updatedData);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profil aktualisiert'), backgroundColor: AppTheme.successColor));
-        await _loadUserData();
+        await _loadUserData(showPageLoader: false);
       }
     } catch (e) {
       if (mounted) {
@@ -407,14 +413,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildSaveButton() {
     return Center(
-      child: NeumorphicPillButton(
-        label: 'Änderungen speichern',
-        leadingIcon: Icons.save_outlined,
-        expanded: false,
-        backgroundColor: AppTheme.accentMint,
-        foregroundColor: AppTheme.onMint,
-        loading: _isSaving,
-        onPressed: _isSaving ? null : _saveUserData,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          NeumorphicPillButton(
+            label: _isSaving ? 'Speichern…' : 'Änderungen speichern',
+            leadingIcon: _isSaving ? null : Icons.save_outlined,
+            expanded: false,
+            backgroundColor: AppTheme.accentMint,
+            foregroundColor: AppTheme.onMint,
+            onPressed: _isSaving ? null : _saveUserData,
+          ),
+          if (_isSaving) ...[
+            const SizedBox(width: 12),
+            const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: AppTheme.primaryBlue,
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
