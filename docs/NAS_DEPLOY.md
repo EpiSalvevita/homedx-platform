@@ -25,7 +25,7 @@ Web and mobile are **separate artifacts** from the same Flutter project; the NAS
 git clone https://github.com/EpiSalvevita/homedx-platform.git
 cd homedx-platform/deploy/nas
 cp .env.example .env
-# Edit .env: POSTGRES_PASSWORD, JWT_SECRET, APP_URL=http://YOUR_NAS_IP:4000
+# Edit .env: POSTGRES_PASSWORD, JWT_SECRET, CORS_ORIGINS, APP_URL=http://YOUR_NAS_IP:4000
 ```
 
 ## 2. Build web + APK (on dev machine)
@@ -108,6 +108,9 @@ docker compose up -d --build
 - **Web loads but login fails:** API not reachable — check `http://NAS_IP:4000` from phone browser (should not 404 on API path). Rebuild web/APK with correct `HOMEDX_NAS_IP`.
 - **Blank page:** ensure `web/` contains `index.html` from `build-artifacts.sh`.
 - **Video calls:** set `DAILY_API_KEY` and `DAILY_DOMAIN` in `.env`.
+- **Backend crash loop (`CORS_ORIGINS is required`):** set `CORS_ORIGINS=http://YOUR_NAS_IP:8080` in `.env` (required when `NODE_ENV=production`).
+- **Port 4000 already in use:** set `BACKEND_PORT=4002` (or another free port) in `.env`, update `APP_URL`, and rebuild the Flutter web artifact with matching `API_BASE_URL`.
+- **Backend entrypoint permission denied on some NAS hosts:** keep `deploy/nas/docker-compose.override.yml` in place (Compose merges it automatically) until the backend image is rebuilt with the fixed Dockerfile.
 
 ## Security note
 

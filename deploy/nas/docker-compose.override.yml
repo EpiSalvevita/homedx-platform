@@ -1,0 +1,18 @@
+# Optional NAS workaround when /docker-entrypoint.sh is not readable by the node user
+# after image build (some NAS filesystems strip "other" read bit). Safe to delete
+# once backend/Dockerfile entrypoint permissions are fixed and image is rebuilt.
+services:
+  backend:
+    user: root
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        cd /app
+        echo "Running Prisma migrations..."
+        ./node_modules/.bin/prisma migrate deploy
+        if [ "$$HOMEDX_SEED_DOCTORS" = "true" ]; then
+          echo "Seeding demo doctors..."
+          npm run seed:doctors || echo "Doctor seed skipped or already applied."
+        fi
+        exec node dist/src/main.js
