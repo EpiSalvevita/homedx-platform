@@ -53,7 +53,6 @@ class UserData {
     return {
       'first_name': firstName,
       'last_name': lastName,
-      'email': email,
       'dob': dateOfBirth,
       'city': city,
       'country': country,
