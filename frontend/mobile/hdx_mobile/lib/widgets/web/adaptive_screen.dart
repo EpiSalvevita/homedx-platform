@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../config/app_theme.dart';
 import '../figma_ui.dart';
+import 'web_page_header.dart';
 
 /// Mobile: [FigmaScreen] + blue/back header. Web: flat page title (sidebar handles nav).
 class AdaptiveScreen extends StatelessWidget {
@@ -12,6 +13,7 @@ class AdaptiveScreen extends StatelessWidget {
   final VoidCallback? onBack;
   final bool blueTopBar;
   final bool showBackOnMobile;
+  final bool showWebHeader;
 
   const AdaptiveScreen({
     super.key,
@@ -22,6 +24,7 @@ class AdaptiveScreen extends StatelessWidget {
     this.onBack,
     this.blueTopBar = false,
     this.showBackOnMobile = true,
+    this.showWebHeader = true,
   });
 
   @override
@@ -33,15 +36,10 @@ class AdaptiveScreen extends StatelessWidget {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (actions != null && actions!.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 12, 16, 0),
-                child: Row(
-                  children: [
-                    const Spacer(),
-                    ...actions!,
-                  ],
-                ),
+            if (showWebHeader)
+              WebPageHeader(
+                title: title,
+                actions: actions,
               ),
             Expanded(child: body),
           ],

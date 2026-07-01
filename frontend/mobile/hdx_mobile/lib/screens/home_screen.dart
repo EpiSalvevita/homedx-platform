@@ -10,6 +10,7 @@ import '../services/user_service.dart';
 import '../services/api_service.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/responsive_layout.dart';
+import '../widgets/web/web_page_header.dart';
 import '../utils/app_assets.dart';
 import '../utils/platform_capabilities.dart';
 
@@ -106,9 +107,9 @@ class _HomeScreenState extends State<HomeScreen> {
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.fromLTRB(
-          AppTheme.screenHorizontalPadding,
+          kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
           0,
-          AppTheme.screenHorizontalPadding,
+          kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
           24,
         ),
         child: _buildHomeContent(context, firstName, email),
@@ -118,7 +119,16 @@ class _HomeScreenState extends State<HomeScreen> {
     if (kIsWeb) {
       return Scaffold(
         backgroundColor: AppTheme.background,
-        body: homeContent,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            WebPageHeader(
+              title: 'Willkommen zurück',
+              subtitle: 'Hallo $firstName — hier ist Ihre Übersicht für heute.',
+            ),
+            Expanded(child: homeContent),
+          ],
+        ),
       );
     }
 

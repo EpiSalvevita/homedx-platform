@@ -53,4 +53,20 @@ class WebNavConfig {
       context.goNamed('home');
     }
   }
+
+  /// Sidebar label for the current route, or a sensible fallback for nested paths.
+  static String titleForPath(String path) {
+    final items = [...patientItems, ...doctorItems];
+    for (final item in items) {
+      if (item.matchesPath(path)) return item.label;
+    }
+    if (path.startsWith('/doctors')) return 'Online Sprechstunde';
+    if (path.startsWith('/appointments/') && path.endsWith('/call')) return 'Videoanruf';
+    if (path.startsWith('/appointments/')) return 'Termin';
+    if (path.startsWith('/shop/')) return 'Shop';
+    if (path.startsWith('/results/')) return 'Ergebnis';
+    if (path.startsWith('/tests')) return 'Tests';
+    if (path.startsWith('/bluetooth')) return 'Bluetooth';
+    return 'HomeDX';
+  }
 }

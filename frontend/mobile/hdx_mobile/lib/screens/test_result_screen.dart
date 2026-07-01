@@ -1,19 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../config/app_theme.dart';
+import '../models/user_test_result.dart';
 import '../services/cube_service.dart';
 import '../utils/test_specialization_mapping.dart';
-import '../widgets/neumorphic.dart';
+import '../widgets/figma_ui.dart';
+import '../widgets/test_result_badge.dart';
+import '../widgets/web/adaptive_screen.dart';
 
 /// Full-screen display of a single Cube test result.
-///
-/// Shows a large result badge (positive/negative/inconclusive),
-/// the test name, date/time, and detailed result rows.
-///
-/// When the result is positive and a [testTypeId] is available, the screen
-/// also offers a CTA that deep-links into the doctor selection flow,
-/// pre-filtered to the matching specialty (e.g. positive RheumaCheck ->
-/// Rheumatologie).
 class TestResultScreen extends StatelessWidget {
   final String testTypeName;
   final CubeTestResult result;
@@ -28,121 +24,140 @@ class TestResultScreen extends StatelessWidget {
     this.testDate,
   });
 
+  TestResultKind get _resultKind {
+    final overall = (result.result ?? '').toUpperCase();
+    if (overall.contains('POS')) return TestResultKind.positive;
+    if (overall.contains('NEG')) return TestResultKind.negative;
+    if (overall.contains('INCONCLUSIVE')) return TestResultKind.inconclusive;
+    if (overall.contains('INVALID')) return TestResultKind.invalid;
+    return TestResultKind.inconclusive;
+  }
+
+  String get _resultLabel {
+    switch (_resultKind) {
+      case TestResultKind.positive:
+        return 'Positiv';
+      case TestResultKind.negative:
+        return 'Negativ';
+      case TestResultKind.inconclusive:
+        return 'Unbestimmt';
+      case TestResultKind.invalid:
+        return 'Ungültig';
+      case TestResultKind.pending:
+        return 'Ausstehend';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final overallResult = (result.result ?? '').toUpperCase();
-    final isPositive = overallResult.contains('POS');
-    final isNegative = overallResult.contains('NEG');
+    final kind = _resultKind;
+    final isPositive = kind == TestResultKind.positive;
+    final (badgeBg, badgeFg) = TestResultBadge.colorsForKind(kind);
+    final badgeIcon = TestResultBadge.iconForKind(kind);
+    final badgeIconColor = TestResultBadge.iconColorForKind(kind);
+    final when = testDate ?? DateTime.now();
 
-    final Color badgeColor;
-    final IconData badgeIcon;
-    final String badgeLabel;
-
-    if (isPositive) {
-      badgeColor = AppTheme.accentCoral;
-      badgeIcon = Icons.warning_rounded;
-      badgeLabel = 'Positiv';
-    } else if (isNegative) {
-      badgeColor = AppTheme.successColor;
-      badgeIcon = Icons.check_circle;
-      badgeLabel = 'Negativ';
-    } else {
-      badgeColor = AppTheme.accentBlue;
-      badgeIcon = Icons.help_outline;
-      badgeLabel = 'Unbestimmt';
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Testergebnis'),
-        automaticallyImplyLeading: false,
-      ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
+    return AdaptiveScreen(
+      title: 'Testergebnis',
+      onBack: () => context.canPop() ? context.pop() : context.go('/results'),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+          8,
+          kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+          24,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Result badge
-            NeumorphicContainer(
-              padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+            NeumorphicRaisedCard(
+              height: null,
+              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 28),
               child: Column(
                 children: [
                   Container(
-                    width: 100,
-                    height: 100,
+                    width: 72,
+                    height: 72,
                     decoration: BoxDecoration(
-                      color: badgeColor.withValues(alpha: 0.12),
+                      color: badgeBg,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(badgeIcon, size: 56, color: badgeColor),
+                    child: Icon(badgeIcon, size: 36, color: badgeIconColor),
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    badgeLabel,
-                    style: theme.textTheme.displayMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: badgeColor,
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: AppTheme.resultBadgePadding,
+                    decoration: BoxDecoration(
+                      color: badgeBg,
+                      borderRadius: BorderRadius.circular(AppTheme.resultBadgeRadius),
+                      border: kind == TestResultKind.pending
+                          ? Border.all(color: AppTheme.primaryBlue, width: 1.5)
+                          : null,
+                    ),
+                    child: Text(
+                      _resultLabel,
+                      style: FigmaUi.rubik(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: badgeFg,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 14),
                   Text(
                     testTypeName,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      color: AppTheme.textColorSecondary,
-                    ),
                     textAlign: TextAlign.center,
+                    style: FigmaUi.rubik(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.textColor,
+                    ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
-                    _formatDate(testDate ?? DateTime.now()),
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    _formatDate(when),
+                    textAlign: TextAlign.center,
+                    style: FigmaUi.bodyLight(
+                      fontSize: 14,
                       color: AppTheme.textColorSecondary,
                     ),
                   ),
                 ],
               ),
             ),
-
-            // Detail rows
             if (result.resultData != null && result.resultData!.isNotEmpty) ...[
-              const SizedBox(height: 24),
-              Text(
-                'Detaillierte Ergebnisse',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textColor,
+              const SizedBox(height: 28),
+              const FigmaSectionTitle('Detaillierte Ergebnisse'),
+              const SizedBox(height: 12),
+              ...result.resultData!.map(_buildResultRow),
+            ],
+            const SizedBox(height: 28),
+            if (isPositive) ...[
+              _buildBookSpecialistCta(context),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(
+                  'Empfohlen: ${TestSpecializationMapping.primarySpecialization(testTypeId)}',
+                  textAlign: TextAlign.center,
+                  style: FigmaUi.bodyLight(fontSize: 13),
                 ),
               ),
-              const SizedBox(height: 12),
-              ...result.resultData!.map((r) => _buildResultRow(theme, r)),
             ],
-
-            const SizedBox(height: 32),
-
-            if (isPositive) _buildBookSpecialistCta(context),
-
-            // Actions
-            NeumorphicButton(
-              isPrimary: !isPositive,
-              onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.home,
-                    color: isPositive ? AppTheme.textColor : Colors.white,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Zur Startseite',
-                    style: TextStyle(
-                      color: isPositive ? AppTheme.textColor : Colors.white,
-                    ),
-                  ),
-                ],
-              ),
+            NeumorphicPillButton(
+              label: 'Zurück zu Ergebnissen',
+              leadingIcon: Icons.arrow_back,
+              backgroundColor: isPositive ? AppTheme.surface : AppTheme.primaryBlue,
+              foregroundColor: isPositive ? AppTheme.textColor : Colors.white,
+              onPressed: () => context.canPop() ? context.pop() : context.go('/results'),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
+            NeumorphicPillButton(
+              label: 'Zur Startseite',
+              leadingIcon: Icons.home_outlined,
+              backgroundColor: AppTheme.accentMint,
+              foregroundColor: AppTheme.onMint,
+              onPressed: () => context.go('/home'),
+            ),
           ],
         ),
       ),
@@ -150,54 +165,26 @@ class TestResultScreen extends StatelessWidget {
   }
 
   Widget _buildBookSpecialistCta(BuildContext context) {
-    final specialization =
-        TestSpecializationMapping.primarySpecialization(testTypeId);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: NeumorphicButton(
-        key: const Key('book-specialist-cta'),
-        isPrimary: true,
-        onPressed: () {
-          final query = <String, String>{};
-          if (testTypeId != null && testTypeId!.isNotEmpty) {
-            query['testTypeId'] = testTypeId!;
-          }
-          if (testTypeName.isNotEmpty) {
-            query['testTypeName'] = testTypeName;
-          }
-          final uri = Uri(path: '/doctors', queryParameters: query);
-          context.push(uri.toString());
-        },
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.calendar_month, color: Colors.white),
-                SizedBox(width: 12),
-                Text(
-                  'Termin mit Facharzt buchen',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Empfohlen: $specialization',
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return NeumorphicPillButton(
+      key: const Key('book-specialist-cta'),
+      label: 'Termin mit Facharzt buchen',
+      leadingIcon: Icons.calendar_today_outlined,
+      backgroundColor: AppTheme.primaryBlue,
+      foregroundColor: Colors.white,
+      onPressed: () {
+        final query = <String, String>{};
+        if (testTypeId != null && testTypeId!.isNotEmpty) {
+          query['testTypeId'] = testTypeId!;
+        }
+        if (testTypeName.isNotEmpty) {
+          query['testTypeName'] = testTypeName;
+        }
+        context.push(Uri(path: '/doctors', queryParameters: query).toString());
+      },
     );
   }
 
-  Widget _buildResultRow(ThemeData theme, CubeResultData data) {
+  Widget _buildResultRow(CubeResultData data) {
     final validityColor = switch (data.validity) {
       0 => AppTheme.successColor,
       1 || 2 => AppTheme.accentBlue,
@@ -206,10 +193,12 @@ class TestResultScreen extends StatelessWidget {
     };
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: NeumorphicContainer(
-        padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(bottom: AppTheme.testResultCardSpacing),
+      child: NeumorphicRaisedCard(
+        height: null,
+        padding: const EdgeInsets.all(20),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: Column(
@@ -217,28 +206,30 @@ class TestResultScreen extends StatelessWidget {
                 children: [
                   Text(
                     data.name,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    style: FigmaUi.rubik(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
                       color: AppTheme.textColor,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
                         data.value,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryColor,
+                        style: FigmaUi.rubik(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.primaryBlue,
                         ),
                       ),
                       if (data.unit.isNotEmpty) ...[
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 6),
                         Text(
                           data.unit,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.textColorSecondary,
-                          ),
+                          style: FigmaUi.bodyLight(fontSize: 14),
                         ),
                       ],
                     ],
@@ -247,17 +238,17 @@ class TestResultScreen extends StatelessWidget {
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: AppTheme.resultBadgePadding,
               decoration: BoxDecoration(
-                color: validityColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(8),
+                color: validityColor.withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(AppTheme.resultBadgeRadius),
               ),
               child: Text(
                 data.validityLabel,
-                style: TextStyle(
+                style: FigmaUi.rubik(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
                   color: validityColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
                 ),
               ),
             ),

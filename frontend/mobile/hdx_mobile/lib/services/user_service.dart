@@ -83,18 +83,21 @@ class UserData {
     return 'Noch ausstehend: ${missing.take(2).join(', ')}${missing.length > 2 ? '…' : ''}';
   }
 
-  Map<String, dynamic> toJson() {
-    return {
+  Map<String, dynamic> toUpdateJson() {
+    final payload = <String, dynamic>{
       'first_name': firstName,
       'last_name': lastName,
-      'dob': dateOfBirth,
-      'city': city,
-      'country': country,
-      'phone': phone,
-      'address1': address1,
-      'postcode': postcode,
-      'gender': gender,
     };
+
+    if (dateOfBirth != null) payload['dob'] = dateOfBirth;
+    if (_filled(city)) payload['city'] = city!.trim();
+    if (_filled(country)) payload['country'] = country!.trim();
+    if (_filled(phone)) payload['phone'] = phone!.trim();
+    if (_filled(address1)) payload['address1'] = address1!.trim();
+    if (_filled(postcode)) payload['postcode'] = postcode!.trim();
+    if (_filled(gender)) payload['gender'] = gender!.trim();
+
+    return payload;
   }
 }
 
@@ -128,12 +131,12 @@ class UserService {
     try {
       final response = await _apiService.post(
         '/update-user-data',
-        body: userData.toJson(),
+        body: userData.toUpdateJson(),
       );
 
       if (response['success'] != true) {
         throw ApiException(
-          response['error']?.toString() ?? 'Failed to update user data',
+          _formatMobileError(response, 'Failed to update user data'),
           0,
         );
       }
@@ -144,6 +147,15 @@ class UserService {
     } catch (e) {
       throw ApiException('Unexpected error: $e', 0);
     }
+  }
+
+  String _formatMobileError(Map<String, dynamic> response, String fallback) {
+    final error = response['error']?.toString() ?? fallback;
+    final validation = response['validation'];
+    if (validation is List && validation.isNotEmpty) {
+      return '$error: ${validation.map((e) => e.toString()).join('; ')}';
+    }
+    return error;
   }
 }
 

@@ -7,6 +7,7 @@ import '../services/user_service.dart' show UserData, UserService;
 import '../services/api_service.dart';
 import '../services/cube_service.dart';
 import '../utils/gender_labels.dart';
+import '../utils/profile_errors.dart';
 import '../utils/profile_field_metrics.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/web/adaptive_screen.dart';
@@ -144,7 +145,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e'), backgroundColor: AppTheme.errorColor));
+        final message = localizeProfileError(e.toString());
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Fehler: $message'), backgroundColor: AppTheme.errorColor),
+        );
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -397,6 +401,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           value: _selectedGenderLabel,
           items: genderPickerLabels,
           isExpanded: false,
+          validator: (value) =>
+              value == null || value.isEmpty ? 'Bitte Geschlecht auswählen' : null,
           onChanged: (value) => setState(() => _selectedGenderLabel = value),
           fieldHeight: metrics.fieldHeight,
           fieldPadding: metrics.fieldPadding,

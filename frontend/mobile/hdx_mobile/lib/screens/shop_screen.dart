@@ -51,6 +51,7 @@ class _ShopScreenState extends State<ShopScreen> {
 
     return AdaptiveScreen(
       title: 'Shop',
+      showWebHeader: false,
       onBack: () => context.go('/home'),
       body: Column(
         children: [

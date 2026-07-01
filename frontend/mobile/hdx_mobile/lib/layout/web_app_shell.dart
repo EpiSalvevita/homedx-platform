@@ -21,6 +21,7 @@ class WebAppShell extends StatelessWidget {
     final auth = context.watch<AuthProvider>();
     final navItems = WebNavConfig.itemsForRole(auth.userRole);
     final currentPath = GoRouterState.of(context).uri.path;
+    final userLabel = auth.userEmail?.split('@').first ?? 'Benutzer';
 
     return Scaffold(
       backgroundColor: AppTheme.surface,
@@ -30,6 +31,8 @@ class WebAppShell extends StatelessWidget {
           _WebSidebar(
             navItems: navItems,
             currentPath: currentPath,
+            userLabel: userLabel,
+            userEmail: auth.userEmail,
             onLogout: () async {
               await auth.logout();
               if (!context.mounted) return;
@@ -37,11 +40,19 @@ class WebAppShell extends StatelessWidget {
             },
           ),
           Expanded(
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: WebNavConfig.maxContentWidth),
-                child: child,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: AppTheme.background,
+                border: Border(
+                  left: BorderSide(color: AppTheme.navy.withValues(alpha: 0.06)),
+                ),
+              ),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: WebNavConfig.maxContentWidth),
+                  child: child,
+                ),
               ),
             ),
           ),
@@ -54,11 +65,15 @@ class WebAppShell extends StatelessWidget {
 class _WebSidebar extends StatelessWidget {
   final List<WebNavItem> navItems;
   final String currentPath;
+  final String userLabel;
+  final String? userEmail;
   final VoidCallback onLogout;
 
   const _WebSidebar({
     required this.navItems,
     required this.currentPath,
+    required this.userLabel,
+    required this.userEmail,
     required this.onLogout,
   });
 
@@ -111,7 +126,14 @@ class _WebSidebar extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: _SidebarUserChip(
+                label: userLabel,
+                email: userEmail,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: OutlinedButton.icon(
                 onPressed: onLogout,
                 icon: const Icon(Icons.logout, size: 18, color: Colors.white70),
@@ -133,7 +155,83 @@ class _WebSidebar extends StatelessWidget {
   }
 }
 
-class _SidebarNavItem extends StatelessWidget {
+class _SidebarUserChip extends StatelessWidget {
+  final String label;
+  final String? email;
+
+  const _SidebarUserChip({
+    required this.label,
+    required this.email,
+  });
+
+  String get _initials {
+    final parts = label.trim().split(RegExp(r'\s+'));
+    if (parts.length >= 2) {
+      return '${parts.first[0]}${parts[1][0]}'.toUpperCase();
+    }
+    if (label.length >= 2) return label.substring(0, 2).toUpperCase();
+    return label.isNotEmpty ? label[0].toUpperCase() : '?';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white12),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 18,
+            backgroundColor: AppTheme.accentBlue.withValues(alpha: 0.35),
+            child: Text(
+              _initials,
+              style: FigmaUi.rubik(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: FigmaUi.rubik(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
+                if (email != null)
+                  Text(
+                    email!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: FigmaUi.rubik(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white54,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SidebarNavItem extends StatefulWidget {
   final String label;
   final IconData icon;
   final bool selected;
@@ -147,31 +245,49 @@ class _SidebarNavItem extends StatelessWidget {
   });
 
   @override
+  State<_SidebarNavItem> createState() => _SidebarNavItemState();
+}
+
+class _SidebarNavItemState extends State<_SidebarNavItem> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Material(
-      color: selected ? AppTheme.primaryBlue.withValues(alpha: 0.35) : Colors.transparent,
-      borderRadius: BorderRadius.circular(12),
+    final bg = widget.selected
+        ? AppTheme.primaryBlue.withValues(alpha: 0.35)
+        : _hovered
+            ? Colors.white.withValues(alpha: 0.08)
+            : Colors.transparent;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: onTap,
+          onTap: widget.onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(
               children: [
                 Icon(
-                  icon,
+                  widget.icon,
                   size: 22,
-                  color: selected ? Colors.white : AppTheme.accentBlue,
+                  color: widget.selected ? Colors.white : AppTheme.accentBlue,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    label,
+                    widget.label,
                     style: FigmaUi.rubik(
                       fontSize: 15,
-                      fontWeight: selected ? FontWeight.w500 : FontWeight.w400,
+                      fontWeight: widget.selected ? FontWeight.w500 : FontWeight.w400,
                       color: Colors.white,
                     ),
                   ),

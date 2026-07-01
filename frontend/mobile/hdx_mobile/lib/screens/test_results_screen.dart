@@ -65,25 +65,20 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
   Widget build(BuildContext context) {
     return AdaptiveScreen(
       title: 'Testergebnisse',
+      showWebHeader: false,
       showBackOnMobile: false,
       onBack: () => context.go('/home'),
       body: RefreshIndicator(
         onRefresh: _loadResults,
         child: ListView(
-          padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
+          padding: EdgeInsets.fromLTRB(
+            kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+            kIsWeb ? 24 : AppTheme.screenHorizontalPadding,
+            kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+            24,
+          ),
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
-            if (kIsWeb) ...[
-              Text(
-                'Testergebnisse',
-                style: FigmaUi.rubik(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textColor,
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
             Text(
               'Tippen Sie auf einen Eintrag für Details.',
               style: FigmaUi.bodyLight(

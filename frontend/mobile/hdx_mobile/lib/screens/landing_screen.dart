@@ -124,6 +124,8 @@ class _LandingNav extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 4),
+                const _LocaleToggle(),
+                const SizedBox(width: 4),
                 TextButton(
                   onPressed: () => context.go('/login'),
                   child: Text(
@@ -264,7 +266,16 @@ class _HeroSection extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppTheme.primaryLight.withValues(alpha: 0.35),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.primaryLight.withValues(alpha: 0.6),
+            AppTheme.accentMint.withValues(alpha: 0.12),
+            AppTheme.surface,
+          ],
+          stops: const [0.0, 0.55, 1.0],
+        ),
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
       ),
       child: Center(
@@ -375,39 +386,11 @@ class _FeatureSection extends StatelessWidget {
                 itemCount: features.length,
                 itemBuilder: (context, index) {
                   final feature = features[index];
-                  return NeumorphicContainer(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: accentColor.withValues(alpha: 0.25),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.all(10),
-                          child: Image.asset(feature.iconPath, fit: BoxFit.contain),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          feature.title,
-                          style: FigmaUi.rubik(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textColor,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: Text(
-                            feature.description,
-                            style: FigmaUi.bodyLight(fontSize: 14),
-                          ),
-                        ),
-                      ],
-                    ),
+                  return _HoverFeatureCard(
+                    accentColor: accentColor,
+                    iconPath: feature.iconPath,
+                    title: feature.title,
+                    description: feature.description,
                   );
                 },
               ),
@@ -543,6 +526,142 @@ class _DoctorCta extends StatelessWidget {
                       ),
                     ],
                   ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LocaleToggle extends StatelessWidget {
+  const _LocaleToggle();
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = context.watch<LocaleProvider>();
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor,
+        borderRadius: BorderRadius.circular(999),
+        boxShadow: AppTheme.cardShadow,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(3),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _LocaleChip(
+              label: 'DE',
+              selected: locale.isGerman,
+              onTap: locale.setGerman,
+            ),
+            _LocaleChip(
+              label: 'EN',
+              selected: !locale.isGerman,
+              onTap: locale.setEnglish,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LocaleChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _LocaleChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? AppTheme.primaryBlue : Colors.transparent,
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Text(
+            label,
+            style: FigmaUi.rubik(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: selected ? Colors.white : AppTheme.textColorSecondary,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HoverFeatureCard extends StatefulWidget {
+  final Color accentColor;
+  final String iconPath;
+  final String title;
+  final String description;
+
+  const _HoverFeatureCard({
+    required this.accentColor,
+    required this.iconPath,
+    required this.title,
+    required this.description,
+  });
+
+  @override
+  State<_HoverFeatureCard> createState() => _HoverFeatureCardState();
+}
+
+class _HoverFeatureCardState extends State<_HoverFeatureCard> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        transform: Matrix4.translationValues(0, _hovered ? -4 : 0, 0),
+        child: NeumorphicContainer(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: widget.accentColor.withValues(alpha: _hovered ? 0.35 : 0.25),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.all(10),
+                child: Image.asset(widget.iconPath, fit: BoxFit.contain),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                widget.title,
+                style: FigmaUi.rubik(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textColor,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: Text(
+                  widget.description,
+                  style: FigmaUi.bodyLight(fontSize: 14),
+                ),
+              ),
+            ],
           ),
         ),
       ),
