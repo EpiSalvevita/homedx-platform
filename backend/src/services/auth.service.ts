@@ -12,6 +12,7 @@ import {
 } from '../util/login-messages';
 import { registrationEmailExistsMessage } from '../util/registration-messages';
 import { isStrongPassword } from '../auth/password-policy';
+import { AuditLogService } from './audit-log.service';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +25,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private auditLogService: AuditLogService,
   ) {}
 
   private signAccessToken(user: {
@@ -63,6 +65,18 @@ export class AuthService {
 
     if (!user || !passwordMatches) {
       throw new UnauthorizedException(loginInvalidCredentialsMessage(lang));
+    }
+
+    try {
+      await this.auditLogService.create({
+        userId: user.id,
+        action: 'LOGIN',
+        entityType: 'USER',
+        entityId: user.id,
+      });
+    } catch (error) {
+      // Audit logging must never block a successful login.
+      this.logger.warn(`Audit log write failed for login userId=${user.id}: ${error?.message ?? error}`);
     }
 
     const { password: _, ...result } = user;

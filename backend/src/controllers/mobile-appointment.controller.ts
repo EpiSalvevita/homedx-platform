@@ -7,6 +7,7 @@ import { Roles } from '../auth/roles.decorator';
 import {
   AppointmentIdDto,
   BookAppointmentDto,
+  CancelAppointmentDto,
   DoctorSlotsDto,
   GetDoctorsDto,
   SetDoctorAvailabilityDto,
@@ -128,7 +129,7 @@ export class MobileAppointmentController {
   @UseGuards(JwtAuthGuard)
   async cancelAppointment(
     @Request() req: { user?: { sub: string } },
-    @Body() body: AppointmentIdDto,
+    @Body() body: CancelAppointmentDto,
   ): Promise<AppointmentResponse> {
     try {
       const userId = req.user?.sub;
@@ -140,6 +141,7 @@ export class MobileAppointmentController {
         body.appointmentId,
         userId,
         role,
+        body.message,
       );
       return { success: true, appointment };
     } catch (error) {

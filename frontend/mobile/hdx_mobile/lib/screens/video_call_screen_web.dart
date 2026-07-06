@@ -6,7 +6,7 @@ import '../config/app_theme.dart';
 import '../services/api_service.dart';
 import '../services/video_call_service.dart';
 import '../widgets/figma_ui.dart';
-import '../widgets/neumorphic.dart';
+import '../widgets/web/adaptive_screen.dart';
 
 class VideoCallScreen extends StatefulWidget {
   final String appointmentId;
@@ -84,14 +84,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Videoanruf'),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => context.pop(),
-        ),
-      ),
+    return AdaptiveScreen(
+      title: 'Videoanruf',
+      onBack: () => context.pop(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -101,13 +96,19 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                        const Icon(Icons.error_outline, size: 48, color: AppTheme.errorColor),
                         const SizedBox(height: 16),
-                        Text(_error!, textAlign: TextAlign.center),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
+                        Text(
+                          _error!,
+                          textAlign: TextAlign.center,
+                          style: FigmaUi.rubik(fontSize: 15, color: AppTheme.textColor),
+                        ),
+                        const SizedBox(height: 20),
+                        NeumorphicPillButton(
+                          label: 'Zurück',
+                          leadingIcon: Icons.arrow_back,
+                          expanded: false,
                           onPressed: () => context.pop(),
-                          child: const Text('Zurück'),
                         ),
                       ],
                     ),
@@ -118,50 +119,57 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                     padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 480),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.videocam_outlined,
-                            size: 64,
-                            color: AppTheme.primaryBlue,
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            'Der Videoanruf wurde in einem neuen Tab geöffnet.',
-                            textAlign: TextAlign.center,
-                            style: FigmaUi.rubik(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w400,
-                              color: AppTheme.textColor,
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-                          NeumorphicButton(
-                            isPrimary: true,
-                            onPressed: _reopenCall,
-                            child: Text(
-                              'Erneut öffnen',
-                              style: FigmaUi.rubik(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white,
+                      child: NeumorphicRaisedCard(
+                        height: null,
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 64,
+                              height: 64,
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryLight,
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                              child: const Icon(
+                                Icons.videocam_outlined,
+                                size: 30,
+                                color: AppTheme.primaryBlue,
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          NeumorphicButton(
-                            onPressed: () => context.pop(),
-                            child: Text(
-                              'Zurück',
+                            const SizedBox(height: 24),
+                            Text(
+                              'Der Videoanruf wurde in einem neuen Tab geöffnet.',
+                              textAlign: TextAlign.center,
                               style: FigmaUi.rubik(
-                                fontSize: 16,
+                                fontSize: 17,
                                 fontWeight: FontWeight.w500,
                                 color: AppTheme.textColor,
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 8),
+                            Text(
+                              'Falls sich kein neuer Tab geöffnet hat, nutzen Sie den Button unten.',
+                              textAlign: TextAlign.center,
+                              style: FigmaUi.bodyLight(fontSize: 13, color: AppTheme.textColorSecondary),
+                            ),
+                            const SizedBox(height: 28),
+                            NeumorphicPillButton(
+                              label: 'Erneut öffnen',
+                              leadingIcon: Icons.open_in_new,
+                              onPressed: _reopenCall,
+                            ),
+                            const SizedBox(height: 12),
+                            NeumorphicPillButton(
+                              label: 'Zurück',
+                              leadingIcon: Icons.arrow_back,
+                              backgroundColor: AppTheme.surface,
+                              foregroundColor: AppTheme.textColor,
+                              onPressed: () => context.pop(),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

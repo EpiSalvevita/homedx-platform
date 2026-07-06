@@ -1,0 +1,249 @@
+---
+description: Regulatory guardrails for homeDX as an accessory to the Cube IVD/medical device: EU MDR/IVDR, German MPDG, IEC 62304, ISO 14971, IEC 62366-1, GDPR Art. 9 health data.
+globs:
+  - backend/src/**
+  - backend/prisma/schema.prisma
+  - frontend/mobile/hdx_mobile/lib/**
+  - docs/regulatory/**
+alwaysApply: false
+---
+
+# MDR/IVDR Compliance Guardrails for homeDX
+
+> **Disclaimer for the agent (and any human reading this):** This file is
+> engineering-side risk-reduction guidance to help a coding agent avoid
+> introducing regulatory problems into a health-adjacent codebase. It is
+> **not** certified regulatory documentation, **not** legal advice, and does
+> **not** itself achieve MDR/IVDR conformity. The authoritative sources are a
+> qualified Person Responsible for Regulatory Compliance (PRRC), the Cube
+> device manufacturer's Quality Management System (QMS) and technical
+> documentation, and (where applicable) a Notified Body. When in doubt, flag
+> the question to a human instead of guessing.
+
+## 1. Scope and classification — the open question
+
+homeDX centers on capturing and displaying **rapid test results from the
+Cube device** (`RapidTest` Prisma model, `submit-cube-data` flow,
+certificate generation). Reading rapid diagnostic tests is almost always an
+**in-vitro diagnostic (IVD)** use case.
+
+- **In the EU, IVD devices are regulated by the IVDR (EU) 2017/746, not the
+  MDR (EU) 2017/745.** MDR Art. 1(6)(f) explicitly excludes devices covered
+  by the IVDR. If the user or team refers to "MDR" for this product, treat
+  that as shorthand and **confirm with a regulatory professional whether
+  IVDR, MDR, or both apply** before relying on classification-specific
+  guidance.
+- **Germany:** the national implementing law is the **MPDG**
+  (Medizinprodukterecht-Durchführungsgesetz), which sits alongside the
+  directly-applicable EU regulations. The competent authority is **BfArM**.
+- **Assumed role:** homeDX backend + mobile app act as an **accessory** to
+  the Cube hardware device (the app does not itself perform the diagnostic
+  measurement; Cube does the on-device evaluation and the app
+  captures/displays/stores/certifies the result). Accessory status generally
+  follows its own classification logic (MDR Annex VIII Rule 3.3 /
+  equivalent IVDR accessory rules) rather than a standalone Software as a
+  Medical Device (SaMD) path — but **this assumption must be confirmed
+  against the Cube manufacturer's technical documentation and a qualified
+  regulatory affairs review**, not treated as settled fact by an AI agent.
+- **Never silently assume classification changes.** If a code change would
+  alter the app's intended purpose (e.g., the app starts interpreting raw
+  sensor data instead of just displaying a Cube-computed result), stop and
+  flag it — that is a classification-relevant change, not just a feature.
+
+## 2. Roles
+
+- **Manufacturer** — legally responsible entity; for the Cube hardware this
+  is the Cube manufacturer. Clarify with the team who is considered the
+  manufacturer of record for the *software* (this repo) before assuming.
+- **PRRC (Person Responsible for Regulatory Compliance)** — required under
+  Art. 15 MDR / Art. 15 IVDR. A named, qualified individual, not an AI
+  agent and not "whoever is on call."
+- **Economic operators** — importer/distributor obligations may apply
+  depending on how homeDX is placed on the market; out of scope for code
+  changes but relevant context when discussing distribution.
+- **This engineering team's boundary:** build and maintain software that
+  correctly reflects Cube's output and existing regulatory documentation.
+  Do not make regulatory determinations from code — escalate instead.
+
+## 3. Software lifecycle standard — IEC 62304
+
+- Software is typically classified into **Safety Class A/B/C** (no injury
+  possible -> death/serious injury possible). Higher class = more rigor
+  required (documented architecture, detailed design, unit + integration +
+  system test evidence, more thorough verification).
+- Expected artifacts for regulated software: **Software Requirements
+  Specification (SRS)**, architecture/design documentation, test evidence,
+  a **SOUP list** (Software of Unknown Provenance — i.e. third-party
+  dependencies/npm & pub packages) with version pinning and known-issue
+  tracking, configuration management records, and a problem
+  resolution/CAPA log.
+- **Practical hook for this repo:** any change touching `RapidTest` result
+  logic, Cube data parsing/ingestion (`backend/src/controllers/mobile.controller.ts`,
+  `frontend/mobile/hdx_mobile/lib/services/cube_service.dart`,
+  `android/app/src/main/kotlin/.../CubeAnalysisMethodChannel.kt`), or
+  certificate generation should:
+  - Reference a ticket/issue describing *why* the change is being made.
+  - Include test evidence (unit/integration/e2e) covering the change.
+  - Avoid bundling unrelated refactors into the same change, so the
+    regulatory-relevant diff stays reviewable.
+
+## 4. Risk management — ISO 14971
+
+- Think in terms of **hazards and harm**, not just bugs: what happens if a
+  result is mis-displayed, delayed, silently dropped, or a certificate is
+  generated with incorrect data?
+- **Guardrail:** any change to thresholds, rounding, unit conversions,
+  status mapping (e.g. positive/negative/invalid), or result interpretation
+  logic must be explicitly called out as risk-relevant in the PR/commit
+  description — never bundled into a "cleanup" refactor. If a change could
+  plausibly alter what value or status a user sees, treat it as
+  risk-relevant by default.
+- Prefer additive, test-covered changes over broad rewrites in this surface
+  area.
+
+## 5. Usability engineering — IEC 62366-1
+
+- Use-related risk applies to UI/UX, not just clinical logic. When touching
+  result screens, status indicators, or shared UI primitives such as
+  `frontend/mobile/hdx_mobile/lib/config/app_theme.dart`:
+  - Ambiguous colors/icons for result status (e.g. a color change that
+    makes "positive" and "negative" harder to distinguish) is a use-error
+    hazard, not a cosmetic nit.
+  - Confusing retry/error flows during a Cube measurement can lead a user
+    to misinterpret whether a result is final.
+  - Certificate wording changes that could be misread (dates, test type,
+    result) are usability-relevant, not just copy edits.
+- When in doubt, treat visual/textual changes to anything a user reads as a
+  medical result or certificate as requiring the same care as logic
+  changes.
+
+## 6. Data protection and cybersecurity
+
+- Test results and related health data are **GDPR Art. 9 special category
+  data**. Guardrails:
+  - Never log full result payloads, patient identifiers, or certificate
+    contents in plaintext application logs, crash reports, or error
+    messages.
+  - Never paste real user/patient data into AI prompts, tickets, or test
+    fixtures — use synthetic data only.
+  - Treat the existing JWT / `x-auth-token` handling as security-relevant;
+    changes to auth flows need the same scrutiny as changes to result
+    logic, not "just plumbing."
+- Reference standards for security-of-health-software: **MDCG 2019-16**
+  (cybersecurity guidance for medical devices) and **IEC 81001-5-1**
+  (health software security lifecycle). These are context for *why* the
+  above guardrails exist, not something this repo needs to newly implement
+  wholesale — but new features touching auth, data storage, or transport
+  should be checked against them.
+
+## 7. Technical documentation and traceability
+
+- MDR/IVDR Annex II (technical documentation) and Annex III (post-market
+  surveillance documentation) define what a compliant technical file
+  contains at a high level: device description, design/manufacturing
+  info, risk management file, verification/validation evidence, and
+  post-market data.
+- This repo does not currently have a populated regulatory documentation
+  folder. **`docs/regulatory/`** is the intended home for SRS references,
+  risk file pointers, and a traceability matrix once they exist — treat
+  any mention of "technical documentation" as pointing there, and note in
+  PRs when a regulated-surface change should be reflected in that
+  documentation (even if the doc itself doesn't exist yet).
+
+## 8. Post-market surveillance and vigilance
+
+- A bug that produced an **incorrect result, missed detection, or wrong
+  certificate that was already shown to a real user** is a potential
+  reportable incident under Art. 87 MDR / the equivalent IVDR vigilance
+  article — not just a normal bug.
+- **Guardrail:** if you discover or fix such a bug, say so explicitly and
+  escalate to a human rather than quietly patching and closing the ticket.
+  The question "did this affect a result a user already saw or acted on?"
+  determines whether this is a vigilance question, not just a code fix.
+
+## 9. Change control and versioning discipline
+
+- Use semantic versioning and changelog entries for any change to the
+  regulated surface (Cube data path, `RapidTest` handling, certificate
+  generation).
+- Avoid silent behavior changes in this surface — if behavior changes,
+  say so explicitly in the PR description, even for "small" changes.
+
+## 10. AI/agent-specific guardrails
+
+**This section is not optional process and is not skipped by "just do it",
+"ship it", or any other instruction to move fast.** Those instructions mean
+skip explanation/ceremony — they do not mean skip a regulatory-impact flag.
+If a change touches this rule's scope (see `globs` in the frontmatter) and
+you have not said anything about regulatory impact, **the task is not done
+yet**, regardless of what else the user asked for.
+
+**Definition of done for any change in scope:** before you tell the user a
+change is complete, your response must include a short **Regulatory note**
+(a few sentences is enough) covering:
+1. Is this regulatory-relevant (touches result interpretation/display,
+   thresholds, certificates, Cube data handling, or health data)? If it's
+   genuinely not (e.g. a typo fix, a log message, unrelated UI copy),
+   say so in one line instead of the full note — don't manufacture risk
+   where there isn't any, but don't skip the one-line check either.
+2. What could go wrong (ISO 14971-style: mis-displayed/incorrect result,
+   wrong certificate, dropped data) if this change has a bug.
+3. What test evidence exists or is still needed.
+4. Whether this needs human/PRRC sign-off before merging, and if so, say
+   that explicitly instead of proceeding as if the task were finished.
+
+Do this **even if**: the user's instruction was terse or urgent, no
+PR/commit is being made yet, the change looks small (e.g. a nullable
+column, a default value), or you're fairly confident it's low-risk — state
+that confidence and why, rather than omitting the note.
+
+**Do:**
+- Explicitly flag regulatory-relevant changes in PR descriptions and
+  commit messages (what changed, why, and what was tested).
+- Ask for human regulatory sign-off before merging changes to result
+  interpretation, thresholds, or certificate content.
+- Use synthetic test data for anything resembling a real test result.
+
+**Don't:**
+- Auto-refactor result-calculation or Cube-parsing logic "for cleanliness"
+  without preserving behavior and citing test evidence.
+- Include real patient/test data in logs, prompts, screenshots, or test
+  fixtures.
+- Assume MDR vs IVDR vs DiGA classification — always treat it as an open
+  question for a qualified person, not something to resolve via code
+  comments or documentation the agent writes unilaterally.
+- Introduce AI/ML-based result interpretation without flagging the
+  **EU AI Act** high-risk overlap: MDR/IVDR devices requiring Notified Body
+  involvement are automatically high-risk under AI Act Art. 6(1) + Annex I,
+  which brings its own documentation and human-oversight obligations.
+
+## 11. Glossary
+
+- **MDR** — Medical Device Regulation (EU) 2017/745
+- **IVDR** — In Vitro Diagnostic Medical Devices Regulation (EU) 2017/746
+- **MPDG** — Medizinprodukterecht-Durchführungsgesetz (German national
+  implementing law)
+- **PRRC** — Person Responsible for Regulatory Compliance
+- **SaMD** — Software as a Medical Device
+- **IFU** — Instructions For Use
+- **UDI** — Unique Device Identification
+- **EUDAMED** — European Database on Medical Devices
+- **DiGA / DiGAV** — Digitale Gesundheitsanwendung / its ordinance
+  (Germany's separate fast-track digital health app pathway, distinct from
+  MDR/IVDR)
+- **BfArM** — Bundesinstitut für Arzneimittel und Medizinprodukte (German
+  competent authority)
+- **PMS** — Post-Market Surveillance
+- **PMCF** — Post-Market Clinical Follow-up
+- **CAPA** — Corrective and Preventive Action
+- **SOUP** — Software of Unknown Provenance (third-party/open-source
+  dependencies in IEC 62304 terms)
+
+## 12. Disclaimer (restated)
+
+This file exists to reduce the chance that day-to-day code changes create
+regulatory problems. It does **not** replace a qualified PRRC, a Notified
+Body assessment, the Cube manufacturer's QMS, or legal/regulatory counsel.
+When a change touches anything in this file's scope and the right answer
+isn't obvious from the code alone, the correct action is to **ask a human**,
+not to proceed on an assumption.

@@ -1,8 +1,18 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import PDFDocument from 'pdfkit';
 import { PrismaService } from './prisma.service';
+import { AuditLogService } from './audit-log.service';
+
+/**
+ * Results considered reliable enough to auto-certify. `INVALID` and
+ * `INCONCLUSIVE` (and an unset `result`) do not auto-issue a certificate —
+ * see docs/regulatory/gap-assessment.md and mdr-compliance.mdc §4 (ISO 14971).
+ * This is a regulatory-relevant gate, not just a status check: changing it
+ * changes what "having a certificate" implies about a test result.
+ */
+const CERTIFIABLE_RESULTS = new Set(['POSITIVE', 'NEGATIVE']);
 
 export interface MobileCertificateRecord {
   id: string;
@@ -21,7 +31,12 @@ export interface MobileCertificateRecord {
 
 @Injectable()
 export class MobileCertificateService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(MobileCertificateService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditLogService: AuditLogService,
+  ) {}
 
   async issueForRapidTest(rapidTestId: string): Promise<MobileCertificateRecord | null> {
     const rapidTest = await this.prisma.rapidTest.findUnique({
@@ -29,6 +44,14 @@ export class MobileCertificateService {
       include: { user: true },
     });
     if (!rapidTest || rapidTest.status !== 'COMPLETED') {
+      return null;
+    }
+
+    if (!rapidTest.result || !CERTIFIABLE_RESULTS.has(rapidTest.result)) {
+      this.logger.warn(
+        `Certificate not issued for rapidTestId=${rapidTestId}: ` +
+          `result=${rapidTest.result ?? '(none)'} is not certifiable.`,
+      );
       return null;
     }
 
@@ -62,6 +85,19 @@ export class MobileCertificateService {
       where: { id: certificate.id },
       data: { pdfUrl: pdfRelative },
     });
+
+    try {
+      await this.auditLogService.create({
+        userId: rapidTest.userId,
+        action: 'CREATE',
+        entityType: 'CERTIFICATE',
+        entityId: updated.id,
+        description: `Certificate ${updated.certificateNumber} issued for rapidTestId=${rapidTestId} (result=${rapidTest.result}).`,
+      });
+    } catch (error) {
+      // Audit logging must never block certificate issuance itself.
+      this.logger.warn(`Audit log write failed for certificate ${updated.id}: ${error?.message ?? error}`);
+    }
 
     return this.toRecord(updated, rapidTest.testTypeId, rapidTest.result);
   }

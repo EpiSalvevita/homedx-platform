@@ -9,6 +9,7 @@ class AuthProvider with ChangeNotifier {
   String? _userId;
   String? _userEmail;
   String? _userRole;
+  String? _displayName;
 
   AuthProvider(this._authService);
 
@@ -19,6 +20,18 @@ class AuthProvider with ChangeNotifier {
   String? get userEmail => _userEmail;
   String? get userRole => _userRole;
   bool get isDoctor => _userRole == 'DOCTOR';
+
+  /// Full name, populated lazily once any screen loads the user's profile
+  /// (see [UserService.getUserData]). Falls back to the email prefix in the UI
+  /// until then, so this is cache-only — never fetched here directly.
+  String? get displayName => _displayName;
+
+  void setDisplayName(String name) {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty || trimmed == _displayName) return;
+    _displayName = trimmed;
+    notifyListeners();
+  }
   bool get isEstablishingSession => _isEstablishingSession;
 
   bool _isEstablishingSession = false;
@@ -119,6 +132,7 @@ class AuthProvider with ChangeNotifier {
     _userId = null;
     _userEmail = null;
     _userRole = null;
+    _displayName = null;
     notifyListeners();
 
     _setLoading(true);

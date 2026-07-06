@@ -14,6 +14,9 @@ export class NotificationService {
       case 'PAYMENT_FAILED': return NotificationType.PAYMENT_FAILED;
       case 'SYSTEM_UPDATE': return NotificationType.SYSTEM_UPDATE;
       case 'SECURITY_ALERT': return NotificationType.SECURITY_ALERT;
+      case 'APPOINTMENT_CONFIRMED': return NotificationType.APPOINTMENT_CONFIRMED;
+      case 'APPOINTMENT_REMINDER': return NotificationType.APPOINTMENT_REMINDER;
+      case 'APPOINTMENT_CANCELLED': return NotificationType.APPOINTMENT_CANCELLED;
       default: return NotificationType.SYSTEM_UPDATE;
     }
   }

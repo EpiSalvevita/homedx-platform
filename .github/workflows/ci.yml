@@ -27,6 +27,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://devuser:devpassword@localhost:5432/devdb?schema=public
       JWT_SECRET: ci-test-jwt-secret
+      NODE_ENV: test
 
     steps:
       - uses: actions/checkout@v4
@@ -40,6 +41,14 @@ jobs:
       - name: Install backend dependencies
         working-directory: backend
         run: npm ci --legacy-peer-deps
+
+      - name: Build backend
+        working-directory: backend
+        run: npm run build
+
+      - name: Audit backend dependencies (critical)
+        working-directory: backend
+        run: npm audit --audit-level=critical
 
       - name: Apply Prisma migrations
         working-directory: backend
@@ -88,8 +97,12 @@ jobs:
 
       - name: Analyze Flutter code
         working-directory: frontend/mobile/hdx_mobile
-        run: flutter analyze lib/
+        run: flutter analyze
 
       - name: Run Flutter tests
         working-directory: frontend/mobile/hdx_mobile
         run: flutter test
+
+      - name: Build Flutter web release
+        working-directory: frontend/mobile/hdx_mobile
+        run: flutter build web --release

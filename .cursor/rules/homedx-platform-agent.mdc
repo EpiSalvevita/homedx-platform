@@ -21,3 +21,4 @@ alwaysApply: true
   4. Open `http://127.0.0.1:8080` (not `localhost` — IPv6 mismatch on WSL2). Hard refresh (Ctrl+Shift+R).
   `.env` should use `API_BASE_URL=http://127.0.0.1:4000`. On WSL2 + Windows browser, remove stale `netsh` portproxy on 4000 if API calls fail (see `docs/WSL2_PORT_FORWARDING.md`).
 - Testing expectations: backend has a Jest e2e smoke test at `backend/test/app.e2e-spec.ts`; Flutter has widget tests under `frontend/mobile/hdx_mobile/test/`. For Cube changes, manual E2E requires a real Android device and Cube: connect/pair, scan in-app, start a test, verify backend submission and displayed result.
+- Regulatory context: homeDX is an accessory to the Cube IVD/medical device and is in scope for EU MDR/IVDR and German MPDG. Before touching `RapidTest` result logic, Cube data parsing, certificates, or health-data handling, read `.cursor/rules/mdr-compliance.mdc`.

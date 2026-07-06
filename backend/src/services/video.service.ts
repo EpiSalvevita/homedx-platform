@@ -19,11 +19,34 @@ export class VideoService {
     return !!this.apiKey;
   }
 
+  /**
+   * Returns an existing Daily room or creates it. Requires DAILY_API_KEY.
+   */
+  async ensureRoom(roomName: string): Promise<{ roomName: string; roomUrl: string }> {
+    if (!this.apiKey) {
+      throw new Error('DAILY_API_KEY is not configured');
+    }
+
+    const getResponse = await fetch(`https://api.daily.co/v1/rooms/${encodeURIComponent(roomName)}`, {
+      headers: { Authorization: `Bearer ${this.apiKey}` },
+    });
+
+    if (getResponse.ok) {
+      const data = (await getResponse.json()) as DailyRoomResponse;
+      return { roomName: data.name, roomUrl: data.url };
+    }
+
+    if (getResponse.status !== 404) {
+      const errorText = await getResponse.text();
+      throw new Error(`Failed to fetch Daily room: ${errorText}`);
+    }
+
+    return this.createRoom(roomName);
+  }
+
   async createRoom(roomName: string): Promise<{ roomName: string; roomUrl: string }> {
     if (!this.apiKey) {
-      const fallbackUrl = this.buildFallbackRoomUrl(roomName);
-      this.logger.warn('DAILY_API_KEY not set; using fallback room URL');
-      return { roomName, roomUrl: fallbackUrl };
+      throw new Error('DAILY_API_KEY is not configured');
     }
 
     const response = await fetch('https://api.daily.co/v1/rooms', {
@@ -112,9 +135,5 @@ export class VideoService {
       return `https://${this.domain}.daily.co/${roomName}`;
     }
     return `https://homedx.daily.co/${roomName}`;
-  }
-
-  private buildFallbackRoomUrl(roomName: string): string {
-    return this.buildRoomUrl(roomName);
   }
 }

@@ -70,9 +70,11 @@ export class AppointmentService {
 
     if (appointmentType === 'ONLINE') {
       videoRoomName = `homedx-${Date.now()}-${params.patientId.slice(-6)}`;
-      const room = await this.videoService.createRoom(videoRoomName);
-      videoRoomName = room.roomName;
-      videoRoomUrl = room.roomUrl;
+      if (this.videoService.isConfigured()) {
+        const room = await this.videoService.createRoom(videoRoomName);
+        videoRoomName = room.roomName;
+        videoRoomUrl = room.roomUrl;
+      }
     }
 
     const appointment = await this.prisma.appointment.create({
@@ -156,7 +158,12 @@ export class AppointmentService {
     return this.toListItem(appointment);
   }
 
-  async cancelAppointment(appointmentId: string, userId: string, role: string) {
+  async cancelAppointment(
+    appointmentId: string,
+    userId: string,
+    role: string,
+    message?: string,
+  ) {
     const appointment = await this.prisma.appointment.findUnique({
       where: { id: appointmentId },
       include: {
@@ -183,16 +190,32 @@ export class AppointmentService {
       },
     });
 
-    const notifyIds = [appointment.patientId, appointment.doctor.userId];
-    for (const notifyUserId of notifyIds) {
-      await this.notificationService.create({
-        userId: notifyUserId,
-        type: 'APPOINTMENT_CANCELLED',
-        title: 'Termin storniert',
-        message: 'Ein Termin wurde storniert.',
-        data: JSON.stringify({ appointmentId }),
-      });
+    const isPatient = appointment.patientId === userId;
+    const recipientUserId = isPatient ? appointment.doctor.userId : appointment.patientId;
+    const cancellerName = isPatient
+      ? `${appointment.patient.firstName} ${appointment.patient.lastName}`
+      : `Dr. ${appointment.doctor.user.firstName} ${appointment.doctor.user.lastName}`;
+    const scheduledLabel = appointment.scheduledAt.toLocaleString('de-DE');
+    const trimmedMessage = message?.trim();
+
+    let notificationMessage = isPatient
+      ? `${cancellerName} hat den Termin am ${scheduledLabel} storniert.`
+      : `${cancellerName} hat Ihren Termin am ${scheduledLabel} storniert.`;
+
+    if (trimmedMessage) {
+      notificationMessage += ` Nachricht: ${trimmedMessage}`;
     }
+
+    await this.notificationService.create({
+      userId: recipientUserId,
+      type: 'APPOINTMENT_CANCELLED',
+      title: 'Termin storniert',
+      message: notificationMessage,
+      data: JSON.stringify({
+        appointmentId,
+        cancellationMessage: trimmedMessage ?? null,
+      }),
+    });
 
     return this.toListItem(updated);
   }
@@ -219,12 +242,31 @@ export class AppointmentService {
       throw new BadRequestException('Appointment was cancelled');
     }
 
-    if (!this.canJoinNow(appointment.scheduledAt)) {
+    if (!this.canJoinNow(appointment.scheduledAt, appointment.durationMin)) {
       throw new BadRequestException('Video call is not available yet');
     }
 
-    if (!appointment.videoRoomName || !appointment.videoRoomUrl) {
-      throw new BadRequestException('Video room not configured for this appointment');
+    if (!this.videoService.isConfigured()) {
+      throw new BadRequestException(
+        'Videoanrufe sind auf diesem Server nicht konfiguriert (DAILY_API_KEY fehlt).',
+      );
+    }
+
+    const roomName =
+      appointment.videoRoomName ?? `homedx-${appointment.id.slice(-12)}`;
+    const room = await this.videoService.ensureRoom(roomName);
+
+    if (
+      appointment.videoRoomName !== room.roomName ||
+      appointment.videoRoomUrl !== room.roomUrl
+    ) {
+      await this.prisma.appointment.update({
+        where: { id: appointmentId },
+        data: {
+          videoRoomName: room.roomName,
+          videoRoomUrl: room.roomUrl,
+        },
+      });
     }
 
     const isDoctor = role === 'DOCTOR';
@@ -233,23 +275,23 @@ export class AppointmentService {
       : `${appointment.patient.firstName} ${appointment.patient.lastName}`;
 
     const { token, expiresAt } = await this.videoService.createMeetingToken(
-      appointment.videoRoomName,
+      room.roomName,
       displayName,
       isDoctor,
     );
 
     return {
-      roomUrl: appointment.videoRoomUrl,
-      joinUrl: this.videoService.buildJoinUrl(appointment.videoRoomUrl, token),
+      roomUrl: room.roomUrl,
+      joinUrl: this.videoService.buildJoinUrl(room.roomUrl, token),
       token,
       expiresAt: expiresAt.toISOString(),
     };
   }
 
-  canJoinNow(scheduledAt: Date): boolean {
+  canJoinNow(scheduledAt: Date, durationMin = 30): boolean {
     const now = Date.now();
     const start = scheduledAt.getTime() - JOIN_WINDOW_BEFORE_MS;
-    const end = scheduledAt.getTime() + JOIN_WINDOW_AFTER_MS;
+    const end = scheduledAt.getTime() + durationMin * 60 * 1000 + JOIN_WINDOW_AFTER_MS;
     return now >= start && now <= end;
   }
 
@@ -300,7 +342,7 @@ export class AppointmentService {
       canJoin:
         appointment.type === 'ONLINE' &&
         appointment.status === 'CONFIRMED' &&
-        this.canJoinNow(appointment.scheduledAt),
+        this.canJoinNow(appointment.scheduledAt, appointment.durationMin),
       videoRoomUrl: appointment.videoRoomUrl,
     };
   }

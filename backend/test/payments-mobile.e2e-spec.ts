@@ -20,6 +20,7 @@ import { MobilePaymentService } from '../src/services/mobile-payment.service';
 import { MobileTestService } from '../src/services/mobile-test.service';
 import { MobileCertificateService } from '../src/services/mobile-certificate.service';
 import { MobileNotificationService } from '../src/services/mobile-notification.service';
+import { AuditLogService } from '../src/services/audit-log.service';
 import { PrismaService } from '../src/services/prisma.service';
 import { bootstrapTestApp } from './test-app';
 
@@ -61,6 +62,7 @@ async function buildApp(): Promise<INestApplication> {
       { provide: MobileTestService, useValue: {} },
       { provide: MobileCertificateService, useValue: { issueForRapidTest: jest.fn() } },
       { provide: MobileNotificationService, useValue: { notifyUser: jest.fn() } },
+      { provide: AuditLogService, useValue: { create: jest.fn(async () => ({})) } },
       { provide: JwtService, useValue: {} },
     ],
   })
@@ -130,6 +132,7 @@ describe('Mobile payment REST (e2e)', () => {
         { provide: MobileTestService, useValue: {} },
         { provide: MobileCertificateService, useValue: {} },
         { provide: MobileNotificationService, useValue: {} },
+        { provide: AuditLogService, useValue: { create: jest.fn(async () => ({})) } },
         { provide: JwtService, useValue: {} },
       ],
     })

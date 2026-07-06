@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from './prisma.service';
 import { MobileCertificateService } from './mobile-certificate.service';
 import { MobileNotificationService } from './mobile-notification.service';
+import { AuditLogService } from './audit-log.service';
 
 export interface CubeResultDataItem {
   name: string;
@@ -45,6 +46,7 @@ export class CubeService {
     private readonly prisma: PrismaService,
     private readonly mobileCertificateService: MobileCertificateService,
     private readonly mobileNotificationService: MobileNotificationService,
+    private readonly auditLogService: AuditLogService,
   ) {}
 
   normalizeCubeResult(
@@ -214,6 +216,19 @@ export class CubeService {
     this.logger.log(
       `submit-cube-data success rapidTestId=${rapidTest.id} normalized=${normalizedResult}`,
     );
+
+    try {
+      await this.auditLogService.create({
+        userId,
+        action: body.rapidTestId ? 'UPDATE' : 'CREATE',
+        entityType: 'RAPID_TEST',
+        entityId: rapidTest.id,
+        description: `Cube data submitted: testTypeId=${body.testTypeId} result=${normalizedResult}.`,
+      });
+    } catch (error) {
+      // Audit logging must never block a Cube result from being saved.
+      this.logger.warn(`Audit log write failed for rapidTestId=${rapidTest.id}: ${error?.message ?? error}`);
+    }
 
     let certificateId: string | undefined;
     try {

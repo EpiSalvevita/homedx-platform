@@ -66,9 +66,14 @@ class AppTheme {
         ),
       ];
 
-  /// Figma Large primary button: height 59, vertical padding 20.
+  /// Figma Large primary button: height 59.
   static const double buttonHeightLarge = 59;
-  static const EdgeInsets buttonPaddingLarge = EdgeInsets.symmetric(vertical: 20);
+  /// No vertical inset: the button label is already vertically centered by
+  /// [NeumorphicPillButton] within the full (caller-provided) button height.
+  /// Adding vertical padding here shrinks the box the label is centered in,
+  /// which clips icon/label content whenever a caller sets a `height` smaller
+  /// than `buttonPaddingLarge`'s insets would allow (e.g. height: 48).
+  static const EdgeInsets buttonPaddingLarge = EdgeInsets.zero;
 
   static const double screenHorizontalPadding = 24;
   /// Figma pill input (`Search Box` / profile fields): 392×72, radius 100, padding 26.

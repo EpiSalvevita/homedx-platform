@@ -6,8 +6,10 @@ import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
 import '../models/doctor.dart';
 import '../utils/gender_labels.dart';
+import '../providers/auth_provider.dart';
 import '../services/api_service.dart';
 import '../services/appointment_service.dart';
+import '../utils/test_type_labels.dart';
 import '../widgets/appointment_status_badge.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/web/adaptive_screen.dart';
@@ -53,51 +55,98 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   }
 
   Future<void> _cancelAppointment() async {
+    final messageController = TextEditingController();
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Termin stornieren'),
-        content: const Text('Möchten Sie diesen Termin wirklich stornieren?'),
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        backgroundColor: AppTheme.surface,
+        title: Text(
+          'Termin stornieren',
+          style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Möchten Sie diesen Termin wirklich stornieren? Sie können optional eine Nachricht an die andere Person senden.',
+              style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w400, color: AppTheme.textColorSecondary),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: messageController,
+              maxLines: 3,
+              maxLength: 500,
+              decoration: InputDecoration(
+                labelText: 'Nachricht (optional)',
+                hintText: 'Grund für die Stornierung…',
+                filled: true,
+                fillColor: AppTheme.background,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppTheme.navy.withValues(alpha: 0.12)),
+                ),
+              ),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Abbrechen'),
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(
+              'Abbrechen',
+              style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+            ),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Stornieren'),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(
+              'Stornieren',
+              style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.errorColor),
+            ),
           ),
         ],
       ),
     );
 
-    if (confirmed != true || !mounted) return;
+    if (confirmed != true || !mounted) {
+      messageController.dispose();
+      return;
+    }
+
+    final message = messageController.text;
+    messageController.dispose();
 
     setState(() => _isCancelling = true);
     final api = Provider.of<ApiService>(context, listen: false);
     final service = AppointmentService(api);
-    final ok = await service.cancelAppointment(widget.appointmentId);
+    final ok = await service.cancelAppointment(widget.appointmentId, message: message);
     if (mounted) {
       setState(() => _isCancelling = false);
       if (ok) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Termin storniert')),
+          const SnackBar(content: Text('Termin storniert'), backgroundColor: AppTheme.successColor),
         );
         await _loadAppointment();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Stornierung fehlgeschlagen'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.errorColor,
           ),
         );
       }
     }
   }
 
-  Widget _buildDetailCard(Appointment appointment, String formatted) {
+  Widget _buildDetailCard(Appointment appointment, String formatted, {required bool isDoctor}) {
     final bodyStyle = FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w400, color: AppTheme.textColor);
     final labelStyle = FigmaUi.rubik(fontSize: 13, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary);
+    final headline = isDoctor
+        ? (appointment.patientName ?? 'Patient')
+        : appointment.doctorName;
 
     return NeumorphicRaisedCard(
       height: null,
@@ -109,20 +158,26 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             children: [
               Expanded(
                 child: Text(
-                  appointment.doctorName,
+                  headline,
                   style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w500, color: AppTheme.textColor),
                 ),
               ),
               AppointmentStatusBadge(appointment: appointment),
             ],
           ),
-          if (appointment.patientName != null) ...[
+          if (isDoctor && appointment.patientGender != null) ...[
+            const SizedBox(height: 12),
+            Text('Geschlecht', style: labelStyle),
+            const SizedBox(height: 4),
+            Text(formatGenderDe(appointment.patientGender), style: bodyStyle),
+          ],
+          if (!isDoctor && appointment.patientName != null) ...[
             const SizedBox(height: 12),
             Text('Patient', style: labelStyle),
             const SizedBox(height: 4),
             Text(appointment.patientName!, style: bodyStyle),
           ],
-          if (appointment.patientGender != null) ...[
+          if (!isDoctor && appointment.patientGender != null) ...[
             const SizedBox(height: 12),
             Text('Geschlecht', style: labelStyle),
             const SizedBox(height: 4),
@@ -155,6 +210,18 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               ),
             ],
           ),
+          if (appointment.testTypeId != null && appointment.testTypeId!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text('Zugehöriger Test', style: labelStyle),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.science_outlined, size: 18, color: AppTheme.primaryBlue),
+                const SizedBox(width: 8),
+                Text(testTypeDisplayName(appointment.testTypeId), style: bodyStyle),
+              ],
+            ),
+          ],
           if (appointment.notes != null && appointment.notes!.isNotEmpty) ...[
             const SizedBox(height: 12),
             Text('Notizen', style: labelStyle),
@@ -166,7 +233,11 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     );
   }
 
-  Widget _buildActions(Appointment appointment) {
+  Widget _buildActions(Appointment appointment, {required bool isDoctor}) {
+    final callRoute = isDoctor
+        ? '/doctor/appointments/${appointment.id}/call'
+        : '/appointments/${appointment.id}/call';
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -175,7 +246,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             label: 'Videoanruf beitreten',
             leadingIcon: Icons.videocam_outlined,
             height: 48,
-            onPressed: () => context.push('/appointments/${appointment.id}/call'),
+            onPressed: () => context.push(callRoute),
           ),
           const SizedBox(height: 12),
         ],
@@ -197,8 +268,11 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDoctor = context.watch<AuthProvider>().isDoctor;
+
     return AdaptiveScreen(
       title: 'Termindetails',
+      showWebHeader: false,
       onBack: () => context.pop(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -216,10 +290,10 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                         .format(appointment.appointmentTime);
 
                     return SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppTheme.screenHorizontalPadding,
-                        8,
-                        AppTheme.screenHorizontalPadding,
+                      padding: EdgeInsets.fromLTRB(
+                        kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+                        kIsWeb ? 24 : 8,
+                        kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
                         24,
                       ),
                       child: ConstrainedBox(
@@ -228,21 +302,9 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            if (kIsWeb) ...[
-                              Text(
-                                'Termindetails',
-                                textAlign: TextAlign.center,
-                                style: FigmaUi.rubik(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppTheme.textColor,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                            ],
-                            _buildDetailCard(appointment, formatted),
+                            _buildDetailCard(appointment, formatted, isDoctor: isDoctor),
                             const SizedBox(height: 24),
-                            _buildActions(appointment),
+                            _buildActions(appointment, isDoctor: isDoctor),
                           ],
                         ),
                       ),

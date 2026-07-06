@@ -1,8 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../config/app_theme.dart';
 import '../services/api_service.dart';
 import '../services/payment_service.dart';
+import '../widgets/figma_ui.dart';
+import '../widgets/status_pill.dart';
 import '../widgets/web/adaptive_screen.dart';
 
 class PaymentsHistoryScreen extends StatefulWidget {
@@ -50,39 +54,219 @@ class _PaymentsHistoryScreenState extends State<PaymentsHistoryScreen> {
   Widget build(BuildContext context) {
     return AdaptiveScreen(
       title: 'Zahlungen',
-      blueTopBar: true,
+      showWebHeader: false,
+      showBackOnMobile: false,
       onBack: () => context.go('/profile'),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? Center(child: Text(_error!))
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  child: _payments.isEmpty
-                      ? ListView(
-                          children: const [
-                            SizedBox(height: 120),
-                            Center(child: Text('Keine Zahlungen')),
-                          ],
-                        )
-                      : ListView.separated(
-                          itemCount: _payments.length,
-                          separatorBuilder: (_, __) => const Divider(height: 1),
-                          itemBuilder: (context, index) {
-                            final p = _payments[index];
-                            final amount = p['amount'];
-                            final currency = p['currency'] ?? 'EUR';
-                            final status = p['status'] ?? '';
-                            final method = p['method'] ?? '';
-                            final created = p['createdAt']?.toString() ?? '';
-                            return ListTile(
-                              title: Text('$amount $currency'),
-                              subtitle: Text('$method · $status\n$created'),
-                              isThreeLine: true,
-                            );
-                          },
-                        ),
+      body: RefreshIndicator(
+        onRefresh: _load,
+        child: ListView(
+          padding: EdgeInsets.fromLTRB(
+            kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+            kIsWeb ? 24 : 8,
+            kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+            24,
+          ),
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            Text(
+              'Übersicht Ihrer Zahlungen und Bestellungen.',
+              style: FigmaUi.bodyLight(fontSize: 14, color: AppTheme.textColorSecondary),
+            ),
+            const SizedBox(height: 16),
+            if (_loading)
+              const Center(
+                child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator()),
+              )
+            else if (_error != null)
+              FigmaListCard(
+                leading: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
+                  child: const Icon(Icons.error_outline, color: AppTheme.errorColor),
                 ),
+                title: 'Zahlungen konnten nicht geladen werden',
+                subtitle: _error!,
+              )
+            else if (_payments.isEmpty)
+              FigmaListCard(
+                leading: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
+                  child: const Icon(Icons.payment_outlined, color: AppTheme.primaryBlue),
+                ),
+                title: 'Noch keine Zahlungen',
+                subtitle: 'Abgeschlossene Zahlungen erscheinen hier.',
+              )
+            else
+              ..._payments.map((p) => Padding(
+                    padding: const EdgeInsets.only(bottom: AppTheme.testResultCardSpacing),
+                    child: _PaymentCard(payment: p),
+                  )),
+          ],
+        ),
+      ),
     );
+  }
+}
+
+class _PaymentCard extends StatelessWidget {
+  final Map<String, dynamic> payment;
+
+  const _PaymentCard({required this.payment});
+
+  static IconData _iconForMethod(String method) {
+    switch (method.toUpperCase()) {
+      case 'CREDIT_CARD':
+        return Icons.credit_card;
+      case 'PAYPAL':
+        return Icons.account_balance_wallet_outlined;
+      case 'BANK_TRANSFER':
+        return Icons.account_balance_outlined;
+      case 'CRYPTO':
+        return Icons.currency_bitcoin;
+      default:
+        return Icons.payment_outlined;
+    }
+  }
+
+  static String _methodLabel(String method) {
+    switch (method.toUpperCase()) {
+      case 'CREDIT_CARD':
+        return 'Kreditkarte';
+      case 'PAYPAL':
+        return 'PayPal';
+      case 'BANK_TRANSFER':
+        return 'Banküberweisung';
+      case 'CRYPTO':
+        return 'Krypto';
+      default:
+        return method.isEmpty ? 'Zahlung' : method;
+    }
+  }
+
+  static String _statusLabel(String status) {
+    switch (status.toUpperCase()) {
+      case 'COMPLETED':
+        return 'Abgeschlossen';
+      case 'PENDING':
+        return 'Ausstehend';
+      case 'FAILED':
+        return 'Fehlgeschlagen';
+      case 'REFUNDED':
+        return 'Erstattet';
+      case 'CANCELLED':
+        return 'Storniert';
+      default:
+        return status.isEmpty ? 'Unbekannt' : status;
+    }
+  }
+
+  static (Color, Color) _statusColors(String status) {
+    switch (status.toUpperCase()) {
+      case 'COMPLETED':
+        return (AppTheme.successColor, AppTheme.navy);
+      case 'PENDING':
+        return (AppTheme.primaryLight, AppTheme.primaryBlue);
+      case 'FAILED':
+      case 'CANCELLED':
+        return (AppTheme.accentCoral.withValues(alpha: 0.55), AppTheme.navy);
+      case 'REFUNDED':
+        return (const Color(0xFFE8E0F5), const Color(0xFF5B4B8A));
+      default:
+        return (AppTheme.navy.withValues(alpha: 0.08), AppTheme.textColorSecondary);
+    }
+  }
+
+  static String _formatDate(String? iso) {
+    if (iso == null || iso.isEmpty) return '';
+    final dt = DateTime.tryParse(iso);
+    if (dt == null) return '';
+    final local = dt.toLocal();
+    final date =
+        '${local.day.toString().padLeft(2, '0')}.${local.month.toString().padLeft(2, '0')}.${local.year}';
+    final time =
+        '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
+    return '$date  $time';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final amount = payment['amount'];
+    final currency = payment['currency']?.toString() ?? 'EUR';
+    final status = payment['status']?.toString() ?? '';
+    final method = payment['method']?.toString() ?? '';
+    final created = _formatDate(payment['createdAt']?.toString());
+    final description = payment['description']?.toString();
+    final amountLabel = amount is num
+        ? '${amount.toStringAsFixed(2)} ${_currencySymbol(currency)}'
+        : '$amount $currency';
+    final (badgeBg, badgeFg) = _statusColors(status);
+
+    return NeumorphicRaisedCard(
+      height: null,
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: AppTheme.background,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(_iconForMethod(method), color: AppTheme.primaryBlue, size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  description?.isNotEmpty == true ? description! : _methodLabel(method),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+                ),
+                if (created.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    created,
+                    style: FigmaUi.rubik(fontSize: 12, fontWeight: FontWeight.w300, color: AppTheme.primaryBlue),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                amountLabel,
+                style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.textColor),
+              ),
+              const SizedBox(height: 6),
+              StatusPill(label: _statusLabel(status), background: badgeBg, foreground: badgeFg),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _currencySymbol(String currency) {
+    switch (currency.toUpperCase()) {
+      case 'EUR':
+        return '€';
+      case 'USD':
+        return '\$';
+      case 'GBP':
+        return '£';
+      default:
+        return currency;
+    }
   }
 }

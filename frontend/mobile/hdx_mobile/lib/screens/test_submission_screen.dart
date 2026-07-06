@@ -153,6 +153,16 @@ class _TestSubmissionScreenState extends State<TestSubmissionScreen> {
             ),
             controlAffinity: ListTileControlAffinity.leading,
           ),
+          Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: Wrap(
+              spacing: 16,
+              children: [
+                _legalLink(context, 'Testbedingungen', 'TERMS_CONDITIONS'),
+                _legalLink(context, 'Datenschutz', 'PRIVACY_POLICY'),
+              ],
+            ),
+          ),
           if (_error != null) ...[
             const SizedBox(height: 12),
             Text(_error!, style: TextStyle(color: AppTheme.errorColor)),
@@ -164,6 +174,17 @@ class _TestSubmissionScreenState extends State<TestSubmissionScreen> {
             onPressed: _submitting ? null : _submit,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _legalLink(BuildContext context, String label, String legalPageType) {
+    return GestureDetector(
+      onTap: () => context.push('/legal/$legalPageType'),
+      child: Text(
+        label,
+        style: FigmaUi.rubik(fontSize: 12, color: AppTheme.primaryBlue)
+            .copyWith(decoration: TextDecoration.underline),
       ),
     );
   }

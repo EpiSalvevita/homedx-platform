@@ -82,13 +82,14 @@ class _SignupScreenState extends State<SignupScreen> {
     );
 
     if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registrierung erfolgreich. Bitte anmelden.'),
-          backgroundColor: AppTheme.successColor,
-        ),
+      final confirmationPath =
+          widget.isDoctor ? '/signup/doctor/confirmation' : '/signup/confirmation';
+      context.go(
+        Uri(
+          path: confirmationPath,
+          queryParameters: {'email': _emailController.text.trim()},
+        ).toString(),
       );
-      context.go(widget.isDoctor ? '/login/doctor' : '/login');
     } else if (mounted) {
       final error = authProvider.error;
       if (isEmailAlreadyRegisteredError(error)) {

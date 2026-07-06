@@ -25,6 +25,7 @@ import { MobileAppointmentController } from './controllers/mobile-appointment.co
 import { MobilePaymentController } from './controllers/mobile-payment.controller';
 import { MobileCertificateController } from './controllers/mobile-certificate.controller';
 import { MobileNotificationController } from './controllers/mobile-notification.controller';
+import { MobileLegalController } from './controllers/mobile-legal.controller';
 import { WebhooksController } from './controllers/webhooks.controller';
 import { MobileUserHelper } from './controllers/mobile-user.helper';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
@@ -68,6 +69,7 @@ const isTestEnv = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID 
     MobilePaymentController,
     MobileCertificateController,
     MobileNotificationController,
+    MobileLegalController,
     WebhooksController,
   ],
   providers: [

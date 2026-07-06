@@ -30,17 +30,30 @@ class AppConstants {
 
   // App Configuration
   static const String appName = 'HomeDX';
-  static const String appVersion = '1.0.0';
+  // Keep in sync with the `version:` field in pubspec.yaml (marketing
+  // version only, no build number — see CHANGELOG.md for release notes).
+  static const String appVersion = '1.1.0';
 
-  /// Verbose Cube / assay flow logs (`HDX_CUBE`, poll loops, step UI). Disable with
-  /// `.env`: `CUBE_VERBOSE=false` to reduce log noise in production builds.
+  /// Verbose Cube / assay flow logs (`HDX_CUBE`, poll loops, step UI): per-
+  /// measurement result rows and full API responses. Defaults to **on** in
+  /// debug/profile builds (useful during development) and **off** in
+  /// release builds unless explicitly overridden via `.env`.
+  ///
+  /// Regulatory note: this used to default to `true` in all build modes,
+  /// meaning a release build with a missing/misconfigured `.env` could log
+  /// Cube measurement rows and API responses in production (see
+  /// docs/regulatory/gap-assessment.md §6). Explicit `.env` overrides
+  /// (`CUBE_VERBOSE=true`/`false`) still take precedence in any build mode
+  /// for debugging a specific release build.
   static bool get cubeVerboseLogging {
     try {
       final v = dotenv.env['CUBE_VERBOSE']?.trim().toLowerCase();
       if (v == '0' || v == 'false' || v == 'no' || v == 'off') return false;
-      return true;
+      if (v == '1' || v == 'true' || v == 'yes' || v == 'on') return true;
+      return !kReleaseMode;
     } catch (_) {
-      // dotenv not loaded (e.g. unit tests) — default verbose on.
+      // dotenv not loaded (e.g. unit tests) — default to verbose, matching
+      // debug/profile behavior above.
       return true;
     }
   }

@@ -7,10 +7,13 @@ String homeRouteForRole(String? role) {
 bool isPublicRoute(String location) {
   return location == '/' ||
       location == '/about' ||
+      location.startsWith('/legal/') ||
       location == '/login' ||
       location == '/login/doctor' ||
       location == '/signup' ||
       location == '/signup/doctor' ||
+      location == '/signup/confirmation' ||
+      location == '/signup/doctor/confirmation' ||
       location == '/forgot-password' ||
       location == '/forgot-password/doctor' ||
       location == '/reset-password';

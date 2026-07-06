@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  MaxLength,
   MinLength,
   ValidateNested,
 } from 'class-validator';
@@ -55,6 +56,13 @@ export class AppointmentIdDto {
   @IsString()
   @MinLength(1)
   appointmentId: string;
+}
+
+export class CancelAppointmentDto extends AppointmentIdDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  message?: string;
 }
 
 export class AvailabilitySlotDto {

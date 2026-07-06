@@ -5,6 +5,7 @@ import '../screens/about_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
+import '../screens/registration_confirmation_screen.dart';
 import '../screens/forgot_password_screen.dart';
 import '../screens/reset_password_screen.dart';
 import '../screens/bluetooth_connection_screen.dart';
@@ -29,6 +30,9 @@ import '../screens/test_results_screen.dart';
 import '../screens/test_submission_screen.dart';
 import '../screens/payments_history_screen.dart';
 import '../screens/notifications_screen.dart';
+import '../screens/certificates_list_screen.dart';
+import '../screens/certificate_detail_screen.dart';
+import '../screens/legal_page_screen.dart';
 import '../models/product.dart';
 import '../models/user_test_result.dart';
 import '../services/cube_service.dart';
@@ -97,6 +101,14 @@ class AppRouter {
           builder: (context, state) => const AboutScreen(),
         ),
         GoRoute(
+          path: '/legal/:type',
+          name: 'legal-page',
+          builder: (context, state) {
+            final type = state.pathParameters['type'] ?? 'TERMS_CONDITIONS';
+            return LegalPageScreen(type: type);
+          },
+        ),
+        GoRoute(
           path: '/login',
           name: 'login',
           builder: (context, state) => const LoginScreen(),
@@ -115,6 +127,22 @@ class AppRouter {
           path: '/signup/doctor',
           name: 'signup-doctor',
           builder: (context, state) => const SignupScreen(isDoctor: true),
+        ),
+        GoRoute(
+          path: '/signup/confirmation',
+          name: 'signup-confirmation',
+          builder: (context, state) {
+            final email = state.uri.queryParameters['email'] ?? '';
+            return RegistrationConfirmationScreen(email: email);
+          },
+        ),
+        GoRoute(
+          path: '/signup/doctor/confirmation',
+          name: 'signup-doctor-confirmation',
+          builder: (context, state) {
+            final email = state.uri.queryParameters['email'] ?? '';
+            return RegistrationConfirmationScreen(email: email, isDoctor: true);
+          },
         ),
         GoRoute(
           path: '/forgot-password',
@@ -354,6 +382,21 @@ class AppRouter {
           path: '/payments',
           name: 'payments',
           builder: (context, state) => const PaymentsHistoryScreen(),
+        ),
+        GoRoute(
+          path: '/certificates',
+          name: 'certificates',
+          builder: (context, state) => const CertificatesListScreen(),
+          routes: [
+            GoRoute(
+              path: ':certificateId',
+              name: 'certificate-detail',
+              builder: (context, state) {
+                final certificateId = state.pathParameters['certificateId'] ?? '';
+                return CertificateDetailScreen(certificateId: certificateId);
+              },
+            ),
+          ],
         ),
             GoRoute(
               path: '/notifications',

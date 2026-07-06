@@ -19,6 +19,7 @@ import { MobilePaymentService } from '../src/services/mobile-payment.service';
 import { MobileTestService } from '../src/services/mobile-test.service';
 import { MobileCertificateService } from '../src/services/mobile-certificate.service';
 import { MobileNotificationService } from '../src/services/mobile-notification.service';
+import { AuditLogService } from '../src/services/audit-log.service';
 import { CubeService } from '../src/services/cube.service';
 import { PrismaService } from '../src/services/prisma.service';
 import { bootstrapTestApp } from './test-app';
@@ -105,6 +106,10 @@ async function buildApp(options?: {
         provide: MobileNotificationService,
         useValue: { notifyUser: jest.fn(async () => undefined) },
       },
+      {
+        provide: AuditLogService,
+        useValue: { create: jest.fn(async () => ({})) },
+      },
       { provide: JwtService, useValue: {} },
     ],
   })
@@ -123,6 +128,7 @@ describe('CubeService metadata parsing', () => {
     {} as never,
     { issueForRapidTest: async () => null } as never,
     { notifyUser: async () => undefined } as never,
+    { create: async () => ({}) } as never,
   );
 
   it('prefers structured columns over legacy notes JSON', () => {
@@ -270,6 +276,29 @@ describe('POST /submit-cube-data (e2e)', () => {
 
     expect(response.body.result).toBe('INCONCLUSIVE');
     expect(prisma._rapidTests[0].result).toBe('INCONCLUSIVE');
+  });
+
+  it('persists an explicit INVALID result unchanged', async () => {
+    const response = await request(app.getHttpServer())
+      .post(ENDPOINT)
+      .send({ testTypeId: 'rheumacheck', result: 'INVALID' })
+      .expect(201);
+
+    expect(response.body.result).toBe('INVALID');
+    expect(prisma._rapidTests[0].result).toBe('INVALID');
+  });
+
+  it('normalizes an "INVALID" class inside resultData to INVALID', async () => {
+    const response = await request(app.getHttpServer())
+      .post(ENDPOINT)
+      .send({
+        testTypeId: 'rheumacheck',
+        resultData: [{ name: 'Rheuma', value: '0', class: 'INVALID', validity: 0 }],
+      })
+      .expect(201);
+
+    expect(response.body.result).toBe('INVALID');
+    expect(prisma._rapidTests[0].result).toBe('INVALID');
   });
 
   it('returns success: false when testTypeId is missing', async () => {

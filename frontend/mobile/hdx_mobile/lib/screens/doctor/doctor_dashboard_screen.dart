@@ -1,16 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../models/doctor.dart';
 import '../../providers/auth_provider.dart';
-import '../../utils/gender_labels.dart';
 import '../../services/api_service.dart';
 import '../../services/appointment_service.dart';
+import '../../services/user_service.dart';
+import '../../widgets/doctor_appointment_card.dart';
 import '../../widgets/figma_ui.dart';
 import '../../widgets/web/adaptive_screen.dart';
+import '../../widgets/web/web_page_header.dart';
 
 class DoctorDashboardScreen extends StatefulWidget {
   const DoctorDashboardScreen({super.key});
@@ -22,11 +23,30 @@ class DoctorDashboardScreen extends StatefulWidget {
 class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
   List<Appointment> _appointments = [];
   bool _isLoading = true;
+  String? _lastName;
 
   @override
   void initState() {
     super.initState();
     _loadAppointments();
+    _loadDoctorName();
+  }
+
+  Future<void> _loadDoctorName() async {
+    try {
+      final api = Provider.of<ApiService>(context, listen: false);
+      final userData = await UserService(api).getUserData();
+      if (!mounted) return;
+      final fullName = '${userData.firstName} ${userData.lastName}'.trim();
+      if (fullName.isNotEmpty) {
+        context.read<AuthProvider>().setDisplayName(fullName);
+      }
+      if (userData.lastName.trim().isNotEmpty) {
+        setState(() => _lastName = userData.lastName.trim());
+      }
+    } catch (_) {
+      // Greeting falls back to the email prefix below.
+    }
   }
 
   Future<void> _loadAppointments() async {
@@ -54,115 +74,126 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
     }
   }
 
-  Future<void> _logout() async {
-    await context.read<AuthProvider>().logout();
-    if (mounted) context.go('/login/doctor');
-  }
-
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final displayName = _lastName != null
+        ? 'Dr. $_lastName'
+        : (auth.userEmail?.split('@').first ?? 'Arzt');
+
     return AdaptiveScreen(
       title: 'Dashboard',
+      showWebHeader: false,
       showBackOnMobile: false,
       actions: [
         IconButton(
-          icon: const Icon(Icons.schedule),
+          icon: const Icon(Icons.schedule_outlined),
           tooltip: 'Verfügbarkeit',
           onPressed: () => context.push('/doctor/availability'),
         ),
-        if (!kIsWeb)
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _logout,
-          ),
       ],
-      body: RefreshIndicator(
-        onRefresh: _loadAppointments,
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                children: [
-                  Text(
-                    'Heutige Termine',
-                    style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor),
-                  ),
-                  const SizedBox(height: 12),
-                  if (_appointments.isEmpty)
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Text('Keine Termine für heute', style: FigmaUi.rubik(color: AppTheme.textColorSecondary)),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (kIsWeb)
+            WebPageHeader(
+              title: 'Willkommen, $displayName',
+              subtitle: 'Übersicht Ihrer heutigen Termine und Video-Konsultationen.',
+            ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _loadAppointments,
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView(
+                      padding: EdgeInsets.fromLTRB(
+                        kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+                        kIsWeb ? 0 : 8,
+                        kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+                        24,
                       ),
-                    )
-                  else if (kIsWeb)
-                    _buildWebTable()
-                  else
-                    ..._appointments.map(_buildMobileTile),
-                  const SizedBox(height: 16),
-                  OutlinedButton(
-                    onPressed: () => context.push('/doctor/appointments'),
-                    child: const Text('Alle Termine anzeigen'),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
-
-  Widget _buildWebTable() {
-    return Material(
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppTheme.navy.withValues(alpha: 0.08)),
-      ),
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('Patient')),
-          DataColumn(label: Text('Geschlecht')),
-          DataColumn(label: Text('Zeit')),
-          DataColumn(label: Text('Status')),
-          DataColumn(label: Text('Aktion')),
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [
+                        if (!kIsWeb) ...[
+                          FigmaWelcomeCard(
+                            name: displayName,
+                            email: auth.userEmail ?? '',
+                            onTap: () => context.push('/profile'),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+                        Row(
+                          children: [
+                            const FigmaSectionTitle('Heutige Termine'),
+                            if (!_isLoading && _appointments.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryLight,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  '${_appointments.length}',
+                                  style: FigmaUi.rubik(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.primaryBlue,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        if (_appointments.isEmpty)
+                          FigmaListCard(
+                            leading: Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: AppTheme.background,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(Icons.event_available_outlined, color: AppTheme.primaryBlue),
+                            ),
+                            title: 'Keine Termine für heute',
+                            subtitle: 'Sobald Patienten buchen, erscheinen sie hier.',
+                          )
+                        else
+                          ..._appointments.map(
+                            (a) => Padding(
+                              padding: const EdgeInsets.only(bottom: AppTheme.testResultCardSpacing),
+                              child: DoctorAppointmentCard(
+                                appointment: a,
+                                onTap: () => context.push('/doctor/appointments/${a.id}'),
+                                onJoinCall: a.canJoin
+                                    ? () => context.push('/doctor/appointments/${a.id}/call')
+                                    : null,
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 20),
+                        NeumorphicPillButton(
+                          label: 'Alle Termine anzeigen',
+                          leadingIcon: Icons.calendar_month_outlined,
+                          backgroundColor: AppTheme.accentMint,
+                          foregroundColor: AppTheme.onMint,
+                          onPressed: () => context.push('/doctor/appointments'),
+                        ),
+                        const SizedBox(height: 12),
+                        NeumorphicPillButton(
+                          label: 'Verfügbarkeit bearbeiten',
+                          leadingIcon: Icons.schedule_outlined,
+                          backgroundColor: AppTheme.surface,
+                          foregroundColor: AppTheme.textColor,
+                          onPressed: () => context.push('/doctor/availability'),
+                        ),
+                      ],
+                    ),
+            ),
+          ),
         ],
-        rows: _appointments.map((a) {
-          final time = DateFormat('HH:mm').format(a.appointmentTime);
-          return DataRow(
-            onSelectChanged: (_) => context.push('/doctor/appointments/${a.id}'),
-            cells: [
-              DataCell(Text(a.patientName ?? 'Patient')),
-              DataCell(Text(formatGenderDe(a.patientGender))),
-              DataCell(Text(time)),
-              DataCell(Text(a.statusLabelDe)),
-              DataCell(
-                a.canJoin
-                    ? IconButton(
-                        icon: const Icon(Icons.video_call, color: Colors.green),
-                        onPressed: () => context.push('/doctor/appointments/${a.id}/call'),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-            ],
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildMobileTile(Appointment a) {
-    final time = DateFormat('HH:mm').format(a.appointmentTime);
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        title: Text(a.patientName ?? 'Patient'),
-        subtitle: Text('${formatGenderDe(a.patientGender)} • $time • ${a.statusLabelDe}'),
-        trailing: a.canJoin
-            ? IconButton(
-                icon: const Icon(Icons.video_call, color: Colors.green),
-                onPressed: () => context.push('/doctor/appointments/${a.id}/call'),
-              )
-            : null,
-        onTap: () => context.push('/doctor/appointments/${a.id}'),
       ),
     );
   }

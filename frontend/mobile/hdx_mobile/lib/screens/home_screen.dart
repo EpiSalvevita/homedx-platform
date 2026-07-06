@@ -42,10 +42,15 @@ class _HomeScreenState extends State<HomeScreen> {
         notificationProvider.refresh(),
       ]);
       if (mounted) {
+        final userData = results[0] as UserData;
         setState(() {
-          _userData = results[0] as UserData;
+          _userData = userData;
           _isLoading = false;
         });
+        final fullName = '${userData.firstName} ${userData.lastName}'.trim();
+        if (fullName.isNotEmpty) {
+          context.read<AuthProvider>().setDisplayName(fullName);
+        }
       }
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
@@ -237,6 +242,11 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Meine Termine', onTap: () => context.push('/appointments')),
       FigmaQuickActionTile(assetPath: AppAssets.iconDna, label: 'Ergebnisse', onTap: () => context.push('/results')),
+      FigmaQuickActionTile(
+        icon: Icons.verified_outlined,
+        label: 'Zertifikate',
+        onTap: () => context.push('/certificates'),
+      ),
       FigmaQuickActionTile(assetPath: AppAssets.iconHomeBag, label: 'Shop', onTap: () => context.push('/shop')),
       FigmaQuickActionTile(
         icon: Icons.notifications_outlined,

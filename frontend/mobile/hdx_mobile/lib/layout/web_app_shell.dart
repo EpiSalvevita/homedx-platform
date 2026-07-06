@@ -21,7 +21,10 @@ class WebAppShell extends StatelessWidget {
     final auth = context.watch<AuthProvider>();
     final navItems = WebNavConfig.itemsForRole(auth.userRole);
     final currentPath = GoRouterState.of(context).uri.path;
-    final userLabel = auth.userEmail?.split('@').first ?? 'Benutzer';
+    final fallbackLabel = auth.userEmail?.split('@').first ?? 'Benutzer';
+    final userLabel = auth.displayName == null
+        ? fallbackLabel
+        : (auth.isDoctor ? 'Dr. ${auth.displayName}' : auth.displayName!);
 
     return Scaffold(
       backgroundColor: AppTheme.surface,
@@ -175,57 +178,67 @@ class _SidebarUserChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white12),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 18,
-            backgroundColor: AppTheme.accentBlue.withValues(alpha: 0.35),
-            child: Text(
-              _initials,
-              style: FigmaUi.rubik(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
+    return Material(
+      color: Colors.transparent,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => context.goNamed('profile'),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white12),
             ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: FigmaUi.rubik(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
-                ),
-                if (email != null)
-                  Text(
-                    email!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: AppTheme.accentBlue.withValues(alpha: 0.35),
+                  child: Text(
+                    _initials,
                     style: FigmaUi.rubik(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.white54,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: FigmaUi.rubik(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                      if (email != null)
+                        Text(
+                          email!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: FigmaUi.rubik(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.white54,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

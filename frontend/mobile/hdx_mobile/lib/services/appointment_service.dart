@@ -29,10 +29,13 @@ class AppointmentService {
     return null;
   }
 
-  Future<bool> cancelAppointment(String appointmentId) async {
+  Future<bool> cancelAppointment(String appointmentId, {String? message}) async {
     final response = await _apiService.post(
       '/cancel-appointment',
-      body: {'appointmentId': appointmentId},
+      body: {
+        'appointmentId': appointmentId,
+        if (message != null && message.trim().isNotEmpty) 'message': message.trim(),
+      },
     );
     return response['success'] == true;
   }
