@@ -20,7 +20,10 @@ class AppTheme {
   /// Default text color for headings, body, buttons on light surfaces (#142543).
   static const Color textColor = navy;
   /// Muted supporting text (labels, hints, captions).
-  static const Color textColorSecondary = Color(0xFF5C6980);
+  /// Darkened from the original #5C6980 (~5.5:1 on white) to ~7.8:1 on white,
+  /// clearing WCAG AAA for normal text — important for older/low-vision users
+  /// reading body copy, not just AA (4.5:1).
+  static const Color textColorSecondary = Color(0xFF45536B);
   static const Color errorColor = accentCoral;
   static const Color successColor = accentMint;
   static const Color fieldBackground = Colors.white;
@@ -33,7 +36,19 @@ class AppTheme {
   /// Strong text/icons on [accentMint] or light backgrounds.
   static const Color onMint = Color(0xFF142543);
 
+  /// Minimum interactive target (WCAG 2.5.5 / Material). Kept at 48 for dense
+  /// secondary controls (icon buttons, chips).
   static const double minTouchTarget = 48.0;
+
+  /// Preferred target size for primary actions and elderly-first tap surfaces.
+  /// Larger than [minTouchTarget] so buttons/cards are easy to hit with
+  /// reduced fine-motor control.
+  static const double largeTouchTarget = 56.0;
+
+  /// Visible keyboard/hover focus ring for web accessibility.
+  /// Drawn as a foreground border so it never shifts layout.
+  static const Color focusRing = primaryBlue;
+  static const double focusRingWidth = 2.5;
 
   static List<BoxShadow> get cardShadow => [
         BoxShadow(
@@ -162,13 +177,15 @@ class AppTheme {
     headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: textColor),
     titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: textColor),
     titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: textColor),
-    titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textColor),
-    bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: textColor),
-    bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.normal, color: textColor),
-    bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: textColorSecondary),
+    titleSmall: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: textColor),
+    // Body sizes bumped up one step (elderly-first readability). Material-driven
+    // text (dialogs, snackbars, tooltips, list tiles) inherits these.
+    bodyLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.normal, color: textColor),
+    bodyMedium: TextStyle(fontSize: 17, fontWeight: FontWeight.normal, color: textColor),
+    bodySmall: TextStyle(fontSize: 15, fontWeight: FontWeight.normal, color: textColorSecondary),
     labelLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-    labelMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textColor),
-    labelSmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: textColorSecondary),
+    labelMedium: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: textColor),
+    labelSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textColorSecondary),
   );
 
   static ThemeData get lightTheme {

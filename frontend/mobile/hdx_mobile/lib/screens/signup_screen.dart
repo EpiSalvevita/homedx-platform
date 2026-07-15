@@ -8,7 +8,7 @@ import '../utils/app_assets.dart';
 import '../utils/medical_specializations.dart';
 import '../utils/password_validation.dart';
 import '../utils/registration_errors.dart';
-import '../widgets/auth_form_scaler.dart';
+import '../widgets/auth_ui.dart';
 import '../widgets/figma_ui.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -112,15 +112,16 @@ class _SignupScreenState extends State<SignupScreen> {
     required VoidCallback onPressed,
   }) {
     return IconButton(
+      tooltip: obscure ? 'Passwort anzeigen' : 'Passwort verbergen',
       style: IconButton.styleFrom(
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        minimumSize: const Size(40, 40),
+        minimumSize: const Size(48, 48),
         padding: EdgeInsets.zero,
       ),
       icon: Icon(
         obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
         color: AppTheme.textColorSecondary,
-        size: 20,
+        size: 24,
       ),
       onPressed: onPressed,
     );
@@ -144,8 +145,8 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Widget _emailField() => NeumorphicInsetField(
         controller: _emailController,
-        label: 'E-mail',
-        hint: 'email@example.com',
+        label: 'E-Mail-Adresse',
+        hint: 'name@beispiel.de',
         prefixIcon: Icons.mail_outline,
         keyboardType: TextInputType.emailAddress,
         validator: (v) {
@@ -264,11 +265,12 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildForm({required bool pairedRows}) {
+  Widget _buildForm({required bool pairedRows, required bool isWideWeb}) {
+    final showWebLogo = kIsWeb && !isWideWeb;
     final title = widget.isDoctor ? 'Arztkonto erstellen' : 'Konto erstellen';
     final subtitle = widget.isDoctor
-        ? 'Registrieren Sie Ihre Praxis für Termine und Video-Konsultationen.'
-        : 'Registrieren Sie sich, um zu beginnen.';
+        ? 'Füllen Sie die Angaben zu Ihrer Praxis aus.'
+        : 'Füllen Sie das Formular aus — dauert nur wenige Minuten.';
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -281,27 +283,27 @@ class _SignupScreenState extends State<SignupScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (kIsWeb)
+          if (showWebLogo) ...[
             Center(
-              child: Image.asset(AppAssets.logo, height: 32, fit: BoxFit.contain),
+              child: GestureDetector(
+                onTap: () => context.go('/'),
+                child: Image.asset(AppAssets.logo, height: 36, fit: BoxFit.contain),
+              ),
             ),
-          if (kIsWeb) const SizedBox(height: 24),
+            const SizedBox(height: 24),
+          ],
           Text(
             title,
             style: FigmaUi.rubik(
-              fontSize: 24,
-              fontWeight: FontWeight.w500,
+              fontSize: 26,
+              fontWeight: FontWeight.w600,
               color: AppTheme.textColor,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
             subtitle,
-            style: FigmaUi.rubik(
-              fontSize: 18,
-              fontWeight: FontWeight.w400,
-              color: AppTheme.primaryBlue,
-            ),
+            style: FigmaUi.bodyLight(fontSize: 18, color: AppTheme.primaryBlue),
           ),
           const SizedBox(height: 32),
           _buildFields(pairedRows: pairedRows),
@@ -313,25 +315,26 @@ class _SignupScreenState extends State<SignupScreen> {
               onPressed: auth.isLoading ? null : _handleSignup,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           Center(
-            child: GestureDetector(
-              onTap: () => context.go(widget.isDoctor ? '/login/doctor' : '/login'),
+            child: TextButton(
+              onPressed: () => context.go(widget.isDoctor ? '/login/doctor' : '/login'),
+              style: authLinkButtonStyle(foregroundColor: AppTheme.textColor),
               child: Text.rich(
                 TextSpan(
                   text: 'Bereits ein Konto? ',
                   style: FigmaUi.rubik(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w300,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w400,
                     color: AppTheme.textColor,
                   ),
                   children: [
                     TextSpan(
                       text: 'Anmelden',
                       style: FigmaUi.rubik(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: AppTheme.textColor,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.primaryBlue,
                       ),
                     ),
                   ],
@@ -344,7 +347,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildFormCard({required bool pairedRows}) {
+  Widget _buildFormCard({required bool pairedRows, required bool isWideWeb}) {
     return Material(
       elevation: 0,
       color: AppTheme.background,
@@ -355,40 +358,83 @@ class _SignupScreenState extends State<SignupScreen> {
       child: Form(
         key: _formKey,
         autovalidateMode: _autovalidate ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled,
-        child: _buildForm(pairedRows: pairedRows),
+        child: _buildForm(pairedRows: pairedRows, isWideWeb: isWideWeb),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final pairedRows = screenWidth >= 480;
-    final maxContentWidth = pairedRows ? 560.0 : 440.0;
-
     if (kIsWeb) {
       return Scaffold(
         backgroundColor: AppTheme.surface,
-        body: AuthFormScaler(
-          maxContentWidth: maxContentWidth,
-          child: _buildFormCard(pairedRows: pairedRows),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 960;
+            final pairedRows = constraints.maxWidth >= 480;
+            final maxContentWidth = pairedRows ? 560.0 : 440.0;
+            final formCard = _buildFormCard(pairedRows: pairedRows, isWideWeb: isWide);
+
+            if (isWide) {
+              return Row(
+                children: [
+                  Expanded(
+                    child: AuthBrandPanel(
+                      isDoctor: widget.isDoctor,
+                      variant: AuthBrandPanelVariant.signup,
+                    ),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(48),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: maxContentWidth),
+                          child: formCard,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+
+            return Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxContentWidth),
+                  child: formCard,
+                ),
+              ),
+            );
+          },
         ),
       );
     }
+
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final pairedRows = screenWidth >= 480;
 
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
         top: false,
-        child: AuthFormScaler(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
             horizontal: AppTheme.screenHorizontalPadding,
             vertical: 16,
           ),
-          child: Form(
-            key: _formKey,
-            autovalidateMode: _autovalidate ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled,
-            child: _buildForm(pairedRows: pairedRows),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: pairedRows ? 560 : 440),
+              child: Form(
+                key: _formKey,
+                autovalidateMode:
+                    _autovalidate ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled,
+                child: _buildForm(pairedRows: pairedRows, isWideWeb: false),
+              ),
+            ),
           ),
         ),
       ),

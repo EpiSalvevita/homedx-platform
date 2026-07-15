@@ -9,6 +9,23 @@ import '../../services/doctor_service.dart';
 import '../../widgets/figma_ui.dart';
 import '../../widgets/web/adaptive_screen.dart';
 
+/// A single Von/Bis time range within a day, backed by its own controllers
+/// so multiple ranges can coexist per weekday.
+class _TimeRange {
+  final int id;
+  final TextEditingController startController;
+  final TextEditingController endController;
+
+  _TimeRange({required this.id, String start = '09:00', String end = '17:00'})
+      : startController = TextEditingController(text: start),
+        endController = TextEditingController(text: end);
+
+  void dispose() {
+    startController.dispose();
+    endController.dispose();
+  }
+}
+
 class DoctorAvailabilityScreen extends StatefulWidget {
   const DoctorAvailabilityScreen({super.key});
 
@@ -28,8 +45,10 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
   ];
 
   final Map<int, bool> _enabled = {for (final day in _weekdays) day: true};
-  final Map<int, TextEditingController> _startControllers = {};
-  final Map<int, TextEditingController> _endControllers = {};
+  final Map<int, List<_TimeRange>> _ranges = {
+    for (final day in _weekdays) day: <_TimeRange>[],
+  };
+  int _nextRangeId = 0;
   bool _isLoading = true;
   bool _isSaving = false;
   String? _loadError;
@@ -38,21 +57,35 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
   void initState() {
     super.initState();
     for (final day in _weekdays) {
-      _startControllers[day] = TextEditingController(text: '09:00');
-      _endControllers[day] = TextEditingController(text: '17:00');
+      _ranges[day]!.add(_TimeRange(id: _nextRangeId++));
     }
     _load();
   }
 
   @override
   void dispose() {
-    for (final c in _startControllers.values) {
-      c.dispose();
-    }
-    for (final c in _endControllers.values) {
-      c.dispose();
+    for (final ranges in _ranges.values) {
+      for (final range in ranges) {
+        range.dispose();
+      }
     }
     super.dispose();
+  }
+
+  int? _parseTimeToMinutes(String value) {
+    final match = RegExp(r'^(\d{1,2}):(\d{2})$').firstMatch(value.trim());
+    if (match == null) return null;
+    final hour = int.parse(match.group(1)!);
+    final minute = int.parse(match.group(2)!);
+    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+    return hour * 60 + minute;
+  }
+
+  bool _isValidRange(String start, String end) {
+    final startMin = _parseTimeToMinutes(start);
+    final endMin = _parseTimeToMinutes(end);
+    if (startMin == null || endMin == null) return false;
+    return endMin > startMin;
   }
 
   Future<void> _load() async {
@@ -64,15 +97,31 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
       final api = Provider.of<ApiService>(context, listen: false);
       final service = DoctorService(api);
       final rules = await service.getDoctorAvailability();
+
       for (final day in _weekdays) {
+        for (final range in _ranges[day]!) {
+          range.dispose();
+        }
+        _ranges[day] = [];
         _enabled[day] = false;
       }
+
       for (final rule in rules) {
         if (!_weekdays.contains(rule.dayOfWeek)) continue;
         _enabled[rule.dayOfWeek] = true;
-        _startControllers[rule.dayOfWeek]!.text = rule.startTime;
-        _endControllers[rule.dayOfWeek]!.text = rule.endTime;
+        _ranges[rule.dayOfWeek]!.add(_TimeRange(
+          id: _nextRangeId++,
+          start: rule.startTime,
+          end: rule.endTime,
+        ));
       }
+
+      for (final day in _weekdays) {
+        if (_ranges[day]!.isEmpty) {
+          _ranges[day]!.add(_TimeRange(id: _nextRangeId++));
+        }
+      }
+
       if (mounted) setState(() => _isLoading = false);
     } catch (e) {
       if (mounted) {
@@ -84,16 +133,54 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
     }
   }
 
+  void _addRange(int day) {
+    setState(() {
+      _ranges[day]!.add(_TimeRange(id: _nextRangeId++));
+    });
+  }
+
+  void _removeRange(int day, int id) {
+    setState(() {
+      final list = _ranges[day]!;
+      if (list.length <= 1) return;
+      final index = list.indexWhere((r) => r.id == id);
+      if (index != -1) {
+        list.removeAt(index).dispose();
+      }
+    });
+  }
+
   Future<void> _save() async {
+    for (final day in _weekdays) {
+      if (_enabled[day] != true) continue;
+      for (final range in _ranges[day]!) {
+        final start = range.startController.text.trim();
+        final end = range.endController.text.trim();
+        if (!_isValidRange(start, end)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Ungültiges Zeitfenster an ${_dayNames[_weekdays.indexOf(day)]}: "$start" – "$end". "Bis" muss nach "Von" liegen.',
+              ),
+              backgroundColor: AppTheme.errorColor,
+            ),
+          );
+          return;
+        }
+      }
+    }
+
     setState(() => _isSaving = true);
     final rules = <DoctorAvailabilityRule>[];
     for (final day in _weekdays) {
       if (_enabled[day] == true) {
-        rules.add(DoctorAvailabilityRule(
-          dayOfWeek: day,
-          startTime: _startControllers[day]!.text.trim(),
-          endTime: _endControllers[day]!.text.trim(),
-        ));
+        for (final range in _ranges[day]!) {
+          rules.add(DoctorAvailabilityRule(
+            dayOfWeek: day,
+            startTime: range.startController.text.trim(),
+            endTime: range.endController.text.trim(),
+          ));
+        }
       }
     }
 
@@ -160,7 +247,7 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
               ),
               children: [
                 Text(
-                  'Legen Sie fest, wann Patienten Termine bei Ihnen buchen können.',
+                  'Legen Sie fest, wann Patienten Termine bei Ihnen buchen können. Sie können pro Tag mehrere Zeitfenster hinzufügen, z. B. vormittags und nachmittags.',
                   style: FigmaUi.bodyLight(
                     fontSize: 14,
                     color: AppTheme.textColorSecondary,
@@ -206,6 +293,7 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
   Widget _buildDayCard(int day) {
     final index = _weekdays.indexOf(day);
     final isEnabled = _enabled[day] ?? false;
+    final ranges = _ranges[day]!;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppTheme.infoInsetCardSpacing),
@@ -236,26 +324,54 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
             ),
             if (isEnabled) ...[
               const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: NeumorphicInsetField(
-                      controller: _startControllers[day]!,
-                      label: 'Von',
-                      hint: '09:00',
-                      prefixIcon: Icons.schedule_outlined,
-                    ),
+              for (final range in ranges)
+                Padding(
+                  key: ValueKey(range.id),
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: NeumorphicInsetField(
+                          controller: range.startController,
+                          label: 'Von',
+                          hint: '09:00',
+                          prefixIcon: Icons.schedule_outlined,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: NeumorphicInsetField(
+                          controller: range.endController,
+                          label: 'Bis',
+                          hint: '17:00',
+                          prefixIcon: Icons.schedule_outlined,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      IconButton(
+                        icon: const Icon(Icons.remove_circle_outline),
+                        color: ranges.length > 1
+                            ? AppTheme.errorColor
+                            : AppTheme.textColorSecondary.withValues(alpha: 0.35),
+                        tooltip: 'Zeitfenster entfernen',
+                        onPressed: ranges.length > 1 ? () => _removeRange(day, range.id) : null,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: NeumorphicInsetField(
-                      controller: _endControllers[day]!,
-                      label: 'Bis',
-                      hint: '17:00',
-                      prefixIcon: Icons.schedule_outlined,
-                    ),
+                ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () => _addRange(day),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Zeitfenster hinzufügen'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppTheme.primaryBlue,
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 32),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                ],
+                ),
               ),
             ],
           ],

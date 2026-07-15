@@ -58,7 +58,7 @@ class AvailabilitySlot {
   factory AvailabilitySlot.fromJson(Map<String, dynamic> json) {
     return AvailabilitySlot(
       id: json['id'] as String,
-      dateTime: DateTime.parse(json['dateTime'] as String),
+      dateTime: DateTime.parse(json['dateTime'] as String).toLocal(),
       isAvailable: json['isAvailable'] as bool? ?? true,
       duration: json['duration'] != null
           ? Duration(minutes: json['duration'] as int)
@@ -108,7 +108,7 @@ class Appointment {
       patientId: json['patientId'] as String?,
       patientName: json['patientName'] as String?,
       patientGender: json['patientGender'] as String?,
-      appointmentTime: DateTime.parse(json['appointmentTime'] as String),
+      appointmentTime: DateTime.parse(json['appointmentTime'] as String).toLocal(),
       type: json['type'] as String? ?? 'online',
       notes: json['notes'] as String?,
       testTypeId: json['testTypeId'] as String?,

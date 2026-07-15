@@ -6,6 +6,7 @@ import '../models/doctor.dart';
 import '../services/api_service.dart';
 import '../services/doctor_service.dart';
 import '../utils/test_specialization_mapping.dart';
+import '../utils/doctor_languages.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/responsive_layout.dart';
 import '../widgets/web/adaptive_screen.dart';
@@ -80,15 +81,7 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
     }
   }
 
-  List<String> get _availableLanguages {
-    final languages = <String>{};
-    for (final doctor in _doctors) {
-      languages.addAll(doctor.languages);
-    }
-    final sorted = languages.toList();
-    sorted.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
-    return sorted;
-  }
+  List<String> get _filterLanguages => DoctorLanguages.supported;
 
   List<Doctor> get _filteredDoctors {
     return _doctors.where((doctor) {
@@ -123,6 +116,7 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
         }
       },
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (widget.testTypeId != null && widget.testTypeId!.isNotEmpty)
             _buildTestContextBanner(context),
@@ -150,16 +144,16 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
               },
             ),
           ),
-          if (_availableLanguages.isNotEmpty)
+          if (_filterLanguages.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 AppTheme.screenHorizontalPadding,
                 16,
                 AppTheme.screenHorizontalPadding,
-                0,
+                24,
               ),
               child: _LanguageFilterBar(
-                languages: _availableLanguages,
+                languages: _filterLanguages,
                 selectedLanguage: _selectedLanguage,
                 onSelected: (language) {
                   setState(() => _selectedLanguage = language);
@@ -306,7 +300,7 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(
               AppTheme.screenHorizontalPadding,
-              0,
+              8,
               AppTheme.screenHorizontalPadding,
               24,
             ),
@@ -518,38 +512,46 @@ class _LanguageFilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Sprache',
-          style: FigmaUi.rubik(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: AppTheme.textColor,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _LanguageFilterChip(
-              key: const ValueKey('doctor-lang-filter-all'),
-              label: 'Alle',
-              selected: selectedLanguage == null,
-              onTap: () => onSelected(null),
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Sprache',
+            style: FigmaUi.rubik(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.textColor,
             ),
-            for (final language in languages)
-              _LanguageFilterChip(
-                key: ValueKey('doctor-lang-filter-$language'),
-                label: language,
-                selected: selectedLanguage == language,
-                onTap: () => onSelected(language),
-              ),
-          ],
-        ),
-      ],
+          ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Wrap(
+              alignment: WrapAlignment.start,
+              crossAxisAlignment: WrapCrossAlignment.start,
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _LanguageFilterChip(
+                  key: const ValueKey('doctor-lang-filter-all'),
+                  label: 'Alle',
+                  selected: selectedLanguage == null,
+                  onTap: () => onSelected(null),
+                ),
+                for (final language in languages)
+                  _LanguageFilterChip(
+                    key: ValueKey('doctor-lang-filter-$language'),
+                    label: language,
+                    selected: selectedLanguage == language,
+                    onTap: () => onSelected(language),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

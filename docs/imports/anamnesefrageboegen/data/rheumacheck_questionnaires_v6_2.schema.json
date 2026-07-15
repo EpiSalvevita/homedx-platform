@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RheumaCheck Questionnaire Definition V6.2",
+  "type": "object",
+  "required": [
+    "project",
+    "package_version",
+    "language",
+    "modules"
+  ],
+  "properties": {
+    "project": {
+      "type": "string"
+    },
+    "package_version": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string"
+    },
+    "intended_system": {
+      "type": "string"
+    },
+    "modules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "module_id",
+          "title",
+          "target_group",
+          "sections"
+        ],
+        "properties": {
+          "module_id": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "target_group": {
+            "type": "string"
+          },
+          "timing": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "section_id",
+                "title",
+                "fields"
+              ],
+              "properties": {
+                "section_id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "type",
+                      "required",
+                      "label"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "single_choice",
+                          "multi_choice",
+                          "likert_5",
+                          "nrs_0_10",
+                          "number",
+                          "text",
+                          "date"
+                        ]
+                      },
+                      "required": {
+                        "type": "boolean"
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "options": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "show_if": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

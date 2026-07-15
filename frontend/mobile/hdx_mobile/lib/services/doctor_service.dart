@@ -78,7 +78,7 @@ class DoctorService {
         '/book-appointment',
         body: {
           'doctorId': doctorId,
-          'appointmentTime': appointmentTime.toIso8601String(),
+          'appointmentTime': appointmentTime.toUtc().toIso8601String(),
           'type': type,
           if (notes != null && notes.isNotEmpty) 'notes': notes,
           if (testTypeId != null && testTypeId.isNotEmpty) 'testTypeId': testTypeId,
@@ -127,7 +127,7 @@ class DoctorService {
           rating: 4.8,
           reviewCount: 127,
           bio: 'Erfahrene Allgemeinmedizinerin mit über 10 Jahren Erfahrung',
-          languages: ['Deutsch', 'Englisch'],
+          languages: ['Deutsch', 'Englisch', 'Türkisch'],
           availableSlots: [],
         ),
         Doctor(

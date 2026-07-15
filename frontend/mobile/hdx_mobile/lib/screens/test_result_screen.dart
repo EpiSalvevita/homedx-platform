@@ -143,6 +143,21 @@ class TestResultScreen extends StatelessWidget {
                 ),
               ),
             ],
+            if (result.testId != null && result.testId!.isNotEmpty) ...[
+              NeumorphicPillButton(
+                label: 'Usability-Fragebogen (Bogen C)',
+                leadingIcon: Icons.quiz_outlined,
+                backgroundColor: AppTheme.surface,
+                foregroundColor: AppTheme.textColor,
+                onPressed: () {
+                  final returnPath = Uri.encodeComponent('/results');
+                  context.push(
+                    '/questionnaires/C?rapidTestId=${result.testId}&return=$returnPath',
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
             NeumorphicPillButton(
               label: 'Zurück zu Ergebnissen',
               leadingIcon: Icons.arrow_back,

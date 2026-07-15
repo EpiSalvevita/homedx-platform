@@ -28,7 +28,7 @@ class MarketingNav extends StatelessWidget {
           child: Row(
             children: [
               GestureDetector(
-                onTap: () => context.go('/about'),
+                onTap: () => context.go('/'),
                 child: Image.asset(
                   AppAssets.logo,
                   width: AppAssets.logoHeaderWidth,

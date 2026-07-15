@@ -101,6 +101,16 @@ void main() {
     expect(find.byKey(const ValueKey('doctor-lang-filter-Deutsch')), findsOneWidget);
     expect(find.byKey(const ValueKey('doctor-lang-filter-Englisch')), findsOneWidget);
 
+    expect(find.byKey(const ValueKey('doctor-lang-filter-Türkisch')), findsOneWidget);
+    expect(find.byKey(const ValueKey('doctor-lang-filter-Arabisch')), findsOneWidget);
+    expect(find.byKey(const ValueKey('doctor-lang-filter-Russisch')), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('doctor-lang-filter-Türkisch')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Dr. Sarah Müller'), findsOneWidget);
+    expect(find.text('Dr. Klaus Becker'), findsNothing);
+
     await tester.tap(find.byKey(const ValueKey('doctor-lang-filter-Englisch')));
     await tester.pumpAndSettle();
 

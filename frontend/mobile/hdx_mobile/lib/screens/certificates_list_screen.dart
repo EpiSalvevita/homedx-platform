@@ -135,15 +135,10 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                 subtitle: _error!,
               )
             else if (_items.isEmpty)
-              FigmaListCard(
-                leading: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
-                  child: const Icon(Icons.verified_outlined, color: AppTheme.primaryBlue),
-                ),
+              const FigmaEmptyState(
+                icon: Icons.verified_outlined,
                 title: 'Noch keine Zertifikate',
-                subtitle: 'Zertifikate erscheinen hier nach einem abgeschlossenen Test.',
+                message: 'Zertifikate erscheinen hier nach einem abgeschlossenen Test.',
               )
             else
               ..._items.map((c) => Padding(

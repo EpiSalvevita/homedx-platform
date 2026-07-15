@@ -203,7 +203,7 @@ class FigmaSectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+      style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.textColor),
     );
   }
 }
@@ -435,11 +435,11 @@ class NeumorphicInsetField extends StatelessWidget {
     this.onFieldSubmitted,
     this.fieldHeight = AppTheme.fieldHeight,
     this.fieldPadding = AppTheme.fieldPadding,
-    this.fontSize = 16,
-    this.labelFontSize = 14,
+    this.fontSize = 17,
+    this.labelFontSize = 15,
     this.labelOffsetLeft = 38,
     this.labelOffsetTop = -10,
-    this.iconSize = 21,
+    this.iconSize = 22,
     this.contentGap = AppTheme.fieldContentGap,
   });
 
@@ -607,11 +607,11 @@ class NeumorphicInsetDropdown extends StatefulWidget {
     this.hint = 'Auswählen',
     this.fieldHeight = AppTheme.fieldHeight,
     this.fieldPadding = AppTheme.fieldPadding,
-    this.fontSize = 16,
-    this.labelFontSize = 14,
+    this.fontSize = 17,
+    this.labelFontSize = 15,
     this.labelOffsetLeft = 38,
     this.labelOffsetTop = -10,
-    this.iconSize = 21,
+    this.iconSize = 22,
     this.contentGap = AppTheme.fieldContentGap,
     this.isExpanded = true,
   });
@@ -747,7 +747,7 @@ class _NeumorphicInsetDropdownState extends State<NeumorphicInsetDropdown> {
   }
 }
 
-class NeumorphicPillButton extends StatelessWidget {
+class NeumorphicPillButton extends StatefulWidget {
   final String label;
   final VoidCallback? onPressed;
   final bool loading;
@@ -773,8 +773,26 @@ class NeumorphicPillButton extends StatelessWidget {
     this.inset = false,
   });
 
+  @override
+  State<NeumorphicPillButton> createState() => _NeumorphicPillButtonState();
+}
+
+class _NeumorphicPillButtonState extends State<NeumorphicPillButton> {
+  bool _hovered = false;
+
+  static final WidgetStateProperty<Color?> _pillHoverOverlay =
+      WidgetStateProperty.resolveWith((states) {
+    if (states.contains(WidgetState.hovered)) {
+      return AppTheme.primaryBlue.withValues(alpha: 0.08);
+    }
+    if (states.contains(WidgetState.focused)) {
+      return AppTheme.primaryBlue.withValues(alpha: 0.12);
+    }
+    return null;
+  });
+
   Widget _buildContent(Color foreground) {
-    if (loading) {
+    if (widget.loading) {
       return SizedBox(
         width: 22,
         height: 22,
@@ -783,11 +801,11 @@ class NeumorphicPillButton extends StatelessWidget {
     }
 
     final text = Text(
-      label,
+      widget.label,
       style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: foreground),
     );
 
-    if (leadingIcon == null) return text;
+    if (widget.leadingIcon == null) return text;
 
     const iconSize = 22.0;
     const iconGap = 10.0;
@@ -795,68 +813,97 @@ class NeumorphicPillButton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(leadingIcon, size: iconSize, color: foreground),
+        Icon(widget.leadingIcon, size: iconSize, color: foreground),
         const SizedBox(width: iconGap),
         text,
-        // Balance leading icon so label text sits on the pill's horizontal center.
         const SizedBox(width: iconSize + iconGap),
       ],
     );
   }
 
   EdgeInsetsGeometry _pillPadding() {
-    if (expanded) return AppTheme.buttonPaddingLarge;
+    if (widget.expanded) return AppTheme.buttonPaddingLarge;
     return const EdgeInsets.symmetric(horizontal: 26);
+  }
+
+  Color _resolveFill(Color base) {
+    if (!_hovered || (widget.onPressed == null && !widget.loading)) return base;
+    return Color.lerp(base, AppTheme.primaryLight, 0.45) ?? base;
+  }
+
+  List<BoxShadow>? _resolveRaisedShadow(bool enabled) {
+    if (!enabled) return null;
+    if (!_hovered) return AppTheme.neumorphicRaised;
+    return [
+      ...AppTheme.neumorphicRaised,
+      BoxShadow(
+        color: AppTheme.primaryBlue.withValues(alpha: 0.12),
+        offset: const Offset(0, 6),
+        blurRadius: 16,
+      ),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
-    final fill = backgroundColor ?? AppTheme.background;
-    final foreground = foregroundColor ?? AppTheme.textColor;
+    final baseFill = widget.backgroundColor ?? AppTheme.background;
+    final fill = _resolveFill(baseFill);
+    final foreground = widget.foregroundColor ?? AppTheme.textColor;
     final labelWidget = _buildContent(foreground);
     final pillPadding = _pillPadding();
+    final enabled = widget.onPressed != null || widget.loading;
 
     Widget pill;
 
-    if (inset) {
+    if (widget.inset) {
       pill = NeumorphicInsetSurface(
-        height: height,
+        height: widget.height,
         padding: pillPadding,
         alignment: Alignment.center,
         backgroundColor: fill,
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: loading ? null : onPressed,
+            onTap: widget.loading ? null : widget.onPressed,
             borderRadius: BorderRadius.circular(AppTheme.pillRadius),
             splashFactory: NoSplash.splashFactory,
             highlightColor: Colors.transparent,
+            hoverColor: AppTheme.primaryBlue.withValues(alpha: 0.08),
+            overlayColor: _pillHoverOverlay,
             child: SizedBox(
-              width: expanded ? double.infinity : null,
+              width: widget.expanded ? double.infinity : null,
               height: double.infinity,
-              child: expanded ? Center(child: labelWidget) : labelWidget,
+              child: widget.expanded ? Center(child: labelWidget) : labelWidget,
             ),
           ),
         ),
       );
     } else {
-      final enabled = onPressed != null || loading;
-      pill = Container(
+      pill = AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
         margin: const EdgeInsets.all(2),
-        width: expanded ? double.infinity : null,
-        height: height,
+        width: widget.expanded ? double.infinity : null,
+        height: widget.height,
         decoration: BoxDecoration(
           color: fill,
           borderRadius: BorderRadius.circular(AppTheme.pillRadius),
-          boxShadow: enabled ? AppTheme.neumorphicRaised : null,
+          border: Border.all(
+            color: _hovered && enabled
+                ? AppTheme.primaryBlue.withValues(alpha: 0.18)
+                : Colors.transparent,
+            width: 1,
+          ),
+          boxShadow: _resolveRaisedShadow(enabled),
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: loading ? null : onPressed,
+            onTap: widget.loading ? null : widget.onPressed,
             borderRadius: BorderRadius.circular(AppTheme.pillRadius),
             splashFactory: NoSplash.splashFactory,
             highlightColor: Colors.transparent,
+            hoverColor: AppTheme.primaryBlue.withValues(alpha: 0.06),
+            overlayColor: _pillHoverOverlay,
             child: Padding(
               padding: pillPadding,
               child: Center(child: labelWidget),
@@ -866,14 +913,19 @@ class NeumorphicPillButton extends StatelessWidget {
       );
     }
 
-    if (!expanded) {
+    if (!widget.expanded) {
       pill = Padding(
         padding: const EdgeInsets.all(4),
         child: IntrinsicWidth(child: pill),
       );
     }
 
-    return pill;
+    return MouseRegion(
+      cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      onEnter: enabled ? (_) => setState(() => _hovered = true) : null,
+      onExit: enabled ? (_) => setState(() => _hovered = false) : null,
+      child: pill,
+    );
   }
 }
 
@@ -995,12 +1047,18 @@ class LoginHeroBanner extends StatelessWidget {
 }
 
 /// Raised home surface: #F5F5F5 + dual drop shadow (quick-action tiles, welcome card).
-class FigmaRaisedTapCard extends StatelessWidget {
+///
+/// Tappable instances are keyboard-focusable and show a visible focus/hover
+/// ring (web accessibility). The ring is painted as a foreground decoration, so
+/// it never changes the card's size or shifts surrounding layout.
+class FigmaRaisedTapCard extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;
   final double borderRadius;
   final double? height;
   final bool expandHeight;
+  /// Accessibility label announced by screen readers when [onTap] is set.
+  final String? semanticLabel;
 
   const FigmaRaisedTapCard({
     super.key,
@@ -1009,11 +1067,22 @@ class FigmaRaisedTapCard extends StatelessWidget {
     this.borderRadius = AppTheme.quickActionCardRadius,
     this.height,
     this.expandHeight = false,
+    this.semanticLabel,
   });
 
   @override
+  State<FigmaRaisedTapCard> createState() => _FigmaRaisedTapCardState();
+}
+
+class _FigmaRaisedTapCardState extends State<FigmaRaisedTapCard> {
+  bool _hovered = false;
+  bool _focused = false;
+
+  @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(borderRadius);
+    final radius = BorderRadius.circular(widget.borderRadius);
+    final showRing = _focused || _hovered;
+
     final card = Container(
       margin: const EdgeInsets.all(2),
       decoration: BoxDecoration(
@@ -1021,23 +1090,48 @@ class FigmaRaisedTapCard extends StatelessWidget {
         borderRadius: radius,
         boxShadow: AppTheme.neumorphicRaised,
       ),
+      foregroundDecoration: showRing
+          ? BoxDecoration(
+              borderRadius: radius,
+              border: Border.all(
+                color: _focused
+                    ? AppTheme.focusRing
+                    : AppTheme.focusRing.withValues(alpha: 0.45),
+                width: AppTheme.focusRingWidth,
+              ),
+            )
+          : null,
       child: Material(
         color: Colors.transparent,
         borderRadius: radius,
-        child: expandHeight
-            ? SizedBox(width: double.infinity, height: double.infinity, child: child)
-            : SizedBox(height: height, width: double.infinity, child: child),
+        child: widget.expandHeight
+            ? SizedBox(width: double.infinity, height: double.infinity, child: widget.child)
+            : SizedBox(height: widget.height, width: double.infinity, child: widget.child),
       ),
     );
 
-    if (onTap == null) return card;
+    if (widget.onTap == null) return card;
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: card,
+    return Semantics(
+      button: true,
+      label: widget.semanticLabel,
+      child: FocusableActionDetector(
+        mouseCursor: SystemMouseCursors.click,
+        onShowHoverHighlight: (v) => setState(() => _hovered = v),
+        onShowFocusHighlight: (v) => setState(() => _focused = v),
+        actions: <Type, Action<Intent>>{
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) {
+              widget.onTap!();
+              return null;
+            },
+          ),
+        },
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.onTap,
+          child: card,
+        ),
       ),
     );
   }
@@ -1074,12 +1168,14 @@ class FigmaWelcomeCard extends StatelessWidget {
                 children: [
                   Text(
                     'Willkommen,\n$name',
-                    style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w500, color: AppTheme.textColor, height: 1.2),
+                    style: FigmaUi.rubik(fontSize: 22, fontWeight: FontWeight.w600, color: AppTheme.textColor, height: 1.2),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     email,
-                    style: FigmaUi.rubik(fontSize: 12, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w400, color: AppTheme.textColorSecondary),
                   ),
                 ],
               ),
@@ -1164,6 +1260,7 @@ class FigmaQuickActionTile extends StatelessWidget {
     return FigmaRaisedTapCard(
       expandHeight: true,
       onTap: onTap,
+      semanticLabel: label,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 20, 12, 16),
         child: Column(
@@ -1172,13 +1269,15 @@ class FigmaQuickActionTile extends StatelessWidget {
               child: Center(
                 child: assetPath != null
                     ? Image.asset(assetPath!, height: iconHeight, fit: BoxFit.contain)
-                    : Icon(icon!, size: 40, color: AppTheme.primaryBlue),
+                    : Icon(icon!, size: 44, color: AppTheme.primaryBlue),
               ),
             ),
             Text(
               label,
               textAlign: TextAlign.center,
-              style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor),
             ),
           ],
         ),
@@ -1206,14 +1305,15 @@ class FigmaActivityRow extends StatelessWidget {
     return FigmaRaisedTapCard(
       height: AppTheme.activityCardHeight,
       onTap: onTap,
+      semanticLabel: '$title. $subtitle',
       child: Padding(
         padding: AppTheme.activityCardPadding,
         child: Row(
           children: [
             SizedBox(
-              width: 38,
-              height: 38,
-              child: Center(child: Icon(icon, size: 22, color: AppTheme.primaryBlue)),
+              width: 40,
+              height: 40,
+              child: Center(child: Icon(icon, size: 24, color: AppTheme.primaryBlue)),
             ),
             const SizedBox(width: 20),
             Expanded(
@@ -1221,13 +1321,13 @@ class FigmaActivityRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(title, style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.textColor)),
+                  Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w500, color: AppTheme.textColor)),
                   const SizedBox(height: 4),
-                  Text(subtitle, style: FigmaUi.rubik(fontSize: 13, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary)),
+                  Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: FigmaUi.bodyLight(fontSize: 15, color: AppTheme.textColorSecondary)),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios, size: 14, color: AppTheme.textColorSecondary),
+            const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.textColorSecondary),
           ],
         ),
       ),
@@ -1293,20 +1393,107 @@ class FigmaListCard extends StatelessWidget {
 class FigmaResultBadge extends StatelessWidget {
   final String label;
   final bool isPositive;
+  /// Optional status icon so meaning is not conveyed by color alone
+  /// (helps color-blind / low-vision users). Defaults to a sensible icon.
+  final IconData? icon;
 
-  const FigmaResultBadge({super.key, required this.label, required this.isPositive});
+  const FigmaResultBadge({
+    super.key,
+    required this.label,
+    required this.isPositive,
+    this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final resolvedIcon =
+        icon ?? (isPositive ? Icons.error_outline : Icons.check_circle_outline);
     return Container(
       padding: AppTheme.resultBadgePadding,
       decoration: BoxDecoration(
         color: isPositive ? AppTheme.resultBadgePositive : AppTheme.resultBadgeNegative,
         borderRadius: BorderRadius.circular(AppTheme.resultBadgeRadius),
       ),
-      child: Text(
-        label,
-        style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.textColor, height: 1.05),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(resolvedIcon, size: 15, color: AppTheme.textColor),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.textColor, height: 1.05),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Reusable, elderly-friendly empty state: illustration or icon, a short title,
+/// a supportive message, and an optional primary action.
+class FigmaEmptyState extends StatelessWidget {
+  final String? assetPath;
+  final IconData icon;
+  final String title;
+  final String message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  const FigmaEmptyState({
+    super.key,
+    this.assetPath,
+    this.icon = Icons.inbox_outlined,
+    required this.title,
+    required this.message,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (assetPath != null)
+                Image.asset(assetPath!, height: 160, fit: BoxFit.contain)
+              else
+                Container(
+                  width: 104,
+                  height: 104,
+                  decoration: const BoxDecoration(
+                    color: AppTheme.primaryLight,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, size: 52, color: AppTheme.primaryBlue),
+                ),
+              const SizedBox(height: 24),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary, height: 1.4),
+              ),
+              if (actionLabel != null && onAction != null) ...[
+                const SizedBox(height: 28),
+                NeumorphicPillButton(
+                  label: actionLabel!,
+                  onPressed: onAction,
+                  expanded: false,
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

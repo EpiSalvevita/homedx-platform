@@ -7,7 +7,11 @@ import 'figma_ui.dart';
 class TestResultBadge extends StatelessWidget {
   final UserTestResult result;
 
-  const TestResultBadge({super.key, required this.result});
+  const TestResultBadge({super.key, required this.result, this.showIcon = true});
+
+  /// When false, the leading status icon is hidden (use where an adjacent icon
+  /// already conveys the status, to avoid duplication).
+  final bool showIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -23,13 +27,22 @@ class TestResultBadge extends StatelessWidget {
             ? Border.all(color: AppTheme.primaryBlue, width: 1.5)
             : null,
       ),
-      child: Text(
-        result.resultLabel,
-        style: FigmaUi.rubik(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: foreground,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showIcon) ...[
+            Icon(iconForKind(kind), size: 13, color: foreground),
+            const SizedBox(width: 5),
+          ],
+          Text(
+            result.resultLabel,
+            style: FigmaUi.rubik(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: foreground,
+            ),
+          ),
+        ],
       ),
     );
   }

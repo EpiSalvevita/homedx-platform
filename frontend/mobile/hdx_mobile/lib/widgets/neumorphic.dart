@@ -61,44 +61,96 @@ class NeumorphicButton extends StatefulWidget {
 
 class _NeumorphicButtonState extends State<NeumorphicButton> {
   bool _pressed = false;
+  bool _hovered = false;
+
+  bool get _enabled => widget.onPressed != null;
+
+  Color _resolveBackground(Color base) {
+    if (!_enabled) return base;
+    if (_pressed) {
+      return widget.isPrimary
+          ? AppTheme.primaryBlue.withValues(alpha: 0.85)
+          : AppTheme.surface;
+    }
+    if (_hovered) {
+      return widget.isPrimary
+          ? Color.lerp(AppTheme.primaryBlue, AppTheme.accentBlue, 0.18)!
+          : AppTheme.primaryLight;
+    }
+    return base;
+  }
+
+  List<BoxShadow>? _resolveShadow() {
+    if (!_enabled) return widget.isPrimary ? null : AppTheme.cardShadow;
+    if (widget.isPrimary) {
+      final alpha = _hovered ? 0.42 : 0.3;
+      final blur = _hovered ? 16.0 : 12.0;
+      final offset = _hovered ? const Offset(0, 6) : const Offset(0, 4);
+      return [
+        BoxShadow(
+          color: AppTheme.primaryBlue.withValues(alpha: alpha),
+          offset: offset,
+          blurRadius: blur,
+        ),
+      ];
+    }
+    if (_hovered) {
+      return [
+        BoxShadow(
+          color: AppTheme.primaryBlue.withValues(alpha: 0.14),
+          offset: const Offset(0, 4),
+          blurRadius: 14,
+        ),
+      ];
+    }
+    return AppTheme.cardShadow;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final bg = widget.isPrimary ? AppTheme.primaryBlue : AppTheme.cardColor;
+    final base = widget.isPrimary ? AppTheme.primaryBlue : AppTheme.cardColor;
     final fgColor = widget.isPrimary ? Colors.white : AppTheme.textColor;
 
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
-      onTap: widget.onPressed,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 120),
-        padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-        decoration: BoxDecoration(
-          color: _pressed
-              ? (widget.isPrimary ? AppTheme.primaryBlue.withValues(alpha: 0.85) : AppTheme.surface)
-              : bg,
-          borderRadius: BorderRadius.circular(widget.borderRadius),
-          boxShadow: widget.isPrimary
-              ? [
-                  BoxShadow(
-                    color: AppTheme.primaryBlue.withValues(alpha: 0.3),
-                    offset: const Offset(0, 4),
-                    blurRadius: 12,
-                  ),
-                ]
-              : AppTheme.cardShadow,
-        ),
-        child: DefaultTextStyle(
-          style: TextStyle(
-            fontSize: 16,
-            color: fgColor,
-            fontWeight: FontWeight.w600,
+    return MouseRegion(
+      cursor: _enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      onEnter: _enabled ? (_) => setState(() => _hovered = true) : null,
+      onExit: _enabled ? (_) => setState(() => _hovered = false) : null,
+      child: GestureDetector(
+        onTapDown: _enabled ? (_) => setState(() => _pressed = true) : null,
+        onTapUp: _enabled ? (_) => setState(() => _pressed = false) : null,
+        onTapCancel: _enabled ? () => setState(() => _pressed = false) : null,
+        onTap: widget.onPressed,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          constraints: const BoxConstraints(
+            minHeight: AppTheme.minTouchTarget,
+            minWidth: AppTheme.minTouchTarget,
           ),
-          child: IconTheme(
-            data: IconThemeData(color: fgColor),
-            child: widget.child,
+          alignment: Alignment.center,
+          padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+          decoration: BoxDecoration(
+            color: _resolveBackground(base),
+            borderRadius: BorderRadius.circular(widget.borderRadius),
+            border: !widget.isPrimary
+                ? Border.all(
+                    color: _hovered
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.22)
+                        : Colors.transparent,
+                    width: 1,
+                  )
+                : null,
+            boxShadow: _resolveShadow(),
+          ),
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 16,
+              color: fgColor,
+              fontWeight: FontWeight.w600,
+            ),
+            child: IconTheme(
+              data: IconThemeData(color: fgColor),
+              child: widget.child,
+            ),
           ),
         ),
       ),

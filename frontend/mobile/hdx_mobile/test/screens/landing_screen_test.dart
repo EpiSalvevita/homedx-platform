@@ -13,7 +13,9 @@ void main() {
       routes: [
         GoRoute(
           path: '/',
-          builder: (_, __) => const LandingScreen(),
+          builder: (_, state) => LandingScreen(
+            initialSection: state.uri.queryParameters['section'],
+          ),
         ),
         GoRoute(
           path: '/signup',
@@ -25,7 +27,7 @@ void main() {
         ),
         GoRoute(
           path: '/about',
-          builder: (_, __) => const Scaffold(body: Text('About')),
+          redirect: (_, __) => '/?section=about',
         ),
       ],
     );
@@ -44,6 +46,8 @@ void main() {
     expect(find.text('Gesundheitstests\nund Online-Versorgung'), findsOneWidget);
     expect(find.text('Jetzt starten'), findsOneWidget);
     expect(find.text('Für Patienten'), findsOneWidget);
+    expect(find.text('Testergebnisse & Videoberatung'), findsOneWidget);
+    expect(find.text('Cube Schnelltests'), findsNothing);
     expect(find.text('Anmelden'), findsOneWidget);
 
     await tester.tap(find.text('Anmelden'));

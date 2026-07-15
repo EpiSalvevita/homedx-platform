@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -97,17 +96,6 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen> {
           padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
-            if (kIsWeb) ...[
-              Text(
-                'Meine Termine',
-                style: FigmaUi.rubik(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textColor,
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
             Text(
               'Tippen Sie auf einen Eintrag für Details.',
               style: FigmaUi.bodyLight(
@@ -130,15 +118,12 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen> {
                 subtitle: _error!,
               )
             else if (_appointments.isEmpty)
-              FigmaListCard(
-                leading: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
-                  child: const Icon(Icons.event_outlined, color: AppTheme.primaryBlue),
-                ),
+              FigmaEmptyState(
+                icon: Icons.event_outlined,
                 title: 'Noch keine Termine',
-                subtitle: 'Buchen Sie einen Termin über Arzttermin.',
+                message: 'Buchen Sie einen Termin bei einem Arzt, um ihn hier zu sehen.',
+                actionLabel: 'Arzt finden',
+                onAction: () => context.push('/doctors'),
               )
             else ...[
               if (_upcoming.isNotEmpty) ...[

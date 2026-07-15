@@ -23,6 +23,15 @@ Snapshot of what exists today in the backend vs the Flutter app, plus a short ba
 - **Backend:** doctors, slots, book/list/cancel, Daily.co tokens (`get-doctors`, `get-doctor-slots`, `book-appointment`, etc.)
 - **App:** patient booking and list; doctor web dashboard and video join — see `APPOINTMENTS_VIDEO.md`
 
+### RheumaCheck Anamnesefragebögen (A–D)
+
+- **Backend:** `get-questionnaire-modules`, `get-questionnaire-definition`, `save-questionnaire-draft`, `submit-questionnaire`, `get-questionnaire-submission`, `export-questionnaire-submissions` (ADMIN)
+- **Data:** `QuestionnaireSubmission` model (module A/B/C/D, answers JSON, draft/submitted, optional `linkedRapidTestId`)
+- **App:** JSON-driven wizard; hub at `/questionnaires` (patient A/C) and `/doctor/questionnaires` (doctor B/D)
+- **Flow hooks:** Bogen A offered before RheumaCheck test; Bogen C after test result; B/D on doctor dashboard
+- **Regulatory (v1):** capture-only — no automatic diagnosis or care routing; consent required for patient forms; audit logs store metadata only
+- **Gap:** CSV export UI; GDPR erasure; FHIR export
+
 ### Payments
 
 - **Backend:** `get-payment-amount`, `create-payment`, `create-stripe-payment-intent`, `create-paypal-order`, `update-payment`; webhooks `/webhooks/stripe`, `/webhooks/paypal`

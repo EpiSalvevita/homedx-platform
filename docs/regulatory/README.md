@@ -43,3 +43,6 @@ Two documents do exist:
 - [`soup-list.md`](./soup-list.md) — a generated inventory of backend/mobile
   dependencies. It's a snapshot, not a maintained process (see its own
   "known gaps" section).
+- [`questionnaire-submissions-v1.md`](./questionnaire-submissions-v1.md) —
+  regulatory note for RheumaCheck Anamnesefragebögen A–D (capture-only v1):
+  health data scope, risk table, test evidence, PRRC sign-off guidance.

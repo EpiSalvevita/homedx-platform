@@ -263,49 +263,69 @@ class _SidebarNavItem extends StatefulWidget {
 
 class _SidebarNavItemState extends State<_SidebarNavItem> {
   bool _hovered = false;
+  bool _focused = false;
 
   @override
   Widget build(BuildContext context) {
     final bg = widget.selected
         ? AppTheme.primaryBlue.withValues(alpha: 0.35)
-        : _hovered
+        : (_hovered || _focused)
             ? Colors.white.withValues(alpha: 0.08)
             : Colors.transparent;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (_) => setState(() => _hovered = true),
-        onExit: (_) => setState(() => _hovered = false),
+    return Semantics(
+      button: true,
+      selected: widget.selected,
+      label: widget.label,
+      child: FocusableActionDetector(
+        mouseCursor: SystemMouseCursors.click,
+        onShowHoverHighlight: (v) => setState(() => _hovered = v),
+        onShowFocusHighlight: (v) => setState(() => _focused = v),
+        actions: <Type, Action<Intent>>{
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) {
+              widget.onTap();
+              return null;
+            },
+          ),
+        },
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: widget.onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            child: Row(
-              children: [
-                Icon(
-                  widget.icon,
-                  size: 22,
-                  color: widget.selected ? Colors.white : AppTheme.accentBlue,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    widget.label,
-                    style: FigmaUi.rubik(
-                      fontSize: 15,
-                      fontWeight: widget.selected ? FontWeight.w500 : FontWeight.w400,
-                      color: Colors.white,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(12),
+              border: _focused
+                  ? Border.all(color: Colors.white.withValues(alpha: 0.7), width: 2)
+                  : Border.all(color: Colors.transparent, width: 2),
+            ),
+            child: Padding(
+              // Keep the row visually centered despite the 2px focus border.
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Row(
+                children: [
+                  Icon(
+                    widget.icon,
+                    size: 24,
+                    color: widget.selected ? Colors.white : AppTheme.accentBlue,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      widget.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: FigmaUi.rubik(
+                        fontSize: 16,
+                        fontWeight: widget.selected ? FontWeight.w600 : FontWeight.w400,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

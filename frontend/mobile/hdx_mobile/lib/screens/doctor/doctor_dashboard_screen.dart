@@ -147,18 +147,46 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                         ),
                         const SizedBox(height: 12),
                         if (_appointments.isEmpty)
-                          FigmaListCard(
-                            leading: Container(
-                              width: 38,
-                              height: 38,
-                              decoration: BoxDecoration(
-                                color: AppTheme.background,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Icon(Icons.event_available_outlined, color: AppTheme.primaryBlue),
+                          NeumorphicRaisedCard(
+                            height: null,
+                            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 36),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 64,
+                                  height: 64,
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.primaryLight,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.event_available_outlined,
+                                    size: 32,
+                                    color: AppTheme.primaryBlue,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Keine Termine für heute',
+                                  textAlign: TextAlign.center,
+                                  style: FigmaUi.rubik(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppTheme.textColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Sobald Patienten buchen, erscheinen Ihre heutigen Termine hier.',
+                                  textAlign: TextAlign.center,
+                                  style: FigmaUi.bodyLight(
+                                    fontSize: 14,
+                                    color: AppTheme.textColorSecondary,
+                                  ),
+                                ),
+                              ],
                             ),
-                            title: 'Keine Termine für heute',
-                            subtitle: 'Sobald Patienten buchen, erscheinen sie hier.',
                           )
                         else
                           ..._appointments.map(
@@ -173,6 +201,66 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                               ),
                             ),
                           ),
+                        const SizedBox(height: 20),
+                        const FigmaSectionTitle('RheumaCheck Fragebögen'),
+                        const SizedBox(height: 12),
+                        NeumorphicRaisedCard(
+                          height: null,
+                          padding: const EdgeInsets.all(18),
+                          onTap: () => context.push('/doctor/questionnaires/B'),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.assignment_outlined, color: AppTheme.primaryBlue),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Bogen B', style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w500)),
+                                    Text(
+                                      'Standardmethode & Versorgungspfad',
+                                      style: FigmaUi.bodyLight(fontSize: 13, color: AppTheme.textColorSecondary),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.chevron_right, color: AppTheme.textColorSecondary),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        NeumorphicRaisedCard(
+                          height: null,
+                          padding: const EdgeInsets.all(18),
+                          onTap: () => context.push('/doctor/questionnaires/D'),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.medical_information_outlined, color: AppTheme.primaryBlue),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Bogen D', style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w500)),
+                                    Text(
+                                      'Implementierbarkeit & Nutzen',
+                                      style: FigmaUi.bodyLight(fontSize: 13, color: AppTheme.textColorSecondary),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.chevron_right, color: AppTheme.textColorSecondary),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        NeumorphicPillButton(
+                          label: 'Alle Fragebögen',
+                          leadingIcon: Icons.quiz_outlined,
+                          backgroundColor: AppTheme.surface,
+                          foregroundColor: AppTheme.textColor,
+                          onPressed: () => context.push('/doctor/questionnaires'),
+                        ),
                         const SizedBox(height: 20),
                         NeumorphicPillButton(
                           label: 'Alle Termine anzeigen',

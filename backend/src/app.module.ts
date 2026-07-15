@@ -26,6 +26,7 @@ import { MobilePaymentController } from './controllers/mobile-payment.controller
 import { MobileCertificateController } from './controllers/mobile-certificate.controller';
 import { MobileNotificationController } from './controllers/mobile-notification.controller';
 import { MobileLegalController } from './controllers/mobile-legal.controller';
+import { MobileQuestionnaireController } from './controllers/mobile-questionnaire.controller';
 import { WebhooksController } from './controllers/webhooks.controller';
 import { MobileUserHelper } from './controllers/mobile-user.helper';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
@@ -39,6 +40,7 @@ import { MobilePaymentService } from './services/mobile-payment.service';
 import { MobileTestService } from './services/mobile-test.service';
 import { MobileCertificateService } from './services/mobile-certificate.service';
 import { MobileNotificationService } from './services/mobile-notification.service';
+import { QuestionnaireService } from './services/questionnaire.service';
 import { PushService } from './services/push.service';
 
 const isTestEnv = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !== undefined;
@@ -70,6 +72,7 @@ const isTestEnv = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID 
     MobileCertificateController,
     MobileNotificationController,
     MobileLegalController,
+    MobileQuestionnaireController,
     WebhooksController,
   ],
   providers: [
@@ -96,6 +99,7 @@ const isTestEnv = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID 
     MobileCertificateService,
     MobileNotificationService,
     PushService,
+    QuestionnaireService,
     MobileUserHelper,
     JwtStrategy,
     JwtAuthGuard,

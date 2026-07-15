@@ -3,31 +3,41 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hdx_mobile/config/auth_routes.dart';
 import 'package:hdx_mobile/providers/locale_provider.dart';
-import 'package:hdx_mobile/screens/about_screen.dart';
+import 'package:hdx_mobile/screens/landing_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Widget _aboutTestApp({
-  required LocaleProvider localeProvider,
-  Widget? home,
-  GoRouter? router,
-}) {
+Widget _landingTestApp({required LocaleProvider localeProvider, required GoRouter router}) {
   return ChangeNotifierProvider<LocaleProvider>.value(
     value: localeProvider,
     child: Consumer<LocaleProvider>(
-      builder: (context, lp, _) {
-        if (router != null) {
-          return MaterialApp.router(
-            locale: lp.locale,
-            routerConfig: router,
-          );
-        }
-        return MaterialApp(
-          locale: lp.locale,
-          home: home,
-        );
-      },
+      builder: (context, lp, _) => MaterialApp.router(
+        locale: lp.locale,
+        routerConfig: router,
+      ),
     ),
+  );
+}
+
+GoRouter _testRouter({String initialLocation = '/'}) {
+  return GoRouter(
+    initialLocation: initialLocation,
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (_, state) => LandingScreen(
+          initialSection: state.uri.queryParameters['section'],
+        ),
+      ),
+      GoRoute(
+        path: '/about',
+        redirect: (_, __) => '/?section=about',
+      ),
+      GoRoute(
+        path: '/signup',
+        builder: (_, __) => const Scaffold(body: Text('Signup page')),
+      ),
+    ],
   );
 }
 
@@ -41,88 +51,41 @@ void main() {
     });
   });
 
-  testWidgets('AboutScreen shows hero and story in German', (tester) async {
+  testWidgets('Landing shows merged About story and how-it-works in German', (tester) async {
     final localeProvider = LocaleProvider();
 
-    await tester.binding.setSurfaceSize(const Size(1280, 1600));
+    await tester.binding.setSurfaceSize(const Size(1280, 2400));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
     await tester.pumpWidget(
-      _aboutTestApp(
-        localeProvider: localeProvider,
-        home: const AboutScreen(),
-      ),
+      _landingTestApp(localeProvider: localeProvider, router: _testRouter()),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
 
-    expect(find.textContaining('Gesundheit beginnt'), findsOneWidget);
     expect(find.text('Unsere Geschichte'), findsOneWidget);
-    expect(find.text('Das Produkt'), findsOneWidget);
+    expect(find.text('So funktioniert es'), findsOneWidget);
+    expect(find.text('Test zu Hause'), findsOneWidget);
+    expect(find.text('Das Produkt'), findsNothing);
   });
 
-  testWidgets('AboutScreen locale toggle switches hero to English', (tester) async {
+  testWidgets('/about redirect shows merged About on landing', (tester) async {
     final localeProvider = LocaleProvider();
 
-    await tester.binding.setSurfaceSize(const Size(1280, 1600));
+    await tester.binding.setSurfaceSize(const Size(1280, 2400));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
     await tester.pumpWidget(
-      _aboutTestApp(
+      _landingTestApp(
         localeProvider: localeProvider,
-        home: const AboutScreen(),
+        router: _testRouter(initialLocation: '/about'),
       ),
     );
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 800));
 
-    expect(find.textContaining('Gesundheit beginnt'), findsOneWidget);
-
-    await tester.tap(find.text('EN'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-
-    expect(find.textContaining('Health starts'), findsOneWidget);
-    expect(find.text('Our story'), findsOneWidget);
+    expect(find.text('Unsere Geschichte'), findsOneWidget);
+    expect(find.text('So funktioniert es'), findsOneWidget);
   });
 
-  testWidgets('AboutScreen signup CTA navigates', (tester) async {
-    final localeProvider = LocaleProvider();
-    final router = GoRouter(
-      initialLocation: '/about',
-      routes: [
-        GoRoute(
-          path: '/about',
-          builder: (_, __) => const AboutScreen(),
-        ),
-        GoRoute(
-          path: '/signup',
-          builder: (_, __) => const Scaffold(body: Text('Signup page')),
-        ),
-      ],
-    );
-
-    await tester.binding.setSurfaceSize(const Size(1280, 1600));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-
-    await tester.pumpWidget(
-      _aboutTestApp(
-        localeProvider: localeProvider,
-        router: router,
-      ),
-    );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
-
-    await tester.scrollUntilVisible(
-      find.text('Jetzt starten'),
-      100,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.tap(find.text('Jetzt starten'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
-
-    expect(find.text('Signup page'), findsOneWidget);
-  });
 }

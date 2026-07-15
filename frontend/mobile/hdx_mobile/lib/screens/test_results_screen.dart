@@ -101,15 +101,10 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
                 subtitle: _error!,
               )
             else if (_results.isEmpty)
-              FigmaListCard(
-                leading: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
-                  child: const Icon(Icons.assignment_outlined, color: AppTheme.primaryBlue),
-                ),
+              FigmaEmptyState(
+                icon: Icons.assignment_outlined,
                 title: 'Noch keine Testergebnisse',
-                subtitle: kIsWeb
+                message: kIsWeb
                     ? 'Ergebnisse erscheinen hier nach einem Test in der Android-App.'
                     : 'Starten Sie einen Test, um Ergebnisse zu sehen.',
               )
@@ -166,7 +161,7 @@ class _ResultCard extends StatelessWidget {
               Expanded(
                 child: Text(item.displayTestName, style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor)),
               ),
-              TestResultBadge(result: item),
+              TestResultBadge(result: item, showIcon: false),
               const SizedBox(width: 8),
               const Icon(Icons.arrow_forward_ios, size: 14, color: AppTheme.textColorSecondary),
             ],

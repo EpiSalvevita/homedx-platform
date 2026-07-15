@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/landing_screen.dart';
-import '../screens/about_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
@@ -33,6 +32,9 @@ import '../screens/notifications_screen.dart';
 import '../screens/certificates_list_screen.dart';
 import '../screens/certificate_detail_screen.dart';
 import '../screens/legal_page_screen.dart';
+import '../screens/questionnaires/questionnaire_hub_screen.dart';
+import '../screens/questionnaires/questionnaire_flow_screen.dart';
+import '../screens/questionnaires/questionnaire_done_screen.dart';
 import '../models/product.dart';
 import '../models/user_test_result.dart';
 import '../services/cube_service.dart';
@@ -78,7 +80,8 @@ class AppRouter {
               location.startsWith('/tests') ||
               location.startsWith('/bluetooth') ||
               location == '/shop' ||
-              location == '/results') {
+              location == '/results' ||
+              location.startsWith('/questionnaires')) {
             return '/doctor/dashboard';
           }
         }
@@ -93,12 +96,14 @@ class AppRouter {
         GoRoute(
           path: '/',
           name: 'landing',
-          builder: (context, state) => const LandingScreen(),
+          builder: (context, state) => LandingScreen(
+            initialSection: state.uri.queryParameters['section'],
+          ),
         ),
         GoRoute(
           path: '/about',
           name: 'about',
-          builder: (context, state) => const AboutScreen(),
+          redirect: (context, state) => '/?section=about',
         ),
         GoRoute(
           path: '/legal/:type',
@@ -285,6 +290,41 @@ class AppRouter {
           },
         ),
         GoRoute(
+          path: '/questionnaires',
+          name: 'questionnaires',
+          builder: (context, state) => const QuestionnaireHubScreen(),
+          routes: [
+            GoRoute(
+              path: ':moduleId',
+              name: 'questionnaire-flow',
+              builder: (context, state) {
+                final moduleId = state.pathParameters['moduleId'] ?? 'A';
+                final rapidTestId = state.uri.queryParameters['rapidTestId'];
+                final returnRoute = state.uri.queryParameters['return'];
+                return QuestionnaireFlowScreen(
+                  moduleId: moduleId.toUpperCase(),
+                  linkedRapidTestId: rapidTestId,
+                  returnRoute: returnRoute,
+                );
+              },
+              routes: [
+                GoRoute(
+                  path: 'done',
+                  name: 'questionnaire-done',
+                  builder: (context, state) {
+                    final moduleId = state.pathParameters['moduleId'] ?? 'A';
+                    final returnRoute = state.uri.queryParameters['return'];
+                    return QuestionnaireDoneScreen(
+                      moduleId: moduleId.toUpperCase(),
+                      returnRoute: returnRoute,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+        GoRoute(
           path: '/doctor/dashboard',
           name: 'doctor-dashboard',
           builder: (context, state) => const DoctorDashboardScreen(),
@@ -298,6 +338,37 @@ class AppRouter {
           path: '/doctor/availability',
           name: 'doctor-availability',
           builder: (context, state) => const DoctorAvailabilityScreen(),
+        ),
+        GoRoute(
+          path: '/doctor/questionnaires',
+          name: 'doctor-questionnaires',
+          builder: (context, state) => const QuestionnaireHubScreen(isDoctor: true),
+          routes: [
+            GoRoute(
+              path: ':moduleId',
+              name: 'doctor-questionnaire-flow',
+              builder: (context, state) {
+                final moduleId = state.pathParameters['moduleId'] ?? 'B';
+                return QuestionnaireFlowScreen(
+                  moduleId: moduleId.toUpperCase(),
+                  isDoctor: true,
+                );
+              },
+              routes: [
+                GoRoute(
+                  path: 'done',
+                  name: 'doctor-questionnaire-done',
+                  builder: (context, state) {
+                    final moduleId = state.pathParameters['moduleId'] ?? 'B';
+                    return QuestionnaireDoneScreen(
+                      moduleId: moduleId.toUpperCase(),
+                      isDoctor: true,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
         GoRoute(
           path: '/doctor/appointments/:appointmentId',

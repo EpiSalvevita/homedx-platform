@@ -75,6 +75,14 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
+              leading: const Icon(Icons.quiz_outlined, color: AppTheme.textColor),
+              title: Text('Fragebögen', style: FigmaUi.rubik(fontWeight: FontWeight.w500, color: AppTheme.textColor)),
+              onTap: () {
+                Navigator.pop(context);
+                context.push('/questionnaires');
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.person_outline, color: AppTheme.textColor),
               title: Text('Profil', style: FigmaUi.rubik(fontWeight: FontWeight.w500, color: AppTheme.textColor)),
               onTap: () {
@@ -129,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             WebPageHeader(
               title: 'Willkommen zurück',
-              subtitle: 'Hallo $firstName — hier ist Ihre Übersicht für heute.',
+              subtitle: 'Hallo $firstName — wählen Sie unten eine Schnellaktion.',
             ),
             Expanded(child: homeContent),
           ],
@@ -147,15 +155,20 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: AppTheme.quickActionGridSpacing),
-        FigmaWelcomeCard(
-          name: firstName,
-          email: email,
-          onTap: () => context.push('/profile'),
-        ),
+        if (!kIsWeb) ...[
+          const SizedBox(height: AppTheme.quickActionGridSpacing),
+          FigmaWelcomeCard(
+            name: firstName,
+            email: email,
+            onTap: () => context.push('/profile'),
+          ),
+        ],
         if (_isLoading)
-          const Padding(padding: EdgeInsets.only(top: 12), child: LinearProgressIndicator()),
-        const SizedBox(height: 28),
+          Padding(
+            padding: EdgeInsets.only(top: kIsWeb ? 20 : 12),
+            child: const LinearProgressIndicator(),
+          ),
+        SizedBox(height: kIsWeb ? 24 : 28),
         const FigmaSectionTitle('Schnellaktionen'),
         const SizedBox(height: 16),
         _buildQuickActionGrid(context),
@@ -264,6 +277,8 @@ class _HomeScreenState extends State<HomeScreen> {
           width,
           tiles.length,
           spacing: spacing,
+          minTileWidth: kIsWeb ? 185 : 130,
+          maxColumns: kIsWeb ? 4 : 3,
         );
 
         final rows = <List<Widget>>[];
@@ -281,6 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: width,
                 spacing: spacing,
                 aspectRatio: aspectRatio,
+                columnsPerRow: crossAxisCount,
                 children: rows[r],
               ),
             ],
@@ -296,21 +312,25 @@ class _QuickActionRow extends StatelessWidget {
   final double spacing;
   final double width;
   final double aspectRatio;
+  final int columnsPerRow;
 
   const _QuickActionRow({
     required this.width,
     required this.spacing,
     required this.aspectRatio,
+    required this.columnsPerRow,
     required this.children,
   });
 
   @override
   Widget build(BuildContext context) {
     final count = children.length;
-    final tileWidth = (width - spacing * (count - 1)) / count;
+    final tileWidth = (width - spacing * (columnsPerRow - 1)) / columnsPerRow;
     final tileHeight = tileWidth / aspectRatio;
+    final isPartialRow = count < columnsPerRow;
 
     return Row(
+      mainAxisAlignment: isPartialRow ? MainAxisAlignment.center : MainAxisAlignment.start,
       children: [
         for (var i = 0; i < count; i++) ...[
           SizedBox(

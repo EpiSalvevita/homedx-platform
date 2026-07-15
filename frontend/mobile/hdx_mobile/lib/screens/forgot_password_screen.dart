@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
 import '../services/auth_service.dart';
 import '../utils/app_assets.dart';
+import '../widgets/auth_ui.dart';
 import '../widgets/figma_ui.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -55,7 +56,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   String get _loginRoute => widget.isDoctor ? '/login/doctor' : '/login';
 
-  Widget _buildForm() {
+  Widget _buildForm(BuildContext context, {required bool isWideWeb}) {
+    final showWebLogo = kIsWeb && !isWideWeb;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -70,33 +73,37 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (kIsWeb)
+              if (showWebLogo) ...[
                 Center(
-                  child: Image.asset(AppAssets.logo, height: 32, fit: BoxFit.contain),
+                  child: GestureDetector(
+                    onTap: () => context.go('/'),
+                    child: Image.asset(AppAssets.logo, height: 36, fit: BoxFit.contain),
+                  ),
                 ),
-              if (kIsWeb) const SizedBox(height: 24),
+                const SizedBox(height: 24),
+              ],
               Text(
                 'Passwort zurücksetzen',
-                style: FigmaUi.rubik(fontSize: 24, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+                style: FigmaUi.rubik(fontSize: 26, fontWeight: FontWeight.w600, color: AppTheme.textColor),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Text(
-                'Geben Sie Ihre E-Mail-Adresse ein. Wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.',
-                style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w400, color: AppTheme.primaryBlue),
+                'Geben Sie Ihre E-Mail-Adresse ein. Wir senden Ihnen einen Link zum Zurücksetzen.',
+                style: FigmaUi.bodyLight(fontSize: 18, color: AppTheme.primaryBlue),
               ),
               const SizedBox(height: 32),
               if (_successMessage != null) ...[
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: AppTheme.successColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: AppTheme.successColor.withValues(alpha: 0.35)),
                   ),
                   child: Text(
                     _successMessage!,
-                    style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w400, color: AppTheme.textColor),
+                    style: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColor),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -107,8 +114,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ] else ...[
                 NeumorphicInsetField(
                   controller: _emailController,
-                  label: 'E-mail',
-                  hint: 'email@example.com',
+                  label: 'E-Mail-Adresse',
+                  hint: 'name@beispiel.de',
                   prefixIcon: Icons.mail_outline,
                   keyboardType: TextInputType.emailAddress,
                   validator: (v) {
@@ -127,13 +134,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   loading: _isLoading,
                   onPressed: _isLoading ? null : _handleSubmit,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 12),
                 Center(
-                  child: GestureDetector(
-                    onTap: () => context.go(_loginRoute),
+                  child: TextButton(
+                    onPressed: () => context.go(_loginRoute),
+                    style: authLinkButtonStyle(),
                     child: Text(
                       'Zurück zur Anmeldung',
-                      style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.primaryBlue),
+                      style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w500, color: AppTheme.primaryBlue),
                     ),
                   ),
                 ),
@@ -145,27 +153,62 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 
+  Widget _buildFormCard(BuildContext context, {required bool isWideWeb}) {
+    return Material(
+      elevation: 0,
+      color: AppTheme.background,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: AppTheme.navy.withValues(alpha: 0.08)),
+      ),
+      child: Form(key: _formKey, child: _buildForm(context, isWideWeb: isWideWeb)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (kIsWeb) {
       return Scaffold(
         backgroundColor: AppTheme.surface,
-        body: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 440),
-              child: Material(
-                elevation: 0,
-                color: AppTheme.background,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: AppTheme.navy.withValues(alpha: 0.08)),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 960;
+            final card = _buildFormCard(context, isWideWeb: isWide);
+
+            if (isWide) {
+              return Row(
+                children: [
+                  Expanded(
+                    child: AuthBrandPanel(
+                      isDoctor: widget.isDoctor,
+                      variant: AuthBrandPanelVariant.forgotPassword,
+                    ),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(48),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 440),
+                          child: card,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+
+            return Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 440),
+                  child: card,
                 ),
-                child: Form(key: _formKey, child: _buildForm()),
               ),
-            ),
-          ),
+            );
+          },
         ),
       );
     }
@@ -175,7 +218,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       body: SafeArea(
         top: false,
         child: SingleChildScrollView(
-          child: Form(key: _formKey, child: _buildForm()),
+          child: Form(key: _formKey, child: _buildForm(context, isWideWeb: false)),
         ),
       ),
     );

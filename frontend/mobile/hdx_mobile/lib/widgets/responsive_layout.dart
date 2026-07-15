@@ -11,20 +11,26 @@ class AppBreakpoints {
 
   /// Grid columns for home quick-action tiles (each row fills available width).
   ///
-  /// Uses a single row when every tile can stay at least [minTileWidth] wide;
-  /// otherwise falls back to 2–3 columns on narrow screens.
-  static int quickActionCrossAxisCount(double width, int itemCount, {double spacing = 20}) {
+  /// Caps columns so tiles stay wide enough for long German labels (e.g.
+  /// Benachrichtigungen) on a single line at 16px.
+  static int quickActionCrossAxisCount(
+    double width,
+    int itemCount, {
+    double spacing = 20,
+    double minTileWidth = 180,
+    int maxColumns = 4,
+  }) {
     if (itemCount <= 0) return 1;
 
-    const minTileWidth = 96.0;
-    final singleRowTileWidth = (width - spacing * (itemCount - 1)) / itemCount;
-    if (singleRowTileWidth >= minTileWidth) {
-      return itemCount;
-    }
+    var cols = maxColumns;
+    if (cols > itemCount) cols = itemCount;
 
-    if (width >= wide) return itemCount > 3 ? 3 : itemCount;
-    if (width >= 440) return itemCount > 3 ? 3 : itemCount;
-    return itemCount > 2 ? 2 : itemCount;
+    while (cols > 1) {
+      final tileWidth = (width - spacing * (cols - 1)) / cols;
+      if (tileWidth >= minTileWidth) break;
+      cols--;
+    }
+    return cols;
   }
 
   /// Responsive column count for raised tile grids (doctors, products, etc.).

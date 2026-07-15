@@ -89,15 +89,10 @@ class _PaymentsHistoryScreenState extends State<PaymentsHistoryScreen> {
                 subtitle: _error!,
               )
             else if (_payments.isEmpty)
-              FigmaListCard(
-                leading: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
-                  child: const Icon(Icons.payment_outlined, color: AppTheme.primaryBlue),
-                ),
+              const FigmaEmptyState(
+                icon: Icons.payment_outlined,
                 title: 'Noch keine Zahlungen',
-                subtitle: 'Abgeschlossene Zahlungen erscheinen hier.',
+                message: 'Abgeschlossene Zahlungen erscheinen hier.',
               )
             else
               ..._payments.map((p) => Padding(

@@ -50,9 +50,43 @@ class _TestSelectionScreenState extends State<TestSelectionScreen> {
         return;
       }
       final name = Uri.encodeComponent(testType.name);
-      context.push(
-        '/tests/${testType.id}/bluetooth-check?testTypeName=$name&rapidTestId=$rapidTestId',
-      );
+      final nextRoute =
+          '/tests/${testType.id}/bluetooth-check?testTypeName=$name&rapidTestId=$rapidTestId';
+
+      final isRheumaCheck = testType.id.toLowerCase() == 'rheumacheck';
+      if (isRheumaCheck) {
+        final choice = await showDialog<String>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            title: Text('Vorab-Anamnese', style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500)),
+            content: Text(
+              'Möchten Sie vor dem RheumaCheck-Test den Anamnese-Fragebogen (Bogen A) ausfüllen? Das dauert nur wenige Minuten.',
+              style: FigmaUi.bodyLight(fontSize: 14),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, 'skip'),
+                child: const Text('Überspringen'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, 'anamnese'),
+                child: const Text('Anamnese starten'),
+              ),
+            ],
+          ),
+        );
+        if (!mounted) return;
+        if (choice == 'anamnese') {
+          final returnRoute = Uri.encodeComponent(nextRoute);
+          context.push(
+            '/questionnaires/A?rapidTestId=$rapidTestId&return=$returnRoute',
+          );
+          return;
+        }
+      }
+
+      context.push(nextRoute);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

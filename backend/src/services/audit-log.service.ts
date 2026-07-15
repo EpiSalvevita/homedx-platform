@@ -27,6 +27,8 @@ export class AuditLogService {
       case 'PAYMENT': return AuditEntityType.PAYMENT;
       case 'CERTIFICATE': return AuditEntityType.CERTIFICATE;
       case 'LICENSE': return AuditEntityType.LICENSE;
+      case 'APPOINTMENT': return AuditEntityType.APPOINTMENT;
+      case 'QUESTIONNAIRE_SUBMISSION': return AuditEntityType.QUESTIONNAIRE_SUBMISSION;
       default: return AuditEntityType.USER;
     }
   }

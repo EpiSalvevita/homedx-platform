@@ -57,10 +57,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       if (provider.notifications.isEmpty)
-                        const FigmaInsetInfoCard(
-                          icon: Icons.info_outline,
+                        const FigmaEmptyState(
+                          icon: Icons.notifications_none_outlined,
                           title: 'Keine Benachrichtigungen',
-                          subtitle: 'Sie sind auf dem neuesten Stand.',
+                          message: 'Sie sind auf dem neuesten Stand.',
                         )
                       else
                         ...provider.notifications.map((notification) => Padding(

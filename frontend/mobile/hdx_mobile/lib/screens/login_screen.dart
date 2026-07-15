@@ -7,6 +7,7 @@ import '../config/auth_routes.dart';
 import '../providers/auth_provider.dart';
 import '../utils/app_assets.dart';
 import '../utils/login_errors.dart';
+import '../widgets/auth_ui.dart';
 import '../widgets/figma_ui.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -74,7 +75,9 @@ class _LoginScreenState extends State<LoginScreen> {
   String get _forgotPasswordRoute =>
       widget.isDoctor ? '/forgot-password/doctor' : '/forgot-password';
 
-  Widget _buildForm() {
+  Widget _buildForm({required bool isWideWeb}) {
+    final showWebLogo = kIsWeb && !isWideWeb;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -89,28 +92,34 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (kIsWeb)
+              if (showWebLogo) ...[
                 Center(
-                  child: Image.asset(AppAssets.logo, height: 32, fit: BoxFit.contain),
+                  child: GestureDetector(
+                    onTap: () => context.go('/'),
+                    child: Image.asset(AppAssets.logo, height: 36, fit: BoxFit.contain),
+                  ),
                 ),
-              if (kIsWeb) const SizedBox(height: 24),
+                const SizedBox(height: 24),
+              ],
               Text(
                 widget.isDoctor ? 'Arzt-Login' : 'In Ihr Konto einloggen',
-                style: FigmaUi.rubik(fontSize: 24, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+                style: FigmaUi.rubik(fontSize: 26, fontWeight: FontWeight.w600, color: AppTheme.textColor),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Text(
                 widget.isDoctor
                     ? 'Melden Sie sich mit Ihrem Arztkonto an.'
-                    : 'Geben Sie Ihre Anmeldedaten ein.',
-                style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w400, color: AppTheme.primaryBlue),
+                    : 'Geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein.',
+                style: FigmaUi.bodyLight(fontSize: 18, color: AppTheme.primaryBlue),
               ),
               const SizedBox(height: 32),
               NeumorphicInsetField(
                 controller: _emailController,
-                label: 'E-mail',
-                hint: 'email@example.com',
+                label: 'E-Mail-Adresse',
+                hint: 'name@beispiel.de',
                 prefixIcon: Icons.mail_outline,
+                fontSize: 17,
+                labelFontSize: 15,
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
                 onFieldSubmitted: () => _passwordFocusNode.requestFocus(),
@@ -126,6 +135,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 focusNode: _passwordFocusNode,
                 label: 'Passwort',
                 prefixIcon: Icons.lock_outline,
+                fontSize: 17,
+                labelFontSize: 15,
                 obscureText: _obscurePassword,
                 textInputAction: TextInputAction.done,
                 onFieldSubmitted: _submitLogin,
@@ -134,15 +145,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   return null;
                 },
                 suffix: IconButton(
+                  tooltip: _obscurePassword ? 'Passwort anzeigen' : 'Passwort verbergen',
                   style: IconButton.styleFrom(
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    minimumSize: const Size(40, 40),
+                    minimumSize: const Size(48, 48),
                     padding: EdgeInsets.zero,
                   ),
                   icon: Icon(
                     _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
                     color: AppTheme.textColorSecondary,
-                    size: 20,
+                    size: 24,
                   ),
                   onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                 ),
@@ -159,31 +171,32 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: auth.isLoading ? null : _handleLogin,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               Center(
-                child: GestureDetector(
-                  onTap: () => context.go(widget.isDoctor ? '/signup/doctor' : '/signup'),
+                child: TextButton(
+                  onPressed: () => context.go(widget.isDoctor ? '/signup/doctor' : '/signup'),
+                  style: authLinkButtonStyle(foregroundColor: AppTheme.textColor),
                   child: Text.rich(
                     TextSpan(
                       text: 'Noch kein Konto? ',
-                      style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w300, color: AppTheme.textColor),
+                      style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w400, color: AppTheme.textColor),
                       children: [
                         TextSpan(
                           text: 'Registrieren',
-                          style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+                          style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.primaryBlue),
                         ),
                       ],
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
               Center(
-                child: GestureDetector(
-                  onTap: () => context.go(_forgotPasswordRoute),
+                child: TextButton(
+                  onPressed: () => context.go(_forgotPasswordRoute),
+                  style: authLinkButtonStyle(),
                   child: Text(
                     'Passwort vergessen?',
-                    style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.primaryBlue),
+                    style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w500, color: AppTheme.primaryBlue),
                   ),
                 ),
               ),
@@ -209,13 +222,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 borderRadius: BorderRadius.circular(16),
                 side: BorderSide(color: AppTheme.navy.withValues(alpha: 0.08)),
               ),
-              child: Form(key: _formKey, child: _buildForm()),
+              child: Form(key: _formKey, child: _buildForm(isWideWeb: isWide)),
             );
 
             if (isWide) {
               return Row(
                 children: [
-                  Expanded(child: _WebLoginBrandPanel(isDoctor: widget.isDoctor)),
+                  Expanded(child: AuthBrandPanel(isDoctor: widget.isDoctor, variant: AuthBrandPanelVariant.login)),
                   Expanded(
                     child: Center(
                       child: SingleChildScrollView(
@@ -250,79 +263,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         top: false,
         child: SingleChildScrollView(
-          child: Form(key: _formKey, child: _buildForm()),
-        ),
-      ),
-    );
-  }
-}
-
-class _WebLoginBrandPanel extends StatelessWidget {
-  final bool isDoctor;
-
-  const _WebLoginBrandPanel({required this.isDoctor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppTheme.navy,
-            AppTheme.primaryBlue,
-            AppTheme.accentBlue.withValues(alpha: 0.85),
-          ],
-        ),
-      ),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(48),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Image.asset(
-                  AppAssets.logo,
-                  height: 36,
-                  fit: BoxFit.contain,
-                  color: Colors.white,
-                  colorBlendMode: BlendMode.srcIn,
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  isDoctor ? 'Portal für Ärzte' : 'Willkommen bei HomeDX',
-                  style: FigmaUi.rubik(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                    height: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  isDoctor
-                      ? 'Verwalten Sie Termine, Verfügbarkeit und Video-Konsultationen im Browser.'
-                      : 'Schnelltests, Arzttermine und Ergebnisse — alles an einem Ort.',
-                  style: FigmaUi.rubik(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.white.withValues(alpha: 0.85),
-                    height: 1.45,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Image.asset(
-                  isDoctor ? AppAssets.loginDoctor : AppAssets.iconHomeHeart,
-                  height: isDoctor ? 160 : 72,
-                  fit: BoxFit.contain,
-                ),
-              ],
-            ),
-          ),
+          child: Form(key: _formKey, child: _buildForm(isWideWeb: false)),
         ),
       ),
     );

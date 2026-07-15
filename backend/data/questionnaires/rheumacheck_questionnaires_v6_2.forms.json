@@ -1,0 +1,574 @@
+{
+  "project": "RheumaCheck",
+  "package_version": "6.2",
+  "language": "de-DE",
+  "intended_system": "HomeDX",
+  "modules": [
+    {
+      "module_id": "A",
+      "title": "Patient:innen-Vorab-Anamnese und Stratifizierung",
+      "target_group": "patient",
+      "timing": "before_test_or_before_workflow",
+      "purpose": "Symptomprofil, Vorab-Anamnese und strukturierte Stratifizierung vor Test-/Versorgungspfad.",
+      "sections": [
+        {
+          "section_id": "A0",
+          "title": "Einwilligung und Hinweis",
+          "fields": [
+            {
+              "id": "A_consent_info_read",
+              "type": "single_choice",
+              "required": true,
+              "label": "Ich habe den Hinweis gelesen, dass dieser Fragebogen keine ärztliche Diagnose ersetzt.",
+              "options": [
+                "ja",
+                "nein"
+              ]
+            }
+          ]
+        },
+        {
+          "section_id": "A1",
+          "title": "Beschwerden und Dauer",
+          "fields": [
+            {
+              "id": "A_joint_pain",
+              "type": "single_choice",
+              "required": true,
+              "label": "Haben Sie aktuell Gelenkschmerzen?",
+              "options": [
+                "ja",
+                "nein"
+              ]
+            },
+            {
+              "id": "A_symptom_duration",
+              "type": "single_choice",
+              "required": false,
+              "show_if": {
+                "field": "A_joint_pain",
+                "equals": "ja"
+              },
+              "label": "Seit wann bestehen die Beschwerden ungefähr?",
+              "options": [
+                "unter 2 Wochen",
+                "2–6 Wochen",
+                "6 Wochen bis 3 Monate",
+                "mehr als 3 Monate",
+                "mehr als 1 Jahr",
+                "weiß nicht"
+              ]
+            },
+            {
+              "id": "A_morning_stiffness",
+              "type": "single_choice",
+              "required": false,
+              "label": "Sind Ihre Gelenke morgens steif?",
+              "options": [
+                "ja",
+                "nein",
+                "unsicher"
+              ]
+            },
+            {
+              "id": "A_morning_stiffness_duration",
+              "type": "single_choice",
+              "required": false,
+              "show_if": {
+                "field": "A_morning_stiffness",
+                "equals": "ja"
+              },
+              "label": "Wie lange hält die Morgensteifigkeit ungefähr an?",
+              "options": [
+                "unter 15 Minuten",
+                "15–30 Minuten",
+                "30–60 Minuten",
+                "mehr als 60 Minuten",
+                "weiß nicht"
+              ]
+            }
+          ]
+        },
+        {
+          "section_id": "A2",
+          "title": "Betroffene Gelenke",
+          "fields": [
+            {
+              "id": "A_affected_joints",
+              "type": "multi_choice",
+              "required": false,
+              "label": "Welche Gelenke sind betroffen?",
+              "options": [
+                "Fingergrund-/mittelgelenke",
+                "Handgelenke",
+                "Zehen/Vorfuß",
+                "Knie",
+                "Schulter",
+                "Ellenbogen",
+                "Sprunggelenk",
+                "andere",
+                "weiß nicht"
+              ]
+            },
+            {
+              "id": "A_joint_swelling",
+              "type": "single_choice",
+              "required": false,
+              "label": "Haben Sie Gelenkschwellungen bemerkt?",
+              "options": [
+                "ja",
+                "nein",
+                "unsicher"
+              ]
+            },
+            {
+              "id": "A_symmetrical",
+              "type": "single_choice",
+              "required": false,
+              "label": "Treten die Beschwerden auf beiden Körperseiten ähnlich auf?",
+              "options": [
+                "ja",
+                "nein",
+                "teilweise",
+                "unsicher"
+              ]
+            }
+          ]
+        },
+        {
+          "section_id": "A3",
+          "title": "Belastung und Vorbefunde",
+          "fields": [
+            {
+              "id": "A_pain_nrs",
+              "type": "nrs_0_10",
+              "required": false,
+              "label": "Wie stark sind Ihre Schmerzen aktuell? 0 = keine Schmerzen, 10 = stärkste vorstellbare Schmerzen."
+            },
+            {
+              "id": "A_function_limit",
+              "type": "likert_5",
+              "required": false,
+              "label": "Wie stark beeinträchtigen die Beschwerden Ihren Alltag? 1 = gar nicht, 5 = sehr stark."
+            },
+            {
+              "id": "A_known_lab_values",
+              "type": "multi_choice",
+              "required": false,
+              "label": "Sind Ihnen bereits Laborwerte bekannt?",
+              "options": [
+                "Rheumafaktor/RF",
+                "Anti-CCP/CCP",
+                "CRP",
+                "BSG",
+                "keine bekannt",
+                "weiß nicht"
+              ]
+            },
+            {
+              "id": "A_prior_physician_contact",
+              "type": "multi_choice",
+              "required": false,
+              "label": "Bei welchen Stellen waren Sie wegen der Beschwerden bereits?",
+              "options": [
+                "Hausarztpraxis",
+                "Orthopädie",
+                "Rheumatologie",
+                "Notaufnahme/Klinik",
+                "noch nirgends",
+                "andere"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module_id": "B",
+      "title": "Rheumanetzwerk-/Ärzteumfrage zur Standardmethode und zum Versorgungspfad",
+      "target_group": "physician_or_rheuma_network",
+      "timing": "baseline_or_before_pilot",
+      "purpose": "Erhebung der aktuellen Standardmethode, Wartezeiten, Verzögerungen und Versorgungspfade als Vergleichsbasis.",
+      "sections": [
+        {
+          "section_id": "B1",
+          "title": "Rolle und Setting",
+          "fields": [
+            {
+              "id": "B_specialty",
+              "type": "multi_choice",
+              "required": true,
+              "label": "In welchem Bereich sind Sie tätig?",
+              "options": [
+                "Hausarztpraxis",
+                "Rheumatologie",
+                "Innere Medizin",
+                "Orthopädie",
+                "Klinik/Ambulanz",
+                "Labor/Diagnostik",
+                "Versorgungskoordination",
+                "anderes"
+              ]
+            },
+            {
+              "id": "B_setting",
+              "type": "single_choice",
+              "required": false,
+              "label": "In welchem Setting arbeiten Sie überwiegend?",
+              "options": [
+                "Praxis/MVZ",
+                "Krankenhaus",
+                "Ambulanz",
+                "Labor",
+                "Netzwerk/Management",
+                "anderes"
+              ]
+            }
+          ]
+        },
+        {
+          "section_id": "B2",
+          "title": "Aktueller Versorgungspfad",
+          "fields": [
+            {
+              "id": "B_current_first_contact",
+              "type": "multi_choice",
+              "required": false,
+              "label": "Wo beginnt der Versorgungspfad bei Verdacht auf entzündlich-rheumatische Erkrankung typischerweise?",
+              "options": [
+                "Hausarztpraxis",
+                "Orthopädie",
+                "Rheumatologie",
+                "Klinik/Notaufnahme",
+                "Selbstsuche Patient:in",
+                "unklar/wechselnd"
+              ]
+            },
+            {
+              "id": "B_standard_tests",
+              "type": "multi_choice",
+              "required": false,
+              "label": "Welche Untersuchungen/Laborwerte werden typischerweise genutzt?",
+              "options": [
+                "Anamnese/körperliche Untersuchung",
+                "CRP",
+                "BSG",
+                "Rheumafaktor/RF",
+                "Anti-CCP/CCP",
+                "Bildgebung",
+                "Sonografie",
+                "andere"
+              ]
+            },
+            {
+              "id": "B_wait_rheumatology_weeks",
+              "type": "single_choice",
+              "required": false,
+              "label": "Wie lange warten Patient:innen typischerweise auf rheumatologische Abklärung?",
+              "options": [
+                "unter 2 Wochen",
+                "2–6 Wochen",
+                "6–12 Wochen",
+                "mehr als 12 Wochen",
+                "stark unterschiedlich",
+                "keine Angabe möglich"
+              ]
+            },
+            {
+              "id": "B_main_bottlenecks",
+              "type": "multi_choice",
+              "required": false,
+              "label": "Wo liegen aus Ihrer Sicht die wichtigsten Verzögerungen?",
+              "options": [
+                "Erkennen des Verdachts",
+                "Labor/Befundverfügbarkeit",
+                "Überweisung",
+                "Terminverfügbarkeit Rheumatologie",
+                "Patient:innenorganisation",
+                "unklare Zuständigkeiten",
+                "andere"
+              ]
+            }
+          ]
+        },
+        {
+          "section_id": "B3",
+          "title": "Vergleichsbasis und Nutzenpotenzial",
+          "fields": [
+            {
+              "id": "B_standard_method_documentable",
+              "type": "likert_5",
+              "required": false,
+              "label": "Der heutige Standardpfad lässt sich in unserer Region gut dokumentieren. 1 = stimme gar nicht zu, 5 = stimme voll zu."
+            },
+            {
+              "id": "B_rheumacheck_could_shortcut",
+              "type": "likert_5",
+              "required": false,
+              "label": "Ein strukturierter POCT-/Fragebogenprozess könnte den Versorgungspfad sinnvoll verkürzen."
+            },
+            {
+              "id": "B_open_comments",
+              "type": "text",
+              "required": false,
+              "label": "Welche Aspekte der Standardmethode sollten unbedingt erfasst werden?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module_id": "C",
+      "title": "Patient:innen-Usability, Ergebnisverständnis und Versorgungsnutzen nach Nutzung",
+      "target_group": "patient_or_test_user",
+      "timing": "after_test_or_after_app_workflow",
+      "purpose": "Bewertung von Verständlichkeit, Bedienbarkeit, Ergebnisverständnis, Vertrauen und wahrgenommenem Nutzen.",
+      "sections": [
+        {
+          "section_id": "C1",
+          "title": "Nutzungskontext",
+          "fields": [
+            {
+              "id": "C_used_app",
+              "type": "single_choice",
+              "required": true,
+              "label": "Haben Sie die digitale Anwendung/App genutzt?",
+              "options": [
+                "ja",
+                "nein",
+                "teilweise"
+              ]
+            },
+            {
+              "id": "C_test_performed",
+              "type": "single_choice",
+              "required": true,
+              "label": "Wurde ein RheumaCheck-Test durchgeführt oder simuliert?",
+              "options": [
+                "ja, durchgeführt",
+                "nur simuliert",
+                "nein",
+                "weiß nicht"
+              ]
+            }
+          ]
+        },
+        {
+          "section_id": "C2",
+          "title": "Verständlichkeit und Bedienbarkeit",
+          "fields": [
+            {
+              "id": "C_instructions_clear",
+              "type": "likert_5",
+              "required": false,
+              "label": "Die Anleitung war gut verständlich."
+            },
+            {
+              "id": "C_steps_easy",
+              "type": "likert_5",
+              "required": false,
+              "label": "Die einzelnen Schritte waren einfach durchzuführen."
+            },
+            {
+              "id": "C_visual_readability",
+              "type": "likert_5",
+              "required": false,
+              "label": "Schrift, Symbole und Darstellung waren gut lesbar."
+            }
+          ]
+        },
+        {
+          "section_id": "C3",
+          "title": "Ergebnisverständnis und Vertrauen",
+          "fields": [
+            {
+              "id": "C_result_shown",
+              "type": "single_choice",
+              "required": false,
+              "label": "Wurde Ihnen ein Ergebnis angezeigt oder erklärt?",
+              "options": [
+                "ja",
+                "nein",
+                "weiß nicht"
+              ]
+            },
+            {
+              "id": "C_result_understood",
+              "type": "likert_5",
+              "required": false,
+              "show_if": {
+                "field": "C_result_shown",
+                "equals": "ja"
+              },
+              "label": "Ich habe verstanden, was das Ergebnis bedeutet."
+            },
+            {
+              "id": "C_trust",
+              "type": "likert_5",
+              "required": false,
+              "label": "Ich hätte grundsätzlich Vertrauen in einen solchen Ablauf, wenn er ärztlich begleitet wird."
+            },
+            {
+              "id": "C_perceived_benefit",
+              "type": "likert_5",
+              "required": false,
+              "label": "Ein solcher Ablauf könnte mir helfen, schneller die richtige Abklärung zu bekommen."
+            }
+          ]
+        },
+        {
+          "section_id": "C4",
+          "title": "Freitext",
+          "fields": [
+            {
+              "id": "C_best_part",
+              "type": "text",
+              "required": false,
+              "label": "Was war besonders hilfreich oder gut verständlich?"
+            },
+            {
+              "id": "C_improvement",
+              "type": "text",
+              "required": false,
+              "label": "Was sollte verbessert werden?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module_id": "D",
+      "title": "Ärztliche Implementierbarkeit und erwarteter Nutzen",
+      "target_group": "physician_or_care_actor",
+      "timing": "before_or_during_pilot",
+      "purpose": "Erfassung von klinischer Einsetzbarkeit, Evidenzanforderungen, Barrieren und Pilotbereitschaft.",
+      "sections": [
+        {
+          "section_id": "D1",
+          "title": "Rolle und Einsatzkontext",
+          "fields": [
+            {
+              "id": "D_specialty",
+              "type": "multi_choice",
+              "required": true,
+              "label": "In welchem Bereich sind Sie tätig?",
+              "options": [
+                "Hausarztpraxis",
+                "Rheumatologie",
+                "Innere Medizin",
+                "Orthopädie",
+                "Klinik/Ambulanz",
+                "Labor/Diagnostik",
+                "Telemedizin",
+                "anderes"
+              ]
+            },
+            {
+              "id": "D_likely_use_setting",
+              "type": "multi_choice",
+              "required": false,
+              "label": "Wo könnte RheumaCheck aus Ihrer Sicht sinnvoll eingesetzt werden?",
+              "options": [
+                "Hausarztpraxis",
+                "Rheumatologische Praxis",
+                "Klinik/Ambulanz",
+                "MVZ",
+                "Telemedizin/HomeDX",
+                "Screening-/Netzwerkstruktur",
+                "nicht sinnvoll",
+                "unklar"
+              ]
+            }
+          ]
+        },
+        {
+          "section_id": "D2",
+          "title": "Erwarteter Nutzen",
+          "fields": [
+            {
+              "id": "D_expected_benefit_triage",
+              "type": "likert_5",
+              "required": false,
+              "label": "RheumaCheck könnte helfen, Patient:innen mit dringlichem Abklärungsbedarf besser zu priorisieren."
+            },
+            {
+              "id": "D_expected_benefit_time",
+              "type": "likert_5",
+              "required": false,
+              "label": "RheumaCheck könnte die Zeit bis zur richtigen Abklärung verkürzen."
+            },
+            {
+              "id": "D_expected_benefit_communication",
+              "type": "likert_5",
+              "required": false,
+              "label": "RheumaCheck könnte die Kommunikation zwischen Patient:in, Praxis und Rheumatologie verbessern."
+            }
+          ]
+        },
+        {
+          "section_id": "D3",
+          "title": "Anforderungen und Barrieren",
+          "fields": [
+            {
+              "id": "D_required_evidence",
+              "type": "multi_choice",
+              "required": false,
+              "label": "Welche Evidenz wäre für eine Nutzung erforderlich?",
+              "options": [
+                "Sensitivität/Spezifität",
+                "Vergleich mit Standardlabor",
+                "klinische Pilotdaten",
+                "Workflow-/Zeitgewinn",
+                "Patientenakzeptanz",
+                "Kosten-/Erstattungsdaten",
+                "andere"
+              ]
+            },
+            {
+              "id": "D_main_barriers",
+              "type": "multi_choice",
+              "required": false,
+              "label": "Welche Barrieren erwarten Sie?",
+              "options": [
+                "Zeitaufwand",
+                "Vergütung/Erstattung",
+                "unklare Zuständigkeit",
+                "Datenschutz",
+                "Integration in Praxissoftware",
+                "Testgüte",
+                "Schulung/Handling",
+                "Akzeptanz Patient:innen",
+                "andere"
+              ]
+            },
+            {
+              "id": "D_pilot_willingness",
+              "type": "single_choice",
+              "required": false,
+              "label": "Wären Sie grundsätzlich bereit, eine Pilotierung zu unterstützen?",
+              "options": [
+                "ja",
+                "eher ja",
+                "unsicher",
+                "eher nein",
+                "nein"
+              ]
+            }
+          ]
+        },
+        {
+          "section_id": "D4",
+          "title": "Freitext",
+          "fields": [
+            {
+              "id": "D_open_recommendation",
+              "type": "text",
+              "required": false,
+              "label": "Welche Empfehlung hätten Sie für die weitere Entwicklung von RheumaCheck?"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

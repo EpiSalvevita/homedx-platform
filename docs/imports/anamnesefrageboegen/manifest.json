@@ -1,0 +1,14 @@
+{
+  "package_name": "RheumaCheck CloudCode Online-Frageboegen HomeDX V6.2",
+  "created_for": "IMDB Potsdam / salvevita HomeDX implementation discussion",
+  "created_date_project_context": "2026-05-11",
+  "contains": [
+    "Markdown implementation notes",
+    "Cloud-Code masterprompt",
+    "JSON questionnaire definitions",
+    "JSON schema",
+    "Acceptance criteria",
+    "source/ PDF and Word fachliche master documents (Bogen A–D, QA, Gesamtpaket)"
+  ],
+  "paired_with": "2026_05_11_RheumaCheck_Fragebogenpaket_V6_Final_QA_und_Gesamtpaket.zip"
+}

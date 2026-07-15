@@ -21,20 +21,12 @@ class CartScreen extends StatelessWidget {
               onPressed: () => context.push('/shop/checkout'),
             ),
       body: cart.isEmpty
-            ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.shopping_cart_outlined, size: 64, color: AppTheme.textColorSecondary),
-                      const SizedBox(height: 16),
-                      const Text('Ihr Warenkorb ist leer', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textColor)),
-                      const SizedBox(height: 8),
-                      Text('Stöbern Sie im Shop und fügen Sie Produkte hinzu.', style: TextStyle(color: AppTheme.textColorSecondary), textAlign: TextAlign.center),
-                    ],
-                  ),
-                ),
+            ? FigmaEmptyState(
+                icon: Icons.shopping_cart_outlined,
+                title: 'Ihr Warenkorb ist leer',
+                message: 'Stöbern Sie im Shop und fügen Sie Produkte hinzu.',
+                actionLabel: 'Zum Shop',
+                onAction: () => context.go('/shop'),
               )
             : Column(
                 children: [

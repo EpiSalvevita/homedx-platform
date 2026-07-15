@@ -38,11 +38,9 @@ class WebPageHeader extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     subtitle!,
-                    style: FigmaUi.rubik(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w400,
+                    style: FigmaUi.bodyLight(
+                      fontSize: 17,
                       color: AppTheme.textColorSecondary,
-                      height: 1.35,
                     ),
                   ),
                 ],

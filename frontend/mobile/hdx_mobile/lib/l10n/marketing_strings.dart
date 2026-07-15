@@ -20,6 +20,31 @@ class MarketingStrings {
       ? 'HomeDX verbindet Schnelltests mit dem Cube-Gerät, Online-Termine und sichere Video-Konsultationen — für Patienten und Ärzte.'
       : 'HomeDX connects rapid tests with the Cube device, online appointments, and secure video consultations — for patients and doctors.';
 
+  String get patientsTitle => isGerman ? 'Für Patienten' : 'For patients';
+
+  String get patientsSubtitle => isGerman
+      ? 'Ergebnisse, Zertifikate und Nachbestellung — alles an einem Ort.'
+      : 'Results, certificates, and reordering — all in one place.';
+
+  String get patientResultsTitle =>
+      isGerman ? 'Testergebnisse & Videoberatung' : 'Test results & video consultation';
+
+  String get patientResultsBody => isGerman
+      ? 'Cube-Ergebnisse einsehen und direkt per Video mit einem Facharzt besprechen — verständlich erklärt und jederzeit abrufbar.'
+      : 'View your Cube results and discuss them via video with a specialist — clearly explained and available anytime.';
+
+  String get patientShopTitle => isGerman ? 'Shop & Testkits' : 'Shop & test kits';
+
+  String get patientShopBody => isGerman
+      ? 'Testkits und Zubehör bestellen — direkt in der App.'
+      : 'Order test kits and accessories — directly in the app.';
+
+  String get patientCertificatesTitle => isGerman ? 'Zertifikate' : 'Certificates';
+
+  String get patientCertificatesBody => isGerman
+      ? 'Digitale Gesundheitszertifikate herunterladen und teilen, wenn Sie sie brauchen.'
+      : 'Download and share digital health certificates when you need them.';
+
   String get storyTitle => isGerman ? 'Unsere Geschichte' : 'Our story';
 
   String get storySubtitle => isGerman

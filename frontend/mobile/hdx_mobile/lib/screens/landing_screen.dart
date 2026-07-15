@@ -3,48 +3,114 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
 import '../providers/locale_provider.dart';
+import '../l10n/marketing_strings.dart';
 import '../utils/app_assets.dart';
 import '../utils/constants.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/neumorphic.dart';
+import '../widgets/marketing/how_it_works_section.dart';
+import '../widgets/marketing/marketing_section.dart';
+import '../widgets/marketing/story_section.dart';
 
-class LandingScreen extends StatelessWidget {
-  const LandingScreen({super.key});
+ButtonStyle _landingLinkButtonStyle({
+  EdgeInsetsGeometry? padding,
+  double minHeight = AppTheme.minTouchTarget,
+  Color? foregroundColor,
+}) {
+  return TextButton.styleFrom(
+    minimumSize: Size(0, minHeight),
+    padding: padding ?? const EdgeInsets.symmetric(horizontal: 12),
+    foregroundColor: foregroundColor,
+  ).copyWith(
+    overlayColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.hovered)) {
+        return AppTheme.primaryBlue.withValues(alpha: 0.1);
+      }
+      if (states.contains(WidgetState.focused)) {
+        return AppTheme.primaryBlue.withValues(alpha: 0.14);
+      }
+      return null;
+    }),
+  );
+}
 
-  static const double _maxContentWidth = 1100;
+class LandingScreen extends StatefulWidget {
+  /// When `about`, scrolls to the merged About block after first frame
+  /// (used by `/about` redirect and in-page nav).
+  final String? initialSection;
+
+  const LandingScreen({super.key, this.initialSection});
+
+  static const double maxContentWidth = 1100;
+
+  @override
+  State<LandingScreen> createState() => _LandingScreenState();
+}
+
+class _LandingScreenState extends State<LandingScreen> {
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _aboutSectionKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialSection == 'about') {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToAbout());
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToAbout() {
+    final target = _aboutSectionKey.currentContext;
+    if (target == null) return;
+    Scrollable.ensureVisible(
+      target,
+      duration: const Duration(milliseconds: 450),
+      curve: Curves.easeInOut,
+      alignment: 0.05,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final strings = MarketingStrings.of(context);
+
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final isWide = constraints.maxWidth >= 768;
+            final isWide = constraints.maxWidth >= MarketingSection.wideBreakpoint;
             return SingleChildScrollView(
+              controller: _scrollController,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _LandingNav(isWide: isWide),
                   _HeroSection(isWide: isWide),
                   _FeatureSection(
-                    title: 'Für Patienten',
-                    subtitle: 'Gesundheitstests und Online-Versorgung von zu Hause.',
-                    features: const [
+                    title: strings.patientsTitle,
+                    subtitle: strings.patientsSubtitle,
+                    features: [
                       _FeatureItem(
-                        iconPath: AppAssets.iconHomeHeart,
-                        title: 'Cube Schnelltests',
-                        description: 'Schnelle Diagnostik mit dem HomeDX Cube-Gerät.',
+                        iconPath: AppAssets.iconDna,
+                        title: strings.patientResultsTitle,
+                        description: strings.patientResultsBody,
                       ),
                       _FeatureItem(
-                        iconPath: AppAssets.iconHomeCalendar,
-                        title: 'Termin buchen',
-                        description: 'Online-Konsultationen mit Fachärzten vereinbaren.',
+                        iconPath: AppAssets.iconHomeBag,
+                        title: strings.patientShopTitle,
+                        description: strings.patientShopBody,
                       ),
                       _FeatureItem(
                         iconPath: AppAssets.iconHeartbeat,
-                        title: 'Video-Konsultation',
-                        description: 'Sicher per Video mit Ihrem Arzt sprechen.',
+                        title: strings.patientCertificatesTitle,
+                        description: strings.patientCertificatesBody,
                       ),
                     ],
                     isWide: isWide,
@@ -72,6 +138,23 @@ class LandingScreen extends StatelessWidget {
                     isWide: isWide,
                     accentColor: AppTheme.accentMint,
                   ),
+                  KeyedSubtree(
+                    key: _aboutSectionKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        StorySection(
+                          title: strings.storyTitle,
+                          subtitle: strings.storySubtitle,
+                          body: strings.storyBody,
+                          imagePath: AppAssets.marketingStoryTeam,
+                          imagePlaceholderLabel: strings.imageComingSoon,
+                          isWide: isWide,
+                        ),
+                        HowItWorksSection(isWide: isWide),
+                      ],
+                    ),
+                  ),
                   _DoctorCta(isWide: isWide),
                   const _LandingFooter(),
                 ],
@@ -89,76 +172,135 @@ class _LandingNav extends StatelessWidget {
 
   const _LandingNav({required this.isWide});
 
+  static const double _desktopActionGap = 16;
+  static const double _desktopAuthGap = 12;
+
   @override
   Widget build(BuildContext context) {
-    final isGerman = context.watch<LocaleProvider>().isGerman;
-    final aboutLabel = isGerman ? 'Über HomeDX' : 'About HomeDX';
+    final logo = Image.asset(
+      AppAssets.logo,
+      width: AppAssets.logoHeaderWidth,
+      height: AppAssets.logoHeaderHeight,
+      fit: BoxFit.contain,
+    );
 
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: LandingScreen._maxContentWidth),
+        constraints: const BoxConstraints(maxWidth: LandingScreen.maxContentWidth),
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppTheme.screenHorizontalPadding,
             vertical: 16,
           ),
-          child: Row(
-            children: [
-              Image.asset(
-                AppAssets.logo,
-                width: AppAssets.logoHeaderWidth,
-                height: AppAssets.logoHeaderHeight,
-                fit: BoxFit.contain,
-              ),
-              const Spacer(),
-              if (isWide) ...[
-                TextButton(
-                  onPressed: () => context.go('/about'),
-                  child: Text(
-                    aboutLabel,
-                    style: FigmaUi.rubik(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.primaryBlue,
-                    ),
-                  ),
+          child: isWide
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    logo,
+                    const Spacer(),
+                    const _DesktopNavActions(),
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(child: logo),
+                    const SizedBox(height: 16),
+                    const _MobileNavActions(),
+                  ],
                 ),
-                const SizedBox(width: 4),
-                const _LocaleToggle(),
-                const SizedBox(width: 4),
-                TextButton(
-                  onPressed: () => context.go('/login'),
-                  child: Text(
-                    'Anmelden',
-                    style: FigmaUi.rubik(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.primaryBlue,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
-              NeumorphicButton(
-                isPrimary: true,
-                onPressed: () => context.go(isWide ? '/signup' : '/login'),
-                padding: EdgeInsets.symmetric(
-                  horizontal: isWide ? 28 : 20,
-                  vertical: 14,
-                ),
-                child: Text(
-                  isWide ? 'Registrieren' : (isGerman ? 'Anmelden' : 'Login'),
-                  style: FigmaUi.rubik(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
+    );
+  }
+}
+
+/// Single horizontal bar for wide web: locale · login · register.
+class _DesktopNavActions extends StatelessWidget {
+  const _DesktopNavActions();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const _LocaleToggle(),
+        const SizedBox(width: _LandingNav._desktopActionGap),
+        TextButton(
+          onPressed: () => context.go('/login'),
+          style: _landingLinkButtonStyle(
+            minHeight: AppTheme.largeTouchTarget,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            foregroundColor: AppTheme.textColor,
+          ),
+          child: Text(
+            'Anmelden',
+            style: FigmaUi.rubik(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.textColor,
+            ),
+          ),
+        ),
+        const SizedBox(width: _LandingNav._desktopAuthGap),
+        NeumorphicButton(
+          isPrimary: true,
+          onPressed: () => context.go('/signup'),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          child: Text(
+            'Registrieren',
+            style: FigmaUi.rubik(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Stacked/wrapped actions for narrow viewports (unchanged destinations).
+class _MobileNavActions extends StatelessWidget {
+  const _MobileNavActions();
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.end,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 12,
+      runSpacing: 12,
+      children: [
+        const _LocaleToggle(),
+        NeumorphicButton(
+          onPressed: () => context.go('/login'),
+          padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 16),
+          child: Text(
+            'Anmelden',
+            style: FigmaUi.rubik(
+              fontSize: 17,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.textColor,
+            ),
+          ),
+        ),
+        NeumorphicButton(
+          isPrimary: true,
+          onPressed: () => context.go('/signup'),
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
+          child: Text(
+            'Registrieren',
+            style: FigmaUi.rubik(
+              fontSize: 17,
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -200,11 +342,11 @@ class _HeroSection extends StatelessWidget {
             NeumorphicButton(
               isPrimary: true,
               onPressed: () => context.go('/signup'),
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 18),
               child: Text(
                 'Jetzt starten',
                 style: FigmaUi.rubik(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.w500,
                   color: Colors.white,
                 ),
@@ -212,11 +354,11 @@ class _HeroSection extends StatelessWidget {
             ),
             NeumorphicButton(
               onPressed: () => context.go('/login/doctor'),
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 18),
               child: Text(
                 'Für Ärzte',
                 style: FigmaUi.rubik(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.w500,
                   color: AppTheme.textColor,
                 ),
@@ -237,8 +379,11 @@ class _HeroSection extends StatelessWidget {
           children: [
             Align(
               alignment: Alignment.bottomLeft,
+              // TEMPORARY preview swap for asset-generation review — revert
+              // to AppAssets.loginDoctor if the generated illustration isn't
+              // chosen.
               child: Image.asset(
-                AppAssets.loginDoctor,
+                AppAssets.elderlyPatientPreview,
                 height: isWide ? 280 : 200,
                 fit: BoxFit.contain,
               ),
@@ -280,7 +425,7 @@ class _HeroSection extends StatelessWidget {
       ),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: LandingScreen._maxContentWidth),
+          constraints: const BoxConstraints(maxWidth: LandingScreen.maxContentWidth),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
               AppTheme.screenHorizontalPadding,
@@ -345,7 +490,7 @@ class _FeatureSection extends StatelessWidget {
 
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: LandingScreen._maxContentWidth),
+        constraints: const BoxConstraints(maxWidth: LandingScreen.maxContentWidth),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(
             AppTheme.screenHorizontalPadding,
@@ -411,7 +556,7 @@ class _DoctorCta extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: LandingScreen._maxContentWidth),
+        constraints: const BoxConstraints(maxWidth: LandingScreen.maxContentWidth),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(
             AppTheme.screenHorizontalPadding,
@@ -451,11 +596,11 @@ class _DoctorCta extends StatelessWidget {
                       const SizedBox(width: 24),
                       NeumorphicButton(
                         onPressed: () => context.go('/signup/doctor'),
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 18),
                         child: Text(
                           'Arzt registrieren',
                           style: FigmaUi.rubik(
-                            fontSize: 16,
+                            fontSize: 18,
                             fontWeight: FontWeight.w500,
                             color: AppTheme.textColor,
                           ),
@@ -465,11 +610,11 @@ class _DoctorCta extends StatelessWidget {
                       NeumorphicButton(
                         isPrimary: true,
                         onPressed: () => context.go('/login/doctor'),
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 18),
                         child: Text(
                           'Arzt-Login',
                           style: FigmaUi.rubik(
-                            fontSize: 16,
+                            fontSize: 18,
                             fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
@@ -500,11 +645,11 @@ class _DoctorCta extends StatelessWidget {
                       const SizedBox(height: 20),
                       NeumorphicButton(
                         onPressed: () => context.go('/signup/doctor'),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
                         child: Text(
                           'Arzt registrieren',
                           style: FigmaUi.rubik(
-                            fontSize: 16,
+                            fontSize: 18,
                             fontWeight: FontWeight.w500,
                             color: AppTheme.textColor,
                           ),
@@ -514,11 +659,11 @@ class _DoctorCta extends StatelessWidget {
                       NeumorphicButton(
                         isPrimary: true,
                         onPressed: () => context.go('/login/doctor'),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
                         child: Text(
                           'Arzt-Login',
                           style: FigmaUi.rubik(
-                            fontSize: 16,
+                            fontSize: 18,
                             fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
@@ -543,10 +688,11 @@ class _LocaleToggle extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: AppTheme.navy.withValues(alpha: 0.12)),
         boxShadow: AppTheme.cardShadow,
       ),
       child: Padding(
-        padding: const EdgeInsets.all(3),
+        padding: const EdgeInsets.all(4),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -555,6 +701,9 @@ class _LocaleToggle extends StatelessWidget {
               selected: locale.isGerman,
               onTap: locale.setGerman,
             ),
+            // Gap between the two tap zones so a slightly off-target tap
+            // doesn't accidentally switch the language.
+            const SizedBox(width: 4),
             _LocaleChip(
               label: 'EN',
               selected: !locale.isGerman,
@@ -586,13 +735,21 @@ class _LocaleChip extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(999),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        hoverColor: selected
+            ? Colors.white.withValues(alpha: 0.12)
+            : AppTheme.primaryLight,
+        child: Container(
+          constraints: const BoxConstraints(
+            minHeight: AppTheme.minTouchTarget,
+            minWidth: AppTheme.minTouchTarget,
+          ),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Text(
             label,
             style: FigmaUi.rubik(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
               color: selected ? Colors.white : AppTheme.textColorSecondary,
             ),
           ),
@@ -649,7 +806,7 @@ class _HoverFeatureCardState extends State<_HoverFeatureCard> {
               Text(
                 widget.title,
                 style: FigmaUi.rubik(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: AppTheme.textColor,
                 ),
@@ -658,7 +815,7 @@ class _HoverFeatureCardState extends State<_HoverFeatureCard> {
               Expanded(
                 child: Text(
                   widget.description,
-                  style: FigmaUi.bodyLight(fontSize: 14),
+                  style: FigmaUi.bodyLight(fontSize: 16),
                 ),
               ),
             ],
@@ -680,7 +837,7 @@ class _LandingFooter extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: AppTheme.screenHorizontalPadding),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: LandingScreen._maxContentWidth),
+          constraints: const BoxConstraints(maxWidth: LandingScreen.maxContentWidth),
           child: Column(
             children: [
               Image.asset(
@@ -695,24 +852,74 @@ class _LandingFooter extends StatelessWidget {
               Text(
                 '${AppConstants.appName} · Version ${AppConstants.appVersion}',
                 style: FigmaUi.rubik(
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: FontWeight.w400,
                   color: Colors.white70,
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Impressum · Datenschutz · AGB',
-                style: FigmaUi.rubik(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w300,
-                  color: Colors.white54,
-                ),
+              const SizedBox(height: 4),
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  _FooterLink(label: 'Impressum', legalPageType: 'IMPRESSUM'),
+                  _FooterLinkDivider(),
+                  _FooterLink(label: 'Datenschutz', legalPageType: 'PRIVACY_POLICY'),
+                  _FooterLinkDivider(),
+                  _FooterLink(label: 'AGB', legalPageType: 'TERMS_CONDITIONS'),
+                ],
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Tappable footer legal link — real navigation, a real tap target, and
+/// enough contrast on the navy background to still read as clickable text
+/// (the previous plain `Text` was neither tappable nor a strong contrast).
+class _FooterLink extends StatelessWidget {
+  final String label;
+  final String legalPageType;
+
+  const _FooterLink({required this.label, required this.legalPageType});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => context.push('/legal/$legalPageType'),
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: AppTheme.minTouchTarget),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          child: Text(
+            label,
+            style: FigmaUi.rubik(
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+              color: Colors.white,
+              height: 1,
+            ).copyWith(decoration: TextDecoration.underline, decorationColor: Colors.white70),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FooterLinkDivider extends StatelessWidget {
+  const _FooterLinkDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 2),
+      child: Text('·', style: TextStyle(color: Colors.white54, fontSize: 15)),
     );
   }
 }

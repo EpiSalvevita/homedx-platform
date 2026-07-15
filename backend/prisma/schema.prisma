@@ -40,6 +40,7 @@ model User {
   testKits      TestKit[]
   doctorProfile DoctorProfile?
   patientAppointments Appointment[] @relation("PatientAppointments")
+  questionnaireSubmissions QuestionnaireSubmission[]
 }
 
 model TestKit {
@@ -91,6 +92,7 @@ model RapidTest {
   user           User          @relation(fields: [userId], references: [id])
   payments       Payment[]
   linkedAppointments Appointment[] @relation("AppointmentLinkedTest")
+  questionnaireSubmissions QuestionnaireSubmission[]
 }
 
 model License {
@@ -209,7 +211,7 @@ model DoctorAvailability {
   updatedAt   DateTime      @updatedAt
   doctor      DoctorProfile @relation(fields: [doctorId], references: [id], onDelete: Cascade)
 
-  @@unique([doctorId, dayOfWeek])
+  @@index([doctorId, dayOfWeek])
 }
 
 model Appointment {
@@ -233,6 +235,28 @@ model Appointment {
 
   @@index([patientId, scheduledAt])
   @@index([doctorId, scheduledAt])
+}
+
+model QuestionnaireSubmission {
+  id                String                        @id @default(cuid())
+  userId            String
+  moduleId          String
+  moduleVersion     String
+  respondentType    String
+  status            QuestionnaireSubmissionStatus @default(DRAFT)
+  consentStatus     QuestionnaireConsentStatus    @default(NOT_APPLICABLE)
+  language          String                        @default("de-DE")
+  answers           Json                          @default("{}")
+  linkedRapidTestId String?
+  submittedAt       DateTime?
+  createdAt         DateTime                      @default(now())
+  updatedAt         DateTime                      @updatedAt
+  user              User                          @relation(fields: [userId], references: [id])
+  linkedRapidTest   RapidTest?                    @relation(fields: [linkedRapidTestId], references: [id])
+
+  @@index([userId, moduleId])
+  @@index([moduleId, status])
+  @@index([linkedRapidTestId])
 }
 
 model LegalPage {
@@ -371,6 +395,19 @@ enum AuditEntityType {
   CERTIFICATE
   LICENSE
   APPOINTMENT
+  QUESTIONNAIRE_SUBMISSION
+}
+
+enum QuestionnaireSubmissionStatus {
+  DRAFT
+  SUBMITTED
+}
+
+enum QuestionnaireConsentStatus {
+  YES
+  NO
+  WITHDRAWN
+  NOT_APPLICABLE
 }
 
 enum NotificationType {
