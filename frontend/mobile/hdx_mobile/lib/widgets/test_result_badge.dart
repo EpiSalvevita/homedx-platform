@@ -19,7 +19,7 @@ class TestResultBadge extends StatelessWidget {
     final (background, foreground) = colorsForKind(kind);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(AppTheme.resultBadgeRadius),
@@ -31,14 +31,14 @@ class TestResultBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (showIcon) ...[
-            Icon(iconForKind(kind), size: 13, color: foreground),
-            const SizedBox(width: 5),
+            Icon(iconForKind(kind), size: 16, color: foreground),
+            const SizedBox(width: 6),
           ],
           Text(
             result.resultLabel,
             style: FigmaUi.rubik(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
               color: foreground,
             ),
           ),

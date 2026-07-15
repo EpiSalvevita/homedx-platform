@@ -100,106 +100,123 @@ class _QuestionnaireHubScreenState extends State<QuestionnaireHubScreen> {
                 ),
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
-                  Text(
-                    _hubIntro,
-                    style: FigmaUi.bodyLight(
-                      fontSize: 15,
-                      color: AppTheme.textColorSecondary,
-                    ).copyWith(height: 1.45),
-                  ),
-                  const SizedBox(height: 20),
-                  if (_error != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: FigmaInfoBanner(message: _error!),
-                    ),
-                  if (_modules.isEmpty && _error == null)
-                    NeumorphicRaisedCard(
-                      height: null,
-                      padding: const EdgeInsets.all(24),
-                      child: Text(
-                        'Keine Fragebögen verfügbar.',
-                        style: FigmaUi.rubik(fontSize: 15, color: AppTheme.textColor),
-                      ),
-                    )
-                  else
-                    ..._modules.map((m) => Padding(
-                          padding: const EdgeInsets.only(bottom: AppTheme.testResultCardSpacing),
-                          child: NeumorphicRaisedCard(
-                            height: null,
-                            padding: const EdgeInsets.all(22),
-                            onTap: () => _openModule(m),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: AppTheme.primaryLight,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Text(
-                                        'Bogen ${m.moduleId}',
-                                        style: FigmaUi.rubik(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppTheme.primaryBlue,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      _moduleBadge(m.moduleId),
-                                      style: FigmaUi.bodyLight(
-                                        fontSize: 12,
-                                        color: AppTheme.textColorSecondary,
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    if (m.hasSubmitted)
-                                      const Icon(Icons.check_circle, color: AppTheme.successColor, size: 20)
-                                    else if (m.hasDraft)
-                                      const Icon(Icons.edit_note, color: AppTheme.primaryBlue, size: 20),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  m.title,
-                                  style: FigmaUi.rubik(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppTheme.textColor,
-                                  ),
-                                ),
-                                if (m.purpose != null) ...[
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    m.purpose!,
-                                    style: FigmaUi.bodyLight(
-                                      fontSize: 14,
-                                      color: AppTheme.textColorSecondary,
-                                    ),
-                                  ),
-                                ],
-                                const SizedBox(height: 12),
-                                Text(
-                                  m.hasSubmitted
-                                      ? 'Abgeschlossen'
-                                      : m.hasDraft
-                                          ? 'Entwurf fortsetzen'
-                                          : 'Jetzt starten',
-                                  style: FigmaUi.rubik(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppTheme.primaryBlue,
-                                  ),
-                                ),
-                              ],
-                            ),
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 800),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            _hubIntro,
+                            style: FigmaUi.bodyLight(
+                              fontSize: 17,
+                              color: AppTheme.textColorSecondary,
+                            ).copyWith(height: 1.45),
                           ),
-                        )),
+                          const SizedBox(height: 24),
+                          if (_error != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: FigmaEmptyState(
+                                icon: Icons.error_outline,
+                                title: 'Fragebögen konnten nicht geladen werden',
+                                message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
+                                actionLabel: 'Erneut versuchen',
+                                onAction: _load,
+                              ),
+                            )
+                          else if (_modules.isEmpty)
+                            const FigmaEmptyState(
+                              icon: Icons.quiz_outlined,
+                              title: 'Keine Fragebögen verfügbar',
+                              message: 'Sobald Fragebögen freigeschaltet sind, erscheinen sie hier.',
+                            )
+                          else
+                            ..._modules.map((m) => Padding(
+                                  padding: const EdgeInsets.only(bottom: AppTheme.testResultCardSpacing),
+                                  child: NeumorphicRaisedCard(
+                                    height: null,
+                                    padding: const EdgeInsets.all(22),
+                                    onTap: () => _openModule(m),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                              decoration: BoxDecoration(
+                                                color: AppTheme.primaryLight,
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                              child: Text(
+                                                'Bogen ${m.moduleId}',
+                                                style: FigmaUi.rubik(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppTheme.primaryBlue,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Expanded(
+                                              child: Text(
+                                                _moduleBadge(m.moduleId),
+                                                style: FigmaUi.bodyLight(
+                                                  fontSize: 15,
+                                                  color: AppTheme.textColorSecondary,
+                                                ),
+                                              ),
+                                            ),
+                                            if (m.hasSubmitted)
+                                              const Icon(Icons.check_circle, color: AppTheme.successColor, size: 26)
+                                            else if (m.hasDraft)
+                                              const Icon(Icons.edit_note, color: AppTheme.primaryBlue, size: 26)
+                                            else
+                                              const Icon(Icons.arrow_forward_ios, size: 18, color: AppTheme.textColorSecondary),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 14),
+                                        Text(
+                                          m.title,
+                                          style: FigmaUi.rubik(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppTheme.textColor,
+                                          ),
+                                        ),
+                                        if (m.purpose != null) ...[
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            m.purpose!,
+                                            style: FigmaUi.bodyLight(
+                                              fontSize: 15,
+                                              color: AppTheme.textColorSecondary,
+                                            ),
+                                          ),
+                                        ],
+                                        const SizedBox(height: 14),
+                                        Text(
+                                          m.hasSubmitted
+                                              ? 'Abgeschlossen'
+                                              : m.hasDraft
+                                                  ? 'Entwurf fortsetzen'
+                                                  : 'Jetzt starten',
+                                          style: FigmaUi.rubik(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppTheme.primaryBlue,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
       ),

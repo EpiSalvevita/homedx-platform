@@ -1514,10 +1514,10 @@ class FigmaSegmentedTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 39,
+      height: 48,
       decoration: BoxDecoration(
         color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: AppTheme.neumorphicInset,
       ),
       child: Row(
@@ -1530,12 +1530,12 @@ class FigmaSegmentedTabs extends StatelessWidget {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: selected ? AppTheme.primaryBlue : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(24),
                 ),
                 child: Text(
                   labels[i],
                   style: FigmaUi.rubik(
-                    fontSize: 14,
+                    fontSize: 15,
                     fontWeight: FontWeight.w500,
                     color: selected ? Colors.white : AppTheme.textColor,
                   ),

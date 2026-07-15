@@ -121,7 +121,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
                 const SizedBox(width: 10),
                 Text(
                   'Termin gebucht',
-                  style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+                  style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
                 ),
               ],
             ),
@@ -131,7 +131,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
               children: [
                 Text(
                   'Ihr Termin wurde erfolgreich gebucht.',
-                  style: FigmaUi.bodyLight(fontSize: 14, color: AppTheme.textColorSecondary),
+                  style: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColorSecondary),
                 ),
                 const SizedBox(height: 16),
                 _dialogDetailRow('Arzt', widget.doctorName),
@@ -146,6 +146,9 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
             ),
             actions: [
               TextButton(
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(0, AppTheme.largeTouchTarget),
+                ),
                 onPressed: () {
                   Navigator.of(dialogContext).pop();
                   if (appointmentId != null) {
@@ -156,7 +159,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
                 },
                 child: Text(
                   'OK',
-                  style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.primaryBlue),
+                  style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.primaryBlue),
                 ),
               ),
             ],
@@ -185,11 +188,11 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
   Widget _dialogDetailRow(String label, String value) {
     return RichText(
       text: TextSpan(
-        style: FigmaUi.bodyLight(fontSize: 14, color: AppTheme.textColorSecondary),
+        style: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColorSecondary),
         children: [
           TextSpan(
             text: '$label: ',
-            style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+            style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w500, color: AppTheme.textColor),
           ),
           TextSpan(text: value),
         ],
@@ -212,163 +215,180 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
       },
       body: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(horizontalPadding, kIsWeb ? 8 : 0, horizontalPadding, 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (widget.testTypeName?.isNotEmpty == true)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: FigmaInsetInfoCard(
-                  icon: Icons.medical_services_outlined,
-                  title: 'Termin nach ${widget.testTypeName}',
-                ),
-              ),
-            NeumorphicRaisedCard(
-              height: null,
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryLight,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Icon(Icons.person_outline, size: 28, color: AppTheme.primaryBlue),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.doctorName,
-                          style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w500, color: AppTheme.textColor),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          widget.specialization,
-                          style: FigmaUi.bodyLight(fontSize: 14, color: AppTheme.textColorSecondary),
-                        ),
-                      ],
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (widget.testTypeName?.isNotEmpty == true)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: FigmaInsetInfoCard(
+                      icon: Icons.medical_services_outlined,
+                      title: 'Termin nach ${widget.testTypeName}',
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 28),
-            const FigmaSectionTitle('Beratungstyp'),
-            const SizedBox(height: 12),
-            NeumorphicRaisedCard(
-              height: null,
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryLight,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(Icons.videocam_outlined, color: AppTheme.primaryBlue, size: 22),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Online-Beratung',
-                          style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+                NeumorphicRaisedCard(
+                  height: null,
+                  padding: const EdgeInsets.all(22),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryLight,
+                          borderRadius: BorderRadius.circular(14),
                         ),
-                        Text(
-                          'Videoanruf über HomeDX',
-                          style: FigmaUi.bodyLight(fontSize: 13, color: AppTheme.textColorSecondary),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Icon(Icons.check_circle, color: AppTheme.primaryBlue, size: 22),
-                ],
-              ),
-            ),
-            const SizedBox(height: 28),
-            const FigmaSectionTitle('Verfügbare Termine'),
-            const SizedBox(height: 12),
-            if (_isLoading)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32),
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            else if (_availableSlots.isEmpty)
-              NeumorphicRaisedCard(
-                height: null,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryLight,
-                        shape: BoxShape.circle,
+                        child: const Icon(Icons.person_outline, size: 30, color: AppTheme.primaryBlue),
                       ),
-                      child: const Icon(Icons.event_busy_outlined, color: AppTheme.primaryBlue, size: 28),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Keine verfügbaren Termine',
-                      textAlign: TextAlign.center,
-                      style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Bitte versuchen Sie es später erneut.',
-                      textAlign: TextAlign.center,
-                      style: FigmaUi.bodyLight(fontSize: 14, color: AppTheme.textColorSecondary),
-                    ),
-                  ],
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.doctorName,
+                              style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              widget.specialization,
+                              style: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColorSecondary),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              )
-            else
-              _buildTimeSlots(),
-            const SizedBox(height: 28),
-            const FigmaSectionTitle('Notizen (optional)'),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _notesController,
-              maxLines: 3,
-              style: FigmaUi.rubik(fontSize: 15, color: AppTheme.textColor),
-              decoration: InputDecoration(
-                hintText: 'Zusätzliche Informationen für den Arzt…',
-                hintStyle: FigmaUi.bodyLight(fontSize: 14, color: AppTheme.textColorSecondary),
-                filled: true,
-                fillColor: AppTheme.background,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: AppTheme.navy.withValues(alpha: 0.12)),
+                const SizedBox(height: 28),
+                Text(
+                  'Beratungstyp',
+                  style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.primaryBlue, width: 1.5),
+                const SizedBox(height: 12),
+                NeumorphicRaisedCard(
+                  height: null,
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryLight,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.videocam_outlined, color: AppTheme.primaryBlue, size: 26),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Online-Beratung',
+                              style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+                            ),
+                            Text(
+                              'Videoanruf über HomeDX',
+                              style: FigmaUi.bodyLight(fontSize: 15, color: AppTheme.textColorSecondary),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.check_circle, color: AppTheme.primaryBlue, size: 26),
+                    ],
+                  ),
                 ),
-              ),
+                const SizedBox(height: 28),
+                Text(
+                  'Verfügbare Termine',
+                  style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
+                ),
+                const SizedBox(height: 12),
+                if (_isLoading)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                else if (_availableSlots.isEmpty)
+                  NeumorphicRaisedCard(
+                    height: null,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 64,
+                          height: 64,
+                          decoration: const BoxDecoration(
+                            color: AppTheme.primaryLight,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.event_busy_outlined, color: AppTheme.primaryBlue, size: 32),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Keine verfügbaren Termine',
+                          textAlign: TextAlign.center,
+                          style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Bitte versuchen Sie es später erneut.',
+                          textAlign: TextAlign.center,
+                          style: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColorSecondary),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  _buildTimeSlots(),
+                const SizedBox(height: 28),
+                Text(
+                  'Notizen (optional)',
+                  style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _notesController,
+                  maxLines: 3,
+                  style: FigmaUi.rubik(fontSize: 17, color: AppTheme.textColor),
+                  decoration: InputDecoration(
+                    hintText: 'Zusätzliche Informationen für den Arzt…',
+                    hintStyle: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColorSecondary),
+                    filled: true,
+                    fillColor: AppTheme.background,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppTheme.navy.withValues(alpha: 0.12)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppTheme.primaryBlue, width: 2),
+                    ),
+                    contentPadding: const EdgeInsets.all(18),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                NeumorphicPillButton(
+                  label: _isBooking ? 'Wird gebucht…' : 'Termin buchen',
+                  leadingIcon: Icons.calendar_today_outlined,
+                  height: AppTheme.buttonHeightLarge,
+                  backgroundColor: AppTheme.primaryBlue,
+                  foregroundColor: Colors.white,
+                  loading: _isBooking,
+                  onPressed: _isBooking || _selectedSlot == null ? null : _bookAppointment,
+                ),
+              ],
             ),
-            const SizedBox(height: 32),
-            NeumorphicPillButton(
-              label: _isBooking ? 'Wird gebucht…' : 'Termin buchen',
-              leadingIcon: Icons.calendar_today_outlined,
-              backgroundColor: AppTheme.primaryBlue,
-              foregroundColor: Colors.white,
-              loading: _isBooking,
-              onPressed: _isBooking || _selectedSlot == null ? null : _bookAppointment,
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -394,15 +414,15 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
             children: [
               Text(
                 DateFormat('EEEE, dd.MM.yyyy', 'de_DE').format(date),
-                style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.textColorSecondary),
+                style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.textColor),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Wrap(
                   alignment: WrapAlignment.start,
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: 10,
+                  runSpacing: 10,
                   children: slots.map((slot) {
                     final isSelected = _selectedSlot?.id == slot.id;
                     return _TimeSlotChip(
@@ -444,7 +464,7 @@ class _TimeSlotChip extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: selected ? AppTheme.primaryBlue : AppTheme.background,
             borderRadius: BorderRadius.circular(20),

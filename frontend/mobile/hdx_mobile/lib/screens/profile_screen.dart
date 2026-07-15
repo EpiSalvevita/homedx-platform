@@ -142,6 +142,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await _userService.updateUserData(updatedData);
       if (mounted) {
         await _loadUserData(showPageLoader: false);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profil gespeichert'),
+            backgroundColor: AppTheme.successColor,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -181,9 +188,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Fehler beim Laden des Profils', style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500)),
-              const SizedBox(height: 16),
-              NeumorphicPillButton(label: 'Erneut versuchen', height: 52, onPressed: _loadUserData),
+              Text(
+                'Fehler beim Laden des Profils',
+                style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
+                style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w400, color: AppTheme.textColorSecondary),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              NeumorphicPillButton(
+                label: 'Erneut versuchen',
+                height: AppTheme.buttonHeightLarge,
+                expanded: false,
+                onPressed: _loadUserData,
+              ),
             ],
           ),
         ),
@@ -192,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final horizontal = kIsWeb ? 24.0 : AppTheme.screenHorizontalPadding;
+        final horizontal = kIsWeb ? 32.0 : AppTheme.screenHorizontalPadding;
         final top = AppTheme.profilePageTopPadding;
         final bottom = AppTheme.profilePageBottomPadding;
         final minContentHeight = constraints.maxHeight - top - bottom;
@@ -227,13 +249,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (name.isNotEmpty)
           Text(
             name,
-            style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+            style: FigmaUi.rubik(fontSize: 26, fontWeight: FontWeight.w600, color: AppTheme.textColor),
           ),
         if (email.isNotEmpty) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
             email,
-            style: FigmaUi.rubik(fontSize: 12, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary),
+            style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w400, color: AppTheme.textColorSecondary),
           ),
         ],
       ],
@@ -394,7 +416,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Align(
       alignment: Alignment.centerLeft,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 260),
+        constraints: const BoxConstraints(maxWidth: 320),
         child: NeumorphicInsetDropdown(
           label: 'Geschlecht',
           prefixIcon: Icons.wc_outlined,
@@ -419,29 +441,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildSaveButton() {
     return Center(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          NeumorphicPillButton(
-            label: _isSaving ? 'Speichern…' : 'Änderungen speichern',
-            leadingIcon: _isSaving ? null : Icons.save_outlined,
-            expanded: false,
-            backgroundColor: AppTheme.accentMint,
-            foregroundColor: AppTheme.onMint,
-            onPressed: _isSaving ? null : _saveUserData,
-          ),
-          if (_isSaving) ...[
-            const SizedBox(width: 12),
-            const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.5,
-                color: AppTheme.primaryBlue,
-              ),
-            ),
-          ],
-        ],
+      child: NeumorphicPillButton(
+        label: _isSaving ? 'Speichern…' : 'Änderungen speichern',
+        leadingIcon: _isSaving ? null : Icons.save_outlined,
+        height: AppTheme.buttonHeightLarge,
+        expanded: false,
+        loading: _isSaving,
+        backgroundColor: AppTheme.accentMint,
+        foregroundColor: AppTheme.onMint,
+        onPressed: _isSaving ? null : _saveUserData,
       ),
     );
   }
@@ -459,9 +467,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _profileFieldSpacer(metrics),
             ],
             _buildProfileSummary(),
-            _profileFieldSpacer(metrics),
+            const SizedBox(height: 32),
             _buildProfileFields(pairedRows: pairedRows, metrics: metrics),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             _buildSaveButton(),
             const SizedBox(height: 16),
           ],
@@ -473,18 +481,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildWebForm() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final metrics = ProfileFieldMetrics.fromWidth(constraints.maxWidth);
-        final pairedRows = constraints.maxWidth >= 640;
+        final formWidth = constraints.maxWidth.clamp(0.0, 800.0);
+        final metrics = ProfileFieldMetrics.fromWidth(formWidth);
+        final pairedRows = formWidth >= 640;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildProfileSummary(),
-            _profileFieldSpacer(metrics),
-            _buildProfileFields(pairedRows: pairedRows, metrics: metrics),
-            const SizedBox(height: 24),
-            _buildSaveButton(),
-          ],
+        return Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildProfileSummary(),
+                const SizedBox(height: 32),
+                _buildProfileFields(pairedRows: pairedRows, metrics: metrics),
+                const SizedBox(height: 32),
+                _buildSaveButton(),
+              ],
+            ),
+          ),
         );
       },
     );

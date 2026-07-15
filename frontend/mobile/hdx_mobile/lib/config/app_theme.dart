@@ -100,17 +100,17 @@ class AppTheme {
   /// Vertical spacing between stacked profile/login fields.
   static const double fieldSpacing = 25;
 
-  /// Profile form: pill fields 15% smaller than [fieldHeight].
-  static const double profileFieldHeight = fieldHeight * 0.85;
-  static const EdgeInsets profileFieldPadding = EdgeInsets.symmetric(horizontal: 22.1);
-  static const double profileFieldFontSize = 13.6;
-  static const double profileFieldLabelFontSize = 11.9;
-  static const double profileFieldIconSize = 17.85;
-  static const double profileFieldContentGap = fieldContentGap * 0.85;
-  static const double profileFieldLabelOffsetLeft = 32.3;
-  static const double profileFieldLabelOffsetTop = -8.5;
-  /// Vertical gap between profile field rows (+20% vs default 12px inset spacing).
-  static const double profileFieldRowSpacing = 14.4;
+  /// Profile form: same scale as auth [NeumorphicInsetField] (elderly-first).
+  static const double profileFieldHeight = fieldHeight;
+  static const EdgeInsets profileFieldPadding = fieldPadding;
+  static const double profileFieldFontSize = 17;
+  static const double profileFieldLabelFontSize = 15;
+  static const double profileFieldIconSize = 22;
+  static const double profileFieldContentGap = fieldContentGap;
+  static const double profileFieldLabelOffsetLeft = 38;
+  static const double profileFieldLabelOffsetTop = -10;
+  /// Vertical gap between profile field rows (matches auth field spacing).
+  static const double profileFieldRowSpacing = fieldSpacing;
   /// Profile page: minimum space above the name; content centers vertically when viewport allows.
   static const double profilePageTopPadding = 48;
   static const double profilePageBottomPadding = 32;

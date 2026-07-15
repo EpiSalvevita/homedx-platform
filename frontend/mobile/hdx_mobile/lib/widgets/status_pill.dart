@@ -20,7 +20,7 @@ class StatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: AppTheme.resultBadgePadding,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(AppTheme.resultBadgeRadius),
@@ -28,8 +28,8 @@ class StatusPill extends StatelessWidget {
       child: Text(
         label,
         style: FigmaUi.rubik(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
           color: foreground,
         ),
       ),

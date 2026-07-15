@@ -32,6 +32,10 @@ export class PaymentService {
   }
 
   async create(data: CreatePaymentInput) {
+    const description =
+      data.description?.trim() ||
+      `Payment for ${data.amount} ${data.currency}`;
+
     return this.prisma.payment.create({
       data: {
         userId: data.userId,
@@ -43,7 +47,10 @@ export class PaymentService {
         rapidTestId: data.rapidTestId,
         stripePaymentIntentId: data.paymentIntentId,
         paypalOrderId: data.paypalOrderId,
-        description: `Payment for ${data.amount} ${data.currency}`,
+        description,
+        lineItems: data.lineItems?.length
+          ? (data.lineItems as unknown as Prisma.InputJsonValue)
+          : undefined,
       },
       include: this.includeRelations,
     });

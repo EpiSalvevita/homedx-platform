@@ -49,7 +49,7 @@ class AppointmentStatusBadge extends StatelessWidget {
     final (background, foreground) = appointmentStatusColors(appointment.status);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(AppTheme.resultBadgeRadius),
@@ -57,8 +57,8 @@ class AppointmentStatusBadge extends StatelessWidget {
       child: Text(
         appointment.statusLabelDe,
         style: FigmaUi.rubik(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
           color: foreground,
         ),
       ),

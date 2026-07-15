@@ -1,3 +1,10 @@
+export interface PaymentLineItemInput {
+  productId: string;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+}
+
 export interface CreatePaymentInput {
   userId: string;
   amount: number;
@@ -7,6 +14,8 @@ export interface CreatePaymentInput {
   transactionId?: string;
   paymentIntentId?: string;
   paypalOrderId?: string;
+  description?: string;
+  lineItems?: PaymentLineItemInput[];
 }
 
 export interface UpdatePaymentInput {

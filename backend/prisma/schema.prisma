@@ -125,6 +125,8 @@ model Payment {
   updatedAt             DateTime      @updatedAt
   completedAt           DateTime?
   description           String?
+  /// Cart / purchase line items: [{ productId, name, quantity, unitPrice }]
+  lineItems             Json?
   failureReason         String?
   method                PaymentMethod
   status                PaymentStatus @default(PENDING)

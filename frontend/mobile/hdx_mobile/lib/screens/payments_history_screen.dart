@@ -56,49 +56,72 @@ class _PaymentsHistoryScreenState extends State<PaymentsHistoryScreen> {
       title: 'Zahlungen',
       showWebHeader: false,
       showBackOnMobile: false,
-      onBack: () => context.go('/profile'),
+      onBack: () => context.go('/home'),
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
           padding: EdgeInsets.fromLTRB(
             kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
-            kIsWeb ? 24 : 8,
+            kIsWeb ? 24 : AppTheme.screenHorizontalPadding,
             kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
             24,
           ),
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
-            Text(
-              'Übersicht Ihrer Zahlungen und Bestellungen.',
-              style: FigmaUi.bodyLight(fontSize: 14, color: AppTheme.textColorSecondary),
-            ),
-            const SizedBox(height: 16),
-            if (_loading)
-              const Center(
-                child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator()),
-              )
-            else if (_error != null)
-              FigmaListCard(
-                leading: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
-                  child: const Icon(Icons.error_outline, color: AppTheme.errorColor),
+            Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Übersicht Ihrer Zahlungen und Bestellungen.',
+                      style: FigmaUi.bodyLight(
+                        fontSize: 17,
+                        color: AppTheme.textColorSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    if (_loading)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    else if (_error != null)
+                      FigmaEmptyState(
+                        icon: Icons.error_outline,
+                        title: 'Zahlungen konnten nicht geladen werden',
+                        message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
+                        actionLabel: 'Erneut versuchen',
+                        onAction: _load,
+                      )
+                    else if (_payments.isEmpty)
+                      const FigmaEmptyState(
+                        icon: Icons.payment_outlined,
+                        title: 'Noch keine Zahlungen',
+                        message: 'Abgeschlossene Zahlungen erscheinen hier.',
+                      )
+                    else
+                      ..._payments.map(
+                        (p) => Padding(
+                          padding: const EdgeInsets.only(bottom: AppTheme.testResultCardSpacing),
+                          child: _PaymentCard(
+                            payment: p,
+                            onTap: () {
+                              final id = p['id']?.toString();
+                              if (id == null || id.isEmpty) return;
+                              context.push('/payments/$id', extra: p);
+                            },
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-                title: 'Zahlungen konnten nicht geladen werden',
-                subtitle: _error!,
-              )
-            else if (_payments.isEmpty)
-              const FigmaEmptyState(
-                icon: Icons.payment_outlined,
-                title: 'Noch keine Zahlungen',
-                message: 'Abgeschlossene Zahlungen erscheinen hier.',
-              )
-            else
-              ..._payments.map((p) => Padding(
-                    padding: const EdgeInsets.only(bottom: AppTheme.testResultCardSpacing),
-                    child: _PaymentCard(payment: p),
-                  )),
+              ),
+            ),
           ],
         ),
       ),
@@ -108,8 +131,9 @@ class _PaymentsHistoryScreenState extends State<PaymentsHistoryScreen> {
 
 class _PaymentCard extends StatelessWidget {
   final Map<String, dynamic> payment;
+  final VoidCallback onTap;
 
-  const _PaymentCard({required this.payment});
+  const _PaymentCard({required this.payment, required this.onTap});
 
   static IconData _iconForMethod(String method) {
     switch (method.toUpperCase()) {
@@ -198,21 +222,23 @@ class _PaymentCard extends StatelessWidget {
         ? '${amount.toStringAsFixed(2)} ${_currencySymbol(currency)}'
         : '$amount $currency';
     final (badgeBg, badgeFg) = _statusColors(status);
+    final title = description?.isNotEmpty == true ? description! : _methodLabel(method);
 
     return NeumorphicRaisedCard(
+      onTap: onTap,
       height: null,
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 38,
-            height: 38,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: AppTheme.background,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(_iconForMethod(method), color: AppTheme.primaryBlue, size: 20),
+            child: Icon(_iconForMethod(method), color: AppTheme.primaryBlue, size: 26),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -220,16 +246,33 @@ class _PaymentCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  description?.isNotEmpty == true ? description! : _methodLabel(method),
-                  maxLines: 1,
+                  title,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+                  style: FigmaUi.rubik(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.textColor,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _methodLabel(method),
+                  style: FigmaUi.rubik(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                    color: AppTheme.textColorSecondary,
+                  ),
                 ),
                 if (created.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(
                     created,
-                    style: FigmaUi.rubik(fontSize: 12, fontWeight: FontWeight.w300, color: AppTheme.primaryBlue),
+                    style: FigmaUi.rubik(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                      color: AppTheme.textColorSecondary,
+                    ),
                   ),
                 ],
               ],
@@ -241,12 +284,22 @@ class _PaymentCard extends StatelessWidget {
             children: [
               Text(
                 amountLabel,
-                style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.textColor),
+                style: FigmaUi.rubik(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textColor,
+                ),
               ),
-              const SizedBox(height: 6),
-              StatusPill(label: _statusLabel(status), background: badgeBg, foreground: badgeFg),
+              const SizedBox(height: 8),
+              StatusPill(
+                label: _statusLabel(status),
+                background: badgeBg,
+                foreground: badgeFg,
+              ),
             ],
           ),
+          const SizedBox(width: 8),
+          const Icon(Icons.arrow_forward_ios, size: 18, color: AppTheme.textColorSecondary),
         ],
       ),
     );

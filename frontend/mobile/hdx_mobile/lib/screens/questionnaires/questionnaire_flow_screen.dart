@@ -80,6 +80,10 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
           _showIntro = existing.isDraft;
           _dataConsent = existing.consentStatus == 'yes' || !_isPatientModule;
         }
+        _answers.putIfAbsent(
+          kQuestionnaireFormDepthKey,
+          () => kQuestionnaireFormDepthKurz,
+        );
         _rebuildSteps();
         _isLoading = false;
       });
@@ -197,6 +201,50 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
     }
   }
 
+  void _setFormDepth(String depth) {
+    setState(() {
+      _answers[kQuestionnaireFormDepthKey] = normalizeFormDepth(depth);
+      _stepIndex = 0;
+      _rebuildSteps();
+    });
+  }
+
+  Widget _buildDepthSwitch({required bool compact}) {
+    final depth = formDepthFromAnswers(_answers);
+    final selected = depth == kQuestionnaireFormDepthVoll ? 1 : 0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Fragebogenlänge',
+          style: FigmaUi.rubik(
+            fontSize: compact ? 15 : 17,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.textColor,
+          ),
+        ),
+        const SizedBox(height: 8),
+        FigmaSegmentedTabs(
+          labels: const ['Kurzversion', 'Vollversion'],
+          selectedIndex: selected,
+          onSelected: (i) => _setFormDepth(
+            i == 1 ? kQuestionnaireFormDepthVoll : kQuestionnaireFormDepthKurz,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          depth == kQuestionnaireFormDepthVoll
+              ? 'Vollversion: alle Fragen aus dem PDF-Fachpaket (länger).'
+              : 'Kurzversion: Kernfragen für Pilot und App (kürzer).',
+          style: FigmaUi.bodyLight(
+            fontSize: 15,
+            color: AppTheme.textColorSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildIntro() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -213,7 +261,7 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
             onChanged: (v) => setState(() => _dataConsent = v ?? false),
             title: Text(
               'Ich willige ein, dass meine Antworten zur Auswertung des RheumaCheck-Projekts gespeichert werden.',
-              style: FigmaUi.rubik(fontSize: 14, color: AppTheme.textColor),
+              style: FigmaUi.rubik(fontSize: 17, color: AppTheme.textColor),
             ),
             controlAffinity: ListTileControlAffinity.leading,
             contentPadding: EdgeInsets.zero,
@@ -225,8 +273,11 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
                 'Dieser Fragebogen dient der Forschung und Pilotierung von RheumaCheck. Es werden keine Diagnosen abgegeben.',
           ),
         const SizedBox(height: 24),
+        _buildDepthSwitch(compact: false),
+        const SizedBox(height: 28),
         NeumorphicPillButton(
           label: 'Fragebogen starten',
+          height: AppTheme.buttonHeightLarge,
           backgroundColor: AppTheme.primaryBlue,
           foregroundColor: Colors.white,
           onPressed: (_isPatientModule && !_dataConsent)
@@ -247,28 +298,33 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
             Expanded(
               child: Text(
                 'Schritt ${step.index} von ${step.total}',
-                style: FigmaUi.bodyLight(fontSize: 14, color: AppTheme.textColorSecondary),
+                style: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColorSecondary),
               ),
             ),
             if (_isSaving)
               const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(strokeWidth: 2.5),
               ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         LinearProgressIndicator(
           value: step.total == 0 ? 0 : step.index / step.total,
           backgroundColor: AppTheme.primaryLight,
           color: AppTheme.primaryBlue,
-          minHeight: 6,
+          minHeight: 8,
           borderRadius: BorderRadius.circular(4),
         ),
-        const SizedBox(height: 20),
-        FigmaSectionTitle(step.sectionTitle),
         const SizedBox(height: 16),
+        _buildDepthSwitch(compact: true),
+        const SizedBox(height: 20),
+        Text(
+          step.sectionTitle,
+          style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
+        ),
+        const SizedBox(height: 18),
         ...step.fields.map(
           (field) => QuestionnaireFieldWidget(
             field: field,
@@ -276,13 +332,14 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
             onChanged: _onAnswerChanged,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         Row(
           children: [
             if (_stepIndex > 0)
               Expanded(
                 child: NeumorphicPillButton(
                   label: 'Zurück',
+                  height: AppTheme.buttonHeightLarge,
                   backgroundColor: AppTheme.surface,
                   foregroundColor: AppTheme.textColor,
                   onPressed: _prevStep,
@@ -292,6 +349,7 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
             Expanded(
               child: NeumorphicPillButton(
                 label: _stepIndex >= _steps.length - 1 ? 'Absenden' : 'Weiter',
+                height: AppTheme.buttonHeightLarge,
                 backgroundColor: AppTheme.primaryBlue,
                 foregroundColor: Colors.white,
                 loading: _isSaving,
@@ -315,22 +373,12 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(_error!, textAlign: TextAlign.center),
-                        const SizedBox(height: 16),
-                        NeumorphicPillButton(
-                          label: 'Erneut versuchen',
-                          expanded: false,
-                          onPressed: _load,
-                        ),
-                      ],
-                    ),
-                  ),
+              ? FigmaEmptyState(
+                  icon: Icons.error_outline,
+                  title: 'Fragebogen konnte nicht geladen werden',
+                  message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
+                  actionLabel: 'Erneut versuchen',
+                  onAction: _load,
                 )
               : SingleChildScrollView(
                   padding: EdgeInsets.fromLTRB(
@@ -339,7 +387,13 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
                     kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
                     24,
                   ),
-                  child: _showIntro ? _buildIntro() : _buildStep(),
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 800),
+                      child: _showIntro ? _buildIntro() : _buildStep(),
+                    ),
+                  ),
                 ),
     );
   }

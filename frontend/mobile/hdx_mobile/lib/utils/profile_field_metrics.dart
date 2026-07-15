@@ -3,8 +3,8 @@ import '../config/app_theme.dart';
 
 /// Width-scaled inset-field tokens for the profile form.
 ///
-/// Base values match [AppTheme.profileField*] at [referenceWidth] (Figma ~392px).
-/// Scales gently between [minScale] and [maxScale] on narrow/wide layouts.
+/// Base values match auth-scale [AppTheme.profileField*] at [referenceWidth]
+/// (Figma ~392px). Scales gently between [minScale] and [maxScale].
 class ProfileFieldMetrics {
   final double fieldHeight;
   final EdgeInsets fieldPadding;

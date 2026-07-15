@@ -16,6 +16,7 @@ import { AuditLogService } from './audit-log.service';
 import {
   QuestionnaireModuleDef,
   QuestionnairePackageDef,
+  formDepthFromAnswers,
   validateAnswersForModule,
 } from '../utils/questionnaire-branching';
 
@@ -87,7 +88,16 @@ export class QuestionnaireService {
       project: pkg.project,
       packageVersion: pkg.package_version,
       language: pkg.language,
+      formDepths: pkg.form_depths ?? ['kurz', 'voll'],
+      defaultFormDepth: pkg.default_form_depth ?? 'kurz',
     };
+  }
+
+  private moduleVersionForAnswers(
+    packageVersion: string,
+    answers: Record<string, unknown>,
+  ): string {
+    return `${packageVersion}-${formDepthFromAnswers(answers)}`;
   }
 
   private getModule(moduleId: string): QuestionnaireModuleDef {
@@ -234,6 +244,10 @@ export class QuestionnaireService {
 
     const consent = this.mapConsentStatus(params.consentStatus);
     const respondentType = this.resolveRespondentType(params.moduleId, params.role);
+    const moduleVersion = this.moduleVersionForAnswers(
+      pkg.package_version,
+      params.answers,
+    );
 
     if (params.submissionId) {
       const existing = await this.prisma.questionnaireSubmission.findUnique({
@@ -251,7 +265,7 @@ export class QuestionnaireService {
           answers: params.answers as object,
           consentStatus: consent,
           linkedRapidTestId: params.linkedRapidTestId ?? existing.linkedRapidTestId,
-          moduleVersion: pkg.package_version,
+          moduleVersion,
           respondentType,
         },
       });
@@ -272,7 +286,7 @@ export class QuestionnaireService {
         data: {
           answers: params.answers as object,
           consentStatus: consent,
-          moduleVersion: pkg.package_version,
+          moduleVersion,
           respondentType,
         },
       });
@@ -283,7 +297,7 @@ export class QuestionnaireService {
       data: {
         userId: params.userId,
         moduleId: params.moduleId,
-        moduleVersion: pkg.package_version,
+        moduleVersion,
         respondentType,
         status: QuestionnaireSubmissionStatus.DRAFT,
         consentStatus: consent,

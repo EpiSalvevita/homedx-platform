@@ -63,7 +63,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         backgroundColor: AppTheme.surface,
         title: Text(
           'Termin stornieren',
-          style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+          style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -71,13 +71,14 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           children: [
             Text(
               'Möchten Sie diesen Termin wirklich stornieren? Sie können optional eine Nachricht an die andere Person senden.',
-              style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w400, color: AppTheme.textColorSecondary),
+              style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w400, color: AppTheme.textColorSecondary),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: messageController,
               maxLines: 3,
               maxLength: 500,
+              style: FigmaUi.rubik(fontSize: 17, color: AppTheme.textColor),
               decoration: InputDecoration(
                 labelText: 'Nachricht (optional)',
                 hintText: 'Grund für die Stornierung…',
@@ -88,23 +89,26 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(color: AppTheme.navy.withValues(alpha: 0.12)),
                 ),
+                contentPadding: const EdgeInsets.all(16),
               ),
             ),
           ],
         ),
         actions: [
           TextButton(
+            style: TextButton.styleFrom(minimumSize: const Size(0, AppTheme.largeTouchTarget)),
             onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(
               'Abbrechen',
-              style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+              style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w500, color: AppTheme.textColor),
             ),
           ),
           TextButton(
+            style: TextButton.styleFrom(minimumSize: const Size(0, AppTheme.largeTouchTarget)),
             onPressed: () => Navigator.pop(dialogContext, true),
             child: Text(
               'Stornieren',
-              style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.errorColor),
+              style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.errorColor),
             ),
           ),
         ],
@@ -142,15 +146,15 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   }
 
   Widget _buildDetailCard(Appointment appointment, String formatted, {required bool isDoctor}) {
-    final bodyStyle = FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w400, color: AppTheme.textColor);
-    final labelStyle = FigmaUi.rubik(fontSize: 13, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary);
+    final bodyStyle = FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w400, color: AppTheme.textColor);
+    final labelStyle = FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w400, color: AppTheme.textColorSecondary);
     final headline = isDoctor
         ? (appointment.patientName ?? 'Patient')
         : appointment.doctorName;
 
     return NeumorphicRaisedCard(
       height: null,
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -159,51 +163,51 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               Expanded(
                 child: Text(
                   headline,
-                  style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+                  style: FigmaUi.rubik(fontSize: 24, fontWeight: FontWeight.w600, color: AppTheme.textColor),
                 ),
               ),
               AppointmentStatusBadge(appointment: appointment),
             ],
           ),
           if (isDoctor && appointment.patientGender != null) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text('Geschlecht', style: labelStyle),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(formatGenderDe(appointment.patientGender), style: bodyStyle),
           ],
           if (!isDoctor && appointment.patientName != null) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text('Patient', style: labelStyle),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(appointment.patientName!, style: bodyStyle),
           ],
           if (!isDoctor && appointment.patientGender != null) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text('Geschlecht', style: labelStyle),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(formatGenderDe(appointment.patientGender), style: bodyStyle),
           ],
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text('Termin', style: labelStyle),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Row(
             children: [
-              Icon(Icons.calendar_today_outlined, size: 18, color: AppTheme.primaryBlue),
-              const SizedBox(width: 8),
+              const Icon(Icons.calendar_today_outlined, size: 22, color: AppTheme.primaryBlue),
+              const SizedBox(width: 10),
               Expanded(child: Text(formatted, style: bodyStyle)),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text('Art', style: labelStyle),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Row(
             children: [
               Icon(
                 appointment.isOnline ? Icons.videocam_outlined : Icons.location_on_outlined,
-                size: 18,
+                size: 22,
                 color: AppTheme.primaryBlue,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Text(
                 appointment.isOnline ? 'Online-Beratung' : 'Vor-Ort-Termin',
                 style: bodyStyle,
@@ -211,21 +215,21 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             ],
           ),
           if (appointment.testTypeId != null && appointment.testTypeId!.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text('Zugehöriger Test', style: labelStyle),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Row(
               children: [
-                const Icon(Icons.science_outlined, size: 18, color: AppTheme.primaryBlue),
-                const SizedBox(width: 8),
+                const Icon(Icons.science_outlined, size: 22, color: AppTheme.primaryBlue),
+                const SizedBox(width: 10),
                 Text(testTypeDisplayName(appointment.testTypeId), style: bodyStyle),
               ],
             ),
           ],
           if (appointment.notes != null && appointment.notes!.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text('Notizen', style: labelStyle),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(appointment.notes!, style: bodyStyle),
           ],
         ],
@@ -245,16 +249,16 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           NeumorphicPillButton(
             label: 'Videoanruf beitreten',
             leadingIcon: Icons.videocam_outlined,
-            height: 48,
+            height: AppTheme.buttonHeightLarge,
             onPressed: () => context.push(callRoute),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
         ],
         if (appointment.isUpcoming)
           Center(
             child: NeumorphicPillButton(
               label: 'Termin stornieren',
-              height: 48,
+              height: AppTheme.buttonHeightLarge,
               expanded: false,
               loading: _isCancelling,
               backgroundColor: AppTheme.accentCoral,
@@ -280,7 +284,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               ? Center(
                   child: Text(
                     'Termin nicht gefunden',
-                    style: FigmaUi.rubik(color: AppTheme.textColor),
+                    style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor),
                   ),
                 )
               : LayoutBuilder(
@@ -296,16 +300,22 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                         kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
                         24,
                       ),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(minHeight: constraints.maxHeight - 32),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _buildDetailCard(appointment, formatted, isDoctor: isDoctor),
-                            const SizedBox(height: 24),
-                            _buildActions(appointment, isDoctor: isDoctor),
-                          ],
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: 800,
+                            minHeight: constraints.maxHeight - 32,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _buildDetailCard(appointment, formatted, isDoctor: isDoctor),
+                              const SizedBox(height: 28),
+                              _buildActions(appointment, isDoctor: isDoctor),
+                            ],
+                          ),
                         ),
                       ),
                     );

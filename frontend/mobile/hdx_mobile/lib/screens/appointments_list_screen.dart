@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -59,10 +60,10 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen> {
 
   Widget _sectionTitle(String label) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 14),
       child: Text(
         label,
-        style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.textColorSecondary),
+        style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.textColor),
       ),
     );
   }
@@ -85,57 +86,80 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen> {
       onBack: () => context.go('/home'),
       actions: [
         IconButton(
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add, size: 28),
           tooltip: 'Neuer Termin',
+          iconSize: 28,
+          constraints: const BoxConstraints(
+            minWidth: AppTheme.largeTouchTarget,
+            minHeight: AppTheme.largeTouchTarget,
+          ),
           onPressed: () => context.push('/doctors'),
         ),
       ],
       body: RefreshIndicator(
         onRefresh: _loadAppointments,
         child: ListView(
-          padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
+          padding: EdgeInsets.fromLTRB(
+            kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+            kIsWeb ? 24 : AppTheme.screenHorizontalPadding,
+            kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+            24,
+          ),
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
-            Text(
-              'Tippen Sie auf einen Eintrag für Details.',
-              style: FigmaUi.bodyLight(
-                fontSize: 14,
-                color: AppTheme.textColorSecondary,
+            Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Tippen Sie auf einen Eintrag für Details.',
+                      style: FigmaUi.bodyLight(
+                        fontSize: 17,
+                        color: AppTheme.textColorSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    if (_isLoading)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    else if (_error != null)
+                      FigmaEmptyState(
+                        icon: Icons.error_outline,
+                        title: 'Termine konnten nicht geladen werden',
+                        message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
+                        actionLabel: 'Erneut versuchen',
+                        onAction: _loadAppointments,
+                      )
+                    else if (_appointments.isEmpty)
+                      FigmaEmptyState(
+                        icon: Icons.event_outlined,
+                        title: 'Noch keine Termine',
+                        message: 'Buchen Sie einen Termin bei einem Arzt, um ihn hier zu sehen.',
+                        actionLabel: 'Arzt finden',
+                        onAction: () => context.push('/doctors'),
+                      )
+                    else ...[
+                      if (_upcoming.isNotEmpty) ...[
+                        _sectionTitle('Bevorstehend'),
+                        ..._upcoming.map(_appointmentCard),
+                      ],
+                      if (_past.isNotEmpty) ...[
+                        if (_upcoming.isNotEmpty) const SizedBox(height: 8),
+                        _sectionTitle('Vergangen'),
+                        ..._past.map(_appointmentCard),
+                      ],
+                    ],
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 16),
-            if (_isLoading)
-              const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator()))
-            else if (_error != null)
-              FigmaListCard(
-                leading: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
-                  child: const Icon(Icons.error_outline, color: AppTheme.errorColor),
-                ),
-                title: 'Termine konnten nicht geladen werden',
-                subtitle: _error!,
-              )
-            else if (_appointments.isEmpty)
-              FigmaEmptyState(
-                icon: Icons.event_outlined,
-                title: 'Noch keine Termine',
-                message: 'Buchen Sie einen Termin bei einem Arzt, um ihn hier zu sehen.',
-                actionLabel: 'Arzt finden',
-                onAction: () => context.push('/doctors'),
-              )
-            else ...[
-              if (_upcoming.isNotEmpty) ...[
-                _sectionTitle('Bevorstehend'),
-                ..._upcoming.map(_appointmentCard),
-              ],
-              if (_past.isNotEmpty) ...[
-                if (_upcoming.isNotEmpty) const SizedBox(height: 4),
-                _sectionTitle('Vergangen'),
-                ..._past.map(_appointmentCard),
-              ],
-            ],
           ],
         ),
       ),
@@ -158,13 +182,17 @@ class _AppointmentCard extends StatelessWidget {
         '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
 
     final dateTimeLabel = '$dateStr  $timeStr';
-    final dateStyle = FigmaUi.rubik(fontSize: 12, fontWeight: FontWeight.w300, color: AppTheme.primaryBlue);
-    final nameStyle = FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor);
+    final dateStyle = FigmaUi.rubik(
+      fontSize: 15,
+      fontWeight: FontWeight.w400,
+      color: AppTheme.textColorSecondary,
+    );
+    final nameStyle = FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor);
 
     return NeumorphicRaisedCard(
       onTap: onTap,
       height: null,
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final inlineMeta = constraints.maxWidth >= 520;
@@ -173,13 +201,16 @@ class _AppointmentCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppTheme.background,
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Icon(
                   appointment.isOnline ? Icons.videocam_outlined : Icons.event_outlined,
                   color: AppTheme.primaryBlue,
-                  size: 20,
+                  size: 26,
                 ),
               ),
               const SizedBox(width: 16),
@@ -211,7 +242,7 @@ class _AppointmentCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: nameStyle,
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           Text(dateTimeLabel, style: dateStyle),
                         ],
                       ),
@@ -220,9 +251,9 @@ class _AppointmentCard extends StatelessWidget {
               AppointmentStatusBadge(appointment: appointment),
               const SizedBox(width: 8),
               if (appointment.canJoin)
-                const Icon(Icons.play_circle_fill, size: 20, color: AppTheme.successColor)
+                const Icon(Icons.play_circle_fill, size: 26, color: AppTheme.successColor)
               else
-                const Icon(Icons.arrow_forward_ios, size: 14, color: AppTheme.textColorSecondary),
+                const Icon(Icons.arrow_forward_ios, size: 18, color: AppTheme.textColorSecondary),
             ],
           );
         },

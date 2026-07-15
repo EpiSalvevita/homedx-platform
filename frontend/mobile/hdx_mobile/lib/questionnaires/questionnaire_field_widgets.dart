@@ -27,7 +27,7 @@ class QuestionnaireFieldWidget extends StatelessWidget {
           Text(
             field.label,
             style: FigmaUi.rubik(
-              fontSize: 15,
+              fontSize: 17,
               fontWeight: FontWeight.w500,
               color: AppTheme.textColor,
             ),
@@ -37,10 +37,10 @@ class QuestionnaireFieldWidget extends StatelessWidget {
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 'Pflichtfeld',
-                style: FigmaUi.bodyLight(fontSize: 12, color: AppTheme.textColorSecondary),
+                style: FigmaUi.bodyLight(fontSize: 14, color: AppTheme.textColorSecondary),
               ),
             ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           _buildInput(context),
         ],
       ),
@@ -99,8 +99,8 @@ class _SingleChoiceInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+      spacing: 10,
+      runSpacing: 10,
       children: options.map((opt) {
         final selected = value == opt;
         return ChoiceChip(
@@ -108,9 +108,11 @@ class _SingleChoiceInput extends StatelessWidget {
           selected: selected,
           onSelected: (_) => onChanged(opt),
           selectedColor: AppTheme.primaryBlue,
-          labelStyle: TextStyle(
-            color: selected ? Colors.white : AppTheme.textColor,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          labelStyle: FigmaUi.rubik(
+            fontSize: 15,
             fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            color: selected ? Colors.white : AppTheme.textColor,
           ),
         );
       }).toList(),
@@ -132,8 +134,8 @@ class _MultiChoiceInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+      spacing: 10,
+      runSpacing: 10,
       children: options.map((opt) {
         final selected = values.contains(opt);
         return FilterChip(
@@ -150,6 +152,12 @@ class _MultiChoiceInput extends StatelessWidget {
           },
           selectedColor: AppTheme.primaryLight,
           checkmarkColor: AppTheme.primaryBlue,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          labelStyle: FigmaUi.rubik(
+            fontSize: 15,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            color: AppTheme.textColor,
+          ),
         );
       }).toList(),
     );
@@ -175,7 +183,7 @@ class _LikertInput extends StatelessWidget {
               onTap: () => onChanged(n),
               borderRadius: BorderRadius.circular(10),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 decoration: BoxDecoration(
                   color: selected ? AppTheme.primaryBlue : AppTheme.surface,
                   borderRadius: BorderRadius.circular(10),
@@ -185,7 +193,7 @@ class _LikertInput extends StatelessWidget {
                   child: Text(
                     '$n',
                     style: FigmaUi.rubik(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: selected ? Colors.white : AppTheme.textColor,
                     ),
@@ -221,7 +229,7 @@ class _NrsInput extends StatelessWidget {
         ),
         Text(
           'Aktuell: ${value ?? 0}',
-          style: FigmaUi.bodyLight(fontSize: 14, color: AppTheme.textColorSecondary),
+          style: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColorSecondary),
         ),
       ],
     );
@@ -266,14 +274,20 @@ class _TextInputState extends State<_TextInput> {
     return TextField(
       controller: _controller,
       maxLines: 4,
+      style: FigmaUi.rubik(fontSize: 17, color: AppTheme.textColor),
       onChanged: widget.onChanged,
       decoration: InputDecoration(
         filled: true,
         fillColor: AppTheme.background,
+        contentPadding: const EdgeInsets.all(16),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: AppTheme.navy.withValues(alpha: 0.12)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppTheme.primaryBlue, width: 2),
         ),
       ),
     );

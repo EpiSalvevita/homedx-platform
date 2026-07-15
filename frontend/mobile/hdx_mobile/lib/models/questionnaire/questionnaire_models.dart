@@ -1,3 +1,8 @@
+/// Stored in answers so drafts remember Kurz vs Voll.
+const kQuestionnaireFormDepthKey = '__formDepth';
+const kQuestionnaireFormDepthKurz = 'kurz';
+const kQuestionnaireFormDepthVoll = 'voll';
+
 class QuestionnaireShowIf {
   final String field;
   final String equals;
@@ -19,6 +24,8 @@ class QuestionnaireField {
   final String label;
   final List<String> options;
   final QuestionnaireShowIf? showIf;
+  /// Which form depths include this field (`kurz` / `voll`). Empty = both.
+  final List<String> depth;
 
   const QuestionnaireField({
     required this.id,
@@ -27,9 +34,11 @@ class QuestionnaireField {
     required this.label,
     this.options = const [],
     this.showIf,
+    this.depth = const [kQuestionnaireFormDepthKurz, kQuestionnaireFormDepthVoll],
   });
 
   factory QuestionnaireField.fromJson(Map<String, dynamic> json) {
+    final rawDepth = json['depth'] as List<dynamic>?;
     return QuestionnaireField(
       id: json['id'] as String,
       type: json['type'] as String,
@@ -42,8 +51,13 @@ class QuestionnaireField {
       showIf: json['show_if'] != null
           ? QuestionnaireShowIf.fromJson(json['show_if'] as Map<String, dynamic>)
           : null,
+      depth: rawDepth == null || rawDepth.isEmpty
+          ? const [kQuestionnaireFormDepthKurz, kQuestionnaireFormDepthVoll]
+          : rawDepth.map((e) => e as String).toList(),
     );
   }
+
+  bool includesDepth(String formDepth) => depth.contains(formDepth);
 }
 
 class QuestionnaireSection {
@@ -104,15 +118,23 @@ class QuestionnairePackage {
   final String packageVersion;
   final String language;
   final List<QuestionnaireModule> modules;
+  final List<String> formDepths;
+  final String defaultFormDepth;
 
   const QuestionnairePackage({
     required this.project,
     required this.packageVersion,
     required this.language,
     required this.modules,
+    this.formDepths = const [kQuestionnaireFormDepthKurz, kQuestionnaireFormDepthVoll],
+    this.defaultFormDepth = kQuestionnaireFormDepthKurz,
   });
 
   factory QuestionnairePackage.fromJson(Map<String, dynamic> json) {
+    final depths = (json['form_depths'] as List<dynamic>?)
+            ?.map((e) => e as String)
+            .toList() ??
+        const [kQuestionnaireFormDepthKurz, kQuestionnaireFormDepthVoll];
     return QuestionnairePackage(
       project: json['project'] as String,
       packageVersion: json['package_version'] as String,
@@ -120,6 +142,9 @@ class QuestionnairePackage {
       modules: (json['modules'] as List<dynamic>)
           .map((e) => QuestionnaireModule.fromJson(e as Map<String, dynamic>))
           .toList(),
+      formDepths: depths,
+      defaultFormDepth:
+          json['default_form_depth'] as String? ?? kQuestionnaireFormDepthKurz,
     );
   }
 }
@@ -226,4 +251,13 @@ class QuestionnaireStep {
     required this.index,
     required this.total,
   });
+}
+
+String normalizeFormDepth(String? raw) {
+  if (raw == kQuestionnaireFormDepthVoll) return kQuestionnaireFormDepthVoll;
+  return kQuestionnaireFormDepthKurz;
+}
+
+String formDepthFromAnswers(Map<String, dynamic> answers) {
+  return normalizeFormDepth(answers[kQuestionnaireFormDepthKey]?.toString());
 }

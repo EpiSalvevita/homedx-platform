@@ -34,7 +34,7 @@ class QuestionnaireDoneScreen extends StatelessWidget {
             24,
           ),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
+            constraints: const BoxConstraints(maxWidth: 520),
             child: NeumorphicRaisedCard(
               height: null,
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 36),
@@ -42,47 +42,49 @@ class QuestionnaireDoneScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 64,
-                    height: 64,
+                    width: 80,
+                    height: 80,
                     decoration: const BoxDecoration(
                       color: AppTheme.primaryLight,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.check_circle_outline,
-                      size: 36,
+                      size: 44,
                       color: AppTheme.primaryBlue,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   Text(
                     'Vielen Dank!',
                     style: FigmaUi.rubik(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w600,
                       color: AppTheme.textColor,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Text(
                     'Bogen $moduleId wurde erfolgreich übermittelt. Ihre Antworten wurden gespeichert.',
                     textAlign: TextAlign.center,
                     style: FigmaUi.bodyLight(
-                      fontSize: 14,
+                      fontSize: 17,
                       color: AppTheme.textColorSecondary,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 28),
                   NeumorphicPillButton(
                     label: 'Zurück zu Fragebögen',
+                    height: AppTheme.buttonHeightLarge,
                     backgroundColor: AppTheme.primaryBlue,
                     foregroundColor: Colors.white,
                     onPressed: () => context.go(hubRoute),
                   ),
                   if (returnRoute != null && returnRoute!.isNotEmpty) ...[
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     NeumorphicPillButton(
                       label: 'Weiter im Ablauf',
+                      height: AppTheme.buttonHeightLarge,
                       backgroundColor: AppTheme.accentMint,
                       foregroundColor: AppTheme.onMint,
                       onPressed: () => context.go(returnRoute!),

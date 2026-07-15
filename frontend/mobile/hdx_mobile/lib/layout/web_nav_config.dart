@@ -68,6 +68,7 @@ class WebNavConfig {
     if (path.startsWith('/appointments/') && path.endsWith('/call')) return 'Videoanruf';
     if (path.startsWith('/appointments/')) return 'Termin';
     if (path.startsWith('/shop/')) return 'Shop';
+    if (path.startsWith('/payments/')) return 'Zahlungsdetails';
     if (path.startsWith('/results/')) return 'Ergebnis';
     if (path.startsWith('/tests')) return 'Tests';
     if (path.startsWith('/bluetooth')) return 'Bluetooth';

@@ -22,6 +22,7 @@ bool passesSupplementalRules(
         'A_morning_stiffness',
         'A_morning_stiffness_duration',
         'A_affected_joints',
+        'A_joint_count',
         'A_joint_swelling',
         'A_symmetrical',
         'A_pain_nrs',
@@ -30,6 +31,15 @@ bool passesSupplementalRules(
         'A_prior_physician_contact',
       };
       if (hidden.contains(fieldId)) return false;
+    }
+    // Vollversion gate: A_v05 = aktuelle Gelenkschmerzen
+    final vollPain = (answers['A_v05'] ?? '').toString();
+    if (vollPain == 'nein') {
+      const vollHidden = {
+        'A_v06', 'A_v07', 'A_v08', 'A_v09', 'A_v10', 'A_v11', 'A_v12',
+        'A_v13', 'A_v14', 'A_v15', 'A_v16',
+      };
+      if (vollHidden.contains(fieldId)) return false;
     }
   }
 
@@ -51,6 +61,8 @@ bool passesSupplementalRules(
         'C_visual_readability',
         'C_result_shown',
         'C_result_understood',
+        'C_overall_nrs',
+        'C_would_reuse',
       };
       if (testOnly.contains(fieldId)) return false;
     }
@@ -68,6 +80,8 @@ bool isFieldVisible(
   QuestionnaireField field,
   Map<String, dynamic> answers,
 ) {
+  final depth = formDepthFromAnswers(answers);
+  if (!field.includesDepth(depth)) return false;
   if (!matchesShowIf(field.showIf, answers)) return false;
   return passesSupplementalRules(moduleId, field.id, answers);
 }

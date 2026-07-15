@@ -56,7 +56,12 @@ class _ShopScreenState extends State<ShopScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppTheme.screenHorizontalPadding, 8, AppTheme.screenHorizontalPadding, 12),
+            padding: EdgeInsets.fromLTRB(
+              kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+              8,
+              kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+              16,
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -81,24 +86,30 @@ class _ShopScreenState extends State<ShopScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _error != null
-                    ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                        Text('Fehler: $_error', style: FigmaUi.rubik(color: AppTheme.textColor)),
-                        const SizedBox(height: 16),
-                        NeumorphicPillButton(label: 'Erneut versuchen', height: 52, onPressed: _loadProducts),
-                      ]))
+                    ? FigmaEmptyState(
+                        icon: Icons.error_outline,
+                        title: 'Shop konnte nicht geladen werden',
+                        message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
+                        actionLabel: 'Erneut versuchen',
+                        onAction: _loadProducts,
+                      )
                     : _filteredProducts.isEmpty
-                        ? Center(child: Text('Keine Produkte gefunden', style: FigmaUi.rubik(color: AppTheme.textColor)))
+                        ? const FigmaEmptyState(
+                            icon: Icons.storefront_outlined,
+                            title: 'Keine Produkte gefunden',
+                            message: 'In dieser Kategorie sind derzeit keine Artikel verfügbar.',
+                          )
                         : kIsWeb
                         ? LayoutBuilder(
                             builder: (context, constraints) {
                               final cols = webGridColumnCount(constraints.maxWidth);
                               return GridView.builder(
-                                padding: const EdgeInsets.all(24),
+                                padding: const EdgeInsets.fromLTRB(32, 8, 32, 24),
                                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: cols,
-                                  crossAxisSpacing: 16,
-                                  mainAxisSpacing: 16,
-                                  childAspectRatio: 0.85,
+                                  crossAxisSpacing: 20,
+                                  mainAxisSpacing: 20,
+                                  childAspectRatio: 0.82,
                                 ),
                                 itemCount: _filteredProducts.length,
                                 itemBuilder: (context, index) => _ProductCard(
@@ -111,7 +122,7 @@ class _ShopScreenState extends State<ShopScreen> {
                         : ListView.separated(
                             padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
                             itemCount: _filteredProducts.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 14),
+                            separatorBuilder: (_, __) => const SizedBox(height: 16),
                             itemBuilder: (context, index) => _ProductCard(product: _filteredProducts[index], cartProvider: cartProvider),
                           ),
           ),
@@ -128,28 +139,37 @@ class _CartIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 39,
+      width: AppTheme.largeTouchTarget,
+      height: AppTheme.largeTouchTarget,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           IconButton(
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 39, minHeight: 39),
-            icon: const Icon(Icons.shopping_cart_outlined),
+            constraints: const BoxConstraints(
+              minWidth: AppTheme.largeTouchTarget,
+              minHeight: AppTheme.largeTouchTarget,
+            ),
+            icon: const Icon(Icons.shopping_cart_outlined, size: 26),
+            tooltip: 'Warenkorb',
             onPressed: () => context.push('/shop/cart'),
           ),
           if (cartProvider.itemCount > 0)
             Positioned(
-              right: 4,
-              top: 4,
+              right: 6,
+              top: 6,
               child: Container(
-                width: 18,
-                height: 18,
+                constraints: const BoxConstraints(minWidth: 22, minHeight: 22),
+                padding: const EdgeInsets.symmetric(horizontal: 5),
                 decoration: const BoxDecoration(color: AppTheme.errorColor, shape: BoxShape.circle),
                 child: Center(
                   child: Text(
                     '${cartProvider.itemCount}',
-                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                    style: FigmaUi.rubik(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -192,7 +212,7 @@ class _ProductCard extends StatelessWidget {
                     color: AppTheme.background,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.sell_outlined, color: AppTheme.primaryBlue, size: 22),
+                  child: const Icon(Icons.sell_outlined, color: AppTheme.primaryBlue, size: 26),
                 ),
                 const Spacer(),
                 if (isInCart)
@@ -218,30 +238,33 @@ class _ProductCard extends StatelessWidget {
                             );
                           },
                     child: Container(
-                      width: 40,
-                      height: 40,
+                      width: 48,
+                      height: 48,
                       decoration: BoxDecoration(
                         color: AppTheme.primaryLight,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.shopping_cart_outlined, color: AppTheme.primaryBlue, size: 20),
+                      child: const Icon(Icons.shopping_cart_outlined, color: AppTheme.primaryBlue, size: 24),
                     ),
                   ),
               ],
             ),
+            const SizedBox(height: 14),
+            Text(product.name, style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.textColor)),
+            const SizedBox(height: 6),
+            Text(product.description, style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w400, color: AppTheme.textColorSecondary), maxLines: 2, overflow: TextOverflow.ellipsis),
             const SizedBox(height: 12),
-            Text(product.name, style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor)),
-            const SizedBox(height: 4),
-            Text(product.description, style: FigmaUi.rubik(fontSize: 13, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary), maxLines: 2, overflow: TextOverflow.ellipsis),
-            const SizedBox(height: 10),
             const Divider(height: 1, color: Color(0x1A142543)),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Row(
               children: [
-                Text('${product.price.toStringAsFixed(2)} €', style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.primaryBlue)),
+                Text('${product.price.toStringAsFixed(2)} €', style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.primaryBlue)),
                 if (product.stock != null) ...[
                   const SizedBox(width: 14),
-                  Text('${product.stock} verfügbar', style: TextStyle(fontSize: 13, color: AppTheme.textColorSecondary)),
+                  Text(
+                    '${product.stock} verfügbar',
+                    style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w400, color: AppTheme.textColorSecondary),
+                  ),
                 ],
               ],
             ),
@@ -265,8 +288,13 @@ class _QuantityControls extends StatelessWidget {
       children: [
         _QtyBtn(icon: Icons.remove, onTap: onDecrement, neumorphic: true),
         SizedBox(
-          width: 36,
-          child: Center(child: Text('$quantity', style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor))),
+          width: 40,
+          child: Center(
+            child: Text(
+              '$quantity',
+              style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.textColor),
+            ),
+          ),
         ),
         _QtyBtn(icon: Icons.add, onTap: onIncrement, neumorphic: true),
       ],
@@ -285,11 +313,11 @@ class _QtyBtn extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 56,
-        height: 56,
+        width: 44,
+        height: 44,
         decoration: BoxDecoration(
           color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: neumorphic ? AppTheme.neumorphicRaised : null,
         ),
         child: Icon(icon, color: AppTheme.textColor, size: 22),

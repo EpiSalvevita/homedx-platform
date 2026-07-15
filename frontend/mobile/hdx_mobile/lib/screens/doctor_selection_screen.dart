@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -121,21 +122,33 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
           if (widget.testTypeId != null && widget.testTypeId!.isNotEmpty)
             _buildTestContextBanner(context),
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppTheme.screenHorizontalPadding,
+            padding: EdgeInsets.fromLTRB(
+              kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
               16,
-              AppTheme.screenHorizontalPadding,
+              kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
               0,
             ),
             child: TextField(
+              style: FigmaUi.rubik(fontSize: 17, color: AppTheme.textColor),
               decoration: InputDecoration(
-                hintText: 'Arzt oder Fachrichtung suchen...',
-                prefixIcon: const Icon(Icons.search),
+                hintText: 'Arzt oder Fachrichtung suchen…',
+                hintStyle: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColorSecondary),
+                prefixIcon: const Icon(Icons.search, size: 24, color: AppTheme.primaryBlue),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppTheme.pillRadius),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.pillRadius),
+                  borderSide: BorderSide(color: AppTheme.navy.withValues(alpha: 0.12)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.pillRadius),
+                  borderSide: const BorderSide(color: AppTheme.primaryBlue, width: 2),
                 ),
                 filled: true,
-                fillColor: Colors.grey[100],
+                fillColor: AppTheme.surface,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               ),
               onChanged: (value) {
                 setState(() {
@@ -146,10 +159,10 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
           ),
           if (_filterLanguages.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppTheme.screenHorizontalPadding,
-                16,
-                AppTheme.screenHorizontalPadding,
+              padding: EdgeInsets.fromLTRB(
+                kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+                20,
+                kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
                 24,
               ),
               child: _LanguageFilterBar(
@@ -183,31 +196,47 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
     return Container(
       key: const Key('doctor-selection-test-banner'),
       width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      padding: const EdgeInsets.all(14),
+      margin: EdgeInsets.fromLTRB(
+        kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+        16,
+        kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+        0,
+      ),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
+        color: AppTheme.primaryBlue.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: Theme.of(context).primaryColor.withValues(alpha: 0.25),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.25),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.medical_services_outlined,
-              color: Theme.of(context).primaryColor),
-          const SizedBox(width: 12),
+          const Icon(Icons.medical_services_outlined, size: 28, color: AppTheme.primaryBlue),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   headline,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: FigmaUi.rubik(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textColor,
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Text(body, style: const TextStyle(fontSize: 13)),
+                const SizedBox(height: 6),
+                Text(
+                  body,
+                  style: FigmaUi.rubik(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                    color: AppTheme.textColorSecondary,
+                    height: 1.35,
+                  ),
+                ),
               ],
             ),
           ),
@@ -224,71 +253,20 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
     }
 
     if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                size: 80,
-                color: Colors.red,
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Fehler beim Laden',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                _error!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _loadDoctors,
-                child: const Text('Erneut versuchen'),
-              ),
-            ],
-          ),
-        ),
+      return FigmaEmptyState(
+        icon: Icons.error_outline,
+        title: 'Ärzte konnten nicht geladen werden',
+        message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
+        actionLabel: 'Erneut versuchen',
+        onAction: _loadDoctors,
       );
     }
 
     if (_filteredDoctors.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.person_search,
-                size: 80,
-                color: Colors.grey,
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Keine Ärzte gefunden',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Versuchen Sie eine andere Suche',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-            ],
-          ),
-        ),
+      return const FigmaEmptyState(
+        icon: Icons.person_search,
+        title: 'Keine Ärzte gefunden',
+        message: 'Versuchen Sie eine andere Suche oder Sprache.',
       );
     }
 
@@ -296,18 +274,25 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
       onRefresh: _loadDoctors,
       child: LayoutBuilder(
         builder: (context, constraints) {
+          final contentWidth = constraints.maxWidth;
           return SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(
-              AppTheme.screenHorizontalPadding,
+            padding: EdgeInsets.fromLTRB(
+              kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
               8,
-              AppTheme.screenHorizontalPadding,
+              kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
               24,
             ),
-            child: _DoctorTileGrid(
-              width: constraints.maxWidth,
-              doctors: _filteredDoctors,
-              onDoctorTap: _openDoctorBooking,
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1100),
+                child: _DoctorTileGrid(
+                  width: contentWidth.clamp(0.0, 1100.0),
+                  doctors: _filteredDoctors,
+                  onDoctorTap: _openDoctorBooking,
+                ),
+              ),
             ),
           );
         },
@@ -427,34 +412,34 @@ class _DoctorTile extends StatelessWidget {
       expandHeight: true,
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 16, 12, 14),
+        padding: const EdgeInsets.fromLTRB(14, 18, 14, 16),
         child: Column(
           children: [
             const Icon(
               Icons.person_outline,
-              size: 40,
+              size: 44,
               color: AppTheme.primaryBlue,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Text(
               doctor.name,
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: FigmaUi.rubik(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
                 color: AppTheme.textColor,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(
               doctor.specialization,
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: FigmaUi.bodyLight(
-                fontSize: 12,
+                fontSize: 14,
                 color: AppTheme.textColorSecondary,
               ),
             ),
@@ -465,29 +450,29 @@ class _DoctorTile extends StatelessWidget {
                 const Icon(
                   Icons.star_rounded,
                   color: Color(0xFFE8B84A),
-                  size: 14,
+                  size: 18,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   doctor.rating.toStringAsFixed(1),
                   style: FigmaUi.rubik(
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: AppTheme.textColor,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             SizedBox(
-              height: 14,
+              height: 18,
               child: Text(
                 doctor.languages.isNotEmpty ? doctor.languages.join(' · ') : '',
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: FigmaUi.bodyLight(
-                  fontSize: 11,
+                  fontSize: 13,
                   color: AppTheme.textColorSecondary,
                 ),
               ),
@@ -520,19 +505,19 @@ class _LanguageFilterBar extends StatelessWidget {
           Text(
             'Sprache',
             style: FigmaUi.rubik(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
               color: AppTheme.textColor,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Align(
             alignment: Alignment.centerLeft,
             child: Wrap(
               alignment: WrapAlignment.start,
               crossAxisAlignment: WrapCrossAlignment.start,
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 10,
+              runSpacing: 10,
               children: [
                 _LanguageFilterChip(
                   key: const ValueKey('doctor-lang-filter-all'),
@@ -576,7 +561,7 @@ class _LanguageFilterChip extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: selected ? AppTheme.primaryBlue : AppTheme.background,
             borderRadius: BorderRadius.circular(20),
@@ -585,7 +570,7 @@ class _LanguageFilterChip extends StatelessWidget {
           child: Text(
             label,
             style: FigmaUi.rubik(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
               color: selected ? Colors.white : AppTheme.textColor,
             ),

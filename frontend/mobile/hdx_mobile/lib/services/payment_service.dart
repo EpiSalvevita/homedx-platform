@@ -9,16 +9,17 @@ class PaymentService {
     required String userId,
     required String paymentMethod,
     String? rapidTestId,
-    // Legacy params kept for call-site compatibility; server computes amount.
+    // Legacy params kept for call-site compatibility; server prefers [items].
     double? amount,
     String? currency,
-    List<dynamic>? items,
+    List<Map<String, dynamic>>? items,
   }) async {
     final response = await _api.post(
       'create-payment',
       body: {
         'paymentMethod': paymentMethod,
         if (rapidTestId != null) 'rapidTestId': rapidTestId,
+        if (items != null && items.isNotEmpty) 'items': items,
       },
     );
 

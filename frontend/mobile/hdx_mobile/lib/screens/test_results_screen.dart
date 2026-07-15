@@ -79,43 +79,58 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
           ),
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
-            Text(
-              'Tippen Sie auf einen Eintrag für Details.',
-              style: FigmaUi.bodyLight(
-                fontSize: 14,
-                color: AppTheme.textColorSecondary,
+            Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Tippen Sie auf einen Eintrag für Details.',
+                      style: FigmaUi.bodyLight(
+                        fontSize: 17,
+                        color: AppTheme.textColorSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    if (_isLoading)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    else if (_error != null)
+                      FigmaEmptyState(
+                        icon: Icons.error_outline,
+                        title: 'Ergebnisse konnten nicht geladen werden',
+                        message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
+                        actionLabel: 'Erneut versuchen',
+                        onAction: _loadResults,
+                      )
+                    else if (_results.isEmpty)
+                      FigmaEmptyState(
+                        icon: Icons.assignment_outlined,
+                        title: 'Noch keine Testergebnisse',
+                        message: kIsWeb
+                            ? 'Ergebnisse erscheinen hier nach einem Test in der Android-App.'
+                            : 'Starten Sie einen Test, um Ergebnisse zu sehen.',
+                      )
+                    else
+                      ..._results.map(
+                        (item) => Padding(
+                          padding: const EdgeInsets.only(bottom: AppTheme.testResultCardSpacing),
+                          child: _ResultCard(
+                            item: item,
+                            onTap: () => _openResultDetail(item),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 16),
-            if (_isLoading)
-              const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator()))
-            else if (_error != null)
-              FigmaListCard(
-                leading: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
-                  child: const Icon(Icons.error_outline, color: AppTheme.errorColor),
-                ),
-                title: 'Ergebnisse konnten nicht geladen werden',
-                subtitle: _error!,
-              )
-            else if (_results.isEmpty)
-              FigmaEmptyState(
-                icon: Icons.assignment_outlined,
-                title: 'Noch keine Testergebnisse',
-                message: kIsWeb
-                    ? 'Ergebnisse erscheinen hier nach einem Test in der Android-App.'
-                    : 'Starten Sie einen Test, um Ergebnisse zu sehen.',
-              )
-            else
-              ..._results.map((item) => Padding(
-                    padding: const EdgeInsets.only(bottom: AppTheme.testResultCardSpacing),
-                    child: _ResultCard(
-                      item: item,
-                      onTap: () => _openResultDetail(item),
-                    ),
-                  )),
           ],
         ),
       ),
@@ -141,38 +156,74 @@ class _ResultCard extends StatelessWidget {
 
     final kind = item.resultKind;
 
+    // Hug content: fixed testResultCardHeight (136) is 1px short once date row +
+    // divider + 22px padding are laid out (common yellow/black overflow stripe).
     return NeumorphicRaisedCard(
       onTap: onTap,
+      height: null,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
               Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppTheme.background,
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Icon(
                   TestResultBadge.iconForKind(kind),
                   color: TestResultBadge.iconColorForKind(kind),
-                  size: 20,
+                  size: 26,
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: Text(item.displayTestName, style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor)),
+                child: Text(
+                  item.displayTestName,
+                  style: FigmaUi.rubik(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.textColor,
+                  ),
+                ),
               ),
+              const SizedBox(width: 8),
               TestResultBadge(result: item, showIcon: false),
               const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward_ios, size: 14, color: AppTheme.textColorSecondary),
+              const Icon(
+                Icons.arrow_forward_ios,
+                size: 18,
+                color: AppTheme.textColorSecondary,
+              ),
             ],
           ),
           if (dateStr.isNotEmpty) ...[
-            const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(height: 1, color: Color(0x1A142543))),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 14),
+              child: Divider(height: 1, color: Color(0x1A142543)),
+            ),
             Row(
               children: [
-                Text(dateStr, style: FigmaUi.rubik(fontSize: 12, fontWeight: FontWeight.w300, color: AppTheme.primaryBlue)),
+                Text(
+                  dateStr,
+                  style: FigmaUi.rubik(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                    color: AppTheme.textColorSecondary,
+                  ),
+                ),
                 const Spacer(),
-                Text(timeStr, style: FigmaUi.rubik(fontSize: 12, fontWeight: FontWeight.w300, color: AppTheme.primaryBlue)),
+                Text(
+                  timeStr,
+                  style: FigmaUi.rubik(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                    color: AppTheme.textColorSecondary,
+                  ),
+                ),
               ],
             ),
           ],

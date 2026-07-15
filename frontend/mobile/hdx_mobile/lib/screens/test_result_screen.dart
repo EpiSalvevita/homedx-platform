@@ -67,113 +67,129 @@ class TestResultScreen extends StatelessWidget {
           kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
           24,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            NeumorphicRaisedCard(
-              height: null,
-              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 28),
-              child: Column(
-                children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: badgeBg,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(badgeIcon, size: 36, color: badgeIconColor),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: AppTheme.resultBadgePadding,
-                    decoration: BoxDecoration(
-                      color: badgeBg,
-                      borderRadius: BorderRadius.circular(AppTheme.resultBadgeRadius),
-                      border: kind == TestResultKind.pending
-                          ? Border.all(color: AppTheme.primaryBlue, width: 1.5)
-                          : null,
-                    ),
-                    child: Text(
-                      _resultLabel,
-                      style: FigmaUi.rubik(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: badgeFg,
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                NeumorphicRaisedCard(
+                  height: null,
+                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 28),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: badgeBg,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(badgeIcon, size: 40, color: badgeIconColor),
                       ),
-                    ),
+                      const SizedBox(height: 20),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: badgeBg,
+                          borderRadius: BorderRadius.circular(AppTheme.resultBadgeRadius),
+                          border: kind == TestResultKind.pending
+                              ? Border.all(color: AppTheme.primaryBlue, width: 1.5)
+                              : null,
+                        ),
+                        child: Text(
+                          _resultLabel,
+                          style: FigmaUi.rubik(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            color: badgeFg,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        testTypeName,
+                        textAlign: TextAlign.center,
+                        style: FigmaUi.rubik(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _formatDate(when),
+                        textAlign: TextAlign.center,
+                        style: FigmaUi.bodyLight(
+                          fontSize: 17,
+                          color: AppTheme.textColorSecondary,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 14),
+                ),
+                if (result.resultData != null && result.resultData!.isNotEmpty) ...[
+                  const SizedBox(height: 32),
                   Text(
-                    testTypeName,
-                    textAlign: TextAlign.center,
+                    'Detaillierte Ergebnisse',
                     style: FigmaUi.rubik(
                       fontSize: 20,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                       color: AppTheme.textColor,
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    _formatDate(when),
-                    textAlign: TextAlign.center,
-                    style: FigmaUi.bodyLight(
-                      fontSize: 14,
-                      color: AppTheme.textColorSecondary,
+                  const SizedBox(height: 16),
+                  ...result.resultData!.map(_buildResultRow),
+                ],
+                const SizedBox(height: 32),
+                if (isPositive) ...[
+                  _buildBookSpecialistCta(context),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12, bottom: 16),
+                    child: Text(
+                      'Empfohlen: ${TestSpecializationMapping.primarySpecialization(testTypeId)}',
+                      textAlign: TextAlign.center,
+                      style: FigmaUi.bodyLight(fontSize: 17),
                     ),
                   ),
                 ],
-              ),
-            ),
-            if (result.resultData != null && result.resultData!.isNotEmpty) ...[
-              const SizedBox(height: 28),
-              const FigmaSectionTitle('Detaillierte Ergebnisse'),
-              const SizedBox(height: 12),
-              ...result.resultData!.map(_buildResultRow),
-            ],
-            const SizedBox(height: 28),
-            if (isPositive) ...[
-              _buildBookSpecialistCta(context),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Text(
-                  'Empfohlen: ${TestSpecializationMapping.primarySpecialization(testTypeId)}',
-                  textAlign: TextAlign.center,
-                  style: FigmaUi.bodyLight(fontSize: 13),
+                if (result.testId != null && result.testId!.isNotEmpty) ...[
+                  NeumorphicPillButton(
+                    label: 'Usability-Fragebogen (Bogen C)',
+                    leadingIcon: Icons.quiz_outlined,
+                    height: AppTheme.buttonHeightLarge,
+                    backgroundColor: AppTheme.surface,
+                    foregroundColor: AppTheme.textColor,
+                    onPressed: () {
+                      final returnPath = Uri.encodeComponent('/results');
+                      context.push(
+                        '/questionnaires/C?rapidTestId=${result.testId}&return=$returnPath',
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                NeumorphicPillButton(
+                  label: 'Zurück zu Ergebnissen',
+                  leadingIcon: Icons.arrow_back,
+                  height: AppTheme.buttonHeightLarge,
+                  backgroundColor: isPositive ? AppTheme.surface : AppTheme.primaryBlue,
+                  foregroundColor: isPositive ? AppTheme.textColor : Colors.white,
+                  onPressed: () => context.canPop() ? context.pop() : context.go('/results'),
                 ),
-              ),
-            ],
-            if (result.testId != null && result.testId!.isNotEmpty) ...[
-              NeumorphicPillButton(
-                label: 'Usability-Fragebogen (Bogen C)',
-                leadingIcon: Icons.quiz_outlined,
-                backgroundColor: AppTheme.surface,
-                foregroundColor: AppTheme.textColor,
-                onPressed: () {
-                  final returnPath = Uri.encodeComponent('/results');
-                  context.push(
-                    '/questionnaires/C?rapidTestId=${result.testId}&return=$returnPath',
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
-            ],
-            NeumorphicPillButton(
-              label: 'Zurück zu Ergebnissen',
-              leadingIcon: Icons.arrow_back,
-              backgroundColor: isPositive ? AppTheme.surface : AppTheme.primaryBlue,
-              foregroundColor: isPositive ? AppTheme.textColor : Colors.white,
-              onPressed: () => context.canPop() ? context.pop() : context.go('/results'),
+                const SizedBox(height: 16),
+                NeumorphicPillButton(
+                  label: 'Zur Startseite',
+                  leadingIcon: Icons.home_outlined,
+                  height: AppTheme.buttonHeightLarge,
+                  backgroundColor: AppTheme.accentMint,
+                  foregroundColor: AppTheme.onMint,
+                  onPressed: () => context.go('/home'),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            NeumorphicPillButton(
-              label: 'Zur Startseite',
-              leadingIcon: Icons.home_outlined,
-              backgroundColor: AppTheme.accentMint,
-              foregroundColor: AppTheme.onMint,
-              onPressed: () => context.go('/home'),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -184,6 +200,7 @@ class TestResultScreen extends StatelessWidget {
       key: const Key('book-specialist-cta'),
       label: 'Termin mit Facharzt buchen',
       leadingIcon: Icons.calendar_today_outlined,
+      height: AppTheme.buttonHeightLarge,
       backgroundColor: AppTheme.primaryBlue,
       foregroundColor: Colors.white,
       onPressed: () {
@@ -211,7 +228,7 @@ class TestResultScreen extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: AppTheme.testResultCardSpacing),
       child: NeumorphicRaisedCard(
         height: null,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(22),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -222,12 +239,12 @@ class TestResultScreen extends StatelessWidget {
                   Text(
                     data.name,
                     style: FigmaUi.rubik(
-                      fontSize: 15,
+                      fontSize: 17,
                       fontWeight: FontWeight.w500,
                       color: AppTheme.textColor,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
@@ -235,16 +252,16 @@ class TestResultScreen extends StatelessWidget {
                       Text(
                         data.value,
                         style: FigmaUi.rubik(
-                          fontSize: 22,
+                          fontSize: 26,
                           fontWeight: FontWeight.w600,
                           color: AppTheme.primaryBlue,
                         ),
                       ),
                       if (data.unit.isNotEmpty) ...[
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 8),
                         Text(
                           data.unit,
-                          style: FigmaUi.bodyLight(fontSize: 14),
+                          style: FigmaUi.bodyLight(fontSize: 17),
                         ),
                       ],
                     ],
@@ -253,7 +270,7 @@ class TestResultScreen extends StatelessWidget {
               ),
             ),
             Container(
-              padding: AppTheme.resultBadgePadding,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: validityColor.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(AppTheme.resultBadgeRadius),
@@ -261,8 +278,8 @@ class TestResultScreen extends StatelessWidget {
               child: Text(
                 data.validityLabel,
                 style: FigmaUi.rubik(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
                   color: validityColor,
                 ),
               ),

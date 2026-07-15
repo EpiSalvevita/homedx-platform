@@ -10,6 +10,13 @@ import { PayPalService } from './paypal.service';
 import { PrismaService } from './prisma.service';
 import { MobileNotificationService } from './mobile-notification.service';
 
+export interface MobilePaymentLineItem {
+  productId: string;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+}
+
 export interface MobilePaymentRecord {
   id: string;
   userId: string;
@@ -18,6 +25,7 @@ export interface MobilePaymentRecord {
   method: string;
   status: string;
   description?: string | null;
+  lineItems?: MobilePaymentLineItem[] | null;
   transactionId?: string | null;
   rapidTestId?: string | null;
   stripePaymentIntentId?: string | null;
@@ -59,15 +67,35 @@ export class MobilePaymentService {
     body: {
       paymentMethod?: string;
       rapidTestId?: string;
+      items?: Array<{
+        productId: string;
+        name: string;
+        quantity: number;
+        unitPrice: number;
+      }>;
     },
   ): Promise<MobilePaymentRecord> {
-    const amount = this.getServerChargeAmount();
+    const lineItems = this.normalizeLineItems(body.items);
+    const amount = lineItems.length
+      ? this.amountFromLineItems(lineItems)
+      : this.getServerChargeAmount();
+
+    if (amount <= 0) {
+      throw new BadRequestException('Ungültiger Betrag');
+    }
+
+    const description = lineItems.length
+      ? lineItems.map((i) => `${i.quantity}× ${i.name}`).join(', ')
+      : undefined;
+
     const payment = await this.paymentService.create({
       userId,
       amount,
       currency: MobilePaymentService.DEFAULT_CURRENCY,
       paymentMethod: body.paymentMethod ?? 'CREDIT_CARD',
       rapidTestId: body.rapidTestId,
+      description,
+      lineItems: lineItems.length ? lineItems : undefined,
     });
     return this.toMobilePayment(payment);
   }
@@ -298,6 +326,46 @@ export class MobilePaymentService {
     return payment;
   }
 
+  private normalizeLineItems(
+    items?: Array<{
+      productId: string;
+      name: string;
+      quantity: number;
+      unitPrice: number;
+    }>,
+  ): MobilePaymentLineItem[] {
+    if (!items?.length) return [];
+    return items
+      .map((item) => ({
+        productId: String(item.productId ?? '').trim(),
+        name: String(item.name ?? '').trim(),
+        quantity: Math.max(1, Math.floor(Number(item.quantity) || 0)),
+        unitPrice: Math.round((Number(item.unitPrice) || 0) * 100) / 100,
+      }))
+      .filter((item) => item.productId && item.name && item.unitPrice >= 0);
+  }
+
+  private amountFromLineItems(items: MobilePaymentLineItem[]): number {
+    const total = items.reduce(
+      (sum, item) => sum + item.quantity * item.unitPrice,
+      0,
+    );
+    return Math.round(total * 100) / 100;
+  }
+
+  private parseLineItems(raw: unknown): MobilePaymentLineItem[] | null {
+    if (!Array.isArray(raw)) return null;
+    const items = this.normalizeLineItems(
+      raw as Array<{
+        productId: string;
+        name: string;
+        quantity: number;
+        unitPrice: number;
+      }>,
+    );
+    return items.length ? items : null;
+  }
+
   private toMobilePayment(payment: {
     id: string;
     userId: string;
@@ -306,6 +374,7 @@ export class MobilePaymentService {
     method: string;
     status: string;
     description?: string | null;
+    lineItems?: unknown;
     transactionId?: string | null;
     rapidTestId?: string | null;
     stripePaymentIntentId?: string | null;
@@ -323,6 +392,7 @@ export class MobilePaymentService {
       method: payment.method,
       status: payment.status,
       description: payment.description,
+      lineItems: this.parseLineItems(payment.lineItems),
       transactionId: payment.transactionId,
       rapidTestId: payment.rapidTestId,
       stripePaymentIntentId: payment.stripePaymentIntentId,

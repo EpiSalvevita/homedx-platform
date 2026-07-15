@@ -28,6 +28,7 @@ import '../screens/profile_screen.dart';
 import '../screens/test_results_screen.dart';
 import '../screens/test_submission_screen.dart';
 import '../screens/payments_history_screen.dart';
+import '../screens/payment_detail_screen.dart';
 import '../screens/notifications_screen.dart';
 import '../screens/certificates_list_screen.dart';
 import '../screens/certificate_detail_screen.dart';
@@ -453,6 +454,22 @@ class AppRouter {
           path: '/payments',
           name: 'payments',
           builder: (context, state) => const PaymentsHistoryScreen(),
+          routes: [
+            GoRoute(
+              path: ':paymentId',
+              name: 'payment-detail',
+              builder: (context, state) {
+                final paymentId = state.pathParameters['paymentId'] ?? '';
+                final initial = state.extra is Map
+                    ? Map<String, dynamic>.from(state.extra as Map)
+                    : null;
+                return PaymentDetailScreen(
+                  paymentId: paymentId,
+                  initialPayment: initial,
+                );
+              },
+            ),
+          ],
         ),
         GoRoute(
           path: '/certificates',

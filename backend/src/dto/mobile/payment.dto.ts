@@ -1,4 +1,32 @@
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
+
+export class PaymentLineItemDto {
+  @IsString()
+  @MinLength(1)
+  productId: string;
+
+  @IsString()
+  @MinLength(1)
+  name: string;
+
+  @IsNumber()
+  @Min(1)
+  quantity: number;
+
+  @IsNumber()
+  @Min(0)
+  unitPrice: number;
+}
 
 export class CreatePaymentDto {
   @IsOptional()
@@ -9,6 +37,13 @@ export class CreatePaymentDto {
   @IsString()
   @MinLength(1)
   paymentMethod?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(50)
+  @ValidateNested({ each: true })
+  @Type(() => PaymentLineItemDto)
+  items?: PaymentLineItemDto[];
 }
 
 export class StripeIntentDto {

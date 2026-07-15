@@ -49,171 +49,182 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
           24,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            NeumorphicRaisedCard(
-              height: null,
-              padding: const EdgeInsets.all(22),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                NeumorphicRaisedCard(
+                  height: null,
+                  padding: const EdgeInsets.all(22),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 64,
-                        height: 64,
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryLight,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: const Icon(
-                          Icons.sell_outlined,
-                          color: AppTheme.primaryBlue,
-                          size: 28,
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryLight,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: const Icon(
+                              Icons.sell_outlined,
+                              color: AppTheme.primaryBlue,
+                              size: 30,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.product.name,
+                                  style: FigmaUi.rubik(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.textColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  _categoryLabel,
+                                  style: FigmaUi.bodyLight(fontSize: 17),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.product.name,
-                              style: FigmaUi.rubik(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.textColor,
+                      const SizedBox(height: 18),
+                      const Divider(height: 1, color: Color(0x1A142543)),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Text(
+                            '${widget.product.price.toStringAsFixed(2)} €',
+                            style: FigmaUi.rubik(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.primaryBlue,
+                            ),
+                          ),
+                          const Spacer(),
+                          if (widget.product.stock != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: inStock
+                                    ? AppTheme.successColor.withValues(alpha: 0.25)
+                                    : AppTheme.accentCoral.withValues(alpha: 0.25),
+                                borderRadius: BorderRadius.circular(AppTheme.resultBadgeRadius),
+                              ),
+                              child: Text(
+                                inStock ? '${widget.product.stock} verfügbar' : 'Ausverkauft',
+                                style: FigmaUi.rubik(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: inStock ? AppTheme.navy : AppTheme.errorColor,
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 6),
-                            Text(
-                              _categoryLabel,
-                              style: FigmaUi.bodyLight(fontSize: 13),
-                            ),
-                          ],
-                        ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        widget.product.description,
+                        style: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColor),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 18),
-                  const Divider(height: 1, color: Color(0x1A142543)),
-                  const SizedBox(height: 16),
-                  Row(
+                ),
+                const SizedBox(height: 20),
+                NeumorphicRaisedCard(
+                  height: null,
+                  padding: const EdgeInsets.all(22),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        '${widget.product.price.toStringAsFixed(2)} €',
+                        'Menge',
+                        style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _QtyBtn(
+                            icon: Icons.remove,
+                            onTap: _quantity <= 1 ? null : () => setState(() => _quantity -= 1),
+                          ),
+                          SizedBox(
+                            width: 72,
+                            child: Center(
+                              child: Text(
+                                '$_quantity',
+                                style: FigmaUi.rubik(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.textColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                          _QtyBtn(
+                            icon: Icons.add,
+                            onTap: () => setState(() => _quantity += 1),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Gesamt: ${(widget.product.price * _quantity).toStringAsFixed(2)} €',
+                        textAlign: TextAlign.center,
                         style: FigmaUi.rubik(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.primaryBlue,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textColorSecondary,
                         ),
-                      ),
-                      const Spacer(),
-                      if (widget.product.stock != null)
-                        Container(
-                          padding: AppTheme.resultBadgePadding,
-                          decoration: BoxDecoration(
-                            color: inStock
-                                ? AppTheme.successColor.withValues(alpha: 0.25)
-                                : AppTheme.accentCoral.withValues(alpha: 0.25),
-                            borderRadius: BorderRadius.circular(AppTheme.resultBadgeRadius),
-                          ),
-                          child: Text(
-                            inStock ? '${widget.product.stock} verfügbar' : 'Ausverkauft',
-                            style: FigmaUi.rubik(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: inStock ? AppTheme.navy : AppTheme.errorColor,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    widget.product.description,
-                    style: FigmaUi.bodyLight(fontSize: 15, color: AppTheme.textColor),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            NeumorphicRaisedCard(
-              height: null,
-              padding: const EdgeInsets.all(22),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const FigmaSectionTitle('Menge'),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _QtyBtn(
-                        icon: Icons.remove,
-                        onTap: _quantity <= 1 ? null : () => setState(() => _quantity -= 1),
-                      ),
-                      SizedBox(
-                        width: 72,
-                        child: Center(
-                          child: Text(
-                            '$_quantity',
-                            style: FigmaUi.rubik(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.textColor,
-                            ),
-                          ),
-                        ),
-                      ),
-                      _QtyBtn(
-                        icon: Icons.add,
-                        onTap: () => setState(() => _quantity += 1),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Gesamt: ${(widget.product.price * _quantity).toStringAsFixed(2)} €',
-                    textAlign: TextAlign.center,
-                    style: FigmaUi.rubik(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.textColorSecondary,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 24),
+                NeumorphicPillButton(
+                  label: inStock ? 'In den Warenkorb' : 'Derzeit nicht verfügbar',
+                  leadingIcon: Icons.shopping_cart_outlined,
+                  height: AppTheme.buttonHeightLarge,
+                  backgroundColor: inStock ? AppTheme.primaryBlue : AppTheme.surface,
+                  foregroundColor: inStock ? Colors.white : AppTheme.textColorSecondary,
+                  onPressed: !inStock
+                      ? null
+                      : () {
+                          cart.addItem(widget.product, quantity: _quantity);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('${widget.product.name} zum Warenkorb hinzugefügt'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                ),
+                const SizedBox(height: 16),
+                NeumorphicPillButton(
+                  label: 'Warenkorb anzeigen',
+                  leadingIcon: Icons.shopping_bag_outlined,
+                  height: AppTheme.buttonHeightLarge,
+                  backgroundColor: AppTheme.accentMint,
+                  foregroundColor: AppTheme.onMint,
+                  onPressed: () => context.push('/shop/cart'),
+                ),
+              ],
             ),
-            const SizedBox(height: 24),
-            NeumorphicPillButton(
-              label: inStock ? 'In den Warenkorb' : 'Derzeit nicht verfügbar',
-              leadingIcon: Icons.shopping_cart_outlined,
-              backgroundColor: inStock ? AppTheme.primaryBlue : AppTheme.surface,
-              foregroundColor: inStock ? Colors.white : AppTheme.textColorSecondary,
-              onPressed: !inStock
-                  ? null
-                  : () {
-                      cart.addItem(widget.product, quantity: _quantity);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${widget.product.name} zum Warenkorb hinzugefügt'),
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                    },
-            ),
-            const SizedBox(height: 12),
-            NeumorphicPillButton(
-              label: 'Warenkorb anzeigen',
-              leadingIcon: Icons.shopping_bag_outlined,
-              backgroundColor: AppTheme.accentMint,
-              foregroundColor: AppTheme.onMint,
-              onPressed: () => context.push('/shop/cart'),
-            ),
-          ],
+          ),
         ),
       ),
     );

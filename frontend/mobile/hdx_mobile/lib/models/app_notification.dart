@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class AppNotification {
   final String id;
   final String type;
@@ -22,6 +24,23 @@ class AppNotification {
   });
 
   bool get isUnread => status == 'UNREAD';
+
+  /// Parsed JSON from [data], or null if missing/invalid.
+  Map<String, dynamic>? get dataMap {
+    final raw = data;
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(raw);
+      return decoded is Map<String, dynamic> ? decoded : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? get appointmentId {
+    final id = dataMap?['appointmentId'];
+    return id is String && id.isNotEmpty ? id : null;
+  }
 
   factory AppNotification.fromJson(Map<String, dynamic> json) {
     return AppNotification(
