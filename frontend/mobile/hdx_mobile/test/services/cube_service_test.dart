@@ -1,7 +1,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hdx_mobile/services/api_service.dart';
-import 'package:hdx_mobile/services/cube_service.dart';
+import 'package:hdx_mobile/core/api_service.dart';
+import 'package:hdx_mobile/features/cube/cube_service.dart';
 
 import 'cube_test_harness.dart';
 
@@ -337,22 +337,43 @@ void main() {
       expect(api.lastBody!['result'], 'NEGATIVE');
     });
 
-    test('falls back to numeric value > 0.5 when class missing', () async {
+    test('does not invent POSITIVE from numeric value when class missing',
+        () async {
       harness.answerMethod('getResults', [
         {'class': '', 'name': 'X', 'value': '0.9', 'unit': '', 'validity': 0},
       ]);
 
       await cube.submitResults(testTypeId: 't');
-      expect(api.lastBody!['result'], 'POSITIVE');
+      expect(api.lastBody!['result'], 'INCONCLUSIVE');
     });
 
-    test('defaults to NEGATIVE when nothing classifies', () async {
+    test('defaults to INCONCLUSIVE when nothing classifies', () async {
       harness.answerMethod('getResults', [
         {'class': '', 'name': 'X', 'value': '0.1', 'unit': '', 'validity': 0},
       ]);
 
       await cube.submitResults(testTypeId: 't');
-      expect(api.lastBody!['result'], 'NEGATIVE');
+      expect(api.lastBody!['result'], 'INCONCLUSIVE');
+    });
+
+    test('maps INVALID / INCONCLUSIVE class strings', () async {
+      harness.answerMethod('getResults', [
+        {'class': 'INVALID', 'name': 'X', 'value': '0', 'unit': '', 'validity': 0},
+      ]);
+      await cube.submitResults(testTypeId: 't');
+      expect(api.lastBody!['result'], 'INVALID');
+
+      harness.answerMethod('getResults', [
+        {
+          'class': 'INCONCLUSIVE',
+          'name': 'X',
+          'value': '0',
+          'unit': '',
+          'validity': 0,
+        },
+      ]);
+      await cube.submitResults(testTypeId: 't');
+      expect(api.lastBody!['result'], 'INCONCLUSIVE');
     });
 
     test('returns failure CubeTestResult when no results available', () async {

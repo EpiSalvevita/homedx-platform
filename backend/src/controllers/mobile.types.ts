@@ -39,10 +39,6 @@ export interface MediaResponse extends MobileResponse {
   objectName?: string;
 }
 
-export interface LiveTokenResponse extends MobileResponse {
-  liveToken?: string;
-}
-
 export interface DoctorsResponse extends MobileResponse {
   doctors?: object[];
 }

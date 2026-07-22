@@ -27,29 +27,9 @@ if [ -f backend.pid ]; then
     fi
 fi
 
-# Stop Metro if running
-if [ -f metro.pid ]; then
-    METRO_PID=$(cat metro.pid)
-    if ps -p $METRO_PID > /dev/null 2>&1; then
-        echo -e "${YELLOW}Stopping Metro bundler (PID: $METRO_PID)${NC}"
-        kill $METRO_PID 2>/dev/null || true
-        rm metro.pid
-        echo -e "${GREEN}✓ Metro stopped${NC}"
-    else
-        rm metro.pid
-    fi
-fi
-
-# Also kill any remaining processes
+# Also kill any remaining backend processes
 pkill -f "npm run start:dev" 2>/dev/null && echo -e "${GREEN}✓ Stopped remaining backend processes${NC}" || true
-pkill -f "react-native start" 2>/dev/null && echo -e "${GREEN}✓ Stopped remaining Metro processes${NC}" || true
 
 echo ""
 echo "✅ All services stopped"
 echo ""
-
-
-
-
-
-

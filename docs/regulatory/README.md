@@ -46,3 +46,6 @@ Two documents do exist:
 - [`questionnaire-submissions-v1.md`](./questionnaire-submissions-v1.md) —
   regulatory note for RheumaCheck Anamnesefragebögen A–D (capture-only v1):
   health data scope, risk table, test evidence, PRRC sign-off guidance.
+- [`classification-draft.md`](./classification-draft.md) — **draft** IVDR/MDR
+  class call for the RheumaCheck + telemedicine pathway (working draft:
+  IVDR Class C; MDR Rule 11 analogy Class IIa). Requires PRRC approval.

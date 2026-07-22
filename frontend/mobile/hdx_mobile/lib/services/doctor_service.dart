@@ -1,6 +1,6 @@
 import '../models/doctor.dart';
 import '../utils/test_specialization_mapping.dart';
-import 'api_service.dart';
+import '../core/api_service.dart';
 
 class DoctorService {
   final ApiService _apiService;

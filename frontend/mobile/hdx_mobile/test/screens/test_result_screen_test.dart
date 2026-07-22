@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hdx_mobile/screens/test_result_screen.dart';
-import 'package:hdx_mobile/services/cube_service.dart';
+import 'package:hdx_mobile/features/cube/cube_service.dart';
 
 /// Helper that pumps [child] inside a minimal GoRouter, capturing the
 /// last pushed location so tests can assert on navigation.

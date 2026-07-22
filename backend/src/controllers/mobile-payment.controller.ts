@@ -9,7 +9,7 @@ import {
   StripeIntentDto,
   UpdatePaymentDto,
 } from '../dto/mobile/payment.dto';
-import { sanitizeMobileError } from '../util/mobile-error.util';
+import { sanitizeMobileError } from '../utils/mobile-error.util';
 import {
   MOBILE_API_PATH,
   PaymentAmountResponse,

@@ -301,6 +301,38 @@ describe('POST /submit-cube-data (e2e)', () => {
     expect(prisma._rapidTests[0].result).toBe('INVALID');
   });
 
+  it('prefers resultData class over a conflicting client result string', async () => {
+    const response = await request(app.getHttpServer())
+      .post(ENDPOINT)
+      .send({
+        testTypeId: 'rheumacheck',
+        result: 'NEGATIVE',
+        resultData: [
+          { name: 'Rheuma', value: '0.9', class: 'POSITIVE', validity: 1 },
+        ],
+      })
+      .expect(201);
+
+    expect(response.body.result).toBe('POSITIVE');
+    expect(prisma._rapidTests[0].result).toBe('POSITIVE');
+  });
+
+  it('ignores client NEGATIVE when resultData has no class (fail closed)', async () => {
+    const response = await request(app.getHttpServer())
+      .post(ENDPOINT)
+      .send({
+        testTypeId: 'rheumacheck',
+        result: 'NEGATIVE',
+        resultData: [
+          { name: 'Rheuma', value: '0.9', class: '', validity: 0 },
+        ],
+      })
+      .expect(201);
+
+    expect(response.body.result).toBe('INCONCLUSIVE');
+    expect(prisma._rapidTests[0].result).toBe('INCONCLUSIVE');
+  });
+
   it('returns success: false when testTypeId is missing', async () => {
     const response = await request(app.getHttpServer())
       .post(ENDPOINT)

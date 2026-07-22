@@ -12,7 +12,7 @@ import {
   GetDoctorsDto,
   SetDoctorAvailabilityDto,
 } from '../dto/mobile/appointment.dto';
-import { sanitizeMobileError } from '../util/mobile-error.util';
+import { sanitizeMobileError } from '../utils/mobile-error.util';
 import { MobileUserHelper } from './mobile-user.helper';
 import {
   AppointmentResponse,

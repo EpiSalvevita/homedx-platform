@@ -78,9 +78,10 @@ certificate generation). Reading rapid diagnostic tests is almost always an
   tracking, configuration management records, and a problem
   resolution/CAPA log.
 - **Practical hook for this repo:** any change touching `RapidTest` result
-  logic, Cube data parsing/ingestion (`backend/src/controllers/mobile.controller.ts`,
-  `frontend/mobile/hdx_mobile/lib/services/cube_service.dart`,
-  `android/app/src/main/kotlin/.../CubeAnalysisMethodChannel.kt`), or
+  logic, Cube data parsing/ingestion (`backend/src/controllers/mobile-test.controller.ts`,
+  `backend/src/services/cube.service.ts`,
+  `frontend/mobile/hdx_mobile/lib/features/cube/cube_service.dart`,
+  `android/app/src/main/kotlin/com/homedx/app/CubeAnalysisMethodChannel.kt`), or
   certificate generation should:
   - Reference a ticket/issue describing *why* the change is being made.
   - Include test evidence (unit/integration/e2e) covering the change.

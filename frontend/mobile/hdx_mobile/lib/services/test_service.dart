@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../models/test_type.dart';
 import '../models/user_test_result.dart';
-import 'api_service.dart' show ApiService, ApiException;
+import '../core/api_service.dart' show ApiService, ApiException;
 
 class TestService {
   final ApiService _apiService;

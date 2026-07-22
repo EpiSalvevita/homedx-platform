@@ -7,8 +7,8 @@ description: Documentation index for homeDX platform
 ## Development setup
 
 - `WSL2_MOBILE_SETUP.md` – WSL2 + Flutter mobile development setup
-- `WSL2_PORT_FORWARDING.md` – WSL2 port forwarding, `API_BASE_URL`, connectivity checks
-- `ENV_SETUP.md` – Environment variables (backend + Flutter)
+- `WSL2_PORT_FORWARDING.md` – WSL2 port forwarding, `API_BASE_URL`, connectivity checks (`scripts/wsl/` helpers)
+- `ENV_SETUP.md` – Environment variables (backend + Flutter + Cube assets)
 
 ## Component docs
 
@@ -22,6 +22,10 @@ description: Documentation index for homeDX platform
 
 - `../frontend/README.md` – Frontend apps index
 - `../frontend/mobile/hdx_mobile/PAYMENT_INTEGRATION.md` – Stripe / PayPal REST flow
+
+## Non-code project work
+
+- `../work/README.md` – Market, meetings, roadmap, partnerships, brand, finance, notes (anything project-related that is not code)
 
 ## API note
 

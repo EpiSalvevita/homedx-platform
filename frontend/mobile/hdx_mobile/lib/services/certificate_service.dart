@@ -1,5 +1,5 @@
 import '../models/certificate.dart';
-import 'api_service.dart';
+import '../core/api_service.dart';
 
 class CertificateService {
   final ApiService _api;

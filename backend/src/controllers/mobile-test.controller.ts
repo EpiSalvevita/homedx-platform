@@ -22,7 +22,7 @@ import {
   RapidTestMediaUploadDto,
   SubmitCubeDataDto,
 } from '../dto/mobile/test.dto';
-import { sanitizeMobileError } from '../util/mobile-error.util';
+import { sanitizeMobileError } from '../utils/mobile-error.util';
 import {
   AddTestResponse,
   FinalizeTestResponse,

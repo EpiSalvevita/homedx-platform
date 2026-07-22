@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../config/app_theme.dart';
 import '../../l10n/marketing_strings.dart';
 import '../../utils/app_assets.dart';
-import '../../utils/constants.dart';
+import '../../core/constants.dart';
 import '../../widgets/figma_ui.dart';
 import 'marketing_section.dart';
 

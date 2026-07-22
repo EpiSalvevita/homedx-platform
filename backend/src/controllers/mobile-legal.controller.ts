@@ -2,7 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { LegalPageService } from '../services/legal-page.service';
 import { Public } from '../auth/public.decorator';
 import { GetLegalPageDto } from '../dto/mobile/legal.dto';
-import { sanitizeMobileError } from '../util/mobile-error.util';
+import { sanitizeMobileError } from '../utils/mobile-error.util';
 import { MOBILE_API_PATH, MobileResponse } from './mobile.types';
 
 export interface LegalPageResponse extends MobileResponse {

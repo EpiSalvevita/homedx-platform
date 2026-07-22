@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hdx_mobile/screens/bluetooth_scan_screen.dart';
 import 'package:hdx_mobile/widgets/bluetooth_icon.dart';
-import 'package:hdx_mobile/services/api_service.dart';
-import 'package:hdx_mobile/services/cube_service.dart';
+import 'package:hdx_mobile/core/api_service.dart';
+import 'package:hdx_mobile/features/cube/cube_service.dart';
 
 import '../services/cube_test_harness.dart';
 

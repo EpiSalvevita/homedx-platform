@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ThrottlerException } from '@nestjs/throttler';
 import { Response } from 'express';
-import { sanitizeMobileError } from '../util/mobile-error.util';
+import { sanitizeMobileError } from '../utils/mobile-error.util';
 
 const MOBILE_API_PREFIX = '/gg-homedx-json/gg-api/v1';
 

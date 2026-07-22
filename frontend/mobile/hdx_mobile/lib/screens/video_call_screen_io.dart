@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import '../services/api_service.dart';
+import '../core/api_service.dart';
 import '../services/video_call_service.dart';
 
 class VideoCallScreen extends StatefulWidget {

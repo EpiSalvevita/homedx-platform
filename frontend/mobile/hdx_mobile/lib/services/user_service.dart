@@ -1,4 +1,4 @@
-import 'api_service.dart' show ApiService, ApiException, UnauthorizedException;
+import '../core/api_service.dart' show ApiService, ApiException, UnauthorizedException;
 
 class UserData {
   final String id;

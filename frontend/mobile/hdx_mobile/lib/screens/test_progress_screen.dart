@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:developer' as developer;
 import '../config/app_theme.dart';
-import '../services/cube_service.dart';
-import '../utils/constants.dart';
+import '../features/cube/cube_service.dart';
+import '../core/constants.dart';
 import '../utils/cube_test_config_assets.dart';
 import '../widgets/neumorphic.dart';
 

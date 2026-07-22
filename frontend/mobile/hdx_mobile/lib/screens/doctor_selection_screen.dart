@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
 import '../models/doctor.dart';
-import '../services/api_service.dart';
+import '../core/api_service.dart';
 import '../services/doctor_service.dart';
 import '../utils/test_specialization_mapping.dart';
 import '../utils/doctor_languages.dart';

@@ -2,7 +2,7 @@ import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { MobileCertificateService } from '../services/mobile-certificate.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CertificateIdDto } from '../dto/mobile/certificate.dto';
-import { sanitizeMobileError } from '../util/mobile-error.util';
+import { sanitizeMobileError } from '../utils/mobile-error.util';
 import { CertificatePdfResponse, MOBILE_API_PATH } from './mobile.types';
 
 @Controller(MOBILE_API_PATH)

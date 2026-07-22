@@ -1,5 +1,5 @@
 import '../models/legal_page.dart';
-import 'api_service.dart';
+import '../core/api_service.dart';
 
 class LegalPageService {
   final ApiService _api;

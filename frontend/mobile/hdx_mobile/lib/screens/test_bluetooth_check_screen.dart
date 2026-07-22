@@ -6,11 +6,11 @@ import 'dart:developer' as developer;
 
 import '../config/app_theme.dart';
 import '../providers/bluetooth_provider.dart';
-import '../services/api_service.dart';
-import '../services/cube_service.dart';
+import '../core/api_service.dart';
+import '../features/cube/cube_service.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/bluetooth_icon.dart';
-import '../utils/constants.dart';
+import '../core/constants.dart';
 import '../widgets/neumorphic.dart';
 import 'bluetooth_scan_screen.dart';
 import 'test_progress_screen.dart';

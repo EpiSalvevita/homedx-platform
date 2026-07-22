@@ -40,6 +40,10 @@ HOMEDX_NAS_IP=192.168.1.50 ./build-artifacts.sh
 
 This fills `deploy/nas/web/` and `deploy/nas/downloads/hdx-mobile.apk`.
 
+The script temporarily sets `frontend/mobile/hdx_mobile/.env` to the NAS API URL for the
+build, then **restores** your previous local `.env` (or removes the temp file if none existed).
+Safe to run in the same tree you use for WSL/web/phone day-to-day.
+
 Copy the whole `deploy/nas` folder to the NAS (SCP, SMB share, or git pull on NAS after push).
 
 `API_BASE_URL` is **baked into** the web/APK build — rebuild if the NAS IP changes.

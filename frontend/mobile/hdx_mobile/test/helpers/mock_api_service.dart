@@ -1,4 +1,4 @@
-import 'package:hdx_mobile/services/api_service.dart';
+import 'package:hdx_mobile/core/api_service.dart';
 import 'package:hdx_mobile/services/doctor_service.dart';
 
 class MockApiService extends ApiService {

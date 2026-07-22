@@ -26,7 +26,7 @@ path and behaves differently from the phone/emulator case below.
 - **Use `http://127.0.0.1:4000`, not `http://localhost:4000`.** On Windows, `localhost`
   resolves to IPv6 `::1`, but the backend binds IPv4 only (`backend/src/main.ts` →
   `app.listen(port, '0.0.0.0')`). So `localhost:4000` **times out** while `127.0.0.1:4000`
-  works. The app already accounts for this: `frontend/mobile/hdx_mobile/lib/utils/constants.dart`
+  works. The app already accounts for this: `frontend/mobile/hdx_mobile/lib/core/constants.dart`
   rewrites `localhost` → `127.0.0.1` on web, and `.env` ships `API_BASE_URL=http://127.0.0.1:4000`.
 - **Serve with SPA fallback** so deep links / refreshes on routes like `/home`, `/doctors`,
   `/results` don't return 404:
@@ -42,14 +42,14 @@ From the repo root, run **as Administrator**. Prefer the batch launcher so Windo
 does not block the PowerShell script under execution policy:
 
 ```cmd
-.\setup-wsl-port-forward.cmd
+.\scripts\wsl\setup-wsl-port-forward.cmd
 ```
 
-That runs `setup-wsl-port-forward.ps1` with `-ExecutionPolicy Bypass`. If you run
+That runs `scripts\wsl\setup-wsl-port-forward.ps1` with `-ExecutionPolicy Bypass`. If you run
 the `.ps1` directly and see a signing or execution-policy error, use:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\setup-wsl-port-forward.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\wsl\setup-wsl-port-forward.ps1
 ```
 
 The script detects your WSL2 IP, forwards Windows port 4000 to WSL2 port 4000,
@@ -89,7 +89,7 @@ From **WSL** (repo root), you can run the bundled check (portproxy target vs cur
 
 Traffic path is: **phone → Windows (LAN IP) → port proxy → WSL (backend)**. The app must use **`http://<Windows IPv4>:4000`**, where that IPv4 is the **Wi‑Fi or Ethernet** interface your PC uses on the home network — **not** the WSL address (`hostname -I` in WSL).
 
-- **Android emulator on Windows:** often `http://10.0.2.2:4000` (see `ENV_SETUP.md`).
+- **Android emulator on Windows:** often `http://10.0.2.2:4000` (see [`ENV_SETUP.md`](ENV_SETUP.md)).
 - **Physical device:** set `API_BASE_URL` to `http://<IPv4>:4000` where `<IPv4>` comes from **`ipconfig`** on Windows (Wi‑Fi or Ethernet), not from WSL.
 
 If login or API calls **time out**, suspect a **stale `API_BASE_URL`** (DHCP changed your PC’s address) before debugging Nest or Prisma.
@@ -99,7 +99,7 @@ If login or API calls **time out**, suspect a **stale `API_BASE_URL`** (DHCP cha
 From the repo root in **PowerShell** (Admin not required for most checks):
 
 ```powershell
-.\check-homedx-connectivity.ps1
+.\scripts\wsl\check-homedx-connectivity.ps1
 ```
 
 Shows LAN IPs, WSL IP, `netsh` portproxy, and `Test-NetConnection` to `127.0.0.1:4000`. **`TcpTestSucceeded : True`** means Windows can reach the forwarded port (backend should be running in WSL).
@@ -107,7 +107,7 @@ Shows LAN IPs, WSL IP, `netsh` portproxy, and `Test-NetConnection` to `127.0.0.1
 **Update `frontend/mobile/hdx_mobile/.env` automatically** to the current preferred LAN IPv4:
 
 ```powershell
-.\check-homedx-connectivity.ps1 -UpdateMobileEnv
+.\scripts\wsl\check-homedx-connectivity.ps1 -UpdateMobileEnv
 ```
 
 Then **rebuild** the Flutter app (not hot reload).
@@ -126,7 +126,7 @@ Then **rebuild** the Flutter app (not hot reload).
 
 1. Run the full probe (TCP **and** HTTP) from **Windows PowerShell** at the repo root:
    ```powershell
-   .\check-homedx-connectivity.ps1
+   .\scripts\wsl\check-homedx-connectivity.ps1
    ```
    You need **HTTP OK** for both `http://127.0.0.1:4000/...` and `http://<your-LAN-IP>:4000/...`. If TCP is True and HTTP fails, portproxy is not enough on your machine.
 
@@ -136,14 +136,14 @@ Then **rebuild** the Flutter app (not hot reload).
    [wsl2]
    networkingMode=mirrored
    ```
-   Then run **`wsl --shutdown`**, start WSL again, start the backend, and run **`setup-wsl-port-forward.cmd`** again as Administrator.  
+   Then run **`wsl --shutdown`**, start WSL again, start the backend, and run **`scripts\wsl\setup-wsl-port-forward.cmd`** again as Administrator.  
    [Microsoft: WSL networking](https://learn.microsoft.com/en-us/windows/wsl/networking)
 
 3. **Run the backend on Windows** (bypasses WSL portproxy): start Nest in PowerShell on Windows with the same `backend/` project and a `DATABASE_URL` that reaches Postgres from Windows (e.g. Docker Desktop mapping `localhost:5432`). Bind remains `0.0.0.0:4000` in `main.ts`.
 
 4. **Physical device + USB:** if you use **Windows** `adb`, you can try `adb reverse tcp:4000 tcp:4000` and set `API_BASE_URL=http://127.0.0.1:4000`, **but** that still hits Windows `127.0.0.1:4000` first — it will **not** fix the case where HTTP through portproxy is broken. Prefer mirrored networking or Windows-hosted Nest.
 
-5. Stale **`API_BASE_URL`** after DHCP: run `.\check-homedx-connectivity.ps1 -UpdateMobileEnv` and **rebuild** the app (release APK must be rebuilt; hot reload does not refresh `.env`).
+5. Stale **`API_BASE_URL`** after DHCP: run `.\scripts\wsl\check-homedx-connectivity.ps1 -UpdateMobileEnv` and **rebuild** the app (release APK must be rebuilt; hot reload does not refresh `.env`).
 
 ### Stale portproxy blocks WSL from binding 4000
 
@@ -172,7 +172,7 @@ Then **rebuild** the Flutter app (not hot reload).
    ```
    Or, from WSL, re-create correct rules for the **current** IP:
    ```bash
-   ./run-wsl-port-forward-elevated.sh
+   ./scripts/wsl/run-wsl-port-forward-elevated.sh
    ```
 
 4. After deleting, WSL can bind `0.0.0.0:4000` again and `http://127.0.0.1:4000` works from the browser. For **web-only dev on the same PC you do not need to re-add any portproxy** — only re-run the setup script when a physical phone needs the LAN path.

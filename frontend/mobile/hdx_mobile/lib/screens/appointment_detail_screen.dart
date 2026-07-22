@@ -7,7 +7,7 @@ import '../config/app_theme.dart';
 import '../models/doctor.dart';
 import '../utils/gender_labels.dart';
 import '../providers/auth_provider.dart';
-import '../services/api_service.dart';
+import '../core/api_service.dart';
 import '../services/appointment_service.dart';
 import '../utils/test_type_labels.dart';
 import '../widgets/appointment_status_badge.dart';

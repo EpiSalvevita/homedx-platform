@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../config/app_theme.dart';
 import '../models/user_test_result.dart';
-import '../services/cube_service.dart';
+import '../features/cube/cube_service.dart';
 import '../utils/test_specialization_mapping.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/test_result_badge.dart';

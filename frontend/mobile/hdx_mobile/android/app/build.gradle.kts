@@ -24,7 +24,7 @@ dependencies {
 }
 
 android {
-    namespace = "com.example.hdx_mobile"
+    namespace = "com.homedx.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -43,7 +43,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.hdx_mobile"
+        applicationId = "com.homedx.app"
         minSdk = maxOf(flutter.minSdkVersion, 26)
         // Cube SDK's FTDI driver uses registerReceiver() without RECEIVER_EXPORTED flag,
         // which crashes on targetSdk 34+. Pin to 33 until the vendor updates the SDK.

@@ -2,7 +2,7 @@ import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { MobileNotificationService } from '../services/mobile-notification.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { NotificationIdDto, PushTokenDto } from '../dto/mobile/notification.dto';
-import { sanitizeMobileError } from '../util/mobile-error.util';
+import { sanitizeMobileError } from '../utils/mobile-error.util';
 import { MOBILE_API_PATH, NotificationCountResponse } from './mobile.types';
 
 @Controller(MOBILE_API_PATH)

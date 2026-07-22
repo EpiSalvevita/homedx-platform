@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hdx_mobile/screens/test_progress_screen.dart';
-import 'package:hdx_mobile/services/api_service.dart';
-import 'package:hdx_mobile/services/cube_service.dart';
+import 'package:hdx_mobile/core/api_service.dart';
+import 'package:hdx_mobile/features/cube/cube_service.dart';
 
 class _FakeApiService extends ApiService {
   _FakeApiService() : super(baseUrl: 'http://test', authToken: 'tok');

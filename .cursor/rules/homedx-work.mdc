@@ -1,0 +1,33 @@
+---
+description: Non-code project work under work/ — market, meetings, roadmap, partnerships, brand, finance, notes
+globs: work/**
+alwaysApply: false
+---
+
+# homeDX Non-Code Project Work
+
+When files under `work/` are in play, treat the task as **project work outside the codebase** (market, meetings, roadmap, partnerships, brand, finance, notes, etc.)—not app engineering—unless the user explicitly asks for code changes.
+
+## Grounding
+
+- Start from [`work/product-brief.md`](work/product-brief.md): homeDX is a **software accessory** to the **Cube** reader (Bluetooth → on-device evaluation → backend storage → display), with a **care pathway** after positive results (specialist booking + Daily.co video). Do not describe the app as performing the diagnostic measurement itself.
+- Prefer real product capabilities over aspirational features. Check [`docs/APP_FUNCTIONALITIES.md`](docs/APP_FUNCTIONALITIES.md) if unsure what ships today.
+- Engineering setup and API docs live under `docs/`; do not duplicate them into `work/`.
+
+## How to work
+
+- Prefer **writing or updating files** under `work/` over chat-only answers. Use the map in [`work/README.md`](work/README.md).
+- Put content in the right area: `work/strategy/` (market/competitors), `work/meetings/`, `work/roadmap/`, `work/partnerships/`, `work/brand/`, `work/finance/`, or `work/notes/` as catch-all.
+- Use `_template.md` files when present; name meetings and analyses with `YYYY-MM-DD-…` where helpful.
+- Cite sources for market/competitor claims (`work/strategy/sources/`). Do not invent market sizes, CE marks, or clinical performance—leave TBD or mark unverified.
+- Do not commit secrets (credentials, bank details, private personal data) into git.
+
+## Regulatory / claims
+
+- When work touches medical claims, disease performance, or CE status, **flag risk** and point to [`.cursor/rules/mdr-compliance.mdc`](.cursor/rules/mdr-compliance.mdc) / [`docs/regulatory/`](docs/regulatory/).
+- Do **not** invent clinical claims for homeDX or others. Use only public, sourced statements.
+
+## Stay out of the way of coding
+
+- Do not refactor `backend/` or `frontend/` as part of `work/` tasks.
+- Do not move regulatory QMS content into `work/`.

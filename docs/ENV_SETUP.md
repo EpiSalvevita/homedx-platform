@@ -1,5 +1,7 @@
 # Environment Variables Setup
 
+Canonical guide for backend and Flutter env vars, Cube Android assets, and WSL2 `API_BASE_URL` tips.
+
 ## Backend Environment Variables
 
 Copy the template and adjust for local development:
@@ -50,10 +52,18 @@ Push delivery is optional: without `FIREBASE_SERVICE_ACCOUNT_JSON`, the backend 
 Create or update `frontend/mobile/hdx_mobile/.env`:
 
 ```bash
-# API Configuration
-# API_BASE_URL=http://10.0.2.2:4000   # Android emulator (Windows host)
-API_BASE_URL=http://<windows-lan-ip>:4000   # Physical phone on same Wi-Fi
-# API_BASE_URL=http://127.0.0.1:4000  # Flutter web on same machine as backend
+# API — must match how the device reaches the backend
+# Android emulator on the same Windows machine (backend in WSL with port forwarding):
+#   API_BASE_URL=http://10.0.2.2:4000
+# Physical phone on the same Wi‑Fi as the PC (backend in WSL):
+#   API_BASE_URL=http://<Windows Wi-Fi or Ethernet IPv4>:4000
+#   Use the address from Windows ipconfig — NOT the WSL IP (172.x).
+# USB debugging + adb reverse tcp:4000 (optional):
+#   API_BASE_URL=http://127.0.0.1:4000
+# Flutter web on the same machine as the backend:
+#   API_BASE_URL=http://127.0.0.1:4000
+
+API_BASE_URL=http://10.0.2.2:4000
 
 # Stripe (mobile / native targets)
 STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
@@ -64,23 +74,62 @@ STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
 
 After any `.env` change, rebuild the app (`flutter run` or `flutter clean && flutter run`). Hot reload does not refresh bundled env values.
 
+### WSL2 + phone: why `API_BASE_URL` “randomly” breaks
+
+The connectivity script only **prints** diagnostics unless you pass **`-UpdateMobileEnv`**. If your PC gets a **new DHCP address** but `.env` is stale, the phone will **time out** even when port forwarding and the backend are fine.
+
+**Optional (Windows PowerShell, from repo root):** sync `API_BASE_URL` to your current Wi‑Fi/Ethernet IPv4, then rebuild:
+
+```powershell
+.\scripts\wsl\check-homedx-connectivity.ps1 -UpdateMobileEnv
+```
+
+For stable IPs, use a **DHCP reservation** for your PC on the router. Re-run **`scripts\wsl\setup-wsl-port-forward.cmd`** as Administrator after **WSL restarts** (WSL’s internal IP changes). See [`WSL2_PORT_FORWARDING.md`](WSL2_PORT_FORWARDING.md).
+
 ### Optional push notifications (FCM)
 
 In-app notifications work without Firebase. For device push alerts:
 
-1. Create a Firebase project and add an Android app with your `applicationId`.
+1. Create a Firebase project and add an Android app with your `applicationId` (`com.homedx.app`).
 2. Download `google-services.json` into `frontend/mobile/hdx_mobile/android/app/` (do **not** commit this file).
 3. Set `FIREBASE_ENABLED=true` in `.env` and rebuild.
-4. On the backend, set `FIREBASE_SERVICE_ACCOUNT_JSON` to the service account JSON (single line or file path via your deploy env).
+4. On the backend, set `FIREBASE_SERVICE_ACCOUNT_JSON` to the service account JSON (single line or via deploy env).
 
 The app calls `register-push-token` when FCM returns a token. Without Firebase config, push registration is skipped.
 
-## Cube Android integration
+## Cube Android test configuration (local only)
 
-Cube evaluation runs on the Android device. The app submits results with `POST /submit-cube-data`.
+Cube assay evaluation needs vendor-specific **`.bin` config blobs** bundled into the Android APK. These files are **not in git** (see `frontend/mobile/hdx_mobile/.gitignore`).
 
-- **Cube Bluetooth pairing:** When Android asks for a PIN/passkey, use the **last six digits of the Cube serial number**.
-- If the backend runs in WSL2, run `setup-wsl-port-forward.cmd` (Admin) so devices can reach port `4000`. See `WSL2_PORT_FORWARDING.md`.
+### Where to put files
+
+```text
+frontend/mobile/hdx_mobile/android/app/src/main/assets/
+```
+
+Keep `.gitkeep` in that folder; add your local blobs beside it.
+
+### Files used by the app
+
+| File | Purpose |
+|------|---------|
+| `cube_test_config.bin` | Default/fallback Cube config (generic dev blob) |
+| `CRP_250702_216.bin` | CRP assay config — required for test type id `crp` (see `lib/utils/cube_test_config_assets.dart`) |
+| `cube_license.dat` | Cube SDK license (tracked in repo when present) |
+
+Obtain `.bin` files from your Cube vendor package or device calibration export. Do not commit updated vendor blobs unless your team explicitly decides to share them.
+
+### After adding or changing blobs
+
+```bash
+cd frontend/mobile/hdx_mobile
+flutter clean
+flutter run
+```
+
+If evaluation fails with “Cube config asset not found”, verify the basename matches exactly what `cubeConfigAssetBasenameForTestType()` returns for that test type.
+
+**Pairing PIN (Android):** when Android asks for a PIN/passkey, use the **last six digits of the Cube serial number**.
 
 ## Getting API keys
 
@@ -108,7 +157,3 @@ More: https://stripe.com/docs/testing
 ### PayPal sandbox
 
 Use sandbox accounts from https://developer.paypal.com/dashboard/accounts
-
-## Root copy
-
-A longer variant with Cube `.bin` asset paths and WSL2 `API_BASE_URL` troubleshooting lives at **[../ENV_SETUP.md](../ENV_SETUP.md)** in the repo root.

@@ -7,7 +7,7 @@ import '../../models/questionnaire/questionnaire_models.dart';
 import '../../questionnaires/questionnaire_branching.dart';
 import '../../questionnaires/questionnaire_field_widgets.dart';
 import '../../questionnaires/questionnaire_validator.dart';
-import '../../services/api_service.dart';
+import '../../core/api_service.dart';
 import '../../services/questionnaire_service.dart';
 import '../../widgets/figma_ui.dart';
 import '../../widgets/web/adaptive_screen.dart';

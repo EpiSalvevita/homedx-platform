@@ -74,7 +74,7 @@ verify_portproxy_matches_wsl() {
     local line
     line=$(echo "$raw" | grep -E '^[[:space:]]*0\.0\.0\.0[[:space:]]+4000[[:space:]]+' | head -1 || true)
     if [ -z "$line" ]; then
-        print_error "No portproxy rule for 0.0.0.0:4000 → WSL. Run setup-wsl-port-forward.cmd as Admin on Windows, or from WSL: ./run-wsl-port-forward-elevated.sh"
+        print_error "No portproxy rule for 0.0.0.0:4000 → WSL. Run scripts/wsl/setup-wsl-port-forward.cmd as Admin on Windows, or from WSL: ./scripts/wsl/run-wsl-port-forward-elevated.sh"
         print_info "Details: docs/WSL2_PORT_FORWARDING.md"
         return 1
     fi
@@ -93,7 +93,7 @@ verify_portproxy_matches_wsl() {
             return 0
         fi
     fi
-    print_error "Portproxy targets ${target} but this WSL IP is ${wsl_ip}. Run ./run-wsl-port-forward-elevated.sh from WSL or setup-wsl-port-forward.cmd as Administrator on Windows."
+    print_error "Portproxy targets ${target} but this WSL IP is ${wsl_ip}. Run ./scripts/wsl/run-wsl-port-forward-elevated.sh from WSL or scripts/wsl/setup-wsl-port-forward.cmd as Administrator on Windows."
     print_info "WSL IPs change after restart; the script rewrites the netsh rules."
     return 1
 }
@@ -121,7 +121,7 @@ probe_windows_lan_from_wsl() {
     if curl -sS --max-time 5 -X POST "$url" -H "Content-Type: application/json" -d '{}' >/dev/null 2>&1; then
         print_status "http://${LAN}:4000 reachable from WSL (matches typical Flutter API_BASE_URL for Wi‑Fi)"
     else
-        print_info "Could not reach http://${LAN}:4000 from WSL (sometimes normal). If login still times out on the phone: run setup-wsl-port-forward.cmd as Admin on Windows; then .\\check-homedx-connectivity.ps1"
+        print_info "Could not reach http://${LAN}:4000 from WSL (sometimes normal). If login still times out on the phone: run scripts/wsl/setup-wsl-port-forward.cmd as Admin on Windows; then .\\scripts\\wsl\\check-homedx-connectivity.ps1"
     fi
 }
 
@@ -144,13 +144,13 @@ print_flutter_api_hints() {
                 print_info "Physical device: localhost only works with USB adb reverse tcp:4000 tcp:4000"
             fi
             if [ -n "$LAN" ] && ! echo "$API_LINE" | grep -qF "$LAN"; then
-                print_info "If login fails, API_BASE_URL may be stale. On Windows: .\\check-homedx-connectivity.ps1 -UpdateMobileEnv"
+                print_info "If login fails, API_BASE_URL may be stale. On Windows: .\\scripts\\wsl\\check-homedx-connectivity.ps1 -UpdateMobileEnv"
             fi
         else
             print_info "Add API_BASE_URL to $ENV_FILE (see .env.example)"
         fi
     fi
-    print_info "After WSL restart, rerun setup-wsl-port-forward.cmd as Admin (WSL IP changes)."
+    print_info "After WSL restart, rerun scripts/wsl/setup-wsl-port-forward.cmd as Admin (WSL IP changes)."
     print_info "Details: docs/WSL2_PORT_FORWARDING.md"
     probe_windows_lan_from_wsl "$LAN"
 }
@@ -179,7 +179,7 @@ case "$MODE" in
         echo ""
         verify_backend_listening || print_info "Backend not responding on 127.0.0.1:${BACKEND_PORT} — start it with: ./deploy.sh backend"
         echo ""
-        print_info "On Windows you can also run: .\\check-homedx-connectivity.ps1 (-UpdateMobileEnv to fix .env)"
+        print_info "On Windows you can also run: .\\scripts\\wsl\\check-homedx-connectivity.ps1 (-UpdateMobileEnv to fix .env)"
         exit 0
         ;;
     "all")
@@ -301,87 +301,17 @@ if [ "$START_MOBILE" = true ]; then
     echo ""
     echo "📱 Starting Mobile App..."
 
-    if [ -f "$FLUTTER_APP/pubspec.yaml" ]; then
-        print_status "Flutter app found at $FLUTTER_APP"
-        if [ -f "$FLUTTER_APP/.env" ]; then
-            grep -E '^[[:space:]]*API_BASE_URL=' "$FLUTTER_APP/.env" | head -1 || true
-        fi
-        print_info "To run on a device: cd $FLUTTER_APP && flutter run"
-        print_info "Release install: cd $FLUTTER_APP && flutter run --release -d <deviceId>"
-    elif [ ! -f "mobile/package.json" ]; then
-        print_info "No Flutter app at $FLUTTER_APP/pubspec.yaml and no React Native at mobile/package.json."
-        print_info "Start the Flutter client manually from frontend/mobile/hdx_mobile when ready."
-    else
-        # Check if mobile dependencies are installed
-        if [ ! -d "mobile/node_modules" ]; then
-            print_info "Installing mobile dependencies..."
-            cd mobile
-            export NODE_OPTIONS="--openssl-legacy-provider"
-            npm install --legacy-peer-deps
-            cd ..
-            print_status "Mobile dependencies installed"
-        fi
-        
-        # Start Metro bundler
-        if pgrep -f "react-native start" > /dev/null; then
-            print_status "Metro bundler already running"
-        else
-            print_info "Starting Metro bundler..."
-            cd mobile
-            export NODE_OPTIONS="--openssl-legacy-provider"
-            npx react-native start > ../metro.log 2>&1 &
-            METRO_PID=$!
-            echo $METRO_PID > ../metro.pid
-            cd ..
-            print_status "Metro started (PID: $METRO_PID, logs: metro.log)"
-            
-            # Wait for Metro to initialize
-            sleep 5
-        fi
-        
-        # Try to run the Android app
-        echo ""
-        print_info "Attempting to build and run Android app..."
-        
-        cd mobile
-        export NODE_OPTIONS="--openssl-legacy-provider"
-        
-        # Check for connected devices
-        if command -v adb &> /dev/null; then
-            DEVICES=$(adb devices | grep -v "List" | grep "device" | wc -l)
-            if [ "$DEVICES" -gt 0 ]; then
-                print_status "Android device/emulator detected"
-                npx react-native run-android
-            else
-                print_info "No Android device/emulator detected"
-                print_info "Building APK only (you can install it later)"
-                
-                cd android
-                ./gradlew assembleDebug
-                cd ..
-                
-                APK_PATH="./android/app/build/outputs/apk/debug/app-debug.apk"
-                if [ -f "$APK_PATH" ]; then
-                    print_status "APK built successfully at:"
-                    echo "   $(pwd)/$APK_PATH"
-                fi
-            fi
-        else
-            print_info "adb not found, building APK only"
-            cd android
-            ./gradlew assembleDebug
-            cd ..
-            
-            APK_PATH="./android/app/build/outputs/apk/debug/app-debug.apk"
-            if [ -f "$APK_PATH" ]; then
-                print_status "APK built successfully at:"
-                echo "   $(pwd)/$APK_PATH"
-            fi
-        fi
-        
-        cd ..
+    if [ ! -f "$FLUTTER_APP/pubspec.yaml" ]; then
+        print_error "Flutter app not found at $FLUTTER_APP"
+        exit 1
     fi
-    if [ "$START_BACKEND" = false ] && [ -f "$FLUTTER_APP/pubspec.yaml" ]; then
+    print_status "Flutter app found at $FLUTTER_APP"
+    if [ -f "$FLUTTER_APP/.env" ]; then
+        grep -E '^[[:space:]]*API_BASE_URL=' "$FLUTTER_APP/.env" | head -1 || true
+    fi
+    print_info "To run on a device: cd $FLUTTER_APP && flutter run"
+    print_info "Release install: cd $FLUTTER_APP && flutter run --release -d <deviceId>"
+    if [ "$START_BACKEND" = false ]; then
         print_mobile_network_hints
     fi
 fi
@@ -403,14 +333,7 @@ fi
 if [ "$START_MOBILE" = true ]; then
     echo ""
     echo "📱 Mobile App:"
-    if [ -f "frontend/mobile/hdx_mobile/pubspec.yaml" ]; then
-        echo "   Flutter: cd frontend/mobile/hdx_mobile && flutter run"
-    elif [ -f "metro.pid" ]; then
-        echo "   Metro: PID $(cat metro.pid 2>/dev/null || echo 'unknown'), logs: metro.log"
-        echo "   Android: cd mobile && npx react-native run-android"
-    else
-        echo "   See messages above for Flutter or legacy React Native paths."
-    fi
+    echo "   Flutter: cd frontend/mobile/hdx_mobile && flutter run"
 fi
 
 echo ""

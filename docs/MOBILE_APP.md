@@ -73,12 +73,12 @@ API_BASE_URL=http://<windows-lan-ip>:4000   # Physical phone on same Wi-Fi
 ```
 
 If the backend runs in **WSL2** and the app on a Windows emulator or phone, run
-**`setup-wsl-port-forward.cmd`** as Administrator from the repo root so Windows
+**`scripts/wsl/setup-wsl-port-forward.cmd`** as Administrator from the repo root so Windows
 port 4000 reaches WSL (see `docs/WSL2_PORT_FORWARDING.md`).
 
 The main Android manifest enables **cleartext HTTP** for local `API_BASE_URL` (LAN/WSL dev).
 
-If login still shows **connection timeout**, the phone is not reaching Windows on port 4000. On Windows, run `.\check-homedx-connectivity.ps1` and ensure `API_BASE_URL` uses the **Windows** IPv4 shown there (not the WSL IP), the backend is running in WSL, and `setup-wsl-port-forward.cmd` was run as Administrator after WSL restarts. If the script shows **TCP OK** but **HTTP FAILED**, see **Troubleshooting** in `docs/WSL2_PORT_FORWARDING.md` (WSL mirrored networking or running Nest on Windows).
+If login still shows **connection timeout**, the phone is not reaching Windows on port 4000. On Windows, run `.\scripts\wsl\check-homedx-connectivity.ps1` and ensure `API_BASE_URL` uses the **Windows** IPv4 shown there (not the WSL IP), the backend is running in WSL, and `scripts\wsl\setup-wsl-port-forward.cmd` was run as Administrator after WSL restarts. If the script shows **TCP OK** but **HTTP FAILED**, see **Troubleshooting** in `docs/WSL2_PORT_FORWARDING.md` (WSL mirrored networking or running Nest on Windows).
 
 ### 3) Verify Setup
 
@@ -155,11 +155,12 @@ flutter build web --release
 Output is in `build/web/`. Serve locally for smoke testing:
 
 ```bash
-cd build/web && python3 -m http.server 8080
+./serve-web.sh 8080
 ```
 
-Then open `http://127.0.0.1:8080`. Cube/Bluetooth test flows show a placeholder on
-web until Web Bluetooth support is added; use the Android app for Cube E2E.
+Then open `http://127.0.0.1:8080` (not `localhost` — IPv6 mismatch on WSL2). Hard refresh
+after rebuilds. Cube/Bluetooth test flows show a placeholder on web until Web Bluetooth
+support is added; use the Android app for Cube E2E.
 
 See also `docs/APPOINTMENTS_VIDEO.md` for doctor web + video call checklist.
 
@@ -215,7 +216,7 @@ Scanning is filtered to Cube devices only; no Windows service is used.
 **If the scan list stays empty:** Keep the Cube **on**, **charged**, and **paired** in Android settings (PIN = last six digits of the serial number). The Chembio SDK only lists devices it can discover over BLE; wait the full scan (~30s). The app now **disconnects the native Cube transport before each scan** so a stale half-open link cannot block discovery (`startScan` is skipped while `isConnectionOpen()` is true, which is a different flag than “connected” in the UI).
 
 **Key Components:**
-- `CubeService` (`lib/services/cube_service.dart`) – Flutter bridge to native Cube SDK
+- `CubeService` (`lib/features/cube/cube_service.dart`) – Flutter bridge to native Cube SDK
 - `CubeBridge` (`android/.../CubeAnalysisMethodChannel.kt`) – Kotlin MethodChannel/EventChannel wrapper
 - `cubelib-release.aar` + `cube_license.dat` – Cube SDK and license in `android/app/libs` and `assets`
 
@@ -240,4 +241,4 @@ flutter test
 
 ## Version
 
-Current version: `1.0.0+1`
+Current version: `1.1.1+3`

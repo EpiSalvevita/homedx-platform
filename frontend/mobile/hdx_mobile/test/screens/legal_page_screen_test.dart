@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hdx_mobile/screens/legal_page_screen.dart';
-import 'package:hdx_mobile/services/api_service.dart';
+import 'package:hdx_mobile/core/api_service.dart';
 import 'package:provider/provider.dart';
 
 class _LegalMockApi extends ApiService {

@@ -1,4 +1,4 @@
-import '../services/api_service.dart';
+import '../core/api_service.dart';
 
 class PaymentService {
   final ApiService _api;

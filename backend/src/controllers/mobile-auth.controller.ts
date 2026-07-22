@@ -11,11 +11,10 @@ import {
   getAuthCookieOptions,
 } from '../config/auth-cookie.config';
 import { LoginDto, RegisterDto, RequestPasswordResetDto, ResetPasswordDto, UpdateUserDataDto } from '../dto/mobile/auth.dto';
-import { sanitizeMobileError } from '../util/mobile-error.util';
-import { registrationEmailExistsMessage } from '../util/registration-messages';
+import { sanitizeMobileError } from '../utils/mobile-error.util';
+import { registrationEmailExistsMessage } from '../utils/registration-messages';
 import {
   BackendStatusResponse,
-  LiveTokenResponse,
   LoginResponse,
   MOBILE_API_PATH,
   MobileResponse,
@@ -159,17 +158,7 @@ export class MobileAuthController {
     return { success: true, online: true };
   }
 
-  @Post('get-live-token')
-  @UseGuards(JwtAuthGuard)
-  async getLiveToken(@Request() req: { user: { sub: string; id?: string } }): Promise<LiveTokenResponse> {
-    try {
-      const liveToken = `live_${Date.now()}_${req.user.id ?? req.user.sub}`;
-      return { success: true, liveToken };
-    } catch (error) {
-      return sanitizeMobileError(error, 'Failed to get live token');
-    }
-  }
-
+  /** Web session probe: validates JWT/cookie without loading profile data. */
   @Post('init-authentication')
   @UseGuards(JwtAuthGuard)
   async initAuthentication(@Request() req: { user: { sub: string } }): Promise<MobileResponse> {
@@ -179,6 +168,7 @@ export class MobileAuthController {
     return { success: true };
   }
 
+  /** Clears the auth cookie on logout (Flutter also clears local token storage). */
   @Post('unset-authentication')
   @UseGuards(JwtAuthGuard)
   async unsetAuthentication(

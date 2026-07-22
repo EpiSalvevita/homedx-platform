@@ -1,5 +1,5 @@
 import '../models/doctor.dart';
-import 'api_service.dart';
+import '../core/api_service.dart';
 
 class AppointmentService {
   final ApiService _apiService;

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
 import '../models/certificate.dart';
-import '../services/api_service.dart';
+import '../core/api_service.dart';
 import '../services/certificate_service.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/status_pill.dart';

@@ -9,8 +9,8 @@ import {
   passwordResetInvalidMessage,
   passwordResetSentMessage,
   passwordResetSuccessMessage,
-} from '../util/login-messages';
-import { registrationEmailExistsMessage } from '../util/registration-messages';
+} from '../utils/login-messages';
+import { registrationEmailExistsMessage } from '../utils/registration-messages';
 import { isStrongPassword } from '../auth/password-policy';
 import { AuditLogService } from './audit-log.service';
 

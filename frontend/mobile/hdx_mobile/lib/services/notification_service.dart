@@ -1,5 +1,5 @@
 import '../models/app_notification.dart';
-import 'api_service.dart';
+import '../core/api_service.dart';
 
 class NotificationService {
   final ApiService _api;

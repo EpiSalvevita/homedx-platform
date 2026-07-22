@@ -7,7 +7,7 @@ import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
 import '../models/app_notification.dart';
 import '../services/user_service.dart';
-import '../services/api_service.dart';
+import '../core/api_service.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/responsive_layout.dart';
 import '../widgets/web/web_page_header.dart';

@@ -4,8 +4,7 @@ This repository hosts the full homeDX stack:
 
 - `backend/` – NestJS API (PostgreSQL + Prisma)
 - `frontend/mobile/hdx_mobile/` – Flutter app (current client)
-- `Cube APP V0.1.21/` – Cube Android integration package/documentation
-- `Cube/` – Cube reference files (including license data)
+- `vendor/` – Cube SDK reference material (local; app AAR under `frontend/mobile/hdx_mobile/android/app/libs/`)
 
 ## Architecture
 
@@ -35,7 +34,7 @@ This repository hosts the full homeDX stack:
 
 - WSL2 + Docker Desktop (backend DB)
 - Node.js 20 LTS (backend)
-- Flutter SDK (mobile/hdx_mobile)
+- Flutter SDK (`frontend/mobile/hdx_mobile/`)
 - Windows PowerShell (Admin) for WSL2 port forwarding
 
 ## Quick Start
@@ -63,30 +62,38 @@ repo root.
 **Recommended** (avoids PowerShell execution-policy blocks on unsigned scripts):
 
 ```cmd
-.\setup-wsl-port-forward.cmd
+.\scripts\wsl\setup-wsl-port-forward.cmd
 ```
 
 **Alternative** (PowerShell):
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\setup-wsl-port-forward.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\wsl\setup-wsl-port-forward.ps1
 ```
 
-See `docs/WSL2_PORT_FORWARDING.md` for manual setup and verification.
+From WSL (triggers UAC on Windows):
 
-**Connectivity check (Windows PowerShell, repo root):** `.\check-homedx-connectivity.ps1` — optional `-UpdateMobileEnv` updates `frontend/mobile/hdx_mobile/.env` to your current LAN IPv4 (then rebuild the app). Details in `ENV_SETUP.md` and `docs/WSL2_PORT_FORWARDING.md`.
+```bash
+./scripts/wsl/run-wsl-port-forward-elevated.sh
+```
+
+See [`docs/WSL2_PORT_FORWARDING.md`](docs/WSL2_PORT_FORWARDING.md) for manual setup and verification.
+
+**Connectivity check (Windows PowerShell, repo root):**
+
+```powershell
+.\scripts\wsl\check-homedx-connectivity.ps1
+```
+
+Optional `-UpdateMobileEnv` updates `frontend/mobile/hdx_mobile/.env` to your current LAN IPv4 (then rebuild the app). Details in [`docs/ENV_SETUP.md`](docs/ENV_SETUP.md).
 
 ## Docs
 
-- `docs/README.md`
-- `docs/MOBILE_APP.md`
-- `docs/APP_FUNCTIONALITIES.md`
-- `docs/FOLDER_STRUCTURE.md`
-- `docs/ENV_SETUP.md`
-- `docs/APPOINTMENTS_VIDEO.md`
-- `docs/NAS_DEPLOY.md`
-- `frontend/README.md`
-
-
-
-
+- [`docs/README.md`](docs/README.md) – docs index
+- [`docs/MOBILE_APP.md`](docs/MOBILE_APP.md)
+- [`docs/APP_FUNCTIONALITIES.md`](docs/APP_FUNCTIONALITIES.md)
+- [`docs/FOLDER_STRUCTURE.md`](docs/FOLDER_STRUCTURE.md)
+- [`docs/ENV_SETUP.md`](docs/ENV_SETUP.md)
+- [`docs/WSL2_PORT_FORWARDING.md`](docs/WSL2_PORT_FORWARDING.md)
+- [`docs/APPOINTMENTS_VIDEO.md`](docs/APPOINTMENTS_VIDEO.md)
+- [`docs/NAS_DEPLOY.md`](docs/NAS_DEPLOY.md)

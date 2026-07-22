@@ -38,7 +38,7 @@ import '../screens/questionnaires/questionnaire_flow_screen.dart';
 import '../screens/questionnaires/questionnaire_done_screen.dart';
 import '../models/product.dart';
 import '../models/user_test_result.dart';
-import '../services/cube_service.dart';
+import '../features/cube/cube_service.dart';
 import '../screens/test_result_screen.dart';
 import '../providers/auth_provider.dart';
 import '../layout/web_app_shell.dart';

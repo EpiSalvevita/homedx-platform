@@ -10,7 +10,7 @@ import 'config/push_init.dart';
 import 'config/app_theme.dart';
 import 'config/app_router.dart';
 import 'config/app_scroll_behavior.dart';
-import 'services/api_service.dart';
+import 'core/api_service.dart';
 import 'services/auth_service.dart';
 import 'services/payment_service.dart';
 import 'providers/auth_provider.dart';

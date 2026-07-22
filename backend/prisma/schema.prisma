@@ -33,6 +33,7 @@ model User {
   passwordResetExpiresAt   DateTime?
   auditLogs     AuditLog[]
   certificates  Certificate[]
+  /// Reserved: License domain has no active API path (GraphQL-era leftover).
   licenses      License[]
   notifications Notification[]
   payments      Payment[]
@@ -67,11 +68,13 @@ model RapidTest {
   testDate       DateTime
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+  /// Unused in active mobile/Cube flows; LicenseService removed.
   licenseId      String?
   completedAt    DateTime?
   notes          String?
   testTypeId     String?
-  source         String?       @default("legacy")
+  /// Provenance: "cube" | "mobile" (historical rows may still be "legacy").
+  source         String?       @default("mobile")
   deviceSerial   String?
   cubeResultData Json?
   cubeRawData    Json?
@@ -95,6 +98,8 @@ model RapidTest {
   questionnaireSubmissions QuestionnaireSubmission[]
 }
 
+/// Product decision (2026-07): no active license-key product path.
+/// Table retained for MDR/data continuity; do not drop without a reviewed migration.
 model License {
   id            String        @id @default(cuid())
   userId        String
@@ -285,6 +290,7 @@ enum LegalPageType {
 enum UserRole {
   ADMIN
   USER
+  /// Unused in controllers; retained for existing DB rows.
   MODERATOR
   DOCTOR
 }
@@ -314,6 +320,7 @@ enum UserStatus {
   SUSPENDED
 }
 
+/// Live kit creation currently uses COVID_19 only; other values reserved.
 enum TestKitType {
   COVID_19
   FLU
@@ -350,6 +357,7 @@ enum LicenseStatus {
   SUSPENDED
 }
 
+/// Active mobile flows use CREDIT_CARD (Stripe) and PAYPAL.
 enum PaymentMethod {
   CREDIT_CARD
   PAYPAL
@@ -365,6 +373,7 @@ enum PaymentStatus {
   CANCELLED
 }
 
+/// Active issuance uses TEST_RESULT only.
 enum CertificateType {
   TEST_RESULT
   VACCINATION

@@ -53,3 +53,8 @@ frontend/mobile/hdx_mobile/pubspec.lock
 
 # Vendor Cube SDK reference (keep locally; do not commit)
 Cube APP V0.1.21/
+Cube/
+vendor/cube-android/
+vendor/cube-windows/
+# Prefer Flutter SDK installed outside the repo; ignore if checked out here
+/flutter/

@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
 import '../models/doctor.dart';
-import '../services/api_service.dart';
+import '../core/api_service.dart';
 import '../services/doctor_service.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/web/adaptive_screen.dart';

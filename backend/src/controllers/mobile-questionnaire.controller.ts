@@ -10,7 +10,7 @@ import {
   SubmitQuestionnaireDto,
 } from '../dto/mobile/questionnaire.dto';
 import { QuestionnaireService } from '../services/questionnaire.service';
-import { sanitizeMobileError } from '../util/mobile-error.util';
+import { sanitizeMobileError } from '../utils/mobile-error.util';
 import { MobileUserHelper } from './mobile-user.helper';
 import { MOBILE_API_PATH, MobileResponse } from './mobile.types';
 

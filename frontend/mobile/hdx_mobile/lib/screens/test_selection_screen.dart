@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../config/app_theme.dart';
 import '../models/test_type.dart';
 import '../services/test_service.dart';
-import '../services/api_service.dart';
+import '../core/api_service.dart';
 import '../widgets/figma_ui.dart';
 
 class TestSelectionScreen extends StatefulWidget {

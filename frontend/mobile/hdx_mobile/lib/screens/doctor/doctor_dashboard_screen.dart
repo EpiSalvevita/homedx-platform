@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../models/doctor.dart';
 import '../../providers/auth_provider.dart';
-import '../../services/api_service.dart';
+import '../../core/api_service.dart';
 import '../../services/appointment_service.dart';
 import '../../services/user_service.dart';
 import '../../widgets/doctor_appointment_card.dart';

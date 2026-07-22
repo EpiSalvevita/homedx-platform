@@ -5,7 +5,7 @@ import '../config/app_theme.dart';
 import '../providers/locale_provider.dart';
 import '../l10n/marketing_strings.dart';
 import '../utils/app_assets.dart';
-import '../utils/constants.dart';
+import '../core/constants.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/neumorphic.dart';
 import '../widgets/marketing/how_it_works_section.dart';

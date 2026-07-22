@@ -49,10 +49,33 @@ export class CubeService {
     private readonly auditLogService: AuditLogService,
   ) {}
 
+  /**
+   * Normalize overall Cube result for storage / certificates.
+   *
+   * Authority order (regulatory):
+   * 1. Prefer Cube `resultData[].class` when present.
+   * 2. If `resultData` was sent but no usable class → INCONCLUSIVE
+   *    (ignore a client top-level `result` that may invent POSITIVE/NEGATIVE).
+   * 3. Else accept a well-formed client `result` enum (legacy / empty payload).
+   * 4. Else INCONCLUSIVE (fail closed). Never threshold on `value`.
+   */
   normalizeCubeResult(
     result?: string,
     resultData?: CubeResultDataItem[],
   ): NormalizedCubeResult {
+    const rows = resultData ?? [];
+    for (const entry of rows) {
+      const cls = (entry.class ?? '').toUpperCase();
+      if (cls === 'POSITIVE' || cls === 'POS') return 'POSITIVE';
+      if (cls === 'NEGATIVE' || cls === 'NEG') return 'NEGATIVE';
+      if (cls === 'INVALID') return 'INVALID';
+      if (cls === 'INCONCLUSIVE') return 'INCONCLUSIVE';
+    }
+
+    if (rows.length > 0) {
+      return 'INCONCLUSIVE';
+    }
+
     const normalized = (result ?? '').toUpperCase();
     if (
       normalized === 'POSITIVE' ||
@@ -61,14 +84,6 @@ export class CubeService {
       normalized === 'INCONCLUSIVE'
     ) {
       return normalized;
-    }
-
-    for (const entry of resultData ?? []) {
-      const cls = (entry.class ?? '').toUpperCase();
-      if (cls === 'POSITIVE' || cls === 'POS') return 'POSITIVE';
-      if (cls === 'NEGATIVE' || cls === 'NEG') return 'NEGATIVE';
-      if (cls === 'INVALID') return 'INVALID';
-      if (cls === 'INCONCLUSIVE') return 'INCONCLUSIVE';
     }
 
     return 'INCONCLUSIVE';

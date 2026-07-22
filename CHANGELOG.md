@@ -8,6 +8,33 @@ retroactively document history before this entry.
 Format: one entry per release, backend and mobile versioned
 independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`).
 
+## Backend 0.2.1 / Mobile 1.1.1+3 — 2026-07-22
+
+**Platform hygiene / structure (non-result-path):**
+- Removed legacy root `mobile/` tree, RN leftovers in `deploy.sh`/`stop.sh`, dead GraphQL-era services (`LicenseService`, `CertificateService`, `TestKitService`), and unused PayPal checkout SDK.
+- Nest feature modules under `backend/src/modules/`; merged `util/` into `utils/`.
+- Cube vendor refs moved to `vendor/` (gitignored); Flutter `lib/core/` + `lib/features/cube/`; Android id `com.homedx.app`.
+- `RapidTest.source` default is now `mobile` (existing rows unchanged); `License` table retained with schema notes (no active API).
+- Removed unused `get-live-token`; kept `init-authentication` / `unset-authentication` for Flutter web/session.
+
+**Regulatory-relevant (result path / classification):**
+- Flutter `CubeService._determineResultString` no longer thresholds on
+  numeric `value` or defaults to `NEGATIVE`; uses Cube `class` only and
+  fails closed to `INCONCLUSIVE` (aligned with backend).
+- Backend `normalizeCubeResult` prefers `resultData[].class`; if result
+  rows exist without a usable class, ignores client-invented POS/NEG →
+  `INCONCLUSIVE`. Added e2e coverage.
+- Release builds force `CUBE_USE_TIMER=true` (ignore `.env` skip).
+- Added `docs/regulatory/classification-draft.md` (draft IVDR Class C;
+  MDR Rule 11 analogy Class IIa for RA test → specialist video pathway).
+- Refreshed `docs/regulatory/gap-assessment.md`.
+
+**Regulatory note:** Touches result interpretation authority (ISO 14971 /
+accessory assumption). Test evidence: Flutter `cube_service_test.dart`,
+backend `submit-cube-data.e2e-spec.ts`. PRRC should confirm classification
+draft before any CE / marketing claim. Human sign-off recommended before
+production reliance on the new fail-closed behaviour for empty classes.
+
 ## Backend 0.2.0 / Mobile 1.1.0+2 — 2026-07-02
 
 Closes several engineering gaps identified in the regulatory gap-scan.
