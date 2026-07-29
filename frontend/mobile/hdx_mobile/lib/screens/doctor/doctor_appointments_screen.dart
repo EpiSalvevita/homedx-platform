@@ -129,6 +129,7 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
                   child: FigmaSegmentedTabs(
                     labels: const ['Liste', 'Kalender'],
                     selectedIndex: _viewMode.index,
+                    selectedColor: AppTheme.accentBlue,
                     onSelected: (i) => setState(() => _viewMode = _ViewMode.values[i]),
                   ),
                 ),

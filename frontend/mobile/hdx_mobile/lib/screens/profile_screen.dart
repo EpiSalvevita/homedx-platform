@@ -447,8 +447,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         height: AppTheme.buttonHeightLarge,
         expanded: false,
         loading: _isSaving,
-        backgroundColor: AppTheme.accentMint,
-        foregroundColor: AppTheme.onMint,
+        backgroundColor: AppTheme.accentBlue,
+        foregroundColor: Colors.white,
         onPressed: _isSaving ? null : _saveUserData,
       ),
     );

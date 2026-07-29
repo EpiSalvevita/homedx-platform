@@ -115,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 32),
               NeumorphicInsetField(
                 controller: _emailController,
-                label: 'E-Mail-Adresse',
+                label: 'E-Mail',
                 hint: 'name@beispiel.de',
                 prefixIcon: Icons.mail_outline,
                 fontSize: 17,

@@ -12,6 +12,8 @@ class NeumorphicInsetSurface extends StatelessWidget {
   final Alignment alignment;
   final double shadowBand;
   final double highlightBand;
+  /// When true (default), paints Figma Search Box inset shadows.
+  /// Set false only for rare dual raised+subtle surfaces (e.g. activity cards).
   final bool invertedInset;
   final Color? backgroundColor;
 
@@ -24,7 +26,7 @@ class NeumorphicInsetSurface extends StatelessWidget {
     this.alignment = Alignment.centerLeft,
     this.shadowBand = 14,
     this.highlightBand = 7,
-    this.invertedInset = false,
+    this.invertedInset = true,
     this.backgroundColor,
   });
 
@@ -76,7 +78,7 @@ class NeumorphicInsetCard extends StatelessWidget {
     this.padding = AppTheme.activityCardPadding,
     this.shadowBand = 7,
     this.highlightBand = 5,
-    this.invertedInset = false,
+    this.invertedInset = true,
     this.backgroundColor,
   });
 
@@ -127,6 +129,9 @@ class NeumorphicActivityCard extends StatelessWidget {
             backgroundColor: AppTheme.background,
             shadowBand: 7,
             highlightBand: 5,
+            // Raised card already has outer neumorphic shadow; keep the older
+            // soft edge fade so the surface does not read as a pressed field.
+            invertedInset: false,
           ),
           child: Material(
             color: Colors.transparent,
@@ -182,13 +187,19 @@ class _NeumorphicInsetPainter extends CustomPainter {
     );
   }
 
+  /// Approximate CSS/Figma `inset` shadows (reliable on Flutter web).
+  ///
+  /// [blurRadius] is a CSS/Figma blur radius — converted to Skia sigma the same
+  /// way [BoxShadow] does (`× 0.57735`). Passing the raw radius as sigma made
+  /// insets look softer/flatter than Figma.
   void _drawInnerShadow(
     Canvas canvas,
     RRect rrect,
     Offset offset,
     Color color,
-    double blurSigma,
+    double blurRadius,
   ) {
+    final blurSigma = blurRadius * 0.57735;
     final outerRect = rrect.outerRect.inflate(blurSigma * 2);
     final outerRRect = RRect.fromRectAndRadius(
       outerRect,
@@ -211,27 +222,23 @@ class _NeumorphicInsetPainter extends CustomPainter {
   }
 
   void _paintInvertedInset(Canvas canvas, Size size, RRect rrect) {
-    // Inward mirror of [AppTheme.neumorphicRaised] only — same offset, blur, and alpha.
-    // No extra edge bands; those made fields read darker than the Anmelden button.
-    const blurSigma = 10.0;
-    const offset = 4.0;
-
+    // Figma Search Box: inset 4/4/10 #99A6CE4D, inset -4/-4/4 #FFFFFF.
     canvas.save();
     canvas.clipRRect(rrect);
 
     _drawInnerShadow(
       canvas,
       rrect,
-      const Offset(offset, offset),
+      const Offset(4, 4),
       _insetShadow,
-      blurSigma,
+      10,
     );
     _drawInnerShadow(
       canvas,
       rrect,
-      const Offset(-offset, -offset),
+      const Offset(-4, -4),
       Colors.white,
-      blurSigma,
+      4,
     );
 
     canvas.restore();

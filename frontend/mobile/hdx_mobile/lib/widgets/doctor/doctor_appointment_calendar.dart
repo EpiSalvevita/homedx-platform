@@ -128,6 +128,7 @@ class _DoctorAppointmentCalendarState extends State<DoctorAppointmentCalendar> {
           child: FigmaSegmentedTabs(
             labels: const ['Woche', 'Monat'],
             selectedIndex: _mode.index,
+            selectedColor: AppTheme.accentBlue,
             onSelected: (i) => setState(() => _mode = CalendarMode.values[i]),
           ),
         );
@@ -136,14 +137,7 @@ class _DoctorAppointmentCalendarState extends State<DoctorAppointmentCalendar> {
           children: [
             _NavIconButton(icon: Icons.chevron_left, onTap: _goPrev),
             const SizedBox(width: 4),
-            NeumorphicPillButton(
-              label: 'Heute',
-              expanded: false,
-              height: 36,
-              onPressed: _goToday,
-              backgroundColor: AppTheme.surface,
-              foregroundColor: AppTheme.textColor,
-            ),
+            _HeuteButton(onTap: _goToday),
             const SizedBox(width: 4),
             _NavIconButton(icon: Icons.chevron_right, onTap: _goNext),
             const SizedBox(width: 12),
@@ -186,6 +180,45 @@ class _NavIconButton extends StatelessWidget {
           width: 36,
           height: 36,
           child: Icon(icon, size: 20, color: AppTheme.textColor),
+        ),
+      ),
+    );
+  }
+}
+
+/// Compact calendar toolbar control — avoids [NeumorphicPillButton]'s 18px label
+/// which wraps when forced into the 36px nav row height.
+class _HeuteButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _HeuteButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppTheme.surface,
+      borderRadius: BorderRadius.circular(AppTheme.pillRadius),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppTheme.pillRadius),
+        onTap: onTap,
+        child: SizedBox(
+          height: 36,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Center(
+              child: Text(
+                'Heute',
+                maxLines: 1,
+                softWrap: false,
+                style: FigmaUi.rubik(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.textColor,
+                  height: 1.0,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -348,7 +381,7 @@ class _WeekDayHeader extends StatelessWidget {
           height: 28,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: isToday ? AppTheme.primaryBlue : Colors.transparent,
+            color: isToday ? AppTheme.accentBlue : Colors.transparent,
             shape: BoxShape.circle,
           ),
           child: Text(
@@ -584,7 +617,7 @@ class _MonthCell extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              border: isSelected ? Border.all(color: AppTheme.primaryBlue, width: 1.4) : null,
+              border: isSelected ? Border.all(color: AppTheme.accentBlue, width: 1.4) : null,
             ),
             padding: const EdgeInsets.all(4),
             child: Column(
@@ -595,7 +628,7 @@ class _MonthCell extends StatelessWidget {
                   height: 22,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: isToday ? AppTheme.primaryBlue : Colors.transparent,
+                    color: isToday ? AppTheme.accentBlue : Colors.transparent,
                     shape: BoxShape.circle,
                   ),
                   child: Text(

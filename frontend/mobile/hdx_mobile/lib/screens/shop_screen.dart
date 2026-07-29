@@ -180,95 +180,193 @@ class _CartIconButton extends StatelessWidget {
   }
 }
 
-class _ProductCard extends StatelessWidget {
+class _ProductCard extends StatefulWidget {
   final Product product;
   final CartProvider cartProvider;
   const _ProductCard({required this.product, required this.cartProvider});
 
   @override
+  State<_ProductCard> createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<_ProductCard> {
+  bool _hovered = false;
+  bool _focused = false;
+
+  @override
   Widget build(BuildContext context) {
+    final product = widget.product;
+    final cartProvider = widget.cartProvider;
     final cartItem = cartProvider.getItem(product.id);
     final isInCart = cartItem != null;
+    final showActive = _hovered || _focused;
+    final radius = BorderRadius.circular(16);
 
-    return GestureDetector(
-      onTap: () => context.push('/shop/product', extra: product),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: AppTheme.neumorphicRaised,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Semantics(
+      button: true,
+      label: product.name,
+      child: FocusableActionDetector(
+        mouseCursor: SystemMouseCursors.click,
+        onShowHoverHighlight: (v) => setState(() => _hovered = v),
+        onShowFocusHighlight: (v) => setState(() => _focused = v),
+        actions: <Type, Action<Intent>>{
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) {
+              context.push('/shop/product', extra: product);
+              return null;
+            },
+          ),
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 140),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: showActive ? AppTheme.primaryLight : AppTheme.surface,
+            borderRadius: radius,
+            border: Border.all(
+              color: showActive
+                  ? AppTheme.accentBlue.withValues(alpha: _focused ? 1.0 : 0.75)
+                  : Colors.transparent,
+              width: 2,
+            ),
+            boxShadow: showActive
+                ? [
+                    ...AppTheme.neumorphicRaised,
+                    BoxShadow(
+                      color: AppTheme.accentBlue.withValues(alpha: 0.22),
+                      offset: const Offset(0, 8),
+                      blurRadius: 18,
+                    ),
+                  ]
+                : AppTheme.neumorphicRaised,
+          ),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => context.push('/shop/product', extra: product),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: AppTheme.background,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(Icons.sell_outlined, color: AppTheme.primaryBlue, size: 26),
-                ),
-                const Spacer(),
-                if (isInCart)
-                  _QuantityControls(
-                    quantity: cartItem.quantity,
-                    onDecrement: () {
-                      if (cartItem.quantity > 1) {
-                        cartProvider.updateQuantity(product.id, cartItem.quantity - 1);
-                      } else {
-                        cartProvider.removeItem(product.id);
-                      }
-                    },
-                    onIncrement: () => cartProvider.updateQuantity(product.id, cartItem.quantity + 1),
-                  )
-                else
-                  GestureDetector(
-                    onTap: product.stock != null && product.stock! <= 0
-                        ? null
-                        : () {
-                            cartProvider.addItem(product);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('${product.name} hinzugefügt'), duration: const Duration(seconds: 1)),
-                            );
-                          },
-                    child: Container(
-                      width: 48,
-                      height: 48,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 140),
+                      width: 56,
+                      height: 56,
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryLight,
+                        color: showActive ? Colors.white : AppTheme.background,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.shopping_cart_outlined, color: AppTheme.primaryBlue, size: 24),
+                      child: Icon(
+                        Icons.sell_outlined,
+                        color: showActive ? AppTheme.accentBlue : AppTheme.primaryBlue,
+                        size: 26,
+                      ),
                     ),
+                    const Spacer(),
+                    if (isInCart)
+                      _QuantityControls(
+                        quantity: cartItem.quantity,
+                        onDecrement: () {
+                          if (cartItem.quantity > 1) {
+                            cartProvider.updateQuantity(product.id, cartItem.quantity - 1);
+                          } else {
+                            cartProvider.removeItem(product.id);
+                          }
+                        },
+                        onIncrement: () => cartProvider.updateQuantity(product.id, cartItem.quantity + 1),
+                      )
+                    else
+                      _AddToCartButton(
+                        enabled: product.stock == null || product.stock! > 0,
+                        onTap: () {
+                          cartProvider.addItem(product);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('${product.name} hinzugefügt'),
+                              duration: const Duration(seconds: 1),
+                            ),
+                          );
+                        },
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  product.name,
+                  style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.textColor),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  product.description,
+                  style: FigmaUi.rubik(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                    color: AppTheme.textColorSecondary,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 12),
+                const Divider(height: 1, color: Color(0x1A142543)),
+                const SizedBox(height: 12),
+                Text(
+                  '${product.price.toStringAsFixed(2)} €',
+                  style: FigmaUi.rubik(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: showActive ? AppTheme.accentBlue : AppTheme.primaryBlue,
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 14),
-            Text(product.name, style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.textColor)),
-            const SizedBox(height: 6),
-            Text(product.description, style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w400, color: AppTheme.textColorSecondary), maxLines: 2, overflow: TextOverflow.ellipsis),
-            const SizedBox(height: 12),
-            const Divider(height: 1, color: Color(0x1A142543)),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Text('${product.price.toStringAsFixed(2)} €', style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.primaryBlue)),
-                if (product.stock != null) ...[
-                  const SizedBox(width: 14),
-                  Text(
-                    '${product.stock} verfügbar',
-                    style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w400, color: AppTheme.textColorSecondary),
-                  ),
-                ],
-              ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AddToCartButton extends StatefulWidget {
+  final bool enabled;
+  final VoidCallback onTap;
+
+  const _AddToCartButton({required this.enabled, required this.onTap});
+
+  @override
+  State<_AddToCartButton> createState() => _AddToCartButtonState();
+}
+
+class _AddToCartButtonState extends State<_AddToCartButton> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final active = widget.enabled && _hovered;
+    return MouseRegion(
+      cursor: widget.enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      onEnter: widget.enabled ? (_) => setState(() => _hovered = true) : null,
+      onExit: widget.enabled ? (_) => setState(() => _hovered = false) : null,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: widget.enabled ? widget.onTap : null,
+          borderRadius: BorderRadius.circular(12),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: active ? AppTheme.accentBlue : AppTheme.primaryLight,
+              borderRadius: BorderRadius.circular(12),
             ),
-          ],
+            child: Icon(
+              Icons.shopping_cart_outlined,
+              color: active ? Colors.white : AppTheme.primaryBlue,
+              size: 24,
+            ),
+          ),
         ),
       ),
     );
@@ -302,25 +400,49 @@ class _QuantityControls extends StatelessWidget {
   }
 }
 
-class _QtyBtn extends StatelessWidget {
+class _QtyBtn extends StatefulWidget {
   final IconData icon;
   final VoidCallback onTap;
   final bool neumorphic;
   const _QtyBtn({required this.icon, required this.onTap, this.neumorphic = false});
 
   @override
+  State<_QtyBtn> createState() => _QtyBtnState();
+}
+
+class _QtyBtnState extends State<_QtyBtn> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: widget.onTap,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: neumorphic ? AppTheme.neumorphicRaised : null,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: _hovered ? AppTheme.primaryLight : AppTheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: _hovered
+                  ? Border.all(color: AppTheme.accentBlue.withValues(alpha: 0.55))
+                  : null,
+              boxShadow: widget.neumorphic ? AppTheme.neumorphicRaised : null,
+            ),
+            child: Icon(
+              widget.icon,
+              color: _hovered ? AppTheme.accentBlue : AppTheme.textColor,
+              size: 22,
+            ),
+          ),
         ),
-        child: Icon(icon, color: AppTheme.textColor, size: 22),
       ),
     );
   }

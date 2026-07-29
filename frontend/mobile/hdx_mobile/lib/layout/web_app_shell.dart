@@ -83,7 +83,12 @@ class _WebSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppTheme.navy,
+      color: AppTheme.primaryBlue,
+      borderRadius: const BorderRadius.only(
+        topRight: Radius.circular(24),
+        bottomRight: Radius.circular(24),
+      ),
+      clipBehavior: Clip.antiAlias,
       child: SizedBox(
         width: WebNavConfig.sidebarWidth,
         child: Column(
@@ -268,7 +273,7 @@ class _SidebarNavItemState extends State<_SidebarNavItem> {
   @override
   Widget build(BuildContext context) {
     final bg = widget.selected
-        ? AppTheme.primaryBlue.withValues(alpha: 0.35)
+        ? Colors.white.withValues(alpha: 0.18)
         : (_hovered || _focused)
             ? Colors.white.withValues(alpha: 0.08)
             : Colors.transparent;

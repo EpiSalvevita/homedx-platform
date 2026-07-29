@@ -58,8 +58,9 @@ class AppTheme {
         ),
       ];
 
-  /// Deprecated for input fields — use [NeumorphicInsetSurface] (true inset paint).
-  /// Kept for non-field surfaces that still use outer neumorphic styling.
+  /// Soft neumorphic outer pair used by non-field surfaces (e.g. segmented tabs).
+  /// Input fields paint true insets via [NeumorphicInsetSurface] (CustomPainter) —
+  /// Flutter web does not reliably render [BlurStyle.inner] as CSS inset.
   static List<BoxShadow> get neumorphicInset => const [
         BoxShadow(color: Colors.white, offset: Offset(-4, -4), blurRadius: 4),
         BoxShadow(color: Color(0x4D99A6CE), offset: Offset(4, 4), blurRadius: 10),

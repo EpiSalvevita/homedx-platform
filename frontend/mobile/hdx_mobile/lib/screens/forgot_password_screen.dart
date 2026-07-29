@@ -114,7 +114,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ] else ...[
                 NeumorphicInsetField(
                   controller: _emailController,
-                  label: 'E-Mail-Adresse',
+                  label: 'E-Mail',
                   hint: 'name@beispiel.de',
                   prefixIcon: Icons.mail_outline,
                   keyboardType: TextInputType.emailAddress,

@@ -120,8 +120,15 @@ class Appointment {
   }
 
   bool get isOnline => type == 'online';
-  bool get isUpcoming =>
-      status == 'confirmed' || status == 'pending';
+
+  /// Active booking that has not ended yet (by start + [durationMin]).
+  /// Status alone is not enough — otherwise past confirmed slots stay under
+  /// "Bevorstehend".
+  bool get isUpcoming {
+    if (status != 'confirmed' && status != 'pending') return false;
+    final endsAt = appointmentTime.add(Duration(minutes: durationMin));
+    return endsAt.isAfter(DateTime.now());
+  }
 
   /// German UI label for appointment status (API values stay English).
   String get statusLabelDe {

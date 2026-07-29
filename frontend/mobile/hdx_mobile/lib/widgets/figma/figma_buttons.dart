@@ -114,6 +114,7 @@ class _NeumorphicPillButtonState extends State<NeumorphicPillButton> {
         padding: pillPadding,
         alignment: Alignment.center,
         backgroundColor: fill,
+        invertedInset: true,
         child: Material(
           color: Colors.transparent,
           child: InkWell(

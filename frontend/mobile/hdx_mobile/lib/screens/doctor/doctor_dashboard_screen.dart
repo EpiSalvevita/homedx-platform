@@ -150,6 +150,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                           NeumorphicRaisedCard(
                             height: null,
                             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 36),
+                            onTap: () => context.push('/doctor/appointments'),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -252,30 +253,6 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                               const Icon(Icons.chevron_right, color: AppTheme.textColorSecondary),
                             ],
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        NeumorphicPillButton(
-                          label: 'Alle Fragebögen',
-                          leadingIcon: Icons.quiz_outlined,
-                          backgroundColor: AppTheme.surface,
-                          foregroundColor: AppTheme.textColor,
-                          onPressed: () => context.push('/doctor/questionnaires'),
-                        ),
-                        const SizedBox(height: 20),
-                        NeumorphicPillButton(
-                          label: 'Alle Termine anzeigen',
-                          leadingIcon: Icons.calendar_month_outlined,
-                          backgroundColor: AppTheme.accentMint,
-                          foregroundColor: AppTheme.onMint,
-                          onPressed: () => context.push('/doctor/appointments'),
-                        ),
-                        const SizedBox(height: 12),
-                        NeumorphicPillButton(
-                          label: 'Verfügbarkeit bearbeiten',
-                          leadingIcon: Icons.schedule_outlined,
-                          backgroundColor: AppTheme.surface,
-                          foregroundColor: AppTheme.textColor,
-                          onPressed: () => context.push('/doctor/availability'),
                         ),
                       ],
                     ),

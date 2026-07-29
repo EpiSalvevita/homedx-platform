@@ -93,6 +93,7 @@ class _LandingScreenState extends State<LandingScreen> {
                 children: [
                   _LandingNav(isWide: isWide),
                   _HeroSection(isWide: isWide),
+                  HowItWorksSection(isWide: isWide),
                   _FeatureSection(
                     title: strings.patientsTitle,
                     subtitle: strings.patientsSubtitle,
@@ -140,19 +141,13 @@ class _LandingScreenState extends State<LandingScreen> {
                   ),
                   KeyedSubtree(
                     key: _aboutSectionKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        StorySection(
-                          title: strings.storyTitle,
-                          subtitle: strings.storySubtitle,
-                          body: strings.storyBody,
-                          imagePath: AppAssets.marketingStoryTeam,
-                          imagePlaceholderLabel: strings.imageComingSoon,
-                          isWide: isWide,
-                        ),
-                        HowItWorksSection(isWide: isWide),
-                      ],
+                    child: StorySection(
+                      title: strings.storyTitle,
+                      subtitle: strings.storySubtitle,
+                      body: strings.storyBody,
+                      imagePath: AppAssets.marketingStoryTeam,
+                      imagePlaceholderLabel: strings.imageComingSoon,
+                      isWide: isWide,
                     ),
                   ),
                   _DoctorCta(isWide: isWide),

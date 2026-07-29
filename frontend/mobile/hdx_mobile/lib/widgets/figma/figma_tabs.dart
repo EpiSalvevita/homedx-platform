@@ -4,16 +4,19 @@ class FigmaSegmentedTabs extends StatelessWidget {
   final List<String> labels;
   final int selectedIndex;
   final ValueChanged<int> onSelected;
+  final Color? selectedColor;
 
   const FigmaSegmentedTabs({
     super.key,
     required this.labels,
     required this.selectedIndex,
     required this.onSelected,
+    this.selectedColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final active = selectedColor ?? AppTheme.primaryBlue;
     return Container(
       height: 48,
       decoration: BoxDecoration(
@@ -30,7 +33,7 @@ class FigmaSegmentedTabs extends StatelessWidget {
               child: Container(
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: selected ? AppTheme.primaryBlue : Colors.transparent,
+                  color: selected ? active : Colors.transparent,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Text(

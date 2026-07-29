@@ -24,28 +24,27 @@ class HowItWorksSection extends StatelessWidget {
       title: strings.howItWorksTitle,
       subtitle: strings.howItWorksSubtitle,
       child: isWide
-          ? Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: steps
-                  .map(
-                    (step) => Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: _StepCard(step: step),
-                      ),
+          ? IntrinsicHeight(
+              child: Row(
+                // Stretch so shorter copy still fills the tallest step card.
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < steps.length; i++) ...[
+                    if (i > 0) const SizedBox(width: 12),
+                    Expanded(
+                      child: _StepCard(step: steps[i], fillHeight: true),
                     ),
-                  )
-                  .toList(),
+                  ],
+                ],
+              ),
             )
           : Column(
-              children: steps
-                  .map(
-                    (step) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _StepCard(step: step),
-                    ),
-                  )
-                  .toList(),
+              children: [
+                for (var i = 0; i < steps.length; i++) ...[
+                  if (i > 0) const SizedBox(height: 12),
+                  _StepCard(step: steps[i]),
+                ],
+              ],
             ),
     );
   }
@@ -62,12 +61,16 @@ class _StepData {
 
 class _StepCard extends StatelessWidget {
   final _StepData step;
+  /// When true (wide row), grow to the tallest sibling so card backgrounds match.
+  final bool fillHeight;
 
-  const _StepCard({required this.step});
+  const _StepCard({required this.step, this.fillHeight = false});
 
   @override
   Widget build(BuildContext context) {
     return NeumorphicContainer(
+      width: double.infinity,
+      height: fillHeight ? double.infinity : null,
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

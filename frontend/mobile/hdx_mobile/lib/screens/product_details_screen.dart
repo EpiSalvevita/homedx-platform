@@ -115,21 +115,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             ),
                           ),
                           const Spacer(),
-                          if (widget.product.stock != null)
+                          if (widget.product.stock != null && !inStock)
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: inStock
-                                    ? AppTheme.successColor.withValues(alpha: 0.25)
-                                    : AppTheme.accentCoral.withValues(alpha: 0.25),
+                                color: AppTheme.accentCoral.withValues(alpha: 0.25),
                                 borderRadius: BorderRadius.circular(AppTheme.resultBadgeRadius),
                               ),
                               child: Text(
-                                inStock ? '${widget.product.stock} verfügbar' : 'Ausverkauft',
+                                'Ausverkauft',
                                 style: FigmaUi.rubik(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
-                                  color: inStock ? AppTheme.navy : AppTheme.errorColor,
+                                  color: AppTheme.errorColor,
                                 ),
                               ),
                             ),
@@ -199,7 +197,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   label: inStock ? 'In den Warenkorb' : 'Derzeit nicht verfügbar',
                   leadingIcon: Icons.shopping_cart_outlined,
                   height: AppTheme.buttonHeightLarge,
-                  backgroundColor: inStock ? AppTheme.primaryBlue : AppTheme.surface,
+                  backgroundColor: inStock ? AppTheme.accentBlue : AppTheme.surface,
                   foregroundColor: inStock ? Colors.white : AppTheme.textColorSecondary,
                   onPressed: !inStock
                       ? null
@@ -218,8 +216,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   label: 'Warenkorb anzeigen',
                   leadingIcon: Icons.shopping_bag_outlined,
                   height: AppTheme.buttonHeightLarge,
-                  backgroundColor: AppTheme.accentMint,
-                  foregroundColor: AppTheme.onMint,
+                  backgroundColor: AppTheme.accentBlue,
+                  foregroundColor: Colors.white,
                   onPressed: () => context.push('/shop/cart'),
                 ),
               ],
