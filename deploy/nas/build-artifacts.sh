@@ -10,6 +10,12 @@ ROOT="$(cd "$(dirname "$0")/../../" && pwd)"
 FLUTTER_APP="$ROOT/frontend/mobile/hdx_mobile"
 NAS_DIR="$(cd "$(dirname "$0")" && pwd)"
 NAS_IP="${HOMEDX_NAS_IP:-192.168.1.50}"
+BACKEND_PORT="${BACKEND_PORT:-4000}"
+if [ -f "$NAS_DIR/.env" ]; then
+  # shellcheck disable=SC1090
+  BACKEND_PORT="$(grep -E '^BACKEND_PORT=' "$NAS_DIR/.env" | head -1 | cut -d= -f2- || true)"
+  BACKEND_PORT="${BACKEND_PORT:-4000}"
+fi
 ENV_FILE="$FLUTTER_APP/.env"
 ENV_BACKUP=""
 HAD_ENV=0
@@ -25,7 +31,7 @@ restore_env() {
 }
 trap restore_env EXIT
 
-echo "Building for NAS API at http://${NAS_IP}:4000"
+echo "Building for NAS API at http://${NAS_IP}:${BACKEND_PORT}"
 
 mkdir -p "$NAS_DIR/web" "$NAS_DIR/downloads"
 
@@ -38,7 +44,7 @@ fi
 
 # Flutter .env is bundled into web/APK at build time
 cat > "$ENV_FILE" <<EOF
-API_BASE_URL=http://${NAS_IP}:4000
+API_BASE_URL=http://${NAS_IP}:${BACKEND_PORT}
 CUBE_VERBOSE=false
 CUBE_USE_TIMER=true
 EOF
