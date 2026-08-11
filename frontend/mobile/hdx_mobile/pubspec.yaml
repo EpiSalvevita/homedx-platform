@@ -63,7 +63,7 @@ dependencies:
   google_fonts: ^6.2.1
 
   # Bluetooth Connectivity
-  flutter_blue_plus: ^1.32.7
+  flutter_blue_plus: ^2.3.10
   permission_handler: ^11.3.1
 
   file_picker: ^8.1.6
