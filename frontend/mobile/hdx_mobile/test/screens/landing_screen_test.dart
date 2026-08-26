@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hdx_mobile/providers/locale_provider.dart';
 import 'package:hdx_mobile/screens/landing_screen.dart';
+import 'package:hdx_mobile/utils/app_assets.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -45,9 +46,13 @@ void main() {
 
     expect(find.text('Gesundheitstests\nund Online-Versorgung'), findsOneWidget);
     expect(find.text('Jetzt starten'), findsOneWidget);
-    expect(find.text('Für Patienten'), findsOneWidget);
-    expect(find.text('Testergebnisse & Videoberatung'), findsOneWidget);
-    expect(find.text('Cube Schnelltests'), findsNothing);
+    expect(find.image(const AssetImage(AppAssets.iconHeartbeat)), findsOneWidget);
+    expect(find.image(const AssetImage(AppAssets.iconHomeCalendar)), findsWidgets);
+    expect(find.image(const AssetImage(AppAssets.patientOlder)), findsOneWidget);
+    expect(find.image(const AssetImage(AppAssets.doctorOriginal)), findsOneWidget);
+    expect(find.text('Für Patienten'), findsNothing);
+    expect(find.text('Das Produkt'), findsOneWidget);
+    expect(find.text('Cube Schnelltests'), findsOneWidget);
     expect(find.text('Anmelden'), findsOneWidget);
 
     await tester.tap(find.text('Anmelden'));

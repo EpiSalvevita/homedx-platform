@@ -6,6 +6,7 @@ import '../config/app_theme.dart';
 import '../models/doctor.dart';
 import '../core/api_service.dart';
 import '../services/appointment_service.dart';
+import '../utils/app_assets.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/web/adaptive_screen.dart';
 import '../widgets/appointment_status_badge.dart';
@@ -139,6 +140,7 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen> {
                       )
                     else if (_appointments.isEmpty)
                       FigmaEmptyState(
+                        assetPath: AppAssets.patientManHome,
                         icon: Icons.event_outlined,
                         title: 'Noch keine Termine',
                         message: 'Buchen Sie einen Termin bei einem Arzt, um ihn hier zu sehen.',

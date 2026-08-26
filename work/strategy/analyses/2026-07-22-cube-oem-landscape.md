@@ -4,6 +4,7 @@
 - **Author:** competition research pass
 - **Status:** draft
 - **Related:** [`../../product-brief.md`](../../product-brief.md), competitors: [`../competitors/_index.md`](../competitors/_index.md), sources: [`../sources/2026-07-22-cube-oem-sources.md`](../sources/2026-07-22-cube-oem-sources.md)
+- **Refresh:** [`2026-08-26-cube-oem-refresh.md`](2026-08-26-cube-oem-refresh.md) (web re-check; VHC Ferritin first-party, TargetVet canine SKU, HeadStart still pipeline)
 
 ## Question
 
@@ -25,10 +26,10 @@ Who else uses the same opTricon Cube / CubePlus hardware class, and how much do 
 
 2. **Named OEM peers span verticals, not one consumer category.**
    - Human infectious-disease POC: Biosynex / Chembio (DPP Micro Reader, BIOSYNEX CubePlus).
-   - Human near-patient lifestyle/POC: Fountain of Youth VHC / QuickREAD CUBE (Vitamin D–centric).
-   - Veterinary: TargetVet Cube Reader Plus (~USD 800 public list).
+   - Human near-patient lifestyle/POC: Fountain of Youth VHC / QuickREAD CUBE (Vitamin D–centric in July; **Ferritin is first-party as of 2026-08-26**).
+   - Veterinary: TargetVet Cube Reader Plus (~USD 800 public list; **canine bundle listed AVAILABLE 8/2026**).
    - Food safety: Hygiena Cube + GlutenTox.
-   - Historical home monitoring: Mologic (now GADx) Cube deal for HeadStart (2016) — commercial status today TBD.
+   - Historical home monitoring: Mologic (now GADx) Cube deal for HeadStart (2016) — **still a prototype as of 2026-08-26**; NCT04296318 terminated.
 
 3. **Almost no public peer ships homeDX’s full stack.** Typical OEM offer = reader + RFID-configured kits + PC DataReader or light APP. Missing publicly: consumer account/cloud history + payments/licenses + certificates + **positive-result → specialist video**. Closest pressure is (a) closed kit+reader channels and (b) opTricon’s own APP/API as “good enough” connectivity.
 

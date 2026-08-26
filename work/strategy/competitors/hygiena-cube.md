@@ -1,7 +1,7 @@
 # Competitor: Hygiena (Cube Reader)
 
 - **Slug:** `hygiena-cube`
-- **Last updated:** 2026-07-22
+- **Last updated:** 2026-08-26
 - **Owner:** _
 
 ## Snapshot
@@ -17,9 +17,9 @@
 
 ## Product & offer
 
-- Hardware: **Hygiena® Cube Reader** (ASY3206) — ~40 g Cube; RFID lot config; adapter/stand; battery; PC DataReader software. Specs match classic opTricon Cube class (3 s measure, ~100 results memory).
+- Hardware: **Live SKU:** Hygiena® Cube Reader **ASY3206**, sold today with **GlutenTox Sticks Plus for Cube**. Specs in Hygiena’s IFU match the **classic Cube** (41×41×40 mm, ~40 g, RFID, 3 s, 100 results, 14-segment LCD, CR2032 or 2.5 mm jack + Cube DataReader) — that is the older Cube generation, not CubePlus (USB-C / BLE). **Hygiena pages and the IFU do not name opTricon**; OEM is inferred from that fingerprint, not from a Hygiena manufacturer line. Different from HeadStart, where 2026 pages do not even sell a Cube-branded device.
 - Software / app: Hygiena Cube DataReader / software patches; audit/report oriented for QA.
-- Tests / assays supported (public): **GlutenTox® Sticks Plus for Cube** (quantitative gluten, e.g. down to low ppm claims on Hygiena pages — cite Hygiena only; do not reuse as homeDX claims).
+- Tests / assays supported (public): **GlutenTox® Sticks Plus for Cube**. Hygiena pages still claim **3–40 ppm** gluten with Cube — cite Hygiena only; do not reuse as homeDX claims.
 - Pricing / licensing (public): Order via Hygiena eStores / sales; no consumer medical pricing.
 - Channels: Food safety / industrial QA.
 
@@ -53,7 +53,8 @@
 ## Sources
 
 - [`../sources/2026-07-22-cube-oem-sources.md`](../sources/2026-07-22-cube-oem-sources.md) — Hygiena Cube Reader product page, product sheet, GlutenTox for Cube.
+- Refresh: [`../sources/2026-08-26-cube-oem-refresh.md`](../sources/2026-08-26-cube-oem-refresh.md) — ASY3206 still listed; specs and gluten range unchanged.
 
 ## Open questions
 
-- Confirm contractual OEM source (opTricon) in Hygiena docs (form factor/RFID strongly indicate Cube lineage; Hygiena branding may omit opTricon).
+- Confirm contractual OEM source (opTricon) — Hygiena branding omits the name; fingerprint is strong (dimensions, RFID, DataReader, jack plug) but not a signed OEM disclosure.

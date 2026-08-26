@@ -1,7 +1,7 @@
 # Competitor: TargetVet / BioMetallics
 
 - **Slug:** `targetvet`
-- **Last updated:** 2026-07-22
+- **Last updated:** 2026-08-26
 - **Owner:** _
 
 ## Snapshot
@@ -20,7 +20,7 @@
 - Hardware: **Cube Reader** and **Cube Reader Plus** (rechargeable Li battery, USB-C, LED status); equine/camelid vs canine cassette adapters.
 - Software / app: RFID / calibration-card programmed assays; on-device numeric results; professional field use. No consumer human teleconsult product.
 - Tests / assays supported (public): Canine/equine progesterone (Quick P4), Foal/camelid IgG, equine SAA, related TargetVet kits.
-- Pricing / licensing (public): Equine Cube Reader Plus listed around **USD 800–875** depending on warranty term (store pages, accessed 2026-07-22).
+- Pricing / licensing (public): Equine Cube Reader Plus still **USD 800 / 850 / 875** for 1/2/3 yr warranty (unchanged vs July). **Canine Cube Reader Plus + K9 QP4 10-test kit** listed **AVAILABLE 8/2026** at **USD 1,000 / 1,050 / 1,075**. K9 QP4 refill kits (5/10/15) also marked AVAILABLE 8/2026.
 - Channels: Direct online store + veterinary channels.
 
 ## Comparison to homeDX
@@ -53,6 +53,7 @@
 ## Sources
 
 - [`../sources/2026-07-22-cube-oem-sources.md`](../sources/2026-07-22-cube-oem-sources.md) — targetvet.com Cube Reader and store pages.
+- Refresh: [`../sources/2026-08-26-cube-oem-refresh.md`](../sources/2026-08-26-cube-oem-refresh.md) — equine list price unchanged; canine bundle + refill kits marked AVAILABLE 8/2026.
 
 ## Open questions
 

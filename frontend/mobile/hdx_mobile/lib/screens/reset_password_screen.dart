@@ -114,7 +114,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (!kIsWeb) const LoginHeroBanner(),
+        if (!kIsWeb) LoginHeroBanner(isDoctor: widget.isDoctor),
         Padding(
           padding: EdgeInsets.fromLTRB(
             kIsWeb ? 32 : AppTheme.screenHorizontalPadding,

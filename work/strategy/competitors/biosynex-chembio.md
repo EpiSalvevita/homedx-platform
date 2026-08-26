@@ -1,7 +1,7 @@
 # Competitor: Biosynex / Chembio Diagnostics
 
 - **Slug:** `biosynex-chembio`
-- **Last updated:** 2026-07-22
+- **Last updated:** 2026-08-26
 - **Owner:** _
 
 ## Snapshot
@@ -17,9 +17,9 @@
 
 ## Product & offer
 
-- Hardware: Chembio **DPP® Micro Reader** / **Micro Reader II** (OEM Cube lineage from 2015 supply agreement with opTricon). Biosynex catalogs **BIOSYNEX CubePlus** for automated reading of selected RAPID-D / BSX tests; also larger **BSX READER** (separate form factor, LIS/HL7).
+- Hardware: Chembio **DPP® Micro Reader** / **Micro Reader II** (OEM Cube lineage from 2015 supply agreement with opTricon). Biosynex 2026 catalog still lists **BIOSYNEX CubePlus** REF `CUBE-270-01` (41×41×40 mm, 40 g) for automated reading of **RAPID-D**; also larger **BSX READER** (separate form factor, LIS/HL7). A Biosynex.es RAPID-D page names **opTricon GmbH** as reader manufacturer.
 - Software / app: Device-centric storage/traceability; professional workflow tools. Not publicly positioned as a consumer cloud + teleconsult stack.
-- Tests / assays supported (public): Chembio DPP infectious-disease portfolio (e.g. HIV, syphilis, and other DPP assays — verify current catalog). Biosynex rapid-test catalog includes CubePlus-linked lines (e.g. RAPID-D per 2026 catalog excerpts).
+- Tests / assays supported (public): Chembio DPP infectious-disease portfolio (e.g. HIV, syphilis, and other DPP assays — verify current catalog). Micro Reader II page still uses “Newest, CE Marked” language (Chembio claim). Biosynex CubePlus remains tied to RAPID-D / vitamin D readout in 2026 catalog.
 - Pricing / licensing (public): Professional kit + reader SKUs; no transparent DTC subscription model found in this pass.
 - Channels: Direct + distributors globally; public-health and clinic POC emphasis.
 
@@ -55,6 +55,7 @@
 ## Sources
 
 - [`../sources/2026-07-22-cube-oem-sources.md`](../sources/2026-07-22-cube-oem-sources.md) — EQS Chembio Cube OEM (2015), Chembio product pages, Biosynex catalog 2026, Adlershof Chembio/opTricon history, Acquisition25.
+- Refresh: [`../sources/2026-08-26-cube-oem-refresh.md`](../sources/2026-08-26-cube-oem-refresh.md) — 2026 EN catalog still lists CubePlus `CUBE-270-01`; Chembio DPP Micro Reader and Micro Reader II still on chembio.com.
 
 ## Open questions
 

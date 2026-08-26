@@ -1,7 +1,9 @@
 part of '../figma_ui.dart';
 
 class LoginHeroBanner extends StatelessWidget {
-  const LoginHeroBanner({super.key});
+  final bool isDoctor;
+
+  const LoginHeroBanner({super.key, this.isDoctor = false});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class LoginHeroBanner extends StatelessWidget {
                     left: width * 0.04,
                     bottom: 24,
                     child: Image.asset(
-                      AppAssets.loginDoctor,
+                      isDoctor ? AppAssets.loginDoctor : AppAssets.patientWomanPhone,
                       height: heroHeight * 0.68,
                       fit: BoxFit.contain,
                     ),

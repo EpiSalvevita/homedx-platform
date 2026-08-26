@@ -7,6 +7,7 @@ import '../config/app_theme.dart';
 import '../models/doctor.dart';
 import '../core/api_service.dart';
 import '../services/doctor_service.dart';
+import '../widgets/doctor_portrait_avatar.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/web/adaptive_screen.dart';
 
@@ -235,14 +236,10 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
                   padding: const EdgeInsets.all(22),
                   child: Row(
                     children: [
-                      Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryLight,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: const Icon(Icons.person_outline, size: 30, color: AppTheme.primaryBlue),
+                      DoctorPortraitAvatar(
+                        doctorId: widget.doctorId,
+                        doctorName: widget.doctorName,
+                        size: 56,
                       ),
                       const SizedBox(width: 16),
                       Expanded(

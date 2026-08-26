@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hdx_mobile/screens/doctor_selection_screen.dart';
 import 'package:hdx_mobile/core/api_service.dart';
 import 'package:hdx_mobile/services/doctor_service.dart';
+import 'package:hdx_mobile/widgets/doctor_portrait_avatar.dart';
 import 'package:provider/provider.dart';
 import '../helpers/mock_api_service.dart';
 
@@ -71,6 +72,7 @@ void main() {
     final mock = DoctorService.mockDoctors();
     expect(find.text(mock[0].name), findsOneWidget);
     expect(find.text(mock[1].name), findsOneWidget);
+    expect(find.byType(DoctorPortraitAvatar), findsNWidgets(2));
   });
 
   testWidgets(

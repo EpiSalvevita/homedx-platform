@@ -248,9 +248,9 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: () => context.go('/tests'),
         ),
       FigmaQuickActionTile(
-        assetPath: AppAssets.loginDoctor,
+        assetPath: AppAssets.doctorExplaining,
         label: 'Online Sprechstunde',
-        iconHeight: 52,
+        iconHeight: 110,
         onTap: () => context.pushNamed('doctors'),
       ),
       FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Meine Termine', onTap: () => context.push('/appointments')),

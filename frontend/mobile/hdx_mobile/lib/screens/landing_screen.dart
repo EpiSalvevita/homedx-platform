@@ -10,6 +10,7 @@ import '../widgets/figma_ui.dart';
 import '../widgets/neumorphic.dart';
 import '../widgets/marketing/how_it_works_section.dart';
 import '../widgets/marketing/marketing_section.dart';
+import '../widgets/marketing/product_showcase_section.dart';
 import '../widgets/marketing/story_section.dart';
 
 ButtonStyle _landingLinkButtonStyle({
@@ -94,28 +95,7 @@ class _LandingScreenState extends State<LandingScreen> {
                   _LandingNav(isWide: isWide),
                   _HeroSection(isWide: isWide),
                   HowItWorksSection(isWide: isWide),
-                  _FeatureSection(
-                    title: strings.patientsTitle,
-                    subtitle: strings.patientsSubtitle,
-                    features: [
-                      _FeatureItem(
-                        iconPath: AppAssets.iconDna,
-                        title: strings.patientResultsTitle,
-                        description: strings.patientResultsBody,
-                      ),
-                      _FeatureItem(
-                        iconPath: AppAssets.iconHomeBag,
-                        title: strings.patientShopTitle,
-                        description: strings.patientShopBody,
-                      ),
-                      _FeatureItem(
-                        iconPath: AppAssets.iconHeartbeat,
-                        title: strings.patientCertificatesTitle,
-                        description: strings.patientCertificatesBody,
-                      ),
-                    ],
-                    isWide: isWide,
-                  ),
+                  ProductShowcaseSection(isWide: isWide),
                   _FeatureSection(
                     title: 'Für Ärzte',
                     subtitle: 'Dashboard, Verfügbarkeit und Videoanrufe im Browser.',
@@ -364,6 +344,9 @@ class _HeroSection extends StatelessWidget {
       ],
     );
 
+    final iconScale = isWide ? 1.0 : 0.82;
+    final figureHeight = isWide ? 260.0 : 188.0;
+
     final illustration = ClipRRect(
       borderRadius: BorderRadius.circular(24),
       child: Container(
@@ -374,23 +357,64 @@ class _HeroSection extends StatelessWidget {
           children: [
             Align(
               alignment: Alignment.bottomLeft,
-              // TEMPORARY preview swap for asset-generation review — revert
-              // to AppAssets.loginDoctor if the generated illustration isn't
-              // chosen.
-              child: Image.asset(
-                AppAssets.elderlyPatientPreview,
-                height: isWide ? 280 : 200,
-                fit: BoxFit.contain,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Image.asset(
+                    AppAssets.patientOlder,
+                    height: figureHeight,
+                    fit: BoxFit.contain,
+                  ),
+                  SizedBox(width: isWide ? 12 : 4),
+                  Image.asset(
+                    AppAssets.doctorOriginal,
+                    height: figureHeight,
+                    fit: BoxFit.contain,
+                  ),
+                ],
+              ),
+            ),
+            // Icon cloud stays in the upper-right so it does not sit on the pair.
+            Positioned(
+              top: 12,
+              right: 12,
+              child: _HeroDecorIcon(
+                asset: AppAssets.iconDna,
+                width: 56 * iconScale,
+                height: 40 * iconScale,
               ),
             ),
             Positioned(
-              top: 16,
-              right: 16,
-              child: Image.asset(AppAssets.iconDna, width: 56, height: 40),
+              top: isWide ? 18 : 14,
+              right: isWide ? 84 : 62,
+              child: _HeroDecorIcon(
+                asset: AppAssets.iconHomeCalendar,
+                width: 46 * iconScale,
+                height: 48 * iconScale,
+              ),
             ),
             Positioned(
-              bottom: 24,
-              right: 24,
+              top: isWide ? 72 : 58,
+              right: isWide ? 16 : 10,
+              child: _HeroDecorIcon(
+                asset: AppAssets.iconHeartbeat,
+                width: 50 * iconScale,
+                height: 35 * iconScale,
+              ),
+            ),
+            Positioned(
+              top: isWide ? 78 : 62,
+              right: isWide ? 92 : 68,
+              child: _HeroDecorIcon(
+                asset: AppAssets.iconFirstAid,
+                width: 52 * iconScale,
+                height: 38 * iconScale,
+              ),
+            ),
+            Positioned(
+              bottom: 20,
+              right: 16,
               child: Image.asset(
                 AppAssets.logo,
                 width: AppAssets.logoLoginWidth * 0.7,
@@ -447,6 +471,31 @@ class _HeroSection extends StatelessWidget {
                   ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _HeroDecorIcon extends StatelessWidget {
+  final String asset;
+  final double width;
+  final double height;
+
+  const _HeroDecorIcon({
+    required this.asset,
+    required this.width,
+    required this.height,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ExcludeSemantics(
+      child: Image.asset(
+        asset,
+        width: width,
+        height: height,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.medium,
       ),
     );
   }
@@ -853,10 +902,12 @@ class _LandingFooter extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Wrap(
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
+              // Row (not Wrap): _FooterLink used to expand to full width via
+              // Container.alignment, which forced Wrap to stack each link.
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: const [
                   _FooterLink(label: 'Impressum', legalPageType: 'IMPRESSUM'),
                   _FooterLinkDivider(),
                   _FooterLink(label: 'Datenschutz', legalPageType: 'PRIVACY_POLICY'),
@@ -888,18 +939,28 @@ class _FooterLink extends StatelessWidget {
       child: InkWell(
         onTap: () => context.push('/legal/$legalPageType'),
         borderRadius: BorderRadius.circular(8),
-        child: Container(
+        // No Container.alignment — that expands to max width and breaks a
+        // horizontal Row/Wrap into one link per line.
+        child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: AppTheme.minTouchTarget),
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-          child: Text(
-            label,
-            style: FigmaUi.rubik(
-              fontSize: 15,
-              fontWeight: FontWeight.w400,
-              color: Colors.white,
-              height: 1,
-            ).copyWith(decoration: TextDecoration.underline, decorationColor: Colors.white70),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+            child: Center(
+              widthFactor: 1,
+              heightFactor: 1,
+              child: Text(
+                label,
+                style: FigmaUi.rubik(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white,
+                  height: 1,
+                ).copyWith(
+                  decoration: TextDecoration.underline,
+                  decorationColor: Colors.white70,
+                ),
+              ),
+            ),
           ),
         ),
       ),

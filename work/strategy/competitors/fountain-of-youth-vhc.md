@@ -1,7 +1,7 @@
 # Competitor: Jungbrunnen – Fountain of Youth GmbH (VHC / QuickREAD CUBE)
 
 - **Slug:** `fountain-of-youth-vhc`
-- **Last updated:** 2026-07-22
+- **Last updated:** 2026-08-26
 - **Owner:** _
 
 ## Snapshot
@@ -10,16 +10,16 @@
 |-------|--------|
 | Website | https://vitality-health-check.com/ |
 | HQ / geos | Germany (Rostock / Berlin addresses appear in public materials); sold via DE distributors (e.g. Hitado, Micro-Medical, heart tec) |
-| Category | Human near-patient / pharmacy–practice Cube-branded reader for vitamin and related markers |
+| Category | Human near-patient / pharmacy–practice Cube-branded reader for Vitamin D and Ferritin |
 | Target customer | Professional POC (practices, pharmacies); counseling on-site |
 | Overlap with homeDX | Medium–High among Cube OEMs (human near-patient use) |
-| One-line pitch (theirs) | Portable VHC-Reader health-monitoring platform for quantitative Vitamin D (and related) from capillary blood at the point of care |
+| One-line pitch (theirs) | One reader, two first-party tests (Vitamin D and Ferritin) for quantitative capillary-blood POC with on-site counseling |
 
 ## Product & offer
 
-- Hardware: **VHC-Reader** / **Vitality Health Check** reader — Cube form factor (~41×40×41 mm class); RFID lot cards; cassette adapter. Distributor listings also brand **QuickREAD CUBE** for Vitamin D / testosterone / cortisol / ferritin kits.
-- Software / app: PC data cable / readout software in kits; professional on-spot counseling framing. No public evidence in this pass of a homeDX-like cloud account + specialist video pathway.
-- Tests / assays supported (public): Primary public focus **25-OH Vitamin D**; distributor catalogs also mention testosterone, ferritin, cortisol, and historically COVID antibody lines — treat catalog claims as distributor marketing until primary IFUs verified.
+- Hardware: **VHC-Reader** / **Vitality Health Check** reader — Cube form factor (~41×40×41 mm class); RFID lot cards; cassette adapter. Official site: “1 Reader · 2 Tests (Vitamin D & Ferritin).” Distributor listings still brand **QuickREAD CUBE** with extra markers — treat those as unverified distributor marketing.
+- Software / app: PC data cable / readout software in kits (e.g. Hitado VHC-Reader incl. data cable and software); professional on-spot counseling. Still no public evidence of a homeDX-like cloud account + specialist video pathway (accessed 2026-08-26).
+- Tests / assays supported (public): First-party kits on vitality-health-check.com (and Hitado): **VHC Vitamin D** (10 µl capillary) and **VHC Ferritin** (20 µl). Tests stated as usable only with the VHC Reader. Distributor QuickREAD pages still list testosterone, cortisol and other kits — **not** treated as VHC first-party IFU here.
 - Pricing / licensing (public): Sold as reader + test kits through medical distributors; no DTC subscription found in this pass.
 - Channels: Pharmacy / practice / POC; listed as an opTricon cooperation partner (“Fountain of Youth GmbH”).
 
@@ -44,7 +44,7 @@
 ## Weaknesses / gaps
 
 - Professional / counseling framing — not a full digital care pathway after abnormal results (publicly).
-- Assay set centered on lifestyle markers, not homeDX’s RheumaCheck-style pathway (product brief).
+- Assay set is vitamin D + ferritin counseling, not homeDX’s RheumaCheck-style pathway (product brief).
 - Brand fragmentation (VHC vs QuickREAD CUBE) can confuse secondary research.
 
 ## Threat level
@@ -55,9 +55,10 @@
 ## Sources
 
 - [`../sources/2026-07-22-cube-oem-sources.md`](../sources/2026-07-22-cube-oem-sources.md) — vitality-health-check.com, opTricon partners list, Hitado/Sysmex brochure refs, Micro-Medical QuickREAD CUBE listing.
+- Refresh: [`../sources/2026-08-26-cube-oem-refresh.md`](../sources/2026-08-26-cube-oem-refresh.md) — Ferritin now first-party on VHC home/products; Hitado listing also pairs Vitamin D + Ferritin. QuickREAD extra-marker claims still distributor-only.
 
 ## Open questions
 
 - Exact legal manufacturer of current QuickREAD CUBE SKUs vs VHC-Reader.
-- Whether Bluetooth/mobile APP is offered for VHC end users.
+- Whether Bluetooth/mobile APP is offered for VHC end users (still not advertised on the official site).
 - Any rheumatology / autoimmune assays in their roadmap (none found publicly in this pass).

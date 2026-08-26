@@ -220,10 +220,24 @@ class FigmaQuickActionTile extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: Center(
-                child: assetPath != null
-                    ? Image.asset(assetPath!, height: iconHeight, fit: BoxFit.contain)
-                    : Icon(icon!, size: 44, color: AppTheme.primaryBlue),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final maxH = constraints.maxHeight;
+                  if (assetPath != null) {
+                    final h = iconHeight.clamp(0.0, maxH).toDouble();
+                    return Center(
+                      child: Image.asset(
+                        assetPath!,
+                        height: h,
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.high,
+                      ),
+                    );
+                  }
+                  return Center(
+                    child: Icon(icon!, size: 44, color: AppTheme.primaryBlue),
+                  );
+                },
               ),
             ),
             Text(

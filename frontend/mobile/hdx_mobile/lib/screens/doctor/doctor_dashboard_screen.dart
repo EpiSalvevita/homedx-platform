@@ -8,6 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../core/api_service.dart';
 import '../../services/appointment_service.dart';
 import '../../services/user_service.dart';
+import '../../utils/app_assets.dart';
 import '../../widgets/doctor_appointment_card.dart';
 import '../../widgets/figma_ui.dart';
 import '../../widgets/web/adaptive_screen.dart';
@@ -154,18 +155,10 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Container(
-                                  width: 64,
-                                  height: 64,
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.primaryLight,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.event_available_outlined,
-                                    size: 32,
-                                    color: AppTheme.primaryBlue,
-                                  ),
+                                Image.asset(
+                                  AppAssets.doctorRelaxed,
+                                  height: 120,
+                                  fit: BoxFit.contain,
                                 ),
                                 const SizedBox(height: 16),
                                 Text(

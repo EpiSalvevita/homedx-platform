@@ -6,6 +6,7 @@ import '../../config/app_theme.dart';
 import '../../models/doctor.dart';
 import '../../core/api_service.dart';
 import '../../services/appointment_service.dart';
+import '../../utils/app_assets.dart';
 import '../../widgets/doctor/doctor_appointment_calendar.dart';
 import '../../widgets/doctor_appointment_card.dart';
 import '../../widgets/figma_ui.dart';
@@ -157,24 +158,17 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
                 title: 'Termine konnten nicht geladen werden',
                 subtitle: _error!,
               )
+            else if (_appointments.isEmpty)
+              const FigmaEmptyState(
+                assetPath: AppAssets.doctorRelaxed,
+                icon: Icons.event_outlined,
+                title: 'Noch keine Termine',
+                message: 'Gebuchte Patiententermine erscheinen hier.',
+              )
             else if (_viewMode == _ViewMode.calendar)
               DoctorAppointmentCalendar(
                 appointments: _appointments,
                 onTapAppointment: (a) => context.push('/doctor/appointments/${a.id}'),
-              )
-            else if (_appointments.isEmpty)
-              FigmaListCard(
-                leading: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: AppTheme.background,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.event_outlined, color: AppTheme.primaryBlue),
-                ),
-                title: 'Noch keine Termine',
-                subtitle: 'Gebuchte Patiententermine erscheinen hier.',
               )
             else ...[
               if (_upcoming.isNotEmpty) ...[

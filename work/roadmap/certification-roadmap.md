@@ -6,7 +6,9 @@
 
 **Interactive view:** open the Cursor canvas
 [certification-roadmap](/home/epi_linux/.cursor/projects/home-epi-linux-homedx-platform/canvases/certification-roadmap.canvas.tsx)
-beside chat. (Canvases live in Cursor’s managed `canvases/` folder so they can render — not inside `work/`. See note at the bottom.)
+(EN) or
+[certification-roadmap-de](/home/epi_linux/.cursor/projects/home-epi-linux-homedx-platform/canvases/certification-roadmap-de.canvas.tsx)
+(DE) beside chat. (Canvases live in Cursor’s managed `canvases/` folder so they can render — not inside `work/`. See note at the bottom.)
 
 **Draft class target:** IVDR **Class C** (primary); MDR Rule 11 analogy **Class IIa** only if dual-regime applies — see [`classification-draft.md`](../../docs/regulatory/classification-draft.md).
 

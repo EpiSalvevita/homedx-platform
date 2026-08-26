@@ -1,7 +1,7 @@
 # Competitor: opTricon GmbH
 
 - **Slug:** `optricon`
-- **Last updated:** 2026-07-22
+- **Last updated:** 2026-08-26
 - **Owner:** _
 
 ## Snapshot
@@ -18,7 +18,7 @@
 ## Product & offer
 
 - Hardware: CubePlus (~41×41×40 mm, ~40 g); Bluetooth 5.0, USB-C, rechargeable Li battery; RFID lot configuration; cassette/strip adapters. Also larger analyzers (theReader / opTrilyzer) and custom OEM builds.
-- Software / app: Windows DataReader; Android/iOS APP and API/SDK for USB or Bluetooth; configuration software for test methods.
+- Software / app: Windows DataReader; Android/iOS APP and API/SDK for USB or Bluetooth; configuration software for test methods. Europium-fluorescence CubePlus still listed as “currently in development” (accessed 2026-08-26).
 - Tests / assays supported (public): Open platform — “adapt to almost any” LFA (human IVD, vet, food/feed, forensics, lifestyle, environmental, etc.). Specific assays come from OEM customers, not opTricon as a consumer brand.
 - Pricing / licensing (public): Not list-priced for end consumers; EVA/starter kits offered for evaluation. Deployed base cited as **more than 40,000** readers globally (acquisition messaging).
 - Channels: OEM supply to diagnostics companies; networks (DiagnostikNet-BB, Berlin Partner, Fraunhofer HHI, PolyPhotonics Berlin). Long-standing link to Biosynex SA / Chembio.
@@ -32,7 +32,7 @@
 | Account / history | Device memory + DataReader / APP | Cloud-backed account/history | Native tools may be “good enough” for professional users |
 | Payments / access | Hardware OEM sale | Licenses / Stripe / PayPal | Different monetization layer |
 | Certificates / docs | Device + OEM IFUs | Certificates / docs in platform | Ours is software/product feature, not theirs |
-| Regulatory claims (public only) | ISO 13485:2016 (TÜV Rheinland); CubePlus offered for lab use and IVD purposes per IVDR (manufacturer statements) | Accessory framing — no invented claims | Align OEM letters / interface boundaries carefully |
+| Regulatory claims (public only) | ISO 13485:2016 (TÜV Rheinland); CubePlus offered for lab use and IVD purposes per IVDR. Acquisition page also states readers are “IVD and FDA approved” — manufacturer wording, not a verified SKU-by-SKU FDA catalog | Accessory framing — no invented claims | Align OEM letters / interface boundaries carefully; do not reuse FDA wording |
 | Distribution | B2B OEM | Consumer/near-patient software + teleconsult | Complementary more than substitute — unless partners ship their own apps |
 
 ## Strengths
@@ -54,7 +54,8 @@
 
 ## Sources
 
-- See [`../sources/2026-07-22-cube-oem-sources.md`](../sources/2026-07-22-cube-oem-sources.md) (accessed 2026-07-22): opTricon about-us, CubePlus pages, Acquisition25, Adlershof news.
+- [`../sources/2026-07-22-cube-oem-sources.md`](../sources/2026-07-22-cube-oem-sources.md) (accessed 2026-07-22).
+- Refresh: [`../sources/2026-08-26-cube-oem-refresh.md`](../sources/2026-08-26-cube-oem-refresh.md) — CubePlus, datasheet v2.0 (Mar 2025), Acquisition25, WISTA 14 Jan 2025. Public story unchanged vs July.
 
 ## Open questions
 

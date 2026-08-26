@@ -6,8 +6,10 @@ import '../config/app_theme.dart';
 import '../models/doctor.dart';
 import '../core/api_service.dart';
 import '../services/doctor_service.dart';
+import '../utils/app_assets.dart';
 import '../utils/test_specialization_mapping.dart';
 import '../utils/doctor_languages.dart';
+import '../widgets/doctor_portrait_avatar.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/responsive_layout.dart';
 import '../widgets/web/adaptive_screen.dart';
@@ -264,6 +266,7 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
 
     if (_filteredDoctors.isEmpty) {
       return const FigmaEmptyState(
+        assetPath: AppAssets.doctorExplaining,
         icon: Icons.person_search,
         title: 'Keine Ärzte gefunden',
         message: 'Versuchen Sie eine andere Suche oder Sprache.',
@@ -415,10 +418,11 @@ class _DoctorTile extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(14, 18, 14, 16),
         child: Column(
           children: [
-            const Icon(
-              Icons.person_outline,
-              size: 44,
-              color: AppTheme.primaryBlue,
+            DoctorPortraitAvatar(
+              doctorId: doctor.id,
+              doctorName: doctor.name,
+              imageUrl: doctor.imageUrl,
+              size: 72,
             ),
             const SizedBox(height: 12),
             Text(

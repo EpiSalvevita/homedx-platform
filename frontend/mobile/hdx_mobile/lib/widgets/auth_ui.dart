@@ -137,12 +137,6 @@ class AuthBrandPanel extends StatelessWidget {
                       height: 1.35,
                     ),
                   ),
-                const SizedBox(height: 32),
-                Image.asset(
-                  isDoctor ? AppAssets.loginDoctor : AppAssets.iconHomeHeart,
-                  height: isDoctor ? 160 : 72,
-                  fit: BoxFit.contain,
-                ),
               ],
             ),
           ),

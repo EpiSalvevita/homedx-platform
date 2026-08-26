@@ -26,7 +26,8 @@ homeDX is a **software accessory** to the **Cube** rapid-test reader: a mobile (
 - **Category:** Home / near-patient rapid testing software accessory (Cube ecosystem) **plus care pathway** (test → specialist teleconsult)—not a standalone lab analyzer and not a full general telemedicine marketplace.
 - **Regulatory class (draft only):** see [`../docs/regulatory/classification-draft.md`](../docs/regulatory/classification-draft.md) — primary regime **IVDR**, working draft **Class C** for RheumaCheck-style markers; MDR Rule 11 **analogy Class IIa** if that framing applies. Requires PRRC sign-off before any CE claim.
 - **Geography focus:** EU / Germany regulatory context matters (IVDR/MDR accessory framing, MPDG, health data; telemedicine/practice rules may apply separately). See regulatory docs; do not invent clinical or CE claims in market or brand copy without review.
-- **Differentiators (draft — validate with evidence):** Cube software platform (account, history, payments, certificates) **and** positive-result → Facharzt video consult vs. bare device usage or result-only apps.
+- **Assay in development:** **RheumaCheck** — rheumatoid-arthritis–related Cube rapid test (consortium / BMFTR-backed; first prototype publicly described). homeDX is the software accessory + Anamnese questionnaires + positive → **Rheumatologie** video pathway. Not CE-marked; do not invent performance numbers.
+- **Differentiators (draft — validate with evidence):** (1) **Assay gap among Cube OEMs** — VHC/Biosynex/Hygiena/TargetVet/HeadStart have no public RA Cube kit (lab RF/CCP and visual LFAs such as Orgentec *Rheumachec* are a different product class). (2) Cube software platform (account, history, payments, certificates). (3) Positive-result → Facharzt video vs. bare device usage.
 
 ## Capabilities to cite carefully
 

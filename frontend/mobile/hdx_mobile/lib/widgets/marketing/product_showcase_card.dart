@@ -30,14 +30,14 @@ class ProductShowcaseCard extends StatelessWidget {
           MarketingImageSlot(
             assetPath: imagePath,
             placeholderLabel: imagePlaceholderLabel,
-            height: 140,
+            height: 220,
             accentColor: accentColor,
           ),
           const SizedBox(height: 16),
           Text(
             title,
             style: FigmaUi.rubik(
-              fontSize: 16,
+              fontSize: 20,
               fontWeight: FontWeight.w600,
               color: AppTheme.textColor,
             ),
@@ -45,7 +45,7 @@ class ProductShowcaseCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             description,
-            style: FigmaUi.bodyLight(fontSize: 14),
+            style: FigmaUi.bodyLight(fontSize: 17),
           ),
         ],
       ),
