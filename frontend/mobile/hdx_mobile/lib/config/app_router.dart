@@ -441,6 +441,7 @@ class AppRouter {
                     success: true,
                     testId: item.id,
                     result: item.result,
+                    status: item.status,
                     resultData: item.resultData
                         .map(CubeResultData.fromJson)
                         .toList(),

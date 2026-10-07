@@ -268,6 +268,8 @@ class _TestProgressScreenState extends State<TestProgressScreen>
   Widget _buildActiveStepCard(ThemeData theme) {
     final icon = _iconForStep(_currentStep);
     final color = _colorForStep(_currentStep);
+    final showTimer =
+        _currentStep == CubeMeasureStep.timerRunning && _secondsLeft != null;
 
     return NeumorphicContainer(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -291,7 +293,7 @@ class _TestProgressScreenState extends State<TestProgressScreen>
           ),
           const SizedBox(height: 24),
           Text(
-            _currentLabel,
+            _activeHeading,
             textAlign: TextAlign.center,
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
@@ -299,13 +301,22 @@ class _TestProgressScreenState extends State<TestProgressScreen>
               height: 1.3,
             ),
           ),
-          if (_currentStep == CubeMeasureStep.timerRunning && _secondsLeft != null) ...[
+          if (showTimer) ...[
             const SizedBox(height: 16),
             _buildTimerDisplay(theme),
           ],
         ],
       ),
     );
+  }
+
+  /// Cube SDK labels already include remaining time; the card shows that
+  /// once via [_buildTimerDisplay], so the heading stays a static title.
+  String get _activeHeading {
+    if (_currentStep == CubeMeasureStep.timerRunning) {
+      return 'Inkubationszeit';
+    }
+    return _currentLabel;
   }
 
   Widget _buildTimerDisplay(ThemeData theme) {

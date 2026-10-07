@@ -1,35 +1,49 @@
 /// Bundled image paths under [assets/images/].
+///
+/// Brand files come from `Style guide/` (official logos + illustrations).
 class AppAssets {
-  static const String logo = 'assets/images/brand/logo.png';
+  /// Official horizontal lockup: cube + homeDX (Main / ICON + TYPE).
+  static const String logo = 'assets/images/brand/logo-full.png';
+  static const String logoFull = logo;
+  static const String logoOnDark = 'assets/images/brand/logo-full-white.png';
+  static const String logoIcon = 'assets/images/brand/logo-icon.png';
+  static const String logoStacked = 'assets/images/brand/logo-stacked.png';
+  static const String logoWordmark = 'assets/images/brand/logo.png';
 
-  static const String doctorClipboard =
-      'assets/images/illustrations/doctor-no-neck-standing-clipboard.png';
-  static const String doctorExplaining =
-      'assets/images/illustrations/doctor-no-neck-explaining.png';
-  static const String doctorRelaxed =
-      'assets/images/illustrations/doctor-no-neck-relaxed-standing.png';
-  static const String doctorSeated =
-      'assets/images/illustrations/doctor-no-neck-seated-consult.png';
+  static const String digitalDoctor =
+      'assets/images/illustrations/digital-doctor.png';
+  static const String healthcareApp =
+      'assets/images/illustrations/healthcare-app.png';
+  static const String doctorAppointment =
+      'assets/images/illustrations/doctor-appointment.png';
+  static const String healthMonitoring =
+      'assets/images/illustrations/health-monitoring.png';
+  static const String medicationReminder =
+      'assets/images/illustrations/medication-reminder.png';
+  static const String bloodPressureCheck =
+      'assets/images/illustrations/blood-pressure-check.png';
+  static const String relaxedRecovery =
+      'assets/images/illustrations/relaxed-recovery.png';
+  static const String firstAidBag =
+      'assets/images/illustrations/first-aid-bag.png';
+  static const String pharmacyBag =
+      'assets/images/illustrations/pharmacy-bag.png';
+  static const String pills = 'assets/images/illustrations/pills.png';
+  static const String microscope = 'assets/images/illustrations/microscope.png';
+  static const String virus = 'assets/images/illustrations/virus.png';
+  static const String notifications =
+      'assets/images/illustrations/notifications.png';
+  static const String certificates =
+      'assets/images/illustrations/certificates.png';
 
-  /// Head-cropped avatar variants (circle-friendly). Full-body assets stay
-  /// on empty states / auth; these are only for doctor tiles.
-  static const String doctorAvatarClipboard =
-      'assets/images/illustrations/doctor-avatar-clipboard.png';
-  static const String doctorAvatarExplaining =
-      'assets/images/illustrations/doctor-avatar-explaining.png';
-  static const String doctorAvatarRelaxed =
-      'assets/images/illustrations/doctor-avatar-relaxed.png';
-  static const String doctorAvatarSeated =
-      'assets/images/illustrations/doctor-avatar-seated.png';
+  /// Head crops from the official doctor characters (circle-friendly).
+  static const String doctorAvatarFemale =
+      'assets/images/illustrations/doctor-avatar-female.png';
+  static const String doctorAvatarMale =
+      'assets/images/illustrations/doctor-avatar-male.png';
 
-  static const List<String> doctorAvatarsFemale = [
-    doctorAvatarClipboard,
-    doctorAvatarExplaining,
-  ];
-  static const List<String> doctorAvatarsMale = [
-    doctorAvatarRelaxed,
-    doctorAvatarSeated,
-  ];
+  static const List<String> doctorAvatarsFemale = [doctorAvatarFemale];
+  static const List<String> doctorAvatarsMale = [doctorAvatarMale];
   static const List<String> doctorPortraits = [
     ...doctorAvatarsFemale,
     ...doctorAvatarsMale,
@@ -87,8 +101,8 @@ class AppAssets {
     return rest.split(RegExp(r'\s+')).first.toLowerCase();
   }
 
-  /// Same doctor always maps to the same face. Women get the two woman
-  /// illustrations, men the two men — not a blind hash over all four.
+  /// Same doctor always maps to the same face. Women get the female
+  /// illustration, men the male one — not a blind hash over both.
   static String doctorPortraitFor(String doctorId, {String? doctorName}) {
     final given = doctorName == null ? '' : givenNameFromDisplayName(doctorName);
     final List<String> pool;
@@ -101,50 +115,37 @@ class AppAssets {
     }
     return pool[_stableHash(doctorId) % pool.length];
   }
-  static const String patientOlder =
-      'assets/images/illustrations/patient-no-neck-older-standing.png';
-  static const String patientWomanPhone =
-      'assets/images/illustrations/patient-no-neck-woman-phone.png';
-  static const String patientManHome =
-      'assets/images/illustrations/patient-no-neck-man-home.png';
 
-  /// Original doctor illustration (`Doc.png`) — the style source for the set.
-  static const String doctorOriginal = 'assets/images/illustrations/Doc.png';
+  static const String loginDoctor = digitalDoctor;
+  static const String doctorExplaining = digitalDoctor;
+  static const String doctorRelaxed = doctorAppointment;
+  static const String patientWomanPhone = healthcareApp;
+  static const String patientOlder = healthMonitoring;
+  static const String patientManHome = relaxedRecovery;
 
-  /// Doctor-auth illustration (clipboard variant).
-  static const String loginDoctor = doctorClipboard;
-  static const String iconDna = 'assets/images/icons/DNA.png';
-  static const String iconHeartbeat = 'assets/images/icons/Heartbeat.png';
-  static const String iconFirstAid = 'assets/images/icons/Box.png';
+  static const String iconDna = microscope;
+  static const String iconFirstAid = firstAidBag;
 
   /// Home quick-action icons (Figma frame `50:554`).
   static const String iconHomeHeart = 'assets/images/icons/heart.png';
   static const String iconHomeCalendar = 'assets/images/icons/calendar.png';
-  static const String iconHomeBag = 'assets/images/icons/bag.png';
+  static const String iconHomeBag = pharmacyBag;
 
   /// Bluetooth screens (Phosphor duotone).
   static const String iconBluetooth = 'assets/images/icons/ph_bluetooth-duotone.png';
   static const String iconBluetoothSlash = 'assets/images/icons/ph_bluetooth-slash-duotone.png';
 
-  /// Figma login hero logo (`50:1560`): 189.04×40.43, color #142543.
-  static const double logoLoginWidth = 189.04;
-  static const double logoLoginHeight = 40.43;
+  /// Official lockup aspect is 1226×200.
+  static const double logoLoginWidth = 270;
+  static const double logoLoginHeight = 44;
 
-  /// Figma home header logo (`50:623`): 139×23.
-  static const double logoHeaderWidth = 139;
-  static const double logoHeaderHeight = 23;
+  static const double logoHeaderWidth = 196;
+  static const double logoHeaderHeight = 32;
 
-  /// Marketing page placeholders — replace with final assets in assets/images/marketing/.
-  static const String marketingCubeProduct =
-      'assets/images/marketing/cube-product.png';
-  static const String marketingSchnelltestProduct =
-      'assets/images/marketing/schnelltest-product.jpg';
-  static const String marketingStoryTeam =
-      'assets/images/marketing/story-team.png';
-  static const String marketingLifestyleHome =
-      'assets/images/marketing/lifestyle-home.png';
-  static const String marketingVideoConsultation =
-      'assets/images/marketing/video-consultation.jpg';
-  static const String marketingTerminBuchen =
-      'assets/images/marketing/termin-buchen.jpg';
+  static const String marketingCubeProduct = microscope;
+  static const String marketingSchnelltestProduct = microscope;
+  static const String marketingStoryTeam = healthcareApp;
+  static const String marketingLifestyleHome = relaxedRecovery;
+  static const String marketingVideoConsultation = digitalDoctor;
+  static const String marketingTerminBuchen = doctorAppointment;
 }

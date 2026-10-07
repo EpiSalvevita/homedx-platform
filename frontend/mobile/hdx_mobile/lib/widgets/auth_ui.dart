@@ -75,11 +75,9 @@ class AuthBrandPanel extends StatelessWidget {
                 GestureDetector(
                   onTap: () => context.go('/'),
                   child: Image.asset(
-                    AppAssets.logo,
+                    AppAssets.logoOnDark,
                     height: 36,
                     fit: BoxFit.contain,
-                    color: Colors.white,
-                    colorBlendMode: BlendMode.srcIn,
                   ),
                 ),
                 const SizedBox(height: 28),

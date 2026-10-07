@@ -101,11 +101,9 @@ class _WebSidebar extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () => WebNavConfig.goAppHome(context, role: context.read<AuthProvider>().userRole),
                   child: Image.asset(
-                    AppAssets.logo,
+                    AppAssets.logoOnDark,
                     height: 28,
                     fit: BoxFit.contain,
-                    color: Colors.white,
-                    colorBlendMode: BlendMode.srcIn,
                   ),
                 ),
               ),

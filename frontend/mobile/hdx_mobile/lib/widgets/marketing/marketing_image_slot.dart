@@ -6,6 +6,10 @@ import '../../widgets/neumorphic.dart';
 /// Image slot for marketing pages. Shows [assetPath] when provided, otherwise a placeholder.
 class MarketingImageSlot extends StatelessWidget {
   final String? assetPath;
+  /// Optional second illustration, shown beside [assetPath].
+  final String? secondaryAssetPath;
+  /// Visual scale for [secondaryAssetPath] (jar art has more empty padding).
+  final double secondaryScale;
   final String placeholderLabel;
   final double height;
   final Color accentColor;
@@ -13,6 +17,8 @@ class MarketingImageSlot extends StatelessWidget {
   const MarketingImageSlot({
     super.key,
     this.assetPath,
+    this.secondaryAssetPath,
+    this.secondaryScale = 1.0,
     required this.placeholderLabel,
     this.height = 220,
     this.accentColor = AppTheme.accentBlue,
@@ -28,22 +34,77 @@ class MarketingImageSlot extends StatelessWidget {
         child: SizedBox(
           height: height,
           width: double.infinity,
-          child: assetPath != null
-              ? Image.asset(
-                  assetPath!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => _Placeholder(
-                    label: placeholderLabel,
-                    accentColor: accentColor,
-                  ),
-                )
-              : _Placeholder(
-                  label: placeholderLabel,
-                  accentColor: accentColor,
-                ),
+          child: ColoredBox(
+            color: AppTheme.surface,
+            child: _buildContent(),
+          ),
         ),
       ),
     );
+  }
+
+  Widget _buildContent() {
+    if (assetPath == null) {
+      return _Placeholder(
+        label: placeholderLabel,
+        accentColor: accentColor,
+      );
+    }
+
+    final primary = _Illustration(assetPath: assetPath!, fallbackLabel: placeholderLabel, accentColor: accentColor);
+    if (secondaryAssetPath == null) {
+      return Padding(
+        padding: const EdgeInsets.all(12),
+        child: primary,
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _Illustration(
+              assetPath: secondaryAssetPath!,
+              fallbackLabel: placeholderLabel,
+              accentColor: accentColor,
+              scale: secondaryScale,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Illustration extends StatelessWidget {
+  final String assetPath;
+  final String fallbackLabel;
+  final Color accentColor;
+  final double scale;
+
+  const _Illustration({
+    required this.assetPath,
+    required this.fallbackLabel,
+    required this.accentColor,
+    this.scale = 1.0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final image = Image.asset(
+      assetPath,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) => _Placeholder(
+        label: fallbackLabel,
+        accentColor: accentColor,
+      ),
+    );
+    if (scale == 1.0) return image;
+    return Transform.scale(scale: scale, child: image);
   }
 }
 

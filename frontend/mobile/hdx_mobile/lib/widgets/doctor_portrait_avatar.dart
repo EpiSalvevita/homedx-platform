@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../config/app_theme.dart';
 import '../utils/app_assets.dart';
 
-/// Circular face crop of a no-neck doctor illustration (or a real photo URL).
+/// Circular face crop of an official style-guide doctor (or a real photo URL).
 class DoctorPortraitAvatar extends StatelessWidget {
   final String doctorId;
   final String? doctorName;

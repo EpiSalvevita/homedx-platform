@@ -6,6 +6,8 @@ import 'marketing_image_slot.dart';
 
 class ProductShowcaseCard extends StatelessWidget {
   final String? imagePath;
+  final String? secondaryImagePath;
+  final double secondaryImageScale;
   final String imagePlaceholderLabel;
   final String title;
   final String description;
@@ -14,6 +16,8 @@ class ProductShowcaseCard extends StatelessWidget {
   const ProductShowcaseCard({
     super.key,
     this.imagePath,
+    this.secondaryImagePath,
+    this.secondaryImageScale = 1.0,
     required this.imagePlaceholderLabel,
     required this.title,
     required this.description,
@@ -29,8 +33,10 @@ class ProductShowcaseCard extends StatelessWidget {
         children: [
           MarketingImageSlot(
             assetPath: imagePath,
+            secondaryAssetPath: secondaryImagePath,
+            secondaryScale: secondaryImageScale,
             placeholderLabel: imagePlaceholderLabel,
-            height: 220,
+            height: 360,
             accentColor: accentColor,
           ),
           const SizedBox(height: 16),

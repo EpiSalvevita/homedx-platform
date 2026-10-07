@@ -250,20 +250,37 @@ class _HomeScreenState extends State<HomeScreen> {
       FigmaQuickActionTile(
         assetPath: AppAssets.doctorExplaining,
         label: 'Online Sprechstunde',
-        iconHeight: 110,
+        iconHeight: 180,
         onTap: () => context.pushNamed('doctors'),
       ),
-      FigmaQuickActionTile(assetPath: AppAssets.iconHomeCalendar, label: 'Meine Termine', onTap: () => context.push('/appointments')),
-      FigmaQuickActionTile(assetPath: AppAssets.iconDna, label: 'Ergebnisse', onTap: () => context.push('/results')),
       FigmaQuickActionTile(
-        icon: Icons.verified_outlined,
+        assetPath: AppAssets.iconHomeCalendar,
+        label: 'Meine Termine',
+        iconHeight: 80,
+        onTap: () => context.push('/appointments'),
+      ),
+      FigmaQuickActionTile(
+        assetPath: AppAssets.microscope,
+        label: 'Ergebnisse',
+        iconHeight: 180,
+        onTap: () => context.push('/results'),
+      ),
+      FigmaQuickActionTile(
+        assetPath: AppAssets.certificates,
         label: 'Zertifikate',
+        iconHeight: 180,
         onTap: () => context.push('/certificates'),
       ),
-      FigmaQuickActionTile(assetPath: AppAssets.iconHomeBag, label: 'Shop', onTap: () => context.push('/shop')),
       FigmaQuickActionTile(
-        icon: Icons.notifications_outlined,
+        assetPath: AppAssets.iconHomeBag,
+        label: 'Shop',
+        iconHeight: 180,
+        onTap: () => context.push('/shop'),
+      ),
+      FigmaQuickActionTile(
+        assetPath: AppAssets.notifications,
         label: 'Benachrichtigungen',
+        iconHeight: 180,
         onTap: () => context.goNamed('notifications'),
       ),
     ];

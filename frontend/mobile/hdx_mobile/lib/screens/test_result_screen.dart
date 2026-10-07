@@ -24,29 +24,28 @@ class TestResultScreen extends StatelessWidget {
     this.testDate,
   });
 
-  TestResultKind get _resultKind {
-    final overall = (result.result ?? '').toUpperCase();
-    if (overall.contains('POS')) return TestResultKind.positive;
-    if (overall.contains('NEG')) return TestResultKind.negative;
-    if (overall.contains('INCONCLUSIVE')) return TestResultKind.inconclusive;
-    if (overall.contains('INVALID')) return TestResultKind.invalid;
-    return TestResultKind.inconclusive;
-  }
+  /// Same classifier as the Ergebnisse list ([UserTestResult]), so a pending
+  /// test cannot show as "Ausstehend" in the list and "Unbestimmt" on tap.
+  UserTestResult get _classified => UserTestResult(
+        id: result.testId ?? '',
+        result: result.result,
+        status: result.status,
+        resultData: result.resultData
+                ?.map(
+                  (row) => {
+                    'class': row.resultClass,
+                    'name': row.name,
+                    'value': row.value,
+                    'unit': row.unit,
+                  },
+                )
+                .toList() ??
+            const [],
+      );
 
-  String get _resultLabel {
-    switch (_resultKind) {
-      case TestResultKind.positive:
-        return 'Positiv';
-      case TestResultKind.negative:
-        return 'Negativ';
-      case TestResultKind.inconclusive:
-        return 'Unbestimmt';
-      case TestResultKind.invalid:
-        return 'Ungültig';
-      case TestResultKind.pending:
-        return 'Ausstehend';
-    }
-  }
+  TestResultKind get _resultKind => _classified.resultKind;
+
+  String get _resultLabel => _classified.resultLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -126,6 +125,17 @@ class TestResultScreen extends StatelessWidget {
                           color: AppTheme.textColorSecondary,
                         ),
                       ),
+                      if (kind == TestResultKind.pending) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          'Das Testergebnis liegt noch nicht vor.',
+                          textAlign: TextAlign.center,
+                          style: FigmaUi.bodyLight(
+                            fontSize: 17,
+                            color: AppTheme.textColorSecondary,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

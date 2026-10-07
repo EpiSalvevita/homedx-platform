@@ -8,6 +8,26 @@ retroactively document history before this entry.
 Format: one entry per release, backend and mobile versioned
 independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`).
 
+## Mobile 1.1.2+4 — 2026-10-07
+
+**Brand / UI:**
+- Replaced AI and no-neck placeholder art with official style-guide logos
+  and illustrations (`assets/images/brand/`, `assets/images/illustrations/`).
+- Incubation progress heading is static **Inkubationszeit**; countdown lives
+  only on the clock.
+
+**Regulatory-relevant (result display, not Cube class parsing):**
+- Ergebnisse list and detail now share `UserTestResult` classification.
+  Pending / in-progress tests show **Ausstehend**, not **Unbestimmt**.
+  Completed tests without a readable class remain Unbestimmt.
+- Test evidence: `test_result_badge_test.dart`, `test_result_screen_test.dart`.
+
+**Docs:** `docs/regulatory/gap-assessment.md`, `docs/APP_FUNCTIONALITIES.md`.
+
+**Regulatory note:** Use-related (IEC 62366-1): do not present “no result
+yet” as a clinical inconclusive. Does not change backend
+`normalizeCubeResult` or on-device Cube evaluation.
+
 ## Backend 0.2.1 / Mobile 1.1.1+3 — 2026-07-22
 
 **Platform hygiene / structure (non-result-path):**

@@ -27,7 +27,7 @@ class ProductShowcaseSection extends StatelessWidget {
           crossAxisCount: crossAxisCount,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
-          mainAxisExtent: isWide ? 440 : 500,
+          mainAxisExtent: isWide ? 600 : 680,
         ),
         children: [
           ProductShowcaseCard(
@@ -52,7 +52,9 @@ class ProductShowcaseSection extends StatelessWidget {
             accentColor: AppTheme.accentCoral,
           ),
           ProductShowcaseCard(
-            imagePath: null,
+            imagePath: AppAssets.microscope,
+            secondaryImagePath: AppAssets.pills,
+            secondaryImageScale: 2.0,
             imagePlaceholderLabel: strings.imageComingSoon,
             title: strings.productResultsTitle,
             description: strings.productResultsBody,

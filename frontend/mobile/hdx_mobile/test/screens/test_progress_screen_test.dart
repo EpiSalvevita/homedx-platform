@@ -144,6 +144,7 @@ void main() {
 
     expect(find.text('01:30'), findsOneWidget);
     expect(find.text('verbleibend'), findsOneWidget);
+    expect(find.text('Inkubationszeit: 1:30 Min verbleibend'), findsNothing);
     expect(find.byIcon(Icons.timer), findsOneWidget);
   });
 

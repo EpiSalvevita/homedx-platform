@@ -101,17 +101,17 @@ class _LandingScreenState extends State<LandingScreen> {
                     subtitle: 'Dashboard, Verfügbarkeit und Videoanrufe im Browser.',
                     features: const [
                       _FeatureItem(
-                        iconPath: AppAssets.iconHomeCalendar,
+                        iconPath: AppAssets.doctorAppointment,
                         title: 'Dashboard',
                         description: 'Heutige Termine und Patienten auf einen Blick.',
                       ),
                       _FeatureItem(
-                        iconPath: AppAssets.iconFirstAid,
+                        iconPath: AppAssets.medicationReminder,
                         title: 'Verfügbarkeit',
                         description: 'Wöchentliche Sprechzeiten flexibel verwalten.',
                       ),
                       _FeatureItem(
-                        iconPath: AppAssets.iconDna,
+                        iconPath: AppAssets.digitalDoctor,
                         title: 'Videoanrufe',
                         description: 'Sichere Video-Konsultationen mit Patienten.',
                       ),
@@ -344,85 +344,34 @@ class _HeroSection extends StatelessWidget {
       ],
     );
 
-    final iconScale = isWide ? 1.0 : 0.82;
-    final figureHeight = isWide ? 260.0 : 188.0;
+    final figureHeight = isWide ? 320.0 : 240.0;
 
     final illustration = ClipRRect(
       borderRadius: BorderRadius.circular(24),
-      child: Container(
+      child: ColoredBox(
         color: AppTheme.surface,
-        padding: const EdgeInsets.all(24),
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Image.asset(
-                    AppAssets.patientOlder,
-                    height: figureHeight,
-                    fit: BoxFit.contain,
-                  ),
-                  SizedBox(width: isWide ? 12 : 4),
-                  Image.asset(
-                    AppAssets.doctorOriginal,
-                    height: figureHeight,
-                    fit: BoxFit.contain,
-                  ),
-                ],
-              ),
-            ),
-            // Icon cloud stays in the upper-right so it does not sit on the pair.
-            Positioned(
-              top: 12,
-              right: 12,
-              child: _HeroDecorIcon(
-                asset: AppAssets.iconDna,
-                width: 56 * iconScale,
-                height: 40 * iconScale,
-              ),
-            ),
-            Positioned(
-              top: isWide ? 18 : 14,
-              right: isWide ? 84 : 62,
-              child: _HeroDecorIcon(
-                asset: AppAssets.iconHomeCalendar,
-                width: 46 * iconScale,
-                height: 48 * iconScale,
-              ),
-            ),
-            Positioned(
-              top: isWide ? 72 : 58,
-              right: isWide ? 16 : 10,
-              child: _HeroDecorIcon(
-                asset: AppAssets.iconHeartbeat,
-                width: 50 * iconScale,
-                height: 35 * iconScale,
-              ),
-            ),
-            Positioned(
-              top: isWide ? 78 : 62,
-              right: isWide ? 92 : 68,
-              child: _HeroDecorIcon(
-                asset: AppAssets.iconFirstAid,
-                width: 52 * iconScale,
-                height: 38 * iconScale,
-              ),
-            ),
-            Positioned(
-              bottom: 20,
-              right: 16,
-              child: Image.asset(
-                AppAssets.logo,
-                width: AppAssets.logoLoginWidth * 0.7,
-                height: AppAssets.logoLoginHeight * 0.7,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Image.asset(
+                AppAssets.digitalDoctor,
+                height: figureHeight,
                 fit: BoxFit.contain,
               ),
-            ),
-          ],
+              Positioned(
+                bottom: 8,
+                right: 8,
+                child: Image.asset(
+                  AppAssets.logo,
+                  width: AppAssets.logoLoginWidth * 0.7,
+                  height: AppAssets.logoLoginHeight * 0.7,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -471,31 +420,6 @@ class _HeroSection extends StatelessWidget {
                   ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _HeroDecorIcon extends StatelessWidget {
-  final String asset;
-  final double width;
-  final double height;
-
-  const _HeroDecorIcon({
-    required this.asset,
-    required this.width,
-    required this.height,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ExcludeSemantics(
-      child: Image.asset(
-        asset,
-        width: width,
-        height: height,
-        fit: BoxFit.contain,
-        filterQuality: FilterQuality.medium,
       ),
     );
   }
@@ -837,13 +761,13 @@ class _HoverFeatureCardState extends State<_HoverFeatureCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 72,
+                height: 72,
                 decoration: BoxDecoration(
                   color: widget.accentColor.withValues(alpha: _hovered ? 0.35 : 0.25),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(8),
                 child: Image.asset(widget.iconPath, fit: BoxFit.contain),
               ),
               const SizedBox(height: 16),
@@ -885,12 +809,10 @@ class _LandingFooter extends StatelessWidget {
           child: Column(
             children: [
               Image.asset(
-                AppAssets.logo,
+                AppAssets.logoOnDark,
                 width: AppAssets.logoHeaderWidth,
                 height: AppAssets.logoHeaderHeight,
                 fit: BoxFit.contain,
-                color: Colors.white,
-                colorBlendMode: BlendMode.srcIn,
               ),
               const SizedBox(height: 12),
               Text(

@@ -25,9 +25,14 @@ void main() {
     );
   });
 
-  test('two women can receive different female faces', () {
-    final sarah = AppAssets.doctorPortraitFor('doc-sarah', doctorName: 'Dr. Sarah Müller');
-    final anna = AppAssets.doctorPortraitFor('doc-anna', doctorName: 'Dr. Anna Weber');
-    expect(sarah, isNot(anna));
+  test('women share the official female doctor crop', () {
+    expect(
+      AppAssets.doctorPortraitFor('doc-sarah', doctorName: 'Dr. Sarah Müller'),
+      AppAssets.doctorAvatarFemale,
+    );
+    expect(
+      AppAssets.doctorPortraitFor('doc-anna', doctorName: 'Dr. Anna Weber'),
+      AppAssets.doctorAvatarFemale,
+    );
   });
 }

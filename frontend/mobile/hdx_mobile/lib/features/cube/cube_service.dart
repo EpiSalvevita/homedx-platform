@@ -29,6 +29,9 @@ class CubeTestResult {
   final bool success;
   final String? testId;
   final String? result;
+  /// Workflow status from the backend (`PENDING`, `IN_PROGRESS`, `COMPLETED`).
+  /// Distinct from [result], which is the clinical outcome when known.
+  final String? status;
   final String? error;
   final List<CubeResultData>? resultData;
 
@@ -38,6 +41,7 @@ class CubeTestResult {
     required this.success,
     this.testId,
     this.result,
+    this.status,
     this.error,
     this.resultData,
     this.certificateId,
@@ -48,6 +52,7 @@ class CubeTestResult {
       success: json['success'] ?? false,
       testId: json['testId'],
       result: json['result'],
+      status: json['status'] as String?,
       error: json['error'],
       certificateId: json['certificateId'] as String?,
       resultData: json['resultData'] != null

@@ -46,13 +46,14 @@ void main() {
 
     expect(find.text('Gesundheitstests\nund Online-Versorgung'), findsOneWidget);
     expect(find.text('Jetzt starten'), findsOneWidget);
-    expect(find.image(const AssetImage(AppAssets.iconHeartbeat)), findsOneWidget);
-    expect(find.image(const AssetImage(AppAssets.iconHomeCalendar)), findsWidgets);
-    expect(find.image(const AssetImage(AppAssets.patientOlder)), findsOneWidget);
-    expect(find.image(const AssetImage(AppAssets.doctorOriginal)), findsOneWidget);
+    expect(find.image(const AssetImage(AppAssets.digitalDoctor)), findsWidgets);
+    expect(find.image(const AssetImage(AppAssets.logo)), findsWidgets);
     expect(find.text('Für Patienten'), findsNothing);
     expect(find.text('Das Produkt'), findsOneWidget);
     expect(find.text('Cube Schnelltests'), findsOneWidget);
+    expect(find.text('Ergebnisse & Shop'), findsOneWidget);
+    expect(find.image(const AssetImage(AppAssets.pills)), findsOneWidget);
+    expect(find.image(const AssetImage(AppAssets.microscope)), findsWidgets);
     expect(find.text('Anmelden'), findsOneWidget);
 
     await tester.tap(find.text('Anmelden'));

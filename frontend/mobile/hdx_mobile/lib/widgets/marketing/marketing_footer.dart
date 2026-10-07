@@ -26,12 +26,10 @@ class MarketingFooter extends StatelessWidget {
           child: Column(
             children: [
               Image.asset(
-                AppAssets.logo,
+                AppAssets.logoOnDark,
                 width: AppAssets.logoHeaderWidth,
                 height: AppAssets.logoHeaderHeight,
                 fit: BoxFit.contain,
-                color: Colors.white,
-                colorBlendMode: BlendMode.srcIn,
               ),
               const SizedBox(height: 12),
               Text(

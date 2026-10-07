@@ -45,6 +45,24 @@ void main() {
     expect(TestResultBadge.iconForKind(TestResultKind.invalid), Icons.block);
   });
 
+  test('PENDING status without a result is Ausstehend, not Unbestimmt', () {
+    final pending = UserTestResult(id: '1', status: 'PENDING');
+    expect(pending.resultKind, TestResultKind.pending);
+    expect(pending.resultLabel, 'Ausstehend');
+  });
+
+  test('IN_PROGRESS status without a result is Ausstehend', () {
+    final inProgress = UserTestResult(id: '1', status: 'IN_PROGRESS');
+    expect(inProgress.resultKind, TestResultKind.pending);
+    expect(inProgress.resultLabel, 'Ausstehend');
+  });
+
+  test('COMPLETED status without a canonical result is Unbestimmt', () {
+    final done = UserTestResult(id: '1', status: 'COMPLETED');
+    expect(done.resultKind, TestResultKind.inconclusive);
+    expect(done.resultLabel, 'Unbestimmt');
+  });
+
   test('inconclusive result maps to the inconclusive badge kind, color, icon, and label', () {
     final inconclusive = UserTestResult(id: '1', result: 'INCONCLUSIVE');
     final colors = TestResultBadge.colorsForKind(inconclusive.resultKind);

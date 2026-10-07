@@ -1,7 +1,7 @@
 # homeDX Regulatory Engineering Gap-Scan
 
 **Original scan:** 2026-07-02  
-**Updated:** 2026-07-22 (result-path fix + classification draft + staleness refresh)  
+**Updated:** 2026-10-07 (pending vs inconclusive display; 2026-07-22 result-path fix retained)  
 **Scope:** `backend/` (NestJS/Prisma) and `frontend/mobile/hdx_mobile/` (Flutter)  
 **Method:** static, read-only code/repo scan against
 [`.cursor/rules/mdr-compliance.mdc`](../../.cursor/rules/mdr-compliance.mdc),
@@ -13,6 +13,27 @@ plus follow-up engineering closures.
 > **What this document is not:** a legal determination, a completed technical
 > file, or a substitute for a PRRC / Cube manufacturer QMS / Notified Body.
 > “Closed” means an *engineering* gap was addressed — not that homeDX is CE-conformant.
+
+---
+
+## 2026-10-07 update
+
+### Closed / improved (engineering)
+
+1. **Ergebnisse list and detail use the same result classifier.** A test with
+   no canonical Cube class and status `PENDING` / `IN_PROGRESS` (or empty)
+   shows **Ausstehend**, not clinical **Unbestimmt**. Detail previously
+   mapped any empty `result` string to inconclusive. Shared mapping is
+   `UserTestResult.resultKind` / `resultLabel`; detail now receives
+   `status` via `CubeTestResult`. Tests:
+   `test_result_badge_test.dart`, `test_result_screen_test.dart`.
+2. **Display-only:** does not change Cube class parsing or backend
+   `normalizeCubeResult`. Empty **completed** tests remain Unbestimmt.
+
+### Still open (unchanged intent)
+
+- Same open set as 2026-07-22 (PRRC, SRS/risk/usability files, claims
+  language, positive/error color overlap, GDPR erasure, synthetic TestKit).
 
 ---
 
@@ -85,7 +106,7 @@ plus follow-up engineering closures.
 ## 5. Usability engineering — IEC 62366-1
 
 - Positive vs error **coral color overlap** — known gap, pinned by test; design review deferred.
-- Invalid vs pending gray similarity — open.
+- Invalid vs pending gray similarity — open (labels now distinct: Ausstehend vs Ungültig / Unbestimmt).
 - Pre-consent plain-text result (`test_submission_screen.dart`) — open.
 - Measurement failure UX — previously assessed as clear.
 

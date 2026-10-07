@@ -15,8 +15,8 @@ Snapshot of what exists today in the backend vs the Flutter app, plus a short ba
 ### Rapid test & Cube flow
 
 - **Backend:** `get-test-type-list` (hardcoded catalog), `add-test`, `get-last-test`, `submit-cube-data`, media uploads (`add-rapid-test-photo`, `add-rapid-test-video`, `add-identification-photo`), `finalize-test-submission`
-- **App:** test selection, Cube BLE scan/connect (Android), on-device evaluation via `lib/features/cube/cube_service.dart`, result submission/display; web shows Cube stubs
-- **Gap:** fuller end-to-end media + review UX; richer test history list (beyond last test); DB-driven test catalog
+- **App:** test selection, Cube BLE scan/connect (Android), on-device evaluation via `lib/features/cube/cube_service.dart`, result submission/display; Ergebnisse list + detail (`/results`) share `UserTestResult` labels (Ausstehend vs Unbestimmt); web shows Cube stubs
+- **Gap:** fuller end-to-end media + review UX; paginated full-history API (UI lists `lastTests` from `get-last-test`); DB-driven test catalog
 
 ### Appointments & video
 
@@ -89,7 +89,7 @@ Rough order for product work — not a commitment.
 1. Complete rapid-test submission UI (media + review step)
 2. Harden push (Firebase) across release builds
 3. Shop catalog from real backend data (replace mock `shop_service`)
-4. Test history list (not only last test)
+4. Paginated test-history API (Ergebnisse already lists `lastTests`)
 
 **Medium**
 

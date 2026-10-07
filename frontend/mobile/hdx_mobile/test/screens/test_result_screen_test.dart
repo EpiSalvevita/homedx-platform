@@ -98,6 +98,64 @@ void main() {
     expect(find.text('Empfohlen: Allgemeinmedizin'), findsOneWidget);
   });
 
+  testWidgets(
+      'pending test (no result yet) shows Ausstehend, not Unbestimmt',
+      (tester) async {
+    await _pumpWithRouter(
+      tester,
+      TestResultScreen(
+        testTypeName: 'CRP',
+        testTypeId: 'crp',
+        result: CubeTestResult(
+          success: true,
+          testId: 'rt-pending',
+          status: 'PENDING',
+        ),
+      ),
+    );
+
+    expect(find.text('Ausstehend'), findsOneWidget);
+    expect(find.text('Unbestimmt'), findsNothing);
+    expect(find.text('Das Testergebnis liegt noch nicht vor.'), findsOneWidget);
+    expect(find.byKey(const Key('book-specialist-cta')), findsNothing);
+  });
+
+  testWidgets(
+      'empty result with no status is still Ausstehend, matching the list badge',
+      (tester) async {
+    await _pumpWithRouter(
+      tester,
+      TestResultScreen(
+        testTypeName: 'CRP',
+        testTypeId: 'crp',
+        result: CubeTestResult(success: true),
+      ),
+    );
+
+    expect(find.text('Ausstehend'), findsOneWidget);
+    expect(find.text('Unbestimmt'), findsNothing);
+  });
+
+  testWidgets(
+      'completed test without a readable result shows Unbestimmt',
+      (tester) async {
+    await _pumpWithRouter(
+      tester,
+      TestResultScreen(
+        testTypeName: 'CRP',
+        testTypeId: 'crp',
+        result: CubeTestResult(
+          success: true,
+          result: 'INCONCLUSIVE',
+          status: 'COMPLETED',
+        ),
+      ),
+    );
+
+    expect(find.text('Unbestimmt'), findsOneWidget);
+    expect(find.text('Ausstehend'), findsNothing);
+  });
+
   testWidgets('shows Cube SDK validity labels on detailed result rows',
       (tester) async {
     await _pumpWithRouter(
