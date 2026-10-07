@@ -66,7 +66,7 @@ void main() {
     expect(find.text('Unsere Geschichte'), findsOneWidget);
     expect(find.text('So funktioniert es'), findsOneWidget);
     expect(find.text('Test zu Hause'), findsOneWidget);
-    expect(find.text('Das Produkt'), findsNothing);
+    expect(find.text('Das Produkt'), findsOneWidget);
   });
 
   testWidgets('/about redirect shows merged About on landing', (tester) async {

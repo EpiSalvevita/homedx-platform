@@ -61,5 +61,8 @@
     "prestart:dev": "fuser -k 4000/tcp 4010/tcp || true",
     "seed:doctors": "npx ts-node prisma/seed-doctors.ts",
     "seed:mock-doctor-data": "npx ts-node prisma/seed-mock-doctor-data.ts"
+  },
+  "overrides": {
+    "proxy-addr": "2.0.8"
   }
 }

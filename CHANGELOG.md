@@ -22,7 +22,11 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
   Completed tests without a readable class remain Unbestimmt.
 - Test evidence: `test_result_badge_test.dart`, `test_result_screen_test.dart`.
 
-**Docs:** `docs/regulatory/gap-assessment.md`, `docs/APP_FUNCTIONALITIES.md`.
+**Docs:** `docs/regulatory/gap-assessment.md`, `docs/APP_FUNCTIONALITIES.md`,
+`docs/regulatory/soup-list.md`.
+
+**CI:** Drop unused `assets/images/marketing/` from `pubspec.yaml`. Pin
+transitive `proxy-addr` to 2.0.8 (CVE-2026-90711) so `npm audit --audit-level=critical` passes.
 
 **Regulatory note:** Use-related (IEC 62366-1): do not present “no result
 yet” as a clinical inconclusive. Does not change backend

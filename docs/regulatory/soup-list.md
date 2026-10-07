@@ -1,6 +1,7 @@
 # SOUP List (Software of Unknown Provenance)
 
-**Date generated:** 2026-07-02
+**Date generated:** 2026-07-02  
+**Updated:** 2026-10-07 (`proxy-addr` 2.0.8 override)  
 **Scope:** direct dependencies of `backend/` and `frontend/mobile/hdx_mobile/`.
 
 > Per IEC 62304, SOUP items are third-party components not developed for
@@ -9,9 +10,9 @@
 > *what* is used, not a formal risk assessment of each item. A completed
 > SOUP record additionally needs, per component: known anomalies/CVE
 > tracking, and a statement of why it's fit for its intended use. That
-> part still requires an ongoing process (e.g. `npm audit` / `flutter pub
-> outdated` in CI — currently absent, see `gap-assessment.md` §3), not a
-> one-time document.
+> part still requires an ongoing process (CI runs `npm audit --audit-level=critical`
+> on the backend; Flutter uses `flutter analyze` / `flutter test`). This is
+> not a one-time document.
 
 ## Backend (`backend/package.json`)
 
@@ -27,6 +28,7 @@
 | `@paypal/checkout-server-sdk`, `@paypal/paypal-server-sdk` | ^1.0.3 / ^2.0.0 | Payments |
 | `firebase-admin` | ^13.4.0 | Push notifications |
 | `helmet` | ^8.2.0 | HTTP security headers |
+| Transitive `proxy-addr` | **2.0.8** via `package.json` `overrides` | Express client-IP trust (`req.ip`); CVE-2026-90711 (GHSA-jqcg-44mw-7w3h) |
 | `class-validator`, `class-transformer` | ^0.14.2 / ^0.5.1 | Input validation (incl. Cube/RapidTest DTOs) |
 | `cookie-parser` | ^1.4.7 | Auth cookie handling |
 | `reflect-metadata`, `rxjs`, `tslib` | — | Framework runtime deps |
