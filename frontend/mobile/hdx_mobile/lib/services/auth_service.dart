@@ -392,6 +392,64 @@ class AuthService {
       return PasswordResetResult.failure('Unexpected error: $e');
     }
   }
+
+  Future<VerifyEmailResult> verifyEmail(String token) async {
+    try {
+      final response = await _apiService.post(
+        '/verify-email',
+        body: {
+          'token': token.trim(),
+          'lang': 'de',
+        },
+        includeAuth: false,
+      );
+
+      if (response['success'] == true) {
+        return VerifyEmailResult.success(
+          response['message']?.toString() ??
+              'Ihre E-Mail-Adresse wurde bestätigt. Sie können sich jetzt anmelden.',
+        );
+      }
+
+      return VerifyEmailResult.failure(
+        localizeLoginError(
+          response['error']?.toString() ?? 'E-Mail-Bestätigung fehlgeschlagen',
+        ),
+      );
+    } on ApiException catch (e) {
+      return VerifyEmailResult.failure(localizeLoginError(e.message));
+    } catch (e) {
+      return VerifyEmailResult.failure('Unexpected error: $e');
+    }
+  }
+
+  Future<PasswordResetRequestResult> resendVerificationEmail(String email) async {
+    try {
+      final response = await _apiService.post(
+        '/resend-verification-email',
+        body: {
+          'email': email.trim(),
+          'lang': 'de',
+        },
+        includeAuth: false,
+      );
+
+      if (response['success'] == true) {
+        return PasswordResetRequestResult.success(
+          response['message']?.toString() ??
+              'Falls ein Konto mit dieser E-Mail existiert, erhalten Sie in Kürze eine Nachricht mit einem Bestätigungslink.',
+        );
+      }
+
+      return PasswordResetRequestResult.failure(
+        localizeLoginError(response['error']?.toString() ?? 'Anfrage fehlgeschlagen'),
+      );
+    } on ApiException catch (e) {
+      return PasswordResetRequestResult.failure(localizeLoginError(e.message));
+    } catch (e) {
+      return PasswordResetRequestResult.failure('Unexpected error: $e');
+    }
+  }
 }
 
 class LoginResult {
@@ -444,6 +502,20 @@ class PasswordResetResult {
         error = null;
 
   PasswordResetResult.failure(this.error)
+      : success = false,
+        message = null;
+}
+
+class VerifyEmailResult {
+  final bool success;
+  final String? message;
+  final String? error;
+
+  VerifyEmailResult.success(this.message)
+      : success = true,
+        error = null;
+
+  VerifyEmailResult.failure(this.error)
       : success = false,
         message = null;
 }

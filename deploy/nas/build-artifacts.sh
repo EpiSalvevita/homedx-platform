@@ -42,16 +42,23 @@ if [ -f "$ENV_FILE" ]; then
   echo "Backed up Flutter .env → will restore after build"
 fi
 
-# Flutter .env is bundled into web/APK at build time
-cat > "$ENV_FILE" <<EOF
-API_BASE_URL=http://${NAS_IP}:${BACKEND_PORT}
+write_flutter_env() {
+  cat > "$ENV_FILE" <<EOF
+API_BASE_URL=$1
 CUBE_VERBOSE=false
 CUBE_USE_TIMER=true
 EOF
+}
 
 cd "$FLUTTER_APP"
 flutter pub get
+
+# Web: call the API on the same host nginx serves (IP, fritz.box, or homedx.de).
+write_flutter_env "same-origin"
 flutter build web --release
+
+# APK: native apps have no reverse proxy; bake the LAN API URL.
+write_flutter_env "http://${NAS_IP}:${BACKEND_PORT}"
 flutter build apk --release
 
 rm -rf "$NAS_DIR/web"/*

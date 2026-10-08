@@ -10,7 +10,15 @@ import {
   getAuthCookieClearOptions,
   getAuthCookieOptions,
 } from '../config/auth-cookie.config';
-import { LoginDto, RegisterDto, RequestPasswordResetDto, ResetPasswordDto, UpdateUserDataDto } from '../dto/mobile/auth.dto';
+import {
+  LoginDto,
+  RegisterDto,
+  RequestPasswordResetDto,
+  ResetPasswordDto,
+  ResendVerificationEmailDto,
+  UpdateUserDataDto,
+  VerifyEmailDto,
+} from '../dto/mobile/auth.dto';
 import { sanitizeMobileError } from '../utils/mobile-error.util';
 import { registrationEmailExistsMessage } from '../utils/registration-messages';
 import {
@@ -96,6 +104,32 @@ export class MobileAuthController {
       return { success: true };
     } catch (error) {
       return sanitizeMobileError(error, 'Registrierung fehlgeschlagen');
+    }
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Post('verify-email')
+  async verifyEmail(@Body() body: VerifyEmailDto): Promise<MobileResponse> {
+    try {
+      const result = await this.authService.verifyEmail(body.token, body.lang);
+      return { success: true, message: result.message };
+    } catch (error) {
+      return sanitizeMobileError(error, 'E-Mail-Bestätigung fehlgeschlagen');
+    }
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Post('resend-verification-email')
+  async resendVerificationEmail(
+    @Body() body: ResendVerificationEmailDto,
+  ): Promise<MobileResponse> {
+    try {
+      const result = await this.authService.resendVerificationEmail(body.email, body.lang);
+      return { success: true, message: result.message };
+    } catch (error) {
+      return sanitizeMobileError(error, 'E-Mail-Bestätigung fehlgeschlagen');
     }
   }
 

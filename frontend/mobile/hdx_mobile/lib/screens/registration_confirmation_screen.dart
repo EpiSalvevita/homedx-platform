@@ -1,13 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
+import '../services/auth_service.dart';
 import '../utils/app_assets.dart';
 import '../widgets/auth_ui.dart';
 import '../widgets/figma_ui.dart';
 
 /// Shown after successful signup — prompts the user to verify their email.
-class RegistrationConfirmationScreen extends StatelessWidget {
+class RegistrationConfirmationScreen extends StatefulWidget {
   final String email;
   final bool isDoctor;
 
@@ -17,16 +19,51 @@ class RegistrationConfirmationScreen extends StatelessWidget {
     this.isDoctor = false,
   });
 
-  String get _loginRoute => isDoctor ? '/login/doctor' : '/login';
+  @override
+  State<RegistrationConfirmationScreen> createState() =>
+      _RegistrationConfirmationScreenState();
+}
+
+class _RegistrationConfirmationScreenState
+    extends State<RegistrationConfirmationScreen> {
+  bool _isResending = false;
+  String? _resendMessage;
+  String? _resendError;
+
+  String get _loginRoute => widget.isDoctor ? '/login/doctor' : '/login';
+
+  Future<void> _resendVerification() async {
+    final email = widget.email.trim();
+    if (email.isEmpty || _isResending) return;
+
+    setState(() {
+      _isResending = true;
+      _resendMessage = null;
+      _resendError = null;
+    });
+
+    final result = await context.read<AuthService>().resendVerificationEmail(email);
+    if (!mounted) return;
+
+    setState(() {
+      _isResending = false;
+      if (result.success) {
+        _resendMessage = result.message;
+      } else {
+        _resendError = result.error;
+      }
+    });
+  }
 
   Widget _buildContent(BuildContext context, {required bool isWideWeb}) {
     final showWebLogo = kIsWeb && !isWideWeb;
-    final displayEmail = email.trim().isEmpty ? 'Ihre E-Mail-Adresse' : email.trim();
+    final displayEmail = widget.email.trim().isEmpty ? 'Ihre E-Mail-Adresse' : widget.email.trim();
+    final canResend = widget.email.trim().isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (!kIsWeb) LoginHeroBanner(isDoctor: isDoctor),
+        if (!kIsWeb) LoginHeroBanner(isDoctor: widget.isDoctor),
         Padding(
           padding: EdgeInsets.fromLTRB(
             kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
@@ -73,7 +110,7 @@ class RegistrationConfirmationScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                isDoctor
+                widget.isDoctor
                     ? 'Ihr Arztkonto wurde angelegt. Bitte bestätigen Sie Ihre E-Mail-Adresse, um fortzufahren.'
                     : 'Ihr Konto wurde angelegt. Bitte bestätigen Sie Ihre E-Mail-Adresse, um fortzufahren.',
                 textAlign: TextAlign.center,
@@ -121,12 +158,40 @@ class RegistrationConfirmationScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              if (_resendMessage != null) ...[
+                const SizedBox(height: 16),
+                Text(
+                  _resendMessage!,
+                  style: FigmaUi.bodyLight(fontSize: 16, color: AppTheme.textColorSecondary),
+                ),
+              ],
+              if (_resendError != null) ...[
+                const SizedBox(height: 16),
+                NeumorphicFieldError(text: _resendError),
+              ],
               const SizedBox(height: 28),
               NeumorphicPillButton(
                 label: 'Zur Anmeldung',
                 leadingIcon: Icons.login,
                 onPressed: () => context.go(_loginRoute),
               ),
+              if (canResend) ...[
+                const SizedBox(height: 8),
+                Center(
+                  child: TextButton(
+                    onPressed: _isResending ? null : _resendVerification,
+                    style: authLinkButtonStyle(),
+                    child: Text(
+                      _isResending ? 'E-Mail wird gesendet…' : 'E-Mail erneut senden',
+                      style: FigmaUi.rubik(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w500,
+                        color: AppTheme.primaryBlue,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 8),
               Center(
                 child: TextButton(
@@ -176,7 +241,7 @@ class RegistrationConfirmationScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: AuthBrandPanel(
-                      isDoctor: isDoctor,
+                      isDoctor: widget.isDoctor,
                       variant: AuthBrandPanelVariant.confirmation,
                     ),
                   ),

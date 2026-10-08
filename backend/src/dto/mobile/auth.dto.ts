@@ -97,3 +97,14 @@ export class ResetPasswordDto extends LangBodyDto {
   @IsStrongPassword()
   password: string;
 }
+
+export class VerifyEmailDto extends LangBodyDto {
+  @IsString()
+  @MinLength(1)
+  token: string;
+}
+
+export class ResendVerificationEmailDto extends LangBodyDto {
+  @IsEmail()
+  email: string;
+}

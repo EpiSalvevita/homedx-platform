@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from './prisma.service';
 import * as bcrypt from 'bcrypt';
 import { createHash, randomBytes } from 'crypto';
-import { getFrontendUrl, getJwtSecret, isProductionEnv } from '../config/env.config';
+import { getJwtSecret, isProductionEnv } from '../config/env.config';
 import {
   loginInvalidCredentialsMessage,
   passwordResetInvalidMessage,
@@ -13,6 +13,12 @@ import {
 import { registrationEmailExistsMessage } from '../utils/registration-messages';
 import { isStrongPassword } from '../auth/password-policy';
 import { AuditLogService } from './audit-log.service';
+import { EmailService } from './email.service';
+import {
+  emailVerificationInvalidMessage,
+  emailVerificationSentMessage,
+  emailVerificationSuccessMessage,
+} from '../utils/email-messages';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +32,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private auditLogService: AuditLogService,
+    private emailService: EmailService,
   ) {}
 
   private signAccessToken(user: {
@@ -42,8 +49,13 @@ export class AuthService {
     });
   }
 
-  private hashResetToken(rawToken: string): string {
+  private hashSecretToken(rawToken: string): string {
     return createHash('sha256').update(rawToken).digest('hex');
+  }
+
+  private createSecretToken(): { rawToken: string; tokenHash: string } {
+    const rawToken = randomBytes(32).toString('hex');
+    return { rawToken, tokenHash: this.hashSecretToken(rawToken) };
   }
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -99,8 +111,7 @@ export class AuthService {
       return { message };
     }
 
-    const rawToken = randomBytes(32).toString('hex');
-    const tokenHash = this.hashResetToken(rawToken);
+    const { rawToken, tokenHash } = this.createSecretToken();
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
     await this.prisma.user.update({
@@ -111,9 +122,14 @@ export class AuthService {
       },
     });
 
-    if (!isProductionEnv()) {
-      const resetUrl = `${getFrontendUrl()}/reset-password?token=${encodeURIComponent(rawToken)}`;
-      this.logger.log(`[dev] Password reset link for ${email}: ${resetUrl}`);
+    const sent = await this.emailService.sendPasswordResetEmail({
+      to: user.email,
+      firstName: user.firstName,
+      token: rawToken,
+      lang,
+    });
+    if (!sent && isProductionEnv()) {
+      this.logger.error(`Password reset email was not delivered for userId=${user.id}`);
     }
 
     return { message };
@@ -128,7 +144,7 @@ export class AuthService {
       );
     }
 
-    const tokenHash = this.hashResetToken(token);
+    const tokenHash = this.hashSecretToken(token);
     const user = await this.prisma.user.findFirst({
       where: {
         passwordResetTokenHash: tokenHash,
@@ -173,6 +189,8 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 12);
     const asDoctor = options?.asDoctor === true;
+    const { rawToken, tokenHash } = this.createSecretToken();
+    const verificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     const user = await this.prisma.user.create({
       data: {
@@ -182,6 +200,9 @@ export class AuthService {
         lastName,
         role: asDoctor ? 'DOCTOR' : 'USER',
         address: asDoctor ? options?.clinicAddress : undefined,
+        emailVerified: false,
+        emailVerificationTokenHash: tokenHash,
+        emailVerificationExpiresAt: verificationExpiresAt,
       },
     });
 
@@ -193,6 +214,16 @@ export class AuthService {
           languages: ['Deutsch'],
         },
       });
+    }
+
+    const sent = await this.emailService.sendVerificationEmail({
+      to: user.email,
+      firstName: user.firstName,
+      token: rawToken,
+      lang: options?.lang,
+    });
+    if (!sent && isProductionEnv()) {
+      this.logger.error(`Verification email was not delivered for userId=${user.id}`);
     }
 
     const { password: _, ...result } = user;
@@ -216,6 +247,63 @@ export class AuthService {
       exists: !!existingUser,
       valid: emailRegex.test(email),
     };
+  }
+
+  async verifyEmail(token: string, lang?: string): Promise<{ message: string }> {
+    const tokenHash = this.hashSecretToken(token);
+    const user = await this.prisma.user.findFirst({
+      where: {
+        emailVerificationTokenHash: tokenHash,
+        emailVerificationExpiresAt: { gt: new Date() },
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException(emailVerificationInvalidMessage(lang));
+    }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerified: true,
+        emailVerificationTokenHash: null,
+        emailVerificationExpiresAt: null,
+      },
+    });
+
+    return { message: emailVerificationSuccessMessage(lang) };
+  }
+
+  async resendVerificationEmail(email: string, lang?: string): Promise<{ message: string }> {
+    const message = emailVerificationSentMessage(lang);
+    const user = await this.prisma.user.findUnique({ where: { email } });
+
+    if (!user || user.emailVerified) {
+      return { message };
+    }
+
+    const { rawToken, tokenHash } = this.createSecretToken();
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerificationTokenHash: tokenHash,
+        emailVerificationExpiresAt: expiresAt,
+      },
+    });
+
+    const sent = await this.emailService.sendVerificationEmail({
+      to: user.email,
+      firstName: user.firstName,
+      token: rawToken,
+      lang,
+    });
+    if (!sent && isProductionEnv()) {
+      this.logger.error(`Verification email resend was not delivered for userId=${user.id}`);
+    }
+
+    return { message };
   }
 
   async validateToken(token: string): Promise<any> {

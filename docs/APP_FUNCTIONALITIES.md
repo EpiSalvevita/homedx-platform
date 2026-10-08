@@ -8,9 +8,10 @@ Snapshot of what exists today in the backend vs the Flutter app, plus a short ba
 
 ### Authentication & user management
 
-- **Backend:** `login`, `register-account`, `request-password-reset`, `reset-password`, `get-user-data`, `update-user-data`, `init-authentication` (web session probe), `unset-authentication` (clear auth cookie)
-- **App:** login/signup (patient + doctor), forgot/reset password, profile view/edit, global 401 → logout; web uses cookie + `init-authentication`
-- **Gap:** account deletion, profile image upload
+- **Backend:** `login`, `register-account`, `verify-email`, `resend-verification-email`, `request-password-reset`, `reset-password`, `get-user-data`, `update-user-data`, `init-authentication` (web session probe), `unset-authentication` (clear auth cookie)
+- **App:** login/signup (patient + doctor) with confirmation + resend; `/verify-email` from the mail link; forgot/reset password; profile view/edit; global 401 → logout; web uses cookie + `init-authentication`
+- **Mail:** SMTP (`SMTP_HOST` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM`); links use `WEB_APP_URL` / `FRONTEND_URL`. Signup and password-reset send mail when SMTP is configured. Tokens are stored hashed.
+- **Gap:** account deletion, profile image upload; login is not gated on `emailVerified` (existing accounts are mostly unverified)
 
 ### Rapid test & Cube flow
 

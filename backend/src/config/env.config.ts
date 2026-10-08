@@ -34,13 +34,50 @@ export function getCorsOrigins(): string[] | boolean {
   return raw.split(',').map((o) => o.trim()).filter(Boolean);
 }
 
-/** Base URL of the web app (used for password-reset links in logs / email). */
+/** Base URL of the web app (used for password-reset / verification links in email). */
 export function getFrontendUrl(): string {
   const raw = process.env.FRONTEND_URL?.trim() || process.env.WEB_APP_URL?.trim();
   if (raw) {
     return raw.replace(/\/$/, '');
   }
   return 'http://localhost:8080';
+}
+
+export function isFrontendUrlConfigured(): boolean {
+  return Boolean(process.env.FRONTEND_URL?.trim() || process.env.WEB_APP_URL?.trim());
+}
+
+export type SmtpConfig = {
+  host: string;
+  port: number;
+  secure: boolean;
+  user: string;
+  pass: string;
+  from: string;
+};
+
+/** SMTP settings for transactional mail. Returns null when not fully configured. */
+export function getSmtpConfig(): SmtpConfig | null {
+  const host = process.env.SMTP_HOST?.trim();
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASS?.trim();
+  if (!host || !user || !pass) {
+    return null;
+  }
+
+  const port = Number.parseInt(process.env.SMTP_PORT?.trim() || '587', 10);
+  const secure =
+    process.env.SMTP_SECURE?.trim().toLowerCase() === 'true' || port === 465;
+  const from = process.env.SMTP_FROM?.trim() || user;
+
+  return {
+    host,
+    port: Number.isFinite(port) ? port : 587,
+    secure,
+    user,
+    pass,
+    from,
+  };
 }
 
 export function isProductionEnv(): boolean {

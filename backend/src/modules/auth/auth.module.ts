@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthService } from '../../services/auth.service';
+import { EmailService } from '../../services/email.service';
 import { UserService } from '../../services/user.service';
 import { JwtStrategy } from '../../auth/jwt.strategy';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
@@ -19,7 +20,7 @@ import { getJwtSecret } from '../../config/env.config';
     }),
   ],
   controllers: [MobileAuthController],
-  providers: [AuthService, UserService, JwtStrategy, JwtAuthGuard, RolesGuard],
-  exports: [AuthService, UserService, JwtModule, PassportModule, JwtStrategy, JwtAuthGuard, RolesGuard],
+  providers: [AuthService, EmailService, UserService, JwtStrategy, JwtAuthGuard, RolesGuard],
+  exports: [AuthService, EmailService, UserService, JwtModule, PassportModule, JwtStrategy, JwtAuthGuard, RolesGuard],
 })
 export class AuthModule {}

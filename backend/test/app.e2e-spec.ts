@@ -62,6 +62,32 @@ describe('Mobile REST API (e2e)', () => {
       });
   });
 
+  it('verify-email rejects missing token with validation errors', () => {
+    return request(app.getHttpServer())
+      .post(`${API}/verify-email`)
+      .send({})
+      .expect(201)
+      .expect((res) => {
+        expect(res.body.success).toBe(false);
+        expect(res.body.error).toBe('Invalid request');
+        expect(res.body.validation).toBeDefined();
+        expect(res.body.validation.length).toBeGreaterThan(0);
+      });
+  });
+
+  it('resend-verification-email rejects invalid email with validation errors', () => {
+    return request(app.getHttpServer())
+      .post(`${API}/resend-verification-email`)
+      .send({ email: 'not-an-email' })
+      .expect(201)
+      .expect((res) => {
+        expect(res.body.success).toBe(false);
+        expect(res.body.error).toBe('Invalid request');
+        expect(res.body.validation).toBeDefined();
+        expect(res.body.validation.length).toBeGreaterThan(0);
+      });
+  });
+
   it('register-account rejects invalid email with validation errors', () => {
     return request(app.getHttpServer())
       .post(`${API}/register-account`)

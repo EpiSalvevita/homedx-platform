@@ -3,11 +3,20 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConstants {
   // API Configuration — set API_BASE_URL in `.env` (LAN IP + port forwarding, or 127.0.0.1 with `adb reverse`).
+  // On web, `same-origin` (or empty) uses the page host so a reverse proxy can
+  // serve the API under the same hostname (e.g. http://homedx.de:8080).
   static String get apiBaseUrl {
     final fromEnv = dotenv.env['API_BASE_URL']?.trim();
-    var url = (fromEnv != null && fromEnv.isNotEmpty)
-        ? fromEnv
-        : 'http://127.0.0.1:4000';
+    final token = fromEnv ?? '';
+    final sameOrigin = token.isEmpty ||
+        token == '/' ||
+        token.toLowerCase() == 'same-origin';
+
+    if (kIsWeb && sameOrigin) {
+      return _stripTrailingSlash(Uri.base.origin);
+    }
+
+    var url = (!sameOrigin && token.isNotEmpty) ? token : 'http://127.0.0.1:4000';
 
     // Windows + WSL2: browsers resolve localhost to ::1; backend listens IPv4 only.
     if (kIsWeb) {
@@ -17,8 +26,11 @@ class AppConstants {
       }
     }
 
-    return url.endsWith('/') ? url.substring(0, url.length - 1) : url;
+    return _stripTrailingSlash(url);
   }
+
+  static String _stripTrailingSlash(String url) =>
+      url.endsWith('/') ? url.substring(0, url.length - 1) : url;
   static const Duration apiTimeout = Duration(seconds: 30);
   static const String apiPath = '/gg-homedx-json/gg-api/v1';
 

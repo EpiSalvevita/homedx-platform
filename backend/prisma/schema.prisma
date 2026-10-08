@@ -31,6 +31,8 @@ model User {
   tokenVersion  Int            @default(0)
   passwordResetTokenHash   String?
   passwordResetExpiresAt   DateTime?
+  emailVerificationTokenHash String?
+  emailVerificationExpiresAt DateTime?
   auditLogs     AuditLog[]
   certificates  Certificate[]
   /// Reserved: License domain has no active API path (GraphQL-era leftover).

@@ -7,6 +7,7 @@ import '../screens/signup_screen.dart';
 import '../screens/registration_confirmation_screen.dart';
 import '../screens/forgot_password_screen.dart';
 import '../screens/reset_password_screen.dart';
+import '../screens/verify_email_screen.dart';
 import '../screens/bluetooth_connection_screen.dart';
 import '../screens/bluetooth_scan_screen.dart';
 import '../screens/test_selection_screen.dart';
@@ -166,6 +167,14 @@ class AppRouter {
           builder: (context, state) {
             final token = state.uri.queryParameters['token'];
             return ResetPasswordScreen(token: token);
+          },
+        ),
+        GoRoute(
+          path: '/verify-email',
+          name: 'verify-email',
+          builder: (context, state) {
+            final token = state.uri.queryParameters['token'];
+            return VerifyEmailScreen(token: token);
           },
         ),
         ShellRoute(

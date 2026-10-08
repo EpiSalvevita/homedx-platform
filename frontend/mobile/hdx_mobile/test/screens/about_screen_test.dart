@@ -49,6 +49,10 @@ void main() {
     test('/about is a public route', () {
       expect(isPublicRoute('/about'), isTrue);
     });
+
+    test('/verify-email is a public route', () {
+      expect(isPublicRoute('/verify-email'), isTrue);
+    });
   });
 
   testWidgets('Landing shows merged About story and how-it-works in German', (tester) async {

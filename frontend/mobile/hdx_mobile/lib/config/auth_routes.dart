@@ -16,5 +16,6 @@ bool isPublicRoute(String location) {
       location == '/signup/doctor/confirmation' ||
       location == '/forgot-password' ||
       location == '/forgot-password/doctor' ||
-      location == '/reset-password';
+      location == '/reset-password' ||
+      location == '/verify-email';
 }

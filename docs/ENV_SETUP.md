@@ -28,6 +28,17 @@ APP_URL=http://localhost:4000
 # CORS: comma-separated allowed origins (omit in dev = allow all)
 # CORS_ORIGINS=http://localhost:8080,http://192.168.1.50:8080
 
+# Public web URL used in verification / password-reset emails
+# FRONTEND_URL=http://localhost:8080
+
+# Optional: transactional email (signup confirmation + password reset)
+# SMTP_HOST=smtp.example.com
+# SMTP_PORT=587
+# SMTP_SECURE=false
+# SMTP_USER=
+# SMTP_PASS=
+# SMTP_FROM="homeDX <noreply@example.com>"
+
 # Optional: video calls (Daily.co)
 # DAILY_API_KEY=
 # DAILY_DOMAIN=
@@ -44,6 +55,8 @@ APP_URL=http://localhost:4000
 ```
 
 `JWT_SECRET` is **required** — the server refuses to start without it.
+
+Without `SMTP_HOST` / `SMTP_USER` / `SMTP_PASS`, the backend still starts but **does not send** signup or password-reset mail (it logs that SMTP is missing). After changing SMTP vars in Docker, recreate the container so `env_file` reloads (`docker compose up -d --force-recreate backend`).
 
 Push delivery is optional: without `FIREBASE_SERVICE_ACCOUNT_JSON`, the backend stores in-app notifications and logs push skips.
 
@@ -62,6 +75,8 @@ Create or update `frontend/mobile/hdx_mobile/.env`:
 #   API_BASE_URL=http://127.0.0.1:4000
 # Flutter web on the same machine as the backend:
 #   API_BASE_URL=http://127.0.0.1:4000
+# Flutter web behind nginx (NAS): same-origin so the API follows the page host
+#   API_BASE_URL=same-origin
 
 API_BASE_URL=http://10.0.2.2:4000
 

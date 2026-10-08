@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { LOGIN_ERROR_CODES } from './login-messages';
+import { EMAIL_VERIFICATION_INVALID_CODES } from './email-messages';
 import { REGISTRATION_EMAIL_EXISTS_CODES } from './registration-messages';
 
 export interface MobileErrorBody {
@@ -28,7 +29,8 @@ export function sanitizeMobileError(
       const messages = Array.isArray(raw) ? raw : [String(raw)];
       if (
         messages.length === 1 &&
-        REGISTRATION_EMAIL_EXISTS_CODES.includes(messages[0])
+        (REGISTRATION_EMAIL_EXISTS_CODES.includes(messages[0]) ||
+          EMAIL_VERIFICATION_INVALID_CODES.includes(messages[0]))
       ) {
         return { success: false, error: messages[0] };
       }
@@ -69,6 +71,7 @@ export function sanitizeMobileError(
       'User already exists',
       'Email already exists',
       ...REGISTRATION_EMAIL_EXISTS_CODES,
+      ...EMAIL_VERIFICATION_INVALID_CODES,
       ...LOGIN_ERROR_CODES,
       'Login failed',
       'Registration failed',
