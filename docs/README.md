@@ -4,6 +4,8 @@ description: Documentation index for homeDX platform
 
 # Docs Index
 
+- `../CLAUDE.md` – guidance for AI coding agents working in this repo (commands, conventions, regulatory guardrails)
+
 ## Development setup
 
 - `WSL2_MOBILE_SETUP.md` – WSL2 + Flutter mobile development setup
