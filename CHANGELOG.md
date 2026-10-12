@@ -35,6 +35,25 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
   `paypal.service.ts`) are German (`Zahlung über …`). Payments created before
   this change keep their English descriptions.
 
+**Regulatory note (localization and web layout, Unreleased):**
+- Regulatory-relevant: **yes, use-related only** (IEC 62366-1). Result and
+  certificate labels and wording moved into ARB files. The German text was
+  copied as-is, and the English text is new.
+- Not changed: result logic, thresholds, rounding, status mapping
+  (`normalizeCubeResult`, `UserTestResult` classification), Cube data handling,
+  certificate content. Verified by reading the diff (`git diff 47228d58 912432b1`).
+  `testTypeDisplayName` now takes localized strings; the mapping is unchanged.
+- Failure modes (ISO 14971): a wrong English label or status word on a result
+  or certificate, a German string dropped or changed during copy, or a missing
+  translation falling back to German. Not verified by any automated test.
+- Test evidence: `flutter analyze` clean and `flutter test` (119 passing) on
+  the merged code. Backend change is two fallback description strings;
+  `tsc --noEmit` only. No backend e2e run.
+- Sign-off: **needed before English is offered to patients.** A human or the
+  PRRC should review the English result and certificate wording, and check that
+  the German strings match the pre-change text. Known open wording issue
+  (`mdr-compliance.mdc`): the "Empfohlen" specialist claim.
+
 ## Mobile 1.1.2+4 — 2026-10-07
 
 **Brand / UI:**
