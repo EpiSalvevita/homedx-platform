@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
+import '../../l10n/l10n_ext.dart';
 import '../../models/questionnaire/questionnaire_models.dart';
 import '../../core/api_service.dart';
 import '../../services/questionnaire_service.dart';
@@ -57,13 +58,13 @@ class _QuestionnaireHubScreenState extends State<QuestionnaireHubScreen> {
   String _moduleBadge(String moduleId) {
     switch (moduleId) {
       case 'A':
-        return 'Vor dem Test';
+        return context.l10n.questBadgeBeforeTest;
       case 'B':
-        return 'Rheumanetzwerk';
+        return context.l10n.questBadgeNetwork;
       case 'C':
-        return 'Nach Nutzung';
+        return context.l10n.questBadgeAfterUse;
       case 'D':
-        return 'Pilot / Implementierung';
+        return context.l10n.questBadgePilot;
       default:
         return moduleId;
     }
@@ -75,15 +76,13 @@ class _QuestionnaireHubScreenState extends State<QuestionnaireHubScreen> {
   }
 
   String get _hubIntro => widget.isDoctor
-      ? 'Im Rahmen von RheumaCheck erfassen diese Fragebögen strukturierte Angaben aus Sicht des Rheumanetzwerks und zur Implementierbarkeit in der Praxis. '
-          'Ihre Antworten unterstützen die Begleitforschung und die Weiterentwicklung von HomeDX — sie ersetzen keine Diagnose und geben keine Behandlungsempfehlungen.'
-      : 'Im Rahmen von RheumaCheck helfen diese Fragebögen, Ihre Angaben vor dem Test und Ihr Feedback nach der Nutzung strukturiert zu erfassen. '
-          'So können wir HomeDX verbessern und die Versorgung besser verstehen. Die Fragebögen ersetzen keine ärztliche Diagnose.';
+      ? context.l10n.questHubIntroDoctor
+      : context.l10n.questHubIntroPatient;
 
   @override
   Widget build(BuildContext context) {
     return AdaptiveScreen(
-      title: 'Fragebögen',
+      title: context.l10n.questTitle,
       showWebHeader: false,
       showBackOnMobile: false,
       onBack: () => context.go(widget.isDoctor ? '/doctor/dashboard' : '/home'),
@@ -120,17 +119,17 @@ class _QuestionnaireHubScreenState extends State<QuestionnaireHubScreen> {
                               padding: const EdgeInsets.only(bottom: 16),
                               child: FigmaEmptyState(
                                 icon: Icons.error_outline,
-                                title: 'Fragebögen konnten nicht geladen werden',
-                                message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
-                                actionLabel: 'Erneut versuchen',
+                                title: context.l10n.questLoadError,
+                                message: context.l10n.checkConnectionRetry,
+                                actionLabel: context.l10n.retry,
                                 onAction: _load,
                               ),
                             )
                           else if (_modules.isEmpty)
-                            const FigmaEmptyState(
+                            FigmaEmptyState(
                               icon: Icons.quiz_outlined,
-                              title: 'Keine Fragebögen verfügbar',
-                              message: 'Sobald Fragebögen freigeschaltet sind, erscheinen sie hier.',
+                              title: context.l10n.questEmpty,
+                              message: context.l10n.questEmptyMessage,
                             )
                           else
                             ..._modules.map((m) => Padding(
@@ -151,7 +150,7 @@ class _QuestionnaireHubScreenState extends State<QuestionnaireHubScreen> {
                                                 borderRadius: BorderRadius.circular(8),
                                               ),
                                               child: Text(
-                                                'Bogen ${m.moduleId}',
+                                                context.l10n.questModuleLabel(m.moduleId),
                                                 style: FigmaUi.rubik(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w600,
@@ -199,10 +198,10 @@ class _QuestionnaireHubScreenState extends State<QuestionnaireHubScreen> {
                                         const SizedBox(height: 14),
                                         Text(
                                           m.hasSubmitted
-                                              ? 'Abgeschlossen'
+                                              ? context.l10n.statusCompleted
                                               : m.hasDraft
-                                                  ? 'Entwurf fortsetzen'
-                                                  : 'Jetzt starten',
+                                                  ? context.l10n.questResume
+                                                  : context.l10n.questStartNow,
                                           style: FigmaUi.rubik(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,

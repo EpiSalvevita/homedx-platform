@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
+import '../l10n/l10n_ext.dart';
 import '../services/user_service.dart' show UserData, UserService;
 import '../core/api_service.dart';
 import '../features/cube/cube_service.dart';
@@ -106,7 +107,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _countryController.text = userData.country ?? '';
         _addressController.text = userData.address1 ?? '';
         _postcodeController.text = userData.postcode ?? '';
-        _selectedGenderLabel = genderApiToLabel(userData.gender);
+        _selectedGenderLabel = genderApiToLabel(userData.gender, context.l10n);
         if (showPageLoader) _isLoading = false;
       });
     } catch (e) {
@@ -133,7 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         country: _countryController.text.trim().isEmpty ? null : _countryController.text.trim(),
         address1: _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
         postcode: _postcodeController.text.trim().isEmpty ? null : _postcodeController.text.trim(),
-        gender: labelToGenderApi(_selectedGenderLabel),
+        gender: labelToGenderApi(_selectedGenderLabel, context.l10n),
         dateOfBirth: _userData!.dateOfBirth,
         testAccount: _userData!.testAccount,
         authorized: _userData!.authorized,
@@ -144,8 +145,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         await _loadUserData(showPageLoader: false);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profil gespeichert'),
+          SnackBar(
+            content: Text(context.l10n.profileSaved),
             backgroundColor: AppTheme.successColor,
           ),
         );
@@ -154,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         final message = localizeProfileError(e.toString());
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Fehler: $message'), backgroundColor: AppTheme.errorColor),
+          SnackBar(content: Text(context.l10n.profileErrorWith(message)), backgroundColor: AppTheme.errorColor),
         );
       }
     } finally {
@@ -165,7 +166,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScreen(
-      title: 'Profil',
+      title: context.l10n.navProfile,
       showBackOnMobile: false,
       onBack: () => context.go('/home'),
       body: Column(
@@ -189,19 +190,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Fehler beim Laden des Profils',
+                context.l10n.profileLoadError,
                 style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
-                'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
+                context.l10n.checkConnectionRetry,
                 style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w400, color: AppTheme.textColorSecondary),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
               NeumorphicPillButton(
-                label: 'Erneut versuchen',
+                label: context.l10n.retry,
                 height: AppTheme.buttonHeightLarge,
                 expanded: false,
                 onPressed: _loadUserData,
@@ -288,32 +289,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _firstNameField(ProfileFieldMetrics metrics) => _profileField(
         metrics: metrics,
         controller: _firstNameController,
-        label: 'Vorname',
+        label: context.l10n.profileFirstName,
         icon: Icons.person_outline,
-        validator: (v) => (v == null || v.isEmpty) ? 'Vorname ist erforderlich' : null,
+        validator: (v) => (v == null || v.isEmpty) ? context.l10n.profileFirstNameRequired : null,
       );
 
   Widget _lastNameField(ProfileFieldMetrics metrics) => _profileField(
         metrics: metrics,
         controller: _lastNameController,
-        label: 'Nachname',
+        label: context.l10n.profileLastName,
         icon: Icons.person_outline,
-        validator: (v) => (v == null || v.isEmpty) ? 'Nachname ist erforderlich' : null,
+        validator: (v) => (v == null || v.isEmpty) ? context.l10n.profileLastNameRequired : null,
       );
 
   Widget _emailField(ProfileFieldMetrics metrics) => _profileField(
         metrics: metrics,
         controller: _emailController,
-        label: 'E-mail',
+        label: context.l10n.profileEmail,
         icon: Icons.mail_outline,
         keyboardType: TextInputType.emailAddress,
-        validator: (v) => (v == null || v.isEmpty) ? 'E-mail ist erforderlich' : null,
+        validator: (v) => (v == null || v.isEmpty) ? context.l10n.profileEmailRequired : null,
       );
 
   Widget _phoneField(ProfileFieldMetrics metrics) => _profileField(
         metrics: metrics,
         controller: _phoneController,
-        label: 'Handynummer',
+        label: context.l10n.profilePhone,
         icon: Icons.phone_outlined,
         keyboardType: TextInputType.phone,
       );
@@ -321,28 +322,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _addressField(ProfileFieldMetrics metrics) => _profileField(
         metrics: metrics,
         controller: _addressController,
-        label: 'Adresse',
+        label: context.l10n.profileAddress,
         icon: Icons.home_outlined,
       );
 
   Widget _postcodeField(ProfileFieldMetrics metrics) => _profileField(
         metrics: metrics,
         controller: _postcodeController,
-        label: 'PLZ',
+        label: context.l10n.profilePostcode,
         icon: Icons.markunread_mailbox_outlined,
       );
 
   Widget _cityField(ProfileFieldMetrics metrics) => _profileField(
         metrics: metrics,
         controller: _cityController,
-        label: 'Stadt',
+        label: context.l10n.profileCity,
         icon: Icons.location_city_outlined,
       );
 
   Widget _countryField(ProfileFieldMetrics metrics) => _profileField(
         metrics: metrics,
         controller: _countryController,
-        label: 'Land',
+        label: context.l10n.profileCountry,
         icon: Icons.public,
       );
 
@@ -418,13 +419,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 320),
         child: NeumorphicInsetDropdown(
-          label: 'Geschlecht',
+          label: context.l10n.profileGender,
           prefixIcon: Icons.wc_outlined,
           value: _selectedGenderLabel,
-          items: genderPickerLabels,
+          items: genderPickerLabels(context.l10n),
           isExpanded: false,
           validator: (value) =>
-              value == null || value.isEmpty ? 'Bitte Geschlecht auswählen' : null,
+              value == null || value.isEmpty ? context.l10n.profileGenderRequired : null,
           onChanged: (value) => setState(() => _selectedGenderLabel = value),
           fieldHeight: metrics.fieldHeight,
           fieldPadding: metrics.fieldPadding,
@@ -442,7 +443,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildSaveButton() {
     return Center(
       child: NeumorphicPillButton(
-        label: _isSaving ? 'Speichern…' : 'Änderungen speichern',
+        label: _isSaving ? context.l10n.profileSaving : context.l10n.profileSaveChanges,
         leadingIcon: _isSaving ? null : Icons.save_outlined,
         height: AppTheme.buttonHeightLarge,
         expanded: false,
@@ -507,10 +508,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildCubeSdkCard() {
     if (_cubeSdkInfoLoading) {
-      return const FigmaInsetInfoCard(
+      return FigmaInsetInfoCard(
         icon: Icons.bluetooth_searching,
-        title: 'Cube-Gerät (SDK)',
-        subtitle: 'Cube-SDK wird geprüft…',
+        title: context.l10n.profileCubeSdkTitle,
+        subtitle: context.l10n.profileCubeSdkChecking,
       );
     }
 
@@ -522,12 +523,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Cube-Gerät (SDK)',
+            context.l10n.profileCubeSdkTitle,
             style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.textColor),
           ),
           const SizedBox(height: 4),
           Text(
-            _cubeSdkVersion.isEmpty ? 'Version: —' : 'Version: $_cubeSdkVersion',
+            context.l10n.profileVersion(_cubeSdkVersion.isEmpty ? '—' : _cubeSdkVersion),
             style: FigmaUi.rubik(fontSize: 13, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary),
           ),
           const SizedBox(height: 8),
@@ -542,8 +543,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Expanded(
                 child: Text(
                   licenseValid
-                      ? 'Bundled-Lizenz: gültig (laut SDK)'
-                      : 'Bundled-Lizenz: ungültig oder abgelaufen — neue cube_license.dat vom Anbieter einspielen und App neu bauen.',
+                      ? context.l10n.profileLicenseValid
+                      : context.l10n.profileLicenseInvalid,
                   style: FigmaUi.rubik(fontSize: 13, fontWeight: FontWeight.w300, color: AppTheme.textColor),
                 ),
               ),

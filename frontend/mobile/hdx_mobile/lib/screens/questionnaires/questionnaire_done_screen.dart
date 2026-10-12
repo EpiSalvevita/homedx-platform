@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../l10n/l10n_ext.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/app_theme.dart';
 import '../../widgets/figma_ui.dart';
@@ -22,7 +23,7 @@ class QuestionnaireDoneScreen extends StatelessWidget {
     final hubRoute = isDoctor ? '/doctor/questionnaires' : '/questionnaires';
 
     return AdaptiveScreen(
-      title: 'Fragebogen abgeschlossen',
+      title: context.l10n.questDoneTitle,
       showWebHeader: false,
       onBack: () => context.go(hubRoute),
       body: Center(
@@ -56,7 +57,7 @@ class QuestionnaireDoneScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'Vielen Dank!',
+                    context.l10n.questThanks,
                     style: FigmaUi.rubik(
                       fontSize: 26,
                       fontWeight: FontWeight.w600,
@@ -65,7 +66,7 @@ class QuestionnaireDoneScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Bogen $moduleId wurde erfolgreich übermittelt. Ihre Antworten wurden gespeichert.',
+                    context.l10n.questDoneMessage(moduleId),
                     textAlign: TextAlign.center,
                     style: FigmaUi.bodyLight(
                       fontSize: 17,
@@ -74,7 +75,7 @@ class QuestionnaireDoneScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 28),
                   NeumorphicPillButton(
-                    label: 'Zurück zu Fragebögen',
+                    label: context.l10n.questBackToList,
                     height: AppTheme.buttonHeightLarge,
                     backgroundColor: AppTheme.primaryBlue,
                     foregroundColor: Colors.white,
@@ -83,7 +84,7 @@ class QuestionnaireDoneScreen extends StatelessWidget {
                   if (returnRoute != null && returnRoute!.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     NeumorphicPillButton(
-                      label: 'Weiter im Ablauf',
+                      label: context.l10n.questContinue,
                       height: AppTheme.buttonHeightLarge,
                       backgroundColor: AppTheme.accentMint,
                       foregroundColor: AppTheme.onMint,

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
+import '../l10n/l10n_ext.dart';
 import '../screens/landing_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
@@ -199,14 +200,14 @@ class AppRouter {
           path: '/bluetooth/scan',
           name: 'bluetooth-scan',
           builder: (context, state) => kIsWeb
-              ? const CubeWebStubScreen(title: 'Bluetooth-Scan')
+              ? CubeWebStubScreen(title: 'Bluetooth-Scan')
               : const BluetoothScanScreen(),
         ),
         GoRoute(
           path: '/tests',
           name: 'tests',
           builder: (context, state) => kIsWeb
-              ? const CubeWebStubScreen(title: 'Tests')
+              ? CubeWebStubScreen(title: context.l10n.navTests)
               : const TestSelectionScreen(),
         ),
         GoRoute(
@@ -214,11 +215,11 @@ class AppRouter {
           name: 'test-bluetooth-check',
           builder: (context, state) {
             if (kIsWeb) {
-              return const CubeWebStubScreen(title: 'Test vorbereiten');
+              return CubeWebStubScreen(title: context.l10n.navTestPrepare);
             }
             final testTypeId = state.pathParameters['testTypeId'] ?? '';
             final testTypeName =
-                state.uri.queryParameters['testTypeName'] ?? 'Test';
+                state.uri.queryParameters['testTypeName'] ?? context.l10n.navTestFallback;
             final rapidTestId = state.uri.queryParameters['rapidTestId'];
             return TestBluetoothCheckScreen(
               testTypeId: testTypeId,
@@ -232,11 +233,11 @@ class AppRouter {
           name: 'test-submission',
           builder: (context, state) {
             if (kIsWeb) {
-              return const CubeWebStubScreen(title: 'Test einreichen');
+              return CubeWebStubScreen(title: context.l10n.navTestSubmit);
             }
             final testTypeId = state.pathParameters['testTypeId'] ?? '';
             final testTypeName =
-                state.uri.queryParameters['testTypeName'] ?? 'Test';
+                state.uri.queryParameters['testTypeName'] ?? context.l10n.navTestFallback;
             final rapidTestId = state.uri.queryParameters['rapidTestId'] ?? '';
             return TestSubmissionScreen(
               testTypeId: testTypeId,
@@ -264,7 +265,7 @@ class AppRouter {
           builder: (context, state) {
             final doctorId = state.pathParameters['doctorId'] ?? '';
             final doctorName =
-                state.uri.queryParameters['doctorName'] ?? 'Arzt';
+                state.uri.queryParameters['doctorName'] ?? context.l10n.navDoctorFallback;
             final specialization =
                 state.uri.queryParameters['specialization'] ?? '';
             final testTypeId = state.uri.queryParameters['testTypeId'];
@@ -443,7 +444,7 @@ class AppRouter {
                   return const TestResultsScreen();
                 }
                 return TestResultScreen(
-                  testTypeName: item.displayTestName,
+                  testTypeName: item.displayTestName(context.l10n),
                   testTypeId: item.testTypeId,
                   testDate: item.testDate,
                   result: CubeTestResult(

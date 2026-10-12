@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
+import '../l10n/l10n_ext.dart';
 import '../models/app_notification.dart';
+import '../utils/app_assets.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
 import '../widgets/figma_ui.dart';
@@ -71,7 +73,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final hasUnread = provider.notifications.any((n) => n.isUnread);
 
     return AdaptiveScreen(
-      title: 'Benachrichtigungen',
+      title: context.l10n.navNotifications,
       showWebHeader: false,
       showBackOnMobile: false,
       onBack: () => context.go('/home'),
@@ -84,7 +86,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
             onPressed: () => provider.markAllRead(),
             child: Text(
-              'Alle gelesen',
+              context.l10n.notifMarkAllRead,
               style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.primaryBlue),
             ),
           ),
@@ -94,9 +96,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           : provider.error != null
               ? FigmaEmptyState(
                   icon: Icons.error_outline,
-                  title: 'Benachrichtigungen konnten nicht geladen werden',
-                  message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
-                  actionLabel: 'Erneut versuchen',
+                  title: context.l10n.notifLoadError,
+                  message: context.l10n.checkConnectionRetry,
+                  actionLabel: context.l10n.retry,
                   onAction: provider.refresh,
                 )
               : RefreshIndicator(
@@ -122,7 +124,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      'Tippen Sie auf eine Meldung, um sie als gelesen zu markieren.',
+                                      context.l10n.notifTapHint,
                                       style: FigmaUi.bodyLight(
                                         fontSize: 17,
                                         color: AppTheme.textColorSecondary,
@@ -138,7 +140,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       ),
                                       onPressed: () => provider.markAllRead(),
                                       child: Text(
-                                        'Alle gelesen',
+                                        context.l10n.notifMarkAllRead,
                                         style: FigmaUi.rubik(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
@@ -151,10 +153,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               ),
                               const SizedBox(height: 24),
                               if (provider.notifications.isEmpty)
-                                const FigmaEmptyState(
-                                  icon: Icons.notifications_none_outlined,
-                                  title: 'Keine Benachrichtigungen',
-                                  message: 'Sie sind auf dem neuesten Stand.',
+                                FigmaEmptyState(
+                                  assetPath: AppAssets.notifications,
+                                  title: context.l10n.notifEmptyTitle,
+                                  message: context.l10n.notifEmptyMessage,
                                 )
                               else
                                 ...provider.notifications.map(

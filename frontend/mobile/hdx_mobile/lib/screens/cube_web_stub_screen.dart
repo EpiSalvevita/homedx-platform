@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../config/app_theme.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/neumorphic.dart';
+import '../l10n/l10n_ext.dart';
 
 /// Placeholder for Cube/Bluetooth flows on Flutter web until Web Bluetooth is implemented.
 class CubeWebStubScreen extends StatelessWidget {
@@ -17,10 +18,7 @@ class CubeWebStubScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final body = message ??
-        'Gesundheitstests mit dem Cube-Gerät sind nur in der Android-App verfügbar '
-            '(Bluetooth). Installieren Sie die mobile App oder nutzen Sie die Web-Version '
-            'für Termine und Ergebnisse.';
+    final body = message ?? context.l10n.cubeWebStubMessage;
 
     return FigmaScreen(
       header: FigmaBackHeader(title: title),
@@ -52,7 +50,7 @@ class CubeWebStubScreen extends StatelessWidget {
                   isPrimary: true,
                   onPressed: () => context.go('/home'),
                   child: Text(
-                    'Zur Startseite',
+                    context.l10n.btGoToHome,
                     style: FigmaUi.rubik(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -64,7 +62,7 @@ class CubeWebStubScreen extends StatelessWidget {
                 NeumorphicButton(
                   onPressed: () => context.pop(),
                   child: Text(
-                    'Zurück',
+                    context.l10n.btBack,
                     style: FigmaUi.rubik(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,

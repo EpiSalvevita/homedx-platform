@@ -261,7 +261,7 @@ class NeumorphicInsetDropdown extends StatefulWidget {
   final List<String> items;
   final ValueChanged<String?> onChanged;
   final String? Function(String?)? validator;
-  final String hint;
+  final String? hint;
   final double fieldHeight;
   final EdgeInsetsGeometry fieldPadding;
   final double fontSize;
@@ -280,7 +280,7 @@ class NeumorphicInsetDropdown extends StatefulWidget {
     required this.items,
     required this.onChanged,
     this.validator,
-    this.hint = 'Auswählen',
+    this.hint,
     this.fieldHeight = AppTheme.fieldHeight,
     this.fieldPadding = AppTheme.fieldPadding,
     this.fontSize = 17,
@@ -329,6 +329,8 @@ class _NeumorphicInsetDropdownState extends State<NeumorphicInsetDropdown> {
       height: 1.0,
     );
 
+    final hintText = widget.hint ?? context.l10n.questSelectHint;
+
     return FormField<String>(
       key: ValueKey(widget.value),
       initialValue: widget.value,
@@ -336,7 +338,7 @@ class _NeumorphicInsetDropdownState extends State<NeumorphicInsetDropdown> {
       builder: (field) {
         final display = field.value;
         final hasValue = display != null && display.isNotEmpty;
-        final selectedLabel = hasValue ? display : widget.hint;
+        final selectedLabel = hasValue ? display : hintText;
         final valueStyle = hasValue
             ? textStyle
             : textStyle.copyWith(color: AppTheme.textColor.withValues(alpha: 0.5));

@@ -13,6 +13,7 @@ import '../widgets/doctor_portrait_avatar.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/responsive_layout.dart';
 import '../widgets/web/adaptive_screen.dart';
+import '../l10n/l10n_ext.dart';
 
 class DoctorSelectionScreen extends StatefulWidget {
   /// When set, the doctor list is pre-filtered to specialists matching the
@@ -110,7 +111,7 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScreen(
-      title: 'Wählen Sie einen Arzt',
+      title: context.l10n.docSelectDoctor,
       onBack: () {
         if (context.canPop()) {
           context.pop();
@@ -133,7 +134,7 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
             child: TextField(
               style: FigmaUi.rubik(fontSize: 17, color: AppTheme.textColor),
               decoration: InputDecoration(
-                hintText: 'Arzt oder Fachrichtung suchen…',
+                hintText: context.l10n.docSearchHint,
                 hintStyle: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColorSecondary),
                 prefixIcon: const Icon(Icons.search, size: 24, color: AppTheme.primaryBlue),
                 border: OutlineInputBorder(
@@ -186,14 +187,14 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
         TestSpecializationMapping.primarySpecialization(widget.testTypeId);
     final testName = widget.testTypeName?.trim().isNotEmpty == true
         ? widget.testTypeName!
-        : 'Ihren Test';
+        : context.l10n.docTestFallback;
 
     final headline = _fellBackToFullList
-        ? 'Kein passender Facharzt verfügbar'
-        : 'Empfohlene Fachärzte: $specialization';
+        ? context.l10n.docNoMatchingSpecialist
+        : context.l10n.docRecommendedSpecialists(specialization);
     final body = _fellBackToFullList
-        ? 'Für $testName konnten wir aktuell keinen Facharzt für $specialization finden. Wir zeigen Ihnen alle verfügbaren Ärzte.'
-        : 'Basierend auf Ihrem positiven $testName empfehlen wir Ärzte mit Fachrichtung $specialization.';
+        ? context.l10n.docNoSpecialistFound(testName, specialization)
+        : context.l10n.docBasedOnTest(testName, specialization);
 
     return Container(
       key: const Key('doctor-selection-test-banner'),
@@ -257,19 +258,19 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> {
     if (_error != null) {
       return FigmaEmptyState(
         icon: Icons.error_outline,
-        title: 'Ärzte konnten nicht geladen werden',
-        message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
-        actionLabel: 'Erneut versuchen',
+        title: context.l10n.docDoctorsLoadFailed,
+        message: context.l10n.checkConnectionRetry,
+        actionLabel: context.l10n.retry,
         onAction: _loadDoctors,
       );
     }
 
     if (_filteredDoctors.isEmpty) {
-      return const FigmaEmptyState(
+      return FigmaEmptyState(
         assetPath: AppAssets.doctorExplaining,
         icon: Icons.person_search,
-        title: 'Keine Ärzte gefunden',
-        message: 'Versuchen Sie eine andere Suche oder Sprache.',
+        title: context.l10n.docNoDoctorsFound,
+        message: context.l10n.docNoDoctorsHint,
       );
     }
 
@@ -507,7 +508,7 @@ class _LanguageFilterBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Sprache',
+            context.l10n.docLanguage,
             style: FigmaUi.rubik(
               fontSize: 17,
               fontWeight: FontWeight.w600,
@@ -525,7 +526,7 @@ class _LanguageFilterBar extends StatelessWidget {
               children: [
                 _LanguageFilterChip(
                   key: const ValueKey('doctor-lang-filter-all'),
-                  label: 'Alle',
+                  label: context.l10n.docAll,
                   selected: selectedLanguage == null,
                   onTap: () => onSelected(null),
                 ),

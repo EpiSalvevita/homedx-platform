@@ -1,3 +1,4 @@
+import '../config/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -5,6 +6,7 @@ import '../providers/bluetooth_provider_mobile.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/bluetooth_icon.dart';
 import 'bluetooth_scan_screen.dart';
+import '../l10n/l10n_ext.dart';
 
 class BluetoothConnectionScreen extends StatefulWidget {
   const BluetoothConnectionScreen({super.key});
@@ -48,8 +50,8 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
                 children: [
                   const BluetoothAssetIcon(size: 48),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Verbunden',
+                  Text(
+                    context.l10n.btConnected,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -60,7 +62,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
                   Text(
                     device.platformName.isNotEmpty
                         ? device.platformName
-                        : 'Unbekanntes Gerät',
+                        : context.l10n.btUnknownDevice,
                     style: const TextStyle(fontSize: 16),
                   ),
                   const SizedBox(height: 4),
@@ -68,7 +70,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
                     'ID: ${device.remoteId}',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey[600],
+                      color: AppTheme.textColorSecondary,
                     ),
                   ),
                 ],
@@ -80,8 +82,8 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
 
           // Services Section
           if (provider.services.isNotEmpty) ...[
-            const Text(
-              'Dienste',
+            Text(
+              context.l10n.btServices,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -108,7 +110,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
                                       characteristic,
                                       provider,
                                     ),
-                                    tooltip: 'Lesen',
+                                    tooltip: context.l10n.btRead,
                                   ),
                                 if (characteristic.properties.write ||
                                     characteristic.properties.writeWithoutResponse)
@@ -118,7 +120,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
                                       characteristic,
                                       provider,
                                     ),
-                                    tooltip: 'Schreiben',
+                                    tooltip: context.l10n.btWrite,
                                   ),
                                 if (characteristic.properties.notify ||
                                     characteristic.properties.indicate)
@@ -128,7 +130,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
                                       characteristic,
                                       provider,
                                     ),
-                                    tooltip: 'Abonnieren',
+                                    tooltip: context.l10n.btSubscribe,
                                   ),
                               ],
                             ),
@@ -143,7 +145,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
           ElevatedButton.icon(
             onPressed: () => _disconnect(provider),
             icon: const BluetoothAssetIcon.disabled(size: 24),
-            label: const Text('Trennen'),
+            label: Text(context.l10n.btDisconnect),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
@@ -164,24 +166,24 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
           children: [
             const BluetoothAssetIcon.disabled(size: 80),
             const SizedBox(height: 24),
-            const Text(
-              'Kein Gerät verbunden',
+            Text(
+              context.l10n.btNoDeviceConnected,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Suchen Sie nach einem Bluetooth-Gerät und verbinden Sie sich, um zu beginnen',
+            Text(
+              context.l10n.btSearchPrompt,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              style: TextStyle(fontSize: 16, color: AppTheme.textColorSecondary),
             ),
             const SizedBox(height: 32),
             ElevatedButton.icon(
               onPressed: () => _navigateToScan(provider),
               icon: const BluetoothAssetIcon(size: 24),
-              label: const Text('Nach Geräten suchen'),
+              label: Text(context.l10n.btSearchDevices),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,
@@ -212,16 +214,16 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Gerät trennen'),
-        content: const Text('Möchten Sie die Verbindung wirklich trennen?'),
+        title: Text(context.l10n.btDisconnectTitle),
+        content: Text(context.l10n.btDisconnectConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Abbrechen'),
+            child: Text(context.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Trennen'),
+            child: Text(context.l10n.btDisconnect),
           ),
         ],
       ),
@@ -231,8 +233,8 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
       await provider.disconnect();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Getrennt'),
+          SnackBar(
+            content: Text(context.l10n.btDisconnected),
             backgroundColor: Colors.orange,
           ),
         );
@@ -247,13 +249,13 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
     try {
       final data = await provider.readCharacteristic(characteristic);
       if (mounted) {
-        _showDataDialog('Gelesene Daten', data);
+        _showDataDialog(context.l10n.btReadData, data);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Lesen fehlgeschlagen: $e'),
+            content: Text(context.l10n.btReadFailed(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -269,22 +271,22 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Daten schreiben'),
+        title: Text(context.l10n.btWriteDataTitle),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Daten eingeben (Hex-Format)',
-            hintText: 'z.B. 01 02 03',
+          decoration: InputDecoration(
+            labelText: context.l10n.btHexInputLabel,
+            hintText: context.l10n.btHexInputHint,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Abbrechen'),
+            child: Text(context.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Schreiben'),
+            child: Text(context.l10n.btWrite),
           ),
         ],
       ),
@@ -300,8 +302,8 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
         await provider.writeCharacteristic(characteristic, bytes);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Daten erfolgreich geschrieben'),
+            SnackBar(
+              content: Text(context.l10n.btWriteSuccess),
               backgroundColor: Colors.green,
             ),
           );
@@ -310,7 +312,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Schreiben fehlgeschlagen: $e'),
+              content: Text(context.l10n.btWriteFailed(e.toString())),
               backgroundColor: Colors.red,
             ),
           );
@@ -327,13 +329,13 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
       final stream = provider.subscribeToCharacteristic(characteristic);
       stream.listen((data) {
         if (mounted) {
-          _showDataDialog('Benachrichtigungsdaten', data);
+          _showDataDialog(context.l10n.btNotificationData, data);
         }
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Benachrichtigungen abonniert'),
+          SnackBar(
+            content: Text(context.l10n.btSubscribed),
             backgroundColor: Colors.green,
           ),
         );
@@ -342,7 +344,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Abonnieren fehlgeschlagen: $e'),
+            content: Text(context.l10n.btSubscribeFailed(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -371,7 +373,7 @@ class _BluetoothConnectionScreenState extends State<BluetoothConnectionScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Schließen'),
+            child: Text(context.l10n.btClose),
           ),
         ],
       ),

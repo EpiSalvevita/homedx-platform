@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
@@ -63,12 +64,12 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
       await file.writeAsBytes(bytes);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('PDF gespeichert: ${file.path}'), backgroundColor: AppTheme.successColor),
+        SnackBar(content: Text(context.l10n.certPdfSaved(file.path)), backgroundColor: AppTheme.successColor),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Fehler: $e'), backgroundColor: AppTheme.errorColor),
+        SnackBar(content: Text(context.l10n.certErrorWith('$e')), backgroundColor: AppTheme.errorColor),
       );
     } finally {
       if (mounted) setState(() => _downloading = false);
@@ -83,7 +84,7 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScreen(
-      title: 'Zertifikat',
+      title: context.l10n.certDetailTitle,
       showWebHeader: false,
       onBack: () => context.canPop() ? context.pop() : context.go('/certificates'),
       body: _loading
@@ -97,7 +98,7 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
                 )
               : _certificate == null
                   ? Center(
-                      child: Text('Zertifikat nicht gefunden', style: FigmaUi.rubik(color: AppTheme.textColor)),
+                      child: Text(context.l10n.certNotFound, style: FigmaUi.rubik(color: AppTheme.textColor)),
                     )
                   : SingleChildScrollView(
                       padding: EdgeInsets.fromLTRB(
@@ -113,7 +114,7 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
                           const SizedBox(height: 24),
                           if (!kIsWeb)
                             NeumorphicPillButton(
-                              label: _downloading ? 'Wird geladen…' : 'PDF teilen',
+                              label: _downloading ? context.l10n.certLoading : context.l10n.certSharePdf,
                               leadingIcon: _downloading ? null : Icons.picture_as_pdf_outlined,
                               loading: _downloading,
                               onPressed: _downloading ? null : _downloadPdf,
@@ -129,8 +130,8 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
                                 ),
                                 child: const Icon(Icons.info_outline, color: AppTheme.primaryBlue),
                               ),
-                              title: 'PDF-Download',
-                              subtitle: 'Öffnen Sie die HomeDX-App auf Ihrem Smartphone, um dieses Zertifikat als PDF zu teilen.',
+                              title: context.l10n.certPdfDownload,
+                              subtitle: context.l10n.certPdfDownloadHint,
                             ),
                         ],
                       ),
@@ -167,7 +168,7 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      certificateTypeLabel(certificate.type),
+                      certificateTypeLabel(context.l10n, certificate.type),
                       style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w500, color: AppTheme.textColor),
                     ),
                     const SizedBox(height: 6),
@@ -176,7 +177,7 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
                 ),
               ),
               StatusPill(
-                label: certificateStatusLabel(certificate.status),
+                label: certificateStatusLabel(context.l10n, certificate.status),
                 background: badgeBg,
                 foreground: badgeFg,
               ),
@@ -186,12 +187,12 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
           const Divider(height: 1, color: Color(0x1A142543)),
           const SizedBox(height: 16),
           if (certificate.testResult != null) ...[
-            Text('Ergebnis', style: labelStyle),
+            Text(context.l10n.certResult, style: labelStyle),
             const SizedBox(height: 4),
             Text(certificate.testResult!, style: bodyStyle),
             const SizedBox(height: 14),
           ],
-          Text('Gültigkeit', style: labelStyle),
+          Text(context.l10n.certValidity, style: labelStyle),
           const SizedBox(height: 4),
           Row(
             children: [
@@ -204,7 +205,7 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
             ],
           ),
           const SizedBox(height: 14),
-          Text('Ausgestellt am', style: labelStyle),
+          Text(context.l10n.certIssuedOn, style: labelStyle),
           const SizedBox(height: 4),
           Row(
             children: [

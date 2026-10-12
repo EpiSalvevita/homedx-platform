@@ -34,7 +34,7 @@ export class PaymentService {
   async create(data: CreatePaymentInput) {
     const description =
       data.description?.trim() ||
-      `Payment for ${data.amount} ${data.currency}`;
+      `Zahlung über ${data.amount} ${data.currency}`;
 
     return this.prisma.payment.create({
       data: {

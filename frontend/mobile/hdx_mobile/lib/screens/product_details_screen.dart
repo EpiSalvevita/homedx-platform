@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
@@ -23,13 +24,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   String get _categoryLabel {
     switch (widget.product.category) {
       case ProductCategory.testStrip:
-        return 'Teststreifen';
+        return context.l10n.shopCategoryTestStrip;
       case ProductCategory.testDevice:
-        return 'Testgerät';
+        return context.l10n.shopCategoryTestDevice;
       case ProductCategory.accessory:
-        return 'Zubehör';
+        return context.l10n.shopCategoryAccessory;
       case ProductCategory.other:
-        return 'Sonstiges';
+        return context.l10n.shopCategoryOther;
     }
   }
 
@@ -123,7 +124,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 borderRadius: BorderRadius.circular(AppTheme.resultBadgeRadius),
                               ),
                               child: Text(
-                                'Ausverkauft',
+                                context.l10n.shopSoldOut,
                                 style: FigmaUi.rubik(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -149,7 +150,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        'Menge',
+                        context.l10n.shopQuantity,
                         style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
                       ),
                       const SizedBox(height: 16),
@@ -181,7 +182,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Gesamt: ${(widget.product.price * _quantity).toStringAsFixed(2)} €',
+                        context.l10n.shopTotalAmount((widget.product.price * _quantity).toStringAsFixed(2)),
                         textAlign: TextAlign.center,
                         style: FigmaUi.rubik(
                           fontSize: 17,
@@ -194,7 +195,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 ),
                 const SizedBox(height: 24),
                 NeumorphicPillButton(
-                  label: inStock ? 'In den Warenkorb' : 'Derzeit nicht verfügbar',
+                  label: inStock ? context.l10n.shopAddToCart : context.l10n.shopUnavailable,
                   leadingIcon: Icons.shopping_cart_outlined,
                   height: AppTheme.buttonHeightLarge,
                   backgroundColor: inStock ? AppTheme.accentBlue : AppTheme.surface,
@@ -205,7 +206,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           cart.addItem(widget.product, quantity: _quantity);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('${widget.product.name} zum Warenkorb hinzugefügt'),
+                              content: Text(context.l10n.shopAddedToCart(widget.product.name)),
                               duration: const Duration(seconds: 2),
                             ),
                           );
@@ -213,7 +214,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 ),
                 const SizedBox(height: 16),
                 NeumorphicPillButton(
-                  label: 'Warenkorb anzeigen',
+                  label: context.l10n.shopViewCart,
                   leadingIcon: Icons.shopping_bag_outlined,
                   height: AppTheme.buttonHeightLarge,
                   backgroundColor: AppTheme.accentBlue,

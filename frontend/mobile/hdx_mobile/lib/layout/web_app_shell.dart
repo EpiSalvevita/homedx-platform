@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
+import '../l10n/l10n_ext.dart';
 import '../providers/auth_provider.dart';
 import '../utils/app_assets.dart';
 import '../widgets/figma_ui.dart';
@@ -19,7 +20,7 @@ class WebAppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final navItems = WebNavConfig.itemsForRole(auth.userRole);
+    final navItems = WebNavConfig.itemsForRole(auth.userRole, context.l10n);
     final currentPath = GoRouterState.of(context).uri.path;
     final fallbackLabel = auth.userEmail?.split('@').first ?? 'Benutzer';
     final userLabel = auth.displayName == null

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../config/app_theme.dart';
+import '../l10n/l10n_ext.dart';
 import '../utils/app_assets.dart';
 import '../utils/profile_field_metrics.dart';
 import 'neumorphic_inset.dart';

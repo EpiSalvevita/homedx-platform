@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../config/app_theme.dart';
@@ -50,7 +51,7 @@ class _ShopScreenState extends State<ShopScreen> {
     final cartProvider = Provider.of<CartProvider>(context);
 
     return AdaptiveScreen(
-      title: 'Shop',
+      title: context.l10n.shopTitle,
       showWebHeader: false,
       onBack: () => context.go('/home'),
       body: Column(
@@ -66,7 +67,7 @@ class _ShopScreenState extends State<ShopScreen> {
               children: [
                 Expanded(
                   child: FigmaSegmentedTabs(
-                    labels: const ['Alle', 'Teststreifen', 'Testgeräte'],
+                    labels: [context.l10n.shopFilterAll, context.l10n.shopFilterTestStrips, context.l10n.shopFilterTestDevices],
                     selectedIndex: _selectedCategory == null
                         ? 0
                         : _selectedCategory == ProductCategory.testStrip
@@ -88,16 +89,16 @@ class _ShopScreenState extends State<ShopScreen> {
                 : _error != null
                     ? FigmaEmptyState(
                         icon: Icons.error_outline,
-                        title: 'Shop konnte nicht geladen werden',
-                        message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
-                        actionLabel: 'Erneut versuchen',
+                        title: context.l10n.shopLoadError,
+                        message: context.l10n.checkConnectionRetry,
+                        actionLabel: context.l10n.retry,
                         onAction: _loadProducts,
                       )
                     : _filteredProducts.isEmpty
-                        ? const FigmaEmptyState(
+                        ? FigmaEmptyState(
                             icon: Icons.storefront_outlined,
-                            title: 'Keine Produkte gefunden',
-                            message: 'In dieser Kategorie sind derzeit keine Artikel verfügbar.',
+                            title: context.l10n.shopNoProducts,
+                            message: context.l10n.shopNoProductsMessage,
                           )
                         : kIsWeb
                         ? LayoutBuilder(
@@ -151,7 +152,7 @@ class _CartIconButton extends StatelessWidget {
               minHeight: AppTheme.largeTouchTarget,
             ),
             icon: const Icon(Icons.shopping_cart_outlined, size: 26),
-            tooltip: 'Warenkorb',
+            tooltip: context.l10n.cartTitle,
             onPressed: () => context.push('/shop/cart'),
           ),
           if (cartProvider.itemCount > 0)
@@ -284,7 +285,7 @@ class _ProductCardState extends State<_ProductCard> {
                           cartProvider.addItem(product);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('${product.name} hinzugefügt'),
+                              content: Text(context.l10n.shopItemAdded(product.name)),
                               duration: const Duration(seconds: 1),
                             ),
                           );

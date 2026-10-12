@@ -10,6 +10,7 @@ import '../services/doctor_service.dart';
 import '../widgets/doctor_portrait_avatar.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/web/adaptive_screen.dart';
+import '../l10n/l10n_ext.dart';
 
 class AppointmentBookingScreen extends StatefulWidget {
   final String doctorId;
@@ -72,7 +73,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Fehler beim Laden der Termine: $e'),
+            content: Text(context.l10n.apptLoadSlotsFailed(e.toString())),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -83,8 +84,8 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
   Future<void> _bookAppointment() async {
     if (_selectedSlot == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Bitte wählen Sie einen Termin aus'),
+        SnackBar(
+          content: Text(context.l10n.apptSelectSlotFirst),
           backgroundColor: AppTheme.accentCoral,
         ),
       );
@@ -121,7 +122,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
                 const Icon(Icons.check_circle_outline, color: AppTheme.successColor),
                 const SizedBox(width: 10),
                 Text(
-                  'Termin gebucht',
+                  context.l10n.apptBooked,
                   style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
                 ),
               ],
@@ -131,18 +132,18 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ihr Termin wurde erfolgreich gebucht.',
+                  context.l10n.apptBookedMessage,
                   style: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColorSecondary),
                 ),
                 const SizedBox(height: 16),
-                _dialogDetailRow('Arzt', widget.doctorName),
+                _dialogDetailRow(context.l10n.apptDoctor, widget.doctorName),
                 const SizedBox(height: 8),
                 _dialogDetailRow(
-                  'Datum',
+                  context.l10n.dateLabel,
                   DateFormat('dd.MM.yyyy HH:mm').format(_selectedSlot!.dateTime),
                 ),
                 const SizedBox(height: 8),
-                _dialogDetailRow('Typ', 'Online-Beratung'),
+                _dialogDetailRow(context.l10n.apptType, context.l10n.apptOnlineConsultation),
               ],
             ),
             actions: [
@@ -159,7 +160,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
                   }
                 },
                 child: Text(
-                  'OK',
+                  context.l10n.apptOk,
                   style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.primaryBlue),
                 ),
               ),
@@ -168,8 +169,8 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Fehler beim Buchen des Termins'),
+          SnackBar(
+            content: Text(context.l10n.apptBookFailed),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -179,7 +180,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
       setState(() => _isBooking = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Fehler: $e'),
+          content: Text(context.l10n.apptErrorWith(e.toString())),
           backgroundColor: AppTheme.errorColor,
         ),
       );
@@ -206,7 +207,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
     final horizontalPadding = kIsWeb ? 32.0 : AppTheme.screenHorizontalPadding;
 
     return AdaptiveScreen(
-      title: 'Termin buchen',
+      title: context.l10n.apptBookAppointment,
       onBack: () {
         if (context.canPop()) {
           context.pop();
@@ -228,7 +229,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
                     padding: const EdgeInsets.only(bottom: 20),
                     child: FigmaInsetInfoCard(
                       icon: Icons.medical_services_outlined,
-                      title: 'Termin nach ${widget.testTypeName}',
+                      title: context.l10n.apptAfterTest(widget.testTypeName ?? ''),
                     ),
                   ),
                 NeumorphicRaisedCard(
@@ -263,7 +264,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
                 ),
                 const SizedBox(height: 28),
                 Text(
-                  'Beratungstyp',
+                  context.l10n.apptConsultationType,
                   style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
                 ),
                 const SizedBox(height: 12),
@@ -287,11 +288,11 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Online-Beratung',
+                              context.l10n.apptOnlineConsultation,
                               style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w500, color: AppTheme.textColor),
                             ),
                             Text(
-                              'Videoanruf über HomeDX',
+                              context.l10n.apptVideoViaHomeDx,
                               style: FigmaUi.bodyLight(fontSize: 15, color: AppTheme.textColorSecondary),
                             ),
                           ],
@@ -303,7 +304,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
                 ),
                 const SizedBox(height: 28),
                 Text(
-                  'Verfügbare Termine',
+                  context.l10n.apptAvailable,
                   style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
                 ),
                 const SizedBox(height: 12),
@@ -331,13 +332,13 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Keine verfügbaren Termine',
+                          context.l10n.apptNoSlots,
                           textAlign: TextAlign.center,
                           style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Bitte versuchen Sie es später erneut.',
+                          context.l10n.apptNoSlotsRetry,
                           textAlign: TextAlign.center,
                           style: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColorSecondary),
                         ),
@@ -348,7 +349,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
                   _buildTimeSlots(),
                 const SizedBox(height: 28),
                 Text(
-                  'Notizen (optional)',
+                  context.l10n.apptNotesOptional,
                   style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
                 ),
                 const SizedBox(height: 12),
@@ -357,7 +358,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
                   maxLines: 3,
                   style: FigmaUi.rubik(fontSize: 17, color: AppTheme.textColor),
                   decoration: InputDecoration(
-                    hintText: 'Zusätzliche Informationen für den Arzt…',
+                    hintText: context.l10n.apptNotesHint,
                     hintStyle: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColorSecondary),
                     filled: true,
                     fillColor: AppTheme.background,
@@ -375,7 +376,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
                 ),
                 const SizedBox(height: 32),
                 NeumorphicPillButton(
-                  label: _isBooking ? 'Wird gebucht…' : 'Termin buchen',
+                  label: _isBooking ? context.l10n.apptBooking : context.l10n.apptBookAppointment,
                   leadingIcon: Icons.calendar_today_outlined,
                   height: AppTheme.buttonHeightLarge,
                   backgroundColor: AppTheme.primaryBlue,
@@ -410,7 +411,7 @@ class _AppointmentBookingScreenState extends State<AppointmentBookingScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                DateFormat('EEEE, dd.MM.yyyy', 'de_DE').format(date),
+                DateFormat('EEEE, dd.MM.yyyy', context.l10n.localeName).format(date),
                 style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.textColor),
               ),
               const SizedBox(height: 12),

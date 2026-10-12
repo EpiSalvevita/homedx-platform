@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../l10n/l10n_ext.dart';
 import '../config/app_theme.dart';
 import '../config/auth_routes.dart';
 import '../providers/auth_provider.dart';
@@ -67,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success && mounted) {
       context.go(homeRouteForRole(authProvider.userRole));
     } else if (mounted) {
-      final error = localizeLoginError(authProvider.error ?? 'Anmeldung fehlgeschlagen');
+      final error = localizeLoginError(authProvider.error ?? context.l10n.authLoginFailed, l10n: context.l10n);
       setState(() => _loginError = error);
     }
   }
@@ -102,20 +103,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 24),
               ],
               Text(
-                widget.isDoctor ? 'Arzt-Login' : 'In Ihr Konto einloggen',
+                widget.isDoctor ? context.l10n.authLoginDoctorTitle : context.l10n.authLoginTitle,
                 style: FigmaUi.rubik(fontSize: 26, fontWeight: FontWeight.w600, color: AppTheme.textColor),
               ),
               const SizedBox(height: 10),
               Text(
                 widget.isDoctor
-                    ? 'Melden Sie sich mit Ihrem Arztkonto an.'
-                    : 'Geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein.',
+                    ? context.l10n.authLoginDoctorSubtitle
+                    : context.l10n.authLoginSubtitle,
                 style: FigmaUi.bodyLight(fontSize: 18, color: AppTheme.primaryBlue),
               ),
               const SizedBox(height: 32),
               NeumorphicInsetField(
                 controller: _emailController,
-                label: 'E-Mail',
+                label: context.l10n.authEmailLabel,
                 hint: 'name@beispiel.de',
                 prefixIcon: Icons.mail_outline,
                 fontSize: 17,
@@ -124,8 +125,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 textInputAction: TextInputAction.next,
                 onFieldSubmitted: () => _passwordFocusNode.requestFocus(),
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Bitte E-Mail eingeben';
-                  if (!v.contains('@')) return 'Ungültige E-Mail';
+                  if (v == null || v.isEmpty) return context.l10n.authEmailRequired;
+                  if (!v.contains('@')) return context.l10n.authEmailInvalid;
                   return null;
                 },
               ),
@@ -133,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
               NeumorphicInsetField(
                 controller: _passwordController,
                 focusNode: _passwordFocusNode,
-                label: 'Passwort',
+                label: context.l10n.authPasswordLabel,
                 prefixIcon: Icons.lock_outline,
                 fontSize: 17,
                 labelFontSize: 15,
@@ -141,11 +142,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 textInputAction: TextInputAction.done,
                 onFieldSubmitted: _submitLogin,
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Bitte Passwort eingeben';
+                  if (v == null || v.isEmpty) return context.l10n.authPasswordRequired;
                   return null;
                 },
                 suffix: IconButton(
-                  tooltip: _obscurePassword ? 'Passwort anzeigen' : 'Passwort verbergen',
+                  tooltip: _obscurePassword ? context.l10n.authShowPassword : context.l10n.authHidePassword,
                   style: IconButton.styleFrom(
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     minimumSize: const Size(48, 48),
@@ -166,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 32),
               Consumer<AuthProvider>(
                 builder: (context, auth, _) => NeumorphicPillButton(
-                  label: 'Anmelden',
+                  label: context.l10n.authSignIn,
                   loading: auth.isLoading,
                   onPressed: auth.isLoading ? null : _handleLogin,
                 ),
@@ -178,11 +179,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: authLinkButtonStyle(foregroundColor: AppTheme.textColor),
                   child: Text.rich(
                     TextSpan(
-                      text: 'Noch kein Konto? ',
+                      text: context.l10n.authNoAccountPrompt,
                       style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w400, color: AppTheme.textColor),
                       children: [
                         TextSpan(
-                          text: 'Registrieren',
+                          text: context.l10n.authRegister,
                           style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.primaryBlue),
                         ),
                       ],
@@ -195,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () => context.go(_forgotPasswordRoute),
                   style: authLinkButtonStyle(),
                   child: Text(
-                    'Passwort vergessen?',
+                    context.l10n.authForgotPasswordLink,
                     style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w500, color: AppTheme.primaryBlue),
                   ),
                 ),

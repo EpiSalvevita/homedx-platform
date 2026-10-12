@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'config/stripe_init.dart';
 import 'config/push_init.dart';
 import 'config/app_theme.dart';
+import 'l10n/app_localizations.dart';
 import 'config/app_router.dart';
 import 'config/app_scroll_behavior.dart';
 import 'core/api_service.dart';
@@ -134,11 +135,9 @@ class _MyAppState extends State<MyApp> {
             scrollBehavior: const AppScrollBehavior(),
             routerConfig: _router,
             locale: locale,
-            supportedLocales: const [
-              Locale('de', 'DE'),
-              Locale('en', 'US'),
-            ],
+            supportedLocales: AppLocalizations.supportedLocales,
             localizationsDelegates: const [
+              AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,

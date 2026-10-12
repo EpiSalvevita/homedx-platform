@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
@@ -15,21 +16,21 @@ class CartScreen extends StatelessWidget {
     final cart = Provider.of<CartProvider>(context);
 
     return AdaptiveScreen(
-      title: 'Warenkorb',
+      title: context.l10n.cartTitle,
       showWebHeader: false,
       onBack: () => context.canPop() ? context.pop() : context.go('/shop'),
       bottomBar: cart.isEmpty
           ? null
           : FigmaBottomActionBar(
-              buttonLabel: 'Zur Kasse',
+              buttonLabel: context.l10n.cartCheckout,
               onPressed: () => context.push('/shop/checkout'),
             ),
       body: cart.isEmpty
           ? FigmaEmptyState(
               icon: Icons.shopping_cart_outlined,
-              title: 'Ihr Warenkorb ist leer',
-              message: 'Stöbern Sie im Shop und fügen Sie Produkte hinzu.',
-              actionLabel: 'Zum Shop',
+              title: context.l10n.cartEmpty,
+              message: context.l10n.cartEmptyMessage,
+              actionLabel: context.l10n.shopGoToShop,
               onAction: () => context.go('/shop'),
             )
           : Column(
@@ -129,7 +130,7 @@ class CartScreen extends StatelessWidget {
                                           borderRadius: BorderRadius.circular(20),
                                         ),
                                         child: Text(
-                                          'Entfernen',
+                                          context.l10n.cartRemove,
                                           style: FigmaUi.rubik(
                                             color: Colors.white,
                                             fontSize: 15,
@@ -169,7 +170,7 @@ class CartScreen extends StatelessWidget {
                       child: Column(
                         children: [
                           Text(
-                            'Gesamt',
+                            context.l10n.cartTotal,
                             style: FigmaUi.rubik(
                               fontSize: 17,
                               fontWeight: FontWeight.w500,

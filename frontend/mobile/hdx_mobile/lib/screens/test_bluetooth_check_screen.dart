@@ -14,6 +14,7 @@ import '../core/constants.dart';
 import '../widgets/neumorphic.dart';
 import 'bluetooth_scan_screen.dart';
 import 'test_progress_screen.dart';
+import '../l10n/l10n_ext.dart';
 
 class TestBluetoothCheckScreen extends StatefulWidget {
   final String testTypeId;
@@ -131,9 +132,9 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
     if (path == null || path.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'Kein Dateipfad verfügbar. Bitte über „Dateien“ wählen oder die Datei in Downloads ablegen.',
+              context.l10n.btNoFilePath,
             ),
             backgroundColor: Colors.orange,
           ),
@@ -179,18 +180,18 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
       final leave = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Test abbrechen?'),
-          content: const Text(
-            'Die laufende Messung wird beendet und Sie kehren zur Startseite zurück.',
+          title: Text(context.l10n.btCancelTestTitle),
+          content: Text(
+            context.l10n.btCancelTestBody,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Weiter'),
+              child: Text(context.l10n.btContinue),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Abbrechen'),
+              child: Text(context.l10n.cancel),
             ),
           ],
         ),
@@ -206,17 +207,17 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Gerät trennen'),
-        content: const Text(
-            'Möchten Sie die Verbindung wirklich trennen? Sie müssen sich erneut verbinden, um den Test zu starten.'),
+        title: Text(context.l10n.btDisconnectTitle),
+        content: Text(
+            context.l10n.btDisconnectTestConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Abbrechen'),
+            child: Text(context.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Trennen'),
+            child: Text(context.l10n.btDisconnect),
           ),
         ],
       ),
@@ -227,8 +228,8 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
       if (mounted) {
         setState(() => _cubeConnected = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cube-Gerät getrennt'),
+          SnackBar(
+            content: Text(context.l10n.btCubeDisconnected),
             backgroundColor: Colors.orange,
           ),
         );
@@ -264,13 +265,13 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
             const BluetoothAssetIcon.disabled(size: 96),
             const SizedBox(height: 28),
             Text(
-              'Bluetooth ist deaktiviert',
+              context.l10n.btBluetoothDisabled,
               style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppTheme.textColor),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
-              'Bluetooth muss aktiviert sein, um eine Verbindung zum Cube-Gerät herzustellen',
+              context.l10n.btBluetoothRequired,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18, color: AppTheme.textColor),
             ),
@@ -284,7 +285,7 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
                 children: [
                   const BluetoothAssetIcon(size: 24),
                   const SizedBox(width: 8),
-                  Text('Bluetooth aktivieren', style: TextStyle(color: Colors.white)),
+                  Text(context.l10n.btTurnOnBluetooth, style: TextStyle(color: Colors.white)),
                 ],
               ),
             ),
@@ -307,7 +308,7 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
                 const Icon(Icons.check_circle, size: 64, color: AppTheme.primaryColor),
                 const SizedBox(height: 16),
                 Text(
-                  'Cube-Gerät verbunden',
+                  context.l10n.btCubeConnected,
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -316,7 +317,7 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Status: $_cubeState',
+                  context.l10n.btStatus(_cubeState),
                   style: TextStyle(fontSize: 14, color: AppTheme.textColor),
                 ),
               ],
@@ -329,12 +330,12 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Bereit zum Teststart',
+                  context.l10n.btReadyToStart,
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textColor),
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Ihr Cube-Gerät ist verbunden und bereit. Sie können nun mit dem ${widget.testTypeName} Test fortfahren.',
+                  context.l10n.btReadyBody(widget.testTypeName),
                   style: TextStyle(fontSize: 16, color: AppTheme.textColor),
                 ),
               ],
@@ -347,16 +348,14 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Messkonfiguration (Cube)',
+                  context.l10n.btMeasurementConfig,
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textColor),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   _cubeConfigAbsolutePath != null
-                      ? 'Konfigurationsdatei: ${_fileBasename(_cubeConfigAbsolutePath!)}'
-                      : 'Standard: Kalibrierung per RFID von der eingelegten Kassette. '
-                          'Mit „Datei wählen“ verwenden Sie stattdessen eine `.config`/`.bin` vom Anbieter '
-                          '(wie in der Cube-Beispiel-App).',
+                      ? context.l10n.btConfigFile(_fileBasename(_cubeConfigAbsolutePath!))
+                      : context.l10n.btConfigDefault,
                   style: TextStyle(fontSize: 15, color: AppTheme.textColor),
                 ),
                 const SizedBox(height: 12),
@@ -367,12 +366,12 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
                     TextButton.icon(
                       onPressed: _isProcessing ? null : _pickCubeConfigFile,
                       icon: Icon(Icons.folder_open, color: AppTheme.primaryColor),
-                      label: Text('Konfigurationsdatei wählen', style: TextStyle(color: AppTheme.primaryColor)),
+                      label: Text(context.l10n.btChooseConfigFile, style: TextStyle(color: AppTheme.primaryColor)),
                     ),
                     if (_cubeConfigAbsolutePath != null)
                       TextButton(
                         onPressed: _isProcessing ? null : _clearCubeConfigFile,
-                        child: Text('RFID-Modus (Datei löschen)', style: TextStyle(color: AppTheme.textColor)),
+                        child: Text(context.l10n.btRfidMode, style: TextStyle(color: AppTheme.textColor)),
                       ),
                   ],
                 ),
@@ -402,7 +401,7 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
                     const Icon(Icons.play_arrow, color: Colors.white),
                   const SizedBox(width: 8),
                   Text(
-                    _isProcessing ? 'Test wird gestartet...' : 'Test starten',
+                    _isProcessing ? context.l10n.btTestStarting : context.l10n.btStartTest,
                     style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ],
@@ -420,7 +419,7 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
                 children: [
                   const BluetoothAssetIcon.disabled(size: 24),
                   const SizedBox(width: 8),
-                  Text('Gerät trennen', style: TextStyle(color: AppTheme.textColor, fontSize: 18)),
+                  Text(context.l10n.btDisconnectTitle, style: TextStyle(color: AppTheme.textColor, fontSize: 18)),
                 ],
               ),
             ),
@@ -440,13 +439,13 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
             const BluetoothAssetIcon(size: 96),
             const SizedBox(height: 28),
             Text(
-              'Kein Cube-Gerät verbunden',
+              context.l10n.btNoCubeConnected,
               style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppTheme.textColor),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
-              'Bitte verbinden Sie Ihr Cube-Gerät, um mit dem ${widget.testTypeName} Test fortzufahren',
+              context.l10n.btConnectPrompt(widget.testTypeName),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18, color: AppTheme.textColor),
             ),
@@ -460,7 +459,7 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
                 children: [
                   const BluetoothAssetIcon(size: 24),
                   const SizedBox(width: 8),
-                  Text('Nach Cube-Geräten suchen', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                  Text(context.l10n.btSearchCubeDevices, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
                 ],
               ),
             ),
@@ -471,7 +470,7 @@ class _TestBluetoothCheckScreenState extends State<TestBluetoothCheckScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 minimumSize: const Size(48, 48),
               ),
-              child: Text('Abbrechen', style: TextStyle(fontSize: 18, color: AppTheme.textColor)),
+              child: Text(context.l10n.cancel, style: TextStyle(fontSize: 18, color: AppTheme.textColor)),
             ),
           ],
         ),

@@ -1,15 +1,21 @@
-/// Maps backend profile/update validation messages to German UI text.
-String localizeProfileError(String message) {
+import 'package:flutter/widgets.dart';
+
+import '../l10n/app_localizations.dart';
+
+/// Maps backend profile/update validation messages to localized UI text.
+/// Without [l10n] the German texts are used (legacy callers outside widgets).
+String localizeProfileError(String message, {AppLocalizations? l10n}) {
+  final loc = l10n ?? lookupAppLocalizations(const Locale('de'));
   final lower = message.toLowerCase();
 
   if (lower.contains('property email should not exist')) {
-    return 'E-Mail kann hier nicht geändert werden. Bitte laden Sie die Seite neu (Strg+Shift+R) und versuchen Sie es erneut.';
+    return loc.authErrorEmailNotEditable;
   }
   if (lower.contains('gender must be one of')) {
-    return 'Bitte wählen Sie ein gültiges Geschlecht aus.';
+    return loc.authErrorGenderInvalid;
   }
   if (lower.contains('invalid request')) {
-    return 'Ungültige Anfrage. Bitte prüfen Sie Ihre Eingaben und versuchen Sie es erneut.';
+    return loc.authErrorInvalidRequestRetry;
   }
 
   return message;

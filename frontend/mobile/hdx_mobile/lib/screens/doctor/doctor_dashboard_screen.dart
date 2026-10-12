@@ -13,6 +13,7 @@ import '../../widgets/doctor_appointment_card.dart';
 import '../../widgets/figma_ui.dart';
 import '../../widgets/web/adaptive_screen.dart';
 import '../../widgets/web/web_page_header.dart';
+import '../../l10n/l10n_ext.dart';
 
 class DoctorDashboardScreen extends StatefulWidget {
   const DoctorDashboardScreen({super.key});
@@ -80,16 +81,16 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
     final auth = context.watch<AuthProvider>();
     final displayName = _lastName != null
         ? 'Dr. $_lastName'
-        : (auth.userEmail?.split('@').first ?? 'Arzt');
+        : (auth.userEmail?.split('@').first ?? context.l10n.docDoctorFallback);
 
     return AdaptiveScreen(
-      title: 'Dashboard',
+      title: context.l10n.docDashboard,
       showWebHeader: false,
       showBackOnMobile: false,
       actions: [
         IconButton(
           icon: const Icon(Icons.schedule_outlined),
-          tooltip: 'Verfügbarkeit',
+          tooltip: context.l10n.docAvailability,
           onPressed: () => context.push('/doctor/availability'),
         ),
       ],
@@ -98,8 +99,8 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
         children: [
           if (kIsWeb)
             WebPageHeader(
-              title: 'Willkommen, $displayName',
-              subtitle: 'Übersicht Ihrer heutigen Termine und Video-Konsultationen.',
+              title: context.l10n.docWelcome(displayName),
+              subtitle: context.l10n.docOverview,
             ),
           Expanded(
             child: RefreshIndicator(
@@ -125,7 +126,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                         ],
                         Row(
                           children: [
-                            const FigmaSectionTitle('Heutige Termine'),
+                            FigmaSectionTitle(context.l10n.docTodaysAppointments),
                             if (!_isLoading && _appointments.isNotEmpty) ...[
                               const SizedBox(width: 8),
                               Container(
@@ -162,7 +163,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Keine Termine für heute',
+                                  context.l10n.docNoAppointmentsToday,
                                   textAlign: TextAlign.center,
                                   style: FigmaUi.rubik(
                                     fontSize: 17,
@@ -172,7 +173,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Sobald Patienten buchen, erscheinen Ihre heutigen Termine hier.',
+                                  context.l10n.docAppointmentsTodayHint,
                                   textAlign: TextAlign.center,
                                   style: FigmaUi.bodyLight(
                                     fontSize: 14,
@@ -196,7 +197,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                             ),
                           ),
                         const SizedBox(height: 20),
-                        const FigmaSectionTitle('RheumaCheck Fragebögen'),
+                        FigmaSectionTitle(context.l10n.docRheumaCheckForms),
                         const SizedBox(height: 12),
                         NeumorphicRaisedCard(
                           height: null,
@@ -210,9 +211,9 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Bogen B', style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w500)),
+                                    Text(context.l10n.docFormB, style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w500)),
                                     Text(
-                                      'Standardmethode & Versorgungspfad',
+                                      context.l10n.docFormBSubtitle,
                                       style: FigmaUi.bodyLight(fontSize: 13, color: AppTheme.textColorSecondary),
                                     ),
                                   ],
@@ -235,9 +236,9 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Bogen D', style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w500)),
+                                    Text(context.l10n.docFormD, style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w500)),
                                     Text(
-                                      'Implementierbarkeit & Nutzen',
+                                      context.l10n.docFormDSubtitle,
                                       style: FigmaUi.bodyLight(fontSize: 13, color: AppTheme.textColorSecondary),
                                     ),
                                   ],

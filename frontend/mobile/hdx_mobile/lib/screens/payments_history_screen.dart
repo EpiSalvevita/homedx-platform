@@ -8,6 +8,8 @@ import '../services/payment_service.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/status_pill.dart';
 import '../widgets/web/adaptive_screen.dart';
+import '../l10n/app_localizations.dart';
+import '../l10n/l10n_ext.dart';
 
 class PaymentsHistoryScreen extends StatefulWidget {
   const PaymentsHistoryScreen({super.key});
@@ -53,8 +55,8 @@ class _PaymentsHistoryScreenState extends State<PaymentsHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScreen(
-      title: 'Zahlungen',
-      showWebHeader: false,
+      title: context.l10n.paymentsTitle,
+      showWebHeader: true,
       showBackOnMobile: false,
       onBack: () => context.go('/home'),
       body: RefreshIndicator(
@@ -76,7 +78,7 @@ class _PaymentsHistoryScreenState extends State<PaymentsHistoryScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Übersicht Ihrer Zahlungen und Bestellungen.',
+                      context.l10n.paymentsOverview,
                       style: FigmaUi.bodyLight(
                         fontSize: 17,
                         color: AppTheme.textColorSecondary,
@@ -93,16 +95,16 @@ class _PaymentsHistoryScreenState extends State<PaymentsHistoryScreen> {
                     else if (_error != null)
                       FigmaEmptyState(
                         icon: Icons.error_outline,
-                        title: 'Zahlungen konnten nicht geladen werden',
-                        message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
-                        actionLabel: 'Erneut versuchen',
+                        title: context.l10n.paymentsLoadError,
+                        message: context.l10n.checkConnectionRetry,
+                        actionLabel: context.l10n.retry,
                         onAction: _load,
                       )
                     else if (_payments.isEmpty)
-                      const FigmaEmptyState(
+                      FigmaEmptyState(
                         icon: Icons.payment_outlined,
-                        title: 'Noch keine Zahlungen',
-                        message: 'Abgeschlossene Zahlungen erscheinen hier.',
+                        title: context.l10n.noPaymentsTitle,
+                        message: context.l10n.noPaymentsMessage,
                       )
                     else
                       ..._payments.map(
@@ -150,35 +152,35 @@ class _PaymentCard extends StatelessWidget {
     }
   }
 
-  static String _methodLabel(String method) {
+  static String _methodLabel(AppLocalizations l10n, String method) {
     switch (method.toUpperCase()) {
       case 'CREDIT_CARD':
-        return 'Kreditkarte';
+        return l10n.methodCard;
       case 'PAYPAL':
         return 'PayPal';
       case 'BANK_TRANSFER':
-        return 'Banküberweisung';
+        return l10n.methodBankTransfer;
       case 'CRYPTO':
-        return 'Krypto';
+        return l10n.methodCrypto;
       default:
-        return method.isEmpty ? 'Zahlung' : method;
+        return method.isEmpty ? l10n.paymentGeneric : method;
     }
   }
 
-  static String _statusLabel(String status) {
+  static String _statusLabel(AppLocalizations l10n, String status) {
     switch (status.toUpperCase()) {
       case 'COMPLETED':
-        return 'Abgeschlossen';
+        return l10n.statusCompleted;
       case 'PENDING':
-        return 'Ausstehend';
+        return l10n.statusPending;
       case 'FAILED':
-        return 'Fehlgeschlagen';
+        return l10n.statusFailed;
       case 'REFUNDED':
-        return 'Erstattet';
+        return l10n.statusRefunded;
       case 'CANCELLED':
-        return 'Storniert';
+        return l10n.statusCancelled;
       default:
-        return status.isEmpty ? 'Unbekannt' : status;
+        return status.isEmpty ? l10n.statusUnknown : status;
     }
   }
 
@@ -222,7 +224,7 @@ class _PaymentCard extends StatelessWidget {
         ? '${amount.toStringAsFixed(2)} ${_currencySymbol(currency)}'
         : '$amount $currency';
     final (badgeBg, badgeFg) = _statusColors(status);
-    final title = description?.isNotEmpty == true ? description! : _methodLabel(method);
+    final title = description?.isNotEmpty == true ? description! : _methodLabel(context.l10n, method);
 
     return NeumorphicRaisedCard(
       onTap: onTap,
@@ -257,7 +259,7 @@ class _PaymentCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  _methodLabel(method),
+                  _methodLabel(context.l10n, method),
                   style: FigmaUi.rubik(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
@@ -292,7 +294,7 @@ class _PaymentCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               StatusPill(
-                label: _statusLabel(status),
+                label: _statusLabel(context.l10n, status),
                 background: badgeBg,
                 foreground: badgeFg,
               ),

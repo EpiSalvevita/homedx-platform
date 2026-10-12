@@ -7,6 +7,7 @@ import '../core/api_service.dart';
 import '../services/video_call_service.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/web/adaptive_screen.dart';
+import '../l10n/l10n_ext.dart';
 
 class VideoCallScreen extends StatefulWidget {
   final String appointmentId;
@@ -41,7 +42,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
       if (token == null) {
         setState(() {
-          _error = 'Videoanruf konnte nicht gestartet werden';
+          _error = context.l10n.videoStartFailed;
           _isLoading = false;
         });
         return;
@@ -57,7 +58,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
       if (!launched) {
         setState(() {
-          _error = 'Videoanruf konnte nicht geöffnet werden';
+          _error = context.l10n.videoOpenFailed;
           _isLoading = false;
         });
         return;
@@ -85,7 +86,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScreen(
-      title: 'Videoanruf',
+      title: context.l10n.videoTitle,
       onBack: () => context.pop(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -105,7 +106,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                         ),
                         const SizedBox(height: 20),
                         NeumorphicPillButton(
-                          label: 'Zurück',
+                          label: context.l10n.videoBack,
                           leadingIcon: Icons.arrow_back,
                           expanded: false,
                           onPressed: () => context.pop(),
@@ -140,7 +141,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                             ),
                             const SizedBox(height: 24),
                             Text(
-                              'Der Videoanruf wurde in einem neuen Tab geöffnet.',
+                              context.l10n.videoOpenedInNewTab,
                               textAlign: TextAlign.center,
                               style: FigmaUi.rubik(
                                 fontSize: 17,
@@ -150,19 +151,19 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Falls sich kein neuer Tab geöffnet hat, nutzen Sie den Button unten.',
+                              context.l10n.videoOpenedHint,
                               textAlign: TextAlign.center,
                               style: FigmaUi.bodyLight(fontSize: 13, color: AppTheme.textColorSecondary),
                             ),
                             const SizedBox(height: 28),
                             NeumorphicPillButton(
-                              label: 'Erneut öffnen',
+                              label: context.l10n.videoOpenAgain,
                               leadingIcon: Icons.open_in_new,
                               onPressed: _reopenCall,
                             ),
                             const SizedBox(height: 12),
                             NeumorphicPillButton(
-                              label: 'Zurück',
+                              label: context.l10n.videoBack,
                               leadingIcon: Icons.arrow_back,
                               backgroundColor: AppTheme.surface,
                               foregroundColor: AppTheme.textColor,

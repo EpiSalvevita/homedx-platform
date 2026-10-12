@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
+import '../l10n/l10n_ext.dart';
 import 'credit_card_payment_screen.dart';
 import 'paypal_payment_screen.dart';
 import 'sepa_payment_screen.dart';
@@ -44,8 +45,8 @@ class PaymentProcessingScreen extends StatelessWidget {
                 builder: (_) => OrderSuccessScreen(
                   amount: amount,
                   currency: currency,
-                  title: 'Zahlung erfolgreich',
-                  subtitle: 'Ihre Bestellung wurde bestätigt. Sie erhalten eine Bestätigung in der App.',
+                  title: context.l10n.paySuccess,
+                  subtitle: context.l10n.orderConfirmed,
                 ),
               ),
               (route) => route.isFirst,
@@ -55,7 +56,7 @@ class PaymentProcessingScreen extends StatelessWidget {
             Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Zahlung fehlgeschlagen: $error'),
+                content: Text(context.l10n.paymentFailedWith(error.toString())),
                 backgroundColor: Colors.red,
               ),
             );
@@ -74,8 +75,8 @@ class PaymentProcessingScreen extends StatelessWidget {
                 builder: (_) => OrderSuccessScreen(
                   amount: amount,
                   currency: currency,
-                  title: 'PayPal-Zahlung erfolgreich',
-                  subtitle: 'Ihre Bestellung wurde bestätigt. Sie erhalten eine Bestätigung in der App.',
+                  title: context.l10n.paypalSuccess,
+                  subtitle: context.l10n.orderConfirmed,
                 ),
               ),
               (route) => route.isFirst,
@@ -84,8 +85,8 @@ class PaymentProcessingScreen extends StatelessWidget {
           onPaymentCancelled: () {
             Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('PayPal-Zahlung abgebrochen'),
+              SnackBar(
+                content: Text(context.l10n.paypalCancelled),
                 backgroundColor: Colors.orange,
               ),
             );
@@ -94,7 +95,7 @@ class PaymentProcessingScreen extends StatelessWidget {
             Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('PayPal-Zahlung fehlgeschlagen: $error'),
+                content: Text(context.l10n.paypalFailedWith(error.toString())),
                 backgroundColor: Colors.red,
               ),
             );
@@ -113,9 +114,8 @@ class PaymentProcessingScreen extends StatelessWidget {
                 builder: (_) => OrderSuccessScreen(
                   amount: amount,
                   currency: currency,
-                  title: 'SEPA-Überweisung gestartet',
-                  subtitle: 'Bitte überweisen Sie den Betrag innerhalb von 3–5 Werktagen. '
-                      'Ihre Bestellung bleibt bis dahin reserviert.',
+                  title: context.l10n.sepaStarted,
+                  subtitle: context.l10n.sepaStartedSubtitle,
                 ),
               ),
               (route) => route.isFirst,

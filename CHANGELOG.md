@@ -8,6 +8,33 @@ retroactively document history before this entry.
 Format: one entry per release, backend and mobile versioned
 independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`).
 
+## Unreleased
+
+**Mobile: localization (de / en):**
+- UI strings for the auth, profile, navigation, Bluetooth and test flow,
+  appointments and doctor, shop, cart, checkout, certificate, questionnaire
+  chrome and payment screens now come from ARB files (`lib/l10n/app_de.arb`,
+  `lib/l10n/app_en.arb`) via Flutter gen-l10n. Access is `context.l10n.<key>`.
+- Not translated on purpose (regulated or clinical text, needs review before
+  changing): Cube SDK messages and measurement error text
+  (`features/cube/`), questionnaire question and answer content, legal pages,
+  and the Cube license message.
+- English translations are first drafts and need review by a native speaker,
+  especially payment, medical and legal wording.
+
+**Mobile: web app layout:**
+- Page titles and content share one 800 px column in the web shell
+  (`widgets/web/adaptive_screen.dart`).
+- Payments shows its page title on web.
+- Home quick-action grid is three columns on web (two full rows).
+- Pill buttons no longer wrap their label; "Meine Termine" and the
+  Notifications empty state use the 1600 px illustrations.
+
+**Backend:**
+- Fallback payment descriptions (`payment.service.ts`, PayPal order in
+  `paypal.service.ts`) are German (`Zahlung über …`). Payments created before
+  this change keep their English descriptions.
+
 ## Mobile 1.1.2+4 — 2026-10-07
 
 **Brand / UI:**

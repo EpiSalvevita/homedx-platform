@@ -66,7 +66,7 @@ export class PayPalService {
                 currencyCode: currency.toUpperCase(),
                 value: amount.toFixed(2),
               },
-              description: `Payment for ${amount} ${currency}`,
+              description: `Zahlung über ${amount} ${currency}`,
             },
           ],
           applicationContext: {

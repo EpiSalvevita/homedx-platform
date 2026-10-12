@@ -10,6 +10,7 @@ import '../features/cube/cube_service.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/bluetooth_icon.dart';
 import '../widgets/neumorphic.dart';
+import '../l10n/l10n_ext.dart';
 
 /// Bundle of injectable dependencies used by widget tests to bypass the
 /// real `CubeService`, `AppBluetoothService.requestPermissions` and
@@ -118,14 +119,13 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
   /// results when these dangerous permissions are missing.
   Future<bool> _ensureBluetoothPermissions() async {
     if (_permissionsGranted) return true;
+    final permissionMessage = context.l10n.btPermissionRequired;
     try {
       final overrides = widget.testOverrides;
       if (overrides != null) {
         final ok = await overrides.requestPermissions();
         if (!ok) {
-          throw Exception(
-            'Bluetooth „Geräte in der Nähe“ / Scan und Verbinden ist erforderlich. Bitte in den App-Einstellungen erlauben.',
-          );
+          throw Exception(permissionMessage);
         }
       } else {
         await _btPermissionService.requestPermissions();
@@ -171,8 +171,8 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
         if (mounted) {
           _closeConnectDialogIfOpen();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Cube-Gerät verbunden'),
+            SnackBar(
+              content: Text(context.l10n.btCubeConnected),
               backgroundColor: Colors.green,
             ),
           );
@@ -226,7 +226,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
         setState(() {
           _isScanning = false;
           _error =
-              'Scan konnte nicht gestartet werden (SDK lehnt Start ab — z. B. noch verbunden oder bereits am Scannen). Tippen Sie auf Aktualisieren oder starten Sie die App neu.';
+              context.l10n.btScanStartFailed;
         });
       }
       // Safety belt: if the SDK never emits a stop-scan state event,
@@ -252,7 +252,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
       if (mounted) {
         setState(() {
           _isScanning = false;
-          _error = 'Scan-Fehler: $e';
+          _error = context.l10n.btScanError(e.toString());
         });
       }
     }
@@ -276,7 +276,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
       setState(() {
         _isConnecting = false;
         _error =
-            'Verbindung zum Cube dauerte zu lange (60 s). Cube nah ans Telefon halten, Suche mit „Stopp“ beenden und erneut „Verbinden“ tippen. In Android-Bluetooth ggf. Gerät trennen (nicht nur paaren).';
+            context.l10n.btConnectTimeout;
       });
     });
 
@@ -300,7 +300,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
         _closeConnectDialogIfOpen();
         setState(() {
           _isConnecting = false;
-          _error = 'Verbindung fehlgeschlagen';
+          _error = context.l10n.btConnectFailed;
         });
       }
       // If connection succeeds, _onStateChanged will handle navigation
@@ -317,7 +317,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
         _closeConnectDialogIfOpen();
         setState(() {
           _isConnecting = false;
-          _error = 'Verbindungsfehler: $e';
+          _error = context.l10n.btConnectError(e.toString());
         });
       }
     }
@@ -385,13 +385,13 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
             const BluetoothAssetIcon.disabled(size: 96),
             const SizedBox(height: 28),
             Text(
-              'Bluetooth ist deaktiviert',
+              context.l10n.btBluetoothDisabled,
               style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppTheme.textColor),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
-              'Bitte aktivieren Sie Bluetooth, um nach Cube-Geräten zu suchen',
+              context.l10n.btEnableBluetoothPrompt,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18, color: AppTheme.textColor),
             ),
@@ -405,7 +405,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
                 children: [
                   const BluetoothAssetIcon(size: 24),
                   const SizedBox(width: 8),
-                  Text('Bluetooth aktivieren', style: TextStyle(color: Colors.white)),
+                  Text(context.l10n.btTurnOnBluetooth, style: TextStyle(color: Colors.white)),
                 ],
               ),
             ),
@@ -425,7 +425,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
             Icon(Icons.error_outline, size: 96, color: AppTheme.errorColor),
             const SizedBox(height: 28),
             Text(
-              'Fehler',
+              context.l10n.btErrorTitle,
               style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppTheme.textColor),
               textAlign: TextAlign.center,
             ),
@@ -439,7 +439,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
             NeumorphicButton(
               isPrimary: true,
               onPressed: _startScan,
-              child: Text('Erneut versuchen', style: TextStyle(color: Colors.white)),
+              child: Text(context.l10n.retry, style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -455,12 +455,12 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
           const CircularProgressIndicator(),
           const SizedBox(height: 24),
           Text(
-            'Suche nach Cube-Geräten...',
+            context.l10n.btSearchingCubes,
             style: TextStyle(fontSize: 20, color: AppTheme.textColor),
           ),
           const SizedBox(height: 12),
           Text(
-            'Stellen Sie sicher, dass Ihr Cube eingeschaltet ist',
+            context.l10n.btEnsureCubeOn,
             style: TextStyle(fontSize: 16, color: AppTheme.textColorSecondary),
             textAlign: TextAlign.center,
           ),
@@ -479,13 +479,13 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
             const BluetoothAssetIcon(size: 96),
             const SizedBox(height: 28),
             Text(
-              'Kein Cube-Gerät gefunden',
+              context.l10n.btNoCubeFound,
               style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppTheme.textColor),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
-              'Stellen Sie sicher, dass Ihr Cube eingeschaltet und in Reichweite ist',
+              context.l10n.btEnsureCubeInRange,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18, color: AppTheme.textColor),
             ),
@@ -499,7 +499,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
                 children: [
                   Icon(Icons.refresh, color: Colors.white),
                   const SizedBox(width: 8),
-                  Text('Erneut suchen', style: TextStyle(color: Colors.white)),
+                  Text(context.l10n.btSearchAgain, style: TextStyle(color: Colors.white)),
                 ],
               ),
             ),
@@ -531,7 +531,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
                     const SizedBox(width: 20),
                     Expanded(
                       child: Text(
-                        device.name.isNotEmpty ? device.name : 'Cube-Gerät',
+                        device.name.isNotEmpty ? device.name : context.l10n.btCubeDevice,
                         style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textColor, fontSize: 18),
                       ),
                     ),
@@ -541,7 +541,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
                         isPrimary: true,
                         onPressed: () => _connectDevice(device),
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                        child: Text('Verbinden', style: TextStyle(color: Colors.white, fontSize: 16)),
+                        child: Text(context.l10n.btConnect, style: TextStyle(color: Colors.white, fontSize: 16)),
                       ),
                     ),
                   ],

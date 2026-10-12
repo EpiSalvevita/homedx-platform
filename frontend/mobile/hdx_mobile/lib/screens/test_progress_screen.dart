@@ -7,6 +7,7 @@ import '../features/cube/cube_service.dart';
 import '../core/constants.dart';
 import '../utils/cube_test_config_assets.dart';
 import '../widgets/neumorphic.dart';
+import '../l10n/l10n_ext.dart';
 
 /// Full-screen step-by-step measurement progress.
 ///
@@ -53,7 +54,7 @@ class TestProgressScreen extends StatefulWidget {
 class _TestProgressScreenState extends State<TestProgressScreen>
     with SingleTickerProviderStateMixin {
   CubeMeasureStep _currentStep = CubeMeasureStep.starting;
-  String _currentLabel = 'Messung wird vorbereitet...';
+  String? _currentLabel;
   int? _secondsLeft;
   String? _errorMessage;
 
@@ -84,18 +85,18 @@ class _TestProgressScreenState extends State<TestProgressScreen>
     final leave = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Test abbrechen?'),
-        content: const Text(
-          'Möchten Sie die Messung verlassen und zur Startseite zurückkehren?',
+        title: Text(context.l10n.btCancelTestTitle),
+        content: Text(
+          context.l10n.testLeaveConfirm,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Weiter'),
+            child: Text(context.l10n.btContinue),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Zur Startseite'),
+            child: Text(context.l10n.btGoToHome),
           ),
         ],
       ),
@@ -163,7 +164,7 @@ class _TestProgressScreenState extends State<TestProgressScreen>
       );
     } else {
       setState(() {
-        _errorMessage = result.error ?? 'Unbekannter Fehler';
+        _errorMessage = result.error ?? context.l10n.testUnknownError;
       });
     }
   }
@@ -204,7 +205,7 @@ class _TestProgressScreenState extends State<TestProgressScreen>
           ),
           const SizedBox(height: 32),
           Text(
-            'Messung fehlgeschlagen',
+            context.l10n.testMeasurementFailed,
             style: theme.textTheme.displaySmall?.copyWith(
               fontWeight: FontWeight.bold,
               color: AppTheme.textColor,
@@ -227,24 +228,24 @@ class _TestProgressScreenState extends State<TestProgressScreen>
               setState(() {
                 _errorMessage = null;
                 _currentStep = CubeMeasureStep.starting;
-                _currentLabel = 'Messung wird vorbereitet...';
+                _currentLabel = null;
                 _secondsLeft = null;
               });
               _startMeasurement();
             },
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.refresh, color: Colors.white),
                 SizedBox(width: 12),
-                Text('Erneut versuchen'),
+                Text(context.l10n.retry),
               ],
             ),
           ),
           const SizedBox(height: 16),
           NeumorphicButton(
             onPressed: () => context.go('/home'),
-            child: const Text('Zurück zum Start'),
+            child: Text(context.l10n.testBackToStart),
           ),
         ],
       ),
@@ -314,9 +315,9 @@ class _TestProgressScreenState extends State<TestProgressScreen>
   /// once via [_buildTimerDisplay], so the heading stays a static title.
   String get _activeHeading {
     if (_currentStep == CubeMeasureStep.timerRunning) {
-      return 'Inkubationszeit';
+      return context.l10n.testIncubationTime;
     }
-    return _currentLabel;
+    return _currentLabel ?? context.l10n.testPreparing;
   }
 
   Widget _buildTimerDisplay(ThemeData theme) {
@@ -338,7 +339,7 @@ class _TestProgressScreenState extends State<TestProgressScreen>
         ),
         const SizedBox(height: 8),
         Text(
-          'verbleibend',
+          context.l10n.testRemaining,
           style: theme.textTheme.bodyLarge?.copyWith(
             color: AppTheme.textColorSecondary,
           ),
@@ -457,13 +458,13 @@ class _TestProgressScreenState extends State<TestProgressScreen>
     }
   }
 
-  List<_StepInfo> get _allSteps => const [
-        _StepInfo(step: CubeMeasureStep.placeWhite, label: 'Weiße Kassette einlegen'),
-        _StepInfo(step: CubeMeasureStep.placeTest, label: 'Testkassette einlegen'),
-        _StepInfo(step: CubeMeasureStep.timerRunning, label: 'Inkubationszeit'),
-        _StepInfo(step: CubeMeasureStep.evaluating, label: 'Messung auswerten'),
-        _StepInfo(step: CubeMeasureStep.readingResults, label: 'Ergebnisse laden'),
-        _StepInfo(step: CubeMeasureStep.submitting, label: 'Ergebnisse übermitteln'),
+  List<_StepInfo> get _allSteps => [
+        _StepInfo(step: CubeMeasureStep.placeWhite, label: context.l10n.testInsertWhiteCassette),
+        _StepInfo(step: CubeMeasureStep.placeTest, label: context.l10n.testInsertTestCassette),
+        _StepInfo(step: CubeMeasureStep.timerRunning, label: context.l10n.testIncubationTime),
+        _StepInfo(step: CubeMeasureStep.evaluating, label: context.l10n.testEvaluating),
+        _StepInfo(step: CubeMeasureStep.readingResults, label: context.l10n.testLoadingResults),
+        _StepInfo(step: CubeMeasureStep.submitting, label: context.l10n.testSubmittingResults),
       ];
 }
 

@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
+import '../l10n/l10n_ext.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
@@ -10,18 +12,18 @@ import '../widgets/figma_ui.dart';
 import '../widgets/status_pill.dart';
 import '../widgets/web/adaptive_screen.dart';
 
-String certificateStatusLabel(String status) {
+String certificateStatusLabel(AppLocalizations l10n, String status) {
   switch (status.toUpperCase()) {
     case 'ISSUED':
-      return 'Ausgestellt';
+      return l10n.certStatusIssued;
     case 'DRAFT':
-      return 'Entwurf';
+      return l10n.certStatusDraft;
     case 'EXPIRED':
-      return 'Abgelaufen';
+      return l10n.certStatusExpired;
     case 'REVOKED':
-      return 'Widerrufen';
+      return l10n.certStatusRevoked;
     default:
-      return status.isEmpty ? 'Unbekannt' : status;
+      return status.isEmpty ? l10n.statusUnknown : status;
   }
 }
 
@@ -40,18 +42,18 @@ String certificateStatusLabel(String status) {
   }
 }
 
-String certificateTypeLabel(String type) {
+String certificateTypeLabel(AppLocalizations l10n, String type) {
   switch (type.toUpperCase()) {
     case 'TEST_RESULT':
-      return 'Testergebnis';
+      return l10n.certTypeTestResult;
     case 'VACCINATION':
-      return 'Impfung';
+      return l10n.certTypeVaccination;
     case 'RECOVERY':
-      return 'Genesung';
+      return l10n.certTypeRecovery;
     case 'MEDICAL_CLEARANCE':
-      return 'Ärztliche Freigabe';
+      return l10n.certTypeMedicalClearance;
     default:
-      return type.isEmpty ? 'Zertifikat' : type;
+      return type.isEmpty ? l10n.certDetailTitle : type;
   }
 }
 
@@ -99,7 +101,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScreen(
-      title: 'Zertifikate',
+      title: context.l10n.certTitle,
       showWebHeader: false,
       showBackOnMobile: false,
       onBack: () => context.go('/home'),
@@ -115,7 +117,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
             Text(
-              'Tippen Sie auf ein Zertifikat für Details.',
+              context.l10n.certTapHint,
               style: FigmaUi.bodyLight(fontSize: 14, color: AppTheme.textColorSecondary),
             ),
             const SizedBox(height: 16),
@@ -131,14 +133,14 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                   decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
                   child: const Icon(Icons.error_outline, color: AppTheme.errorColor),
                 ),
-                title: 'Zertifikate konnten nicht geladen werden',
+                title: context.l10n.certLoadError,
                 subtitle: _error!,
               )
             else if (_items.isEmpty)
-              const FigmaEmptyState(
+              FigmaEmptyState(
                 icon: Icons.verified_outlined,
-                title: 'Noch keine Zertifikate',
-                message: 'Zertifikate erscheinen hier nach einem abgeschlossenen Test.',
+                title: context.l10n.certEmpty,
+                message: context.l10n.certEmptyMessage,
               )
             else
               ..._items.map((c) => Padding(
@@ -166,7 +168,7 @@ class _CertificateCard extends StatelessWidget {
     final (badgeBg, badgeFg) = certificateStatusColors(certificate.status);
     final hasTestInfo = certificate.testTypeId != null || certificate.testResult != null;
     final testInfo = hasTestInfo
-        ? '${certificate.testTypeId ?? 'Test'} · ${certificate.testResult ?? certificate.status}'
+        ? '${certificate.testTypeId ?? context.l10n.certTest} · ${certificate.testResult ?? certificate.status}'
         : null;
 
     return NeumorphicRaisedCard(
@@ -198,7 +200,7 @@ class _CertificateCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  testInfo ?? certificateTypeLabel(certificate.type),
+                  testInfo ?? certificateTypeLabel(context.l10n, certificate.type),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: FigmaUi.rubik(fontSize: 12, fontWeight: FontWeight.w300, color: AppTheme.primaryBlue),
@@ -208,7 +210,7 @@ class _CertificateCard extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           StatusPill(
-            label: certificateStatusLabel(certificate.status),
+            label: certificateStatusLabel(context.l10n, certificate.status),
             background: badgeBg,
             foreground: badgeFg,
           ),
