@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../l10n/l10n_ext.dart';
 import '../config/app_theme.dart';
 import '../utils/app_assets.dart';
 import 'figma_ui.dart';
@@ -84,14 +85,14 @@ class AuthBrandPanel extends StatelessWidget {
                 if (isDoctor) ...[
                   Text(
                     isResetPassword
-                        ? 'Neues Passwort'
+                        ? context.l10n.authNewPassword
                         : isForgotPassword
-                            ? 'Passwort zurücksetzen'
+                            ? context.l10n.authResetPasswordTitle
                             : isConfirmation
-                                ? 'Praxis angelegt'
+                                ? context.l10n.authBrandConfirmationTitle
                                 : isSignup
-                                    ? 'Praxis registrieren'
-                                    : 'Portal für Ärzte',
+                                    ? context.l10n.authBrandSignupTitle
+                                    : context.l10n.authBrandDoctorPortalTitle,
                     style: FigmaUi.rubik(
                       fontSize: 32,
                       fontWeight: FontWeight.w600,
@@ -102,14 +103,14 @@ class AuthBrandPanel extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(
                     isResetPassword
-                        ? 'Wählen Sie ein neues Passwort für Ihr Arztkonto.'
+                        ? context.l10n.authBrandResetDoctorSubtitle
                         : isForgotPassword
-                            ? 'Geben Sie die E-Mail Ihres Arztkontos ein — wir senden Ihnen einen Link.'
+                            ? context.l10n.authBrandForgotDoctorSubtitle
                             : isConfirmation
-                                ? 'Bestätigen Sie Ihre E-Mail-Adresse, um Ihr Arztkonto zu aktivieren.'
+                                ? context.l10n.authBrandConfirmationDoctorSubtitle
                                 : isSignup
-                                    ? 'Termine verwalten und Video-Konsultationen mit Patienten durchführen.'
-                                    : 'Verwalten Sie Termine, Verfügbarkeit und Video-Konsultationen im Browser.',
+                                    ? context.l10n.authBrandSignupDoctorSubtitle
+                                    : context.l10n.authBrandDoctorLoginSubtitle,
                     style: FigmaUi.rubik(
                       fontSize: 18,
                       fontWeight: FontWeight.w400,
@@ -120,14 +121,14 @@ class AuthBrandPanel extends StatelessWidget {
                 ] else
                   Text(
                     isResetPassword
-                        ? 'Wählen Sie ein neues Passwort und melden Sie sich danach wieder an.'
+                        ? context.l10n.authBrandResetSubtitle
                         : isForgotPassword
-                            ? 'Wir senden Ihnen einen Link per E-Mail, mit dem Sie Ihr Passwort zurücksetzen können.'
+                            ? context.l10n.authBrandForgotSubtitle
                             : isConfirmation
-                                ? 'Fast geschafft — bestätigen Sie Ihre E-Mail und schon können Sie loslegen.'
+                                ? context.l10n.authBrandConfirmationSubtitle
                                 : isSignup
-                                    ? 'Testen Sie zu Hause, buchen Sie einen Arzt und erhalten Sie Ihre Ergebnisse online.'
-                                    : 'Schnelltests, Arzttermine und Ergebnisse — alles an einem Ort.',
+                                    ? context.l10n.authBrandSignupSubtitle
+                                    : context.l10n.authBrandLoginSubtitle,
                     style: FigmaUi.rubik(
                       fontSize: 24,
                       fontWeight: FontWeight.w500,

@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import '../utils/test_type_labels.dart';
 
 class UserTestResult {
@@ -44,7 +45,7 @@ class UserTestResult {
     );
   }
 
-  String get displayTestName => testTypeDisplayName(testTypeId);
+  String displayTestName(AppLocalizations l10n) => testTypeDisplayName(testTypeId, l10n);
 
   String get resultLabel {
     final canonical = _canonicalResult();

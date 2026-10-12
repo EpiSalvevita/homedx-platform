@@ -1,16 +1,20 @@
-/// Maps API registration errors to German UI messages.
-String localizeRegistrationError(String error) {
+import 'package:flutter/widgets.dart';
+
+import '../l10n/app_localizations.dart';
+
+/// Maps API registration errors to localized UI messages.
+/// Without [l10n] the German texts are used (legacy callers outside widgets).
+String localizeRegistrationError(String error, {AppLocalizations? l10n}) {
+  final loc = l10n ?? lookupAppLocalizations(const Locale('de'));
   final trimmed = error.trim();
-  const englishToGerman = {
-    'User already exists':
-        'Diese E-Mail-Adresse ist bereits registriert. Bitte melden Sie sich an oder verwenden Sie eine andere E-Mail.',
-    'Email already exists':
-        'Diese E-Mail-Adresse ist bereits registriert. Bitte melden Sie sich an oder verwenden Sie eine andere E-Mail.',
-    'Registration failed': 'Registrierung fehlgeschlagen',
-    'Invalid request': 'Ungültige Anfrage. Bitte prüfen Sie Ihre Eingaben.',
+  final englishToLocalized = {
+    'User already exists': loc.authErrorEmailAlreadyRegistered,
+    'Email already exists': loc.authErrorEmailAlreadyRegistered,
+    'Registration failed': loc.authErrorRegistrationFailed,
+    'Invalid request': loc.authErrorInvalidRequest,
   };
 
-  return englishToGerman[trimmed] ?? trimmed;
+  return englishToLocalized[trimmed] ?? trimmed;
 }
 
 bool isEmailAlreadyRegisteredError(String? error) {

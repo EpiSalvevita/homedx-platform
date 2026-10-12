@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../l10n/l10n_ext.dart';
 import '../config/app_theme.dart';
 import '../services/auth_service.dart';
 import '../utils/app_assets.dart';
@@ -57,7 +58,7 @@ class _RegistrationConfirmationScreenState
 
   Widget _buildContent(BuildContext context, {required bool isWideWeb}) {
     final showWebLogo = kIsWeb && !isWideWeb;
-    final displayEmail = widget.email.trim().isEmpty ? 'Ihre E-Mail-Adresse' : widget.email.trim();
+    final displayEmail = widget.email.trim().isEmpty ? context.l10n.authYourEmailAddress : widget.email.trim();
     final canResend = widget.email.trim().isNotEmpty;
 
     return Column(
@@ -100,7 +101,7 @@ class _RegistrationConfirmationScreenState
               ),
               const SizedBox(height: 24),
               Text(
-                'Registrierung erfolgreich',
+                context.l10n.authRegistrationSuccessTitle,
                 textAlign: TextAlign.center,
                 style: FigmaUi.rubik(
                   fontSize: 26,
@@ -111,8 +112,8 @@ class _RegistrationConfirmationScreenState
               const SizedBox(height: 12),
               Text(
                 widget.isDoctor
-                    ? 'Ihr Arztkonto wurde angelegt. Bitte bestätigen Sie Ihre E-Mail-Adresse, um fortzufahren.'
-                    : 'Ihr Konto wurde angelegt. Bitte bestätigen Sie Ihre E-Mail-Adresse, um fortzufahren.',
+                    ? context.l10n.authConfirmationDoctorBody
+                    : context.l10n.authConfirmationBody,
                 textAlign: TextAlign.center,
                 style: FigmaUi.bodyLight(fontSize: 18, color: AppTheme.textColorSecondary),
               ),
@@ -129,7 +130,7 @@ class _RegistrationConfirmationScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Nächster Schritt',
+                      context.l10n.authNextStep,
                       style: FigmaUi.rubik(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
@@ -138,7 +139,7 @@ class _RegistrationConfirmationScreenState
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Prüfen Sie Ihr Postfach unter dieser Adresse und aktivieren Sie Ihr Konto über den Bestätigungslink:',
+                      context.l10n.authCheckInboxIntro,
                       style: FigmaUi.bodyLight(fontSize: 17),
                     ),
                     const SizedBox(height: 12),
@@ -152,7 +153,7 @@ class _RegistrationConfirmationScreenState
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Öffnen Sie den Link in der E-Mail, um Ihr Konto zu aktivieren. Prüfen Sie auch Ihren Spam-Ordner.',
+                      context.l10n.authOpenLinkHint,
                       style: FigmaUi.bodyLight(fontSize: 17),
                     ),
                   ],
@@ -171,7 +172,7 @@ class _RegistrationConfirmationScreenState
               ],
               const SizedBox(height: 28),
               NeumorphicPillButton(
-                label: 'Zur Anmeldung',
+                label: context.l10n.authGoToSignIn,
                 leadingIcon: Icons.login,
                 onPressed: () => context.go(_loginRoute),
               ),
@@ -182,7 +183,7 @@ class _RegistrationConfirmationScreenState
                     onPressed: _isResending ? null : _resendVerification,
                     style: authLinkButtonStyle(),
                     child: Text(
-                      _isResending ? 'E-Mail wird gesendet…' : 'E-Mail erneut senden',
+                      _isResending ? context.l10n.authSendingEmail : context.l10n.authResendEmail,
                       style: FigmaUi.rubik(
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
@@ -198,7 +199,7 @@ class _RegistrationConfirmationScreenState
                   onPressed: () => context.go('/'),
                   style: authLinkButtonStyle(),
                   child: Text(
-                    'Zur Startseite',
+                    context.l10n.authGoToHomepage,
                     style: FigmaUi.rubik(
                       fontSize: 17,
                       fontWeight: FontWeight.w500,

@@ -4,6 +4,7 @@ import '../../models/doctor.dart';
 import '../appointment_status_badge.dart';
 import '../doctor_appointment_card.dart';
 import '../figma_ui.dart';
+import '../../l10n/l10n_ext.dart';
 
 enum CalendarMode { week, month }
 
@@ -126,7 +127,7 @@ class _DoctorAppointmentCalendarState extends State<DoctorAppointmentCalendar> {
         final modeToggle = SizedBox(
           width: 180,
           child: FigmaSegmentedTabs(
-            labels: const ['Woche', 'Monat'],
+            labels: [context.l10n.docWeekView, context.l10n.docMonthView],
             selectedIndex: _mode.index,
             selectedColor: AppTheme.accentBlue,
             onSelected: (i) => setState(() => _mode = CalendarMode.values[i]),
@@ -207,7 +208,7 @@ class _HeuteButton extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Center(
               child: Text(
-                'Heute',
+                context.l10n.docToday,
                 maxLines: 1,
                 softWrap: false,
                 style: FigmaUi.rubik(
@@ -498,7 +499,7 @@ class _EventBlock extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '$timeStr ${appointment.patientName ?? 'Patient'}',
+                  '$timeStr ${appointment.patientName ?? context.l10n.apptPatient}',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: FigmaUi.rubik(fontSize: 11, fontWeight: FontWeight.w500, color: foreground),
@@ -663,7 +664,7 @@ class _MonthCell extends StatelessWidget {
                 }),
                 if (overflow > 0)
                   Text(
-                    '+$overflow mehr',
+                    context.l10n.docMoreCount('$overflow'),
                     style: FigmaUi.rubik(fontSize: 9, fontWeight: FontWeight.w400, color: AppTheme.textColorSecondary),
                   ),
               ],
@@ -703,8 +704,8 @@ class _SelectedDayList extends StatelessWidget {
               decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
               child: const Icon(Icons.event_available_outlined, color: AppTheme.primaryBlue),
             ),
-            title: 'Keine Termine an diesem Tag',
-            subtitle: 'Wählen Sie einen anderen Tag im Kalender.',
+            title: context.l10n.docNoAppointmentsOnDay,
+            subtitle: context.l10n.docPickAnotherDay,
           )
         else
           ...appointments.map((a) => Padding(

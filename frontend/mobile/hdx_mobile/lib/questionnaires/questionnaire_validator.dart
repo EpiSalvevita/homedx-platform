@@ -1,7 +1,9 @@
+import '../l10n/app_localizations.dart';
 import '../models/questionnaire/questionnaire_models.dart';
 import 'questionnaire_branching.dart';
 
 List<String> validateQuestionnaireStep(
+  AppLocalizations l10n,
   QuestionnaireModule module,
   List<QuestionnaireField> fields,
   Map<String, dynamic> answers,
@@ -12,17 +14,18 @@ List<String> validateQuestionnaireStep(
     if (!field.required) continue;
     final value = answers[field.id];
     if (value == null || value == '') {
-      errors.add('Bitte beantworten Sie: ${field.label}');
+      errors.add(l10n.questAnswerRequired(field.label));
       continue;
     }
     if (field.type == 'multi_choice' && value is List && value.isEmpty) {
-      errors.add('Bitte beantworten Sie: ${field.label}');
+      errors.add(l10n.questAnswerRequired(field.label));
     }
   }
   return errors;
 }
 
 List<String> validateQuestionnaireSubmit(
+  AppLocalizations l10n,
   QuestionnaireModule module,
   Map<String, dynamic> answers,
 ) {
@@ -32,15 +35,15 @@ List<String> validateQuestionnaireSubmit(
     if (!field.required) continue;
     final value = answers[field.id];
     if (value == null || value == '') {
-      errors.add('Bitte beantworten Sie: ${field.label}');
+      errors.add(l10n.questAnswerRequired(field.label));
       continue;
     }
     if (field.type == 'multi_choice' && value is List && value.isEmpty) {
-      errors.add('Bitte beantworten Sie: ${field.label}');
+      errors.add(l10n.questAnswerRequired(field.label));
     }
   }
   if (module.moduleId == 'A' && answers['A_consent_info_read'] != 'ja') {
-    errors.add('Bitte bestätigen Sie den Hinweis zur Einwilligung.');
+    errors.add(l10n.questConsentRequired);
   }
   return errors;
 }

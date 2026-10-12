@@ -9,6 +9,7 @@ import '../services/test_service.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/web/adaptive_screen.dart';
 import '../widgets/test_result_badge.dart';
+import '../l10n/l10n_ext.dart';
 
 class TestResultsScreen extends StatefulWidget {
   const TestResultsScreen({super.key});
@@ -64,7 +65,7 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScreen(
-      title: 'Testergebnisse',
+      title: context.l10n.testResultsTitle,
       showWebHeader: false,
       showBackOnMobile: false,
       onBack: () => context.go('/home'),
@@ -87,7 +88,7 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Tippen Sie auf einen Eintrag für Details.',
+                      context.l10n.testTapForDetails,
                       style: FigmaUi.bodyLight(
                         fontSize: 17,
                         color: AppTheme.textColorSecondary,
@@ -104,18 +105,18 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
                     else if (_error != null)
                       FigmaEmptyState(
                         icon: Icons.error_outline,
-                        title: 'Ergebnisse konnten nicht geladen werden',
-                        message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
-                        actionLabel: 'Erneut versuchen',
+                        title: context.l10n.testResultsLoadError,
+                        message: context.l10n.checkConnectionRetry,
+                        actionLabel: context.l10n.retry,
                         onAction: _loadResults,
                       )
                     else if (_results.isEmpty)
                       FigmaEmptyState(
                         icon: Icons.assignment_outlined,
-                        title: 'Noch keine Testergebnisse',
+                        title: context.l10n.testNoResultsYet,
                         message: kIsWeb
-                            ? 'Ergebnisse erscheinen hier nach einem Test in der Android-App.'
-                            : 'Starten Sie einen Test, um Ergebnisse zu sehen.',
+                            ? context.l10n.testResultsWebHint
+                            : context.l10n.testStartToSeeResults,
                       )
                     else
                       ..._results.map(
@@ -182,7 +183,7 @@ class _ResultCard extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
-                  item.displayTestName,
+                  item.displayTestName(context.l10n),
                   style: FigmaUi.rubik(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,

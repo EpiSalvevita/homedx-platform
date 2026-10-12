@@ -1,3 +1,5 @@
+import '../config/app_theme.dart';
+import '../l10n/l10n_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -84,15 +86,15 @@ class _SEPAPaymentScreenState extends State<SEPAPaymentScreen> {
 
   void _copyBankDetails() {
     final bankDetails = '''
-IBAN: DE89 3704 0044 0532 0130 00
-BIC: COBADEFFXXX
-Kontoinhaber: HomeDX GmbH
-Verwendungszweck: ${widget.paymentId}
-Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
+${context.l10n.ibanLabel} DE89 3704 0044 0532 0130 00
+${context.l10n.bicLabel} COBADEFFXXX
+${context.l10n.accountHolderLabel} HomeDX GmbH
+${context.l10n.referenceLabel} ${widget.paymentId}
+${context.l10n.amountLabel} ${widget.amount.toStringAsFixed(2)} ${widget.currency}
 ''';
     Clipboard.setData(ClipboardData(text: bankDetails));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Bankverbindung in Zwischenablage kopiert')),
+      SnackBar(content: Text(context.l10n.copiedToClipboard)),
     );
   }
 
@@ -105,19 +107,18 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('SEPA-Überweisung bestätigen'),
-        content: const Text(
-          'Bitte überweisen Sie den Betrag innerhalb von 3-5 Werktagen auf das angegebene Konto. '
-          'Verwenden Sie die Zahlungs-ID als Verwendungszweck.',
+        title: Text(context.l10n.sepaConfirmTitle),
+        content: Text(
+          context.l10n.sepaConfirmBody,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Abbrechen'),
+            child: Text(context.l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Bestätigen'),
+            child: Text(context.l10n.confirm),
           ),
         ],
       ),
@@ -132,7 +133,7 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SEPA-Überweisung'),
+        title: Text(context.l10n.sepaTitle),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -149,8 +150,8 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Zu zahlender Betrag:',
+                      Text(
+                        context.l10n.amountDue,
                         style: TextStyle(fontSize: 16),
                       ),
                       Text(
@@ -167,8 +168,8 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
               const SizedBox(height: 24),
 
               // Bank Details Section
-              const Text(
-                'Bankverbindung',
+              Text(
+                context.l10n.bankDetails,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -184,13 +185,13 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'IBAN:',
+                          Text(
+                            context.l10n.ibanLabel,
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           TextButton.icon(
                             icon: const Icon(Icons.copy, size: 16),
-                            label: const Text('Kopieren'),
+                            label: Text(context.l10n.copy),
                             onPressed: _copyBankDetails,
                           ),
                         ],
@@ -200,8 +201,8 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
                         style: TextStyle(fontSize: 16, fontFamily: 'monospace'),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'BIC:',
+                      Text(
+                        context.l10n.bicLabel,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const Text(
@@ -209,8 +210,8 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
                         style: TextStyle(fontSize: 16, fontFamily: 'monospace'),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Kontoinhaber:',
+                      Text(
+                        context.l10n.accountHolderLabel,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const Text(
@@ -218,8 +219,8 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
                         style: TextStyle(fontSize: 16),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Verwendungszweck:',
+                      Text(
+                        context.l10n.referenceLabel,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
@@ -233,25 +234,25 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
               const SizedBox(height: 24),
 
               // Your Bank Details (Optional)
-              const Text(
-                'Ihre Bankverbindung (optional)',
+              Text(
+                context.l10n.bankDetailsOptional,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Diese Angaben sind optional und werden nur für Ihre Referenz gespeichert.',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+              Text(
+                context.l10n.bankDetailsOptionalNote,
+                style: TextStyle(fontSize: 12, color: AppTheme.textColorSecondary),
               ),
               const SizedBox(height: 16),
 
               // IBAN
               TextFormField(
                 controller: _ibanController,
-                decoration: const InputDecoration(
-                  labelText: 'IBAN (optional)',
+                decoration: InputDecoration(
+                  labelText: context.l10n.ibanOptional,
                   hintText: 'DE89 3704 0044 0532 0130 00',
                   prefixIcon: Icon(Icons.account_balance),
                   border: OutlineInputBorder(),
@@ -269,7 +270,7 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
                 ],
                 validator: (value) {
                   if (value != null && value.isNotEmpty && !_validateIBAN(value)) {
-                    return 'Ungültige IBAN';
+                    return context.l10n.invalidIban;
                   }
                   return null;
                 },
@@ -279,8 +280,8 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
               // BIC
               TextFormField(
                 controller: _bicController,
-                decoration: const InputDecoration(
-                  labelText: 'BIC (optional)',
+                decoration: InputDecoration(
+                  labelText: context.l10n.bicOptional,
                   hintText: 'COBADEFFXXX',
                   prefixIcon: Icon(Icons.business),
                   border: OutlineInputBorder(),
@@ -291,7 +292,7 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
                 ],
                 validator: (value) {
                   if (value != null && value.isNotEmpty && !_validateBIC(value)) {
-                    return 'Ungültiger BIC';
+                    return context.l10n.invalidBic;
                   }
                   return null;
                 },
@@ -301,8 +302,8 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
               // Account Holder
               TextFormField(
                 controller: _accountHolderController,
-                decoration: const InputDecoration(
-                  labelText: 'Kontoinhaber (optional)',
+                decoration: InputDecoration(
+                  labelText: context.l10n.accountHolderOptional,
                   hintText: 'Max Mustermann',
                   prefixIcon: Icon(Icons.person),
                   border: OutlineInputBorder(),
@@ -315,22 +316,21 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue[50],
+                  color: AppTheme.primaryLight,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.blue[200]!),
+                  border: Border.all(color: AppTheme.accentBlue),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.info_outline, color: Colors.blue[700]),
+                    Icon(Icons.info_outline, color: AppTheme.primaryBlue),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Bitte überweisen Sie den Betrag innerhalb von 3-5 Werktagen. '
-                        'Verwenden Sie die Zahlungs-ID als Verwendungszweck, damit wir Ihre Zahlung zuordnen können.',
+                        context.l10n.sepaNotice,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.blue[900],
+                          color: AppTheme.navy,
                         ),
                       ),
                     ),
@@ -344,10 +344,10 @@ Betrag: ${widget.amount.toStringAsFixed(2)} ${widget.currency}
                 onPressed: _confirmPayment,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.blue,
+                  backgroundColor: AppTheme.primaryBlue,
                 ),
-                child: const Text(
-                  'Überweisung bestätigen',
+                child: Text(
+                  context.l10n.confirmTransfer,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

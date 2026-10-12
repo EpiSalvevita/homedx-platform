@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../l10n/l10n_ext.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
@@ -140,7 +141,7 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
 
   Future<void> _submit() async {
     if (_module == null) return;
-    final errors = validateQuestionnaireSubmit(_module!, _answers);
+    final errors = validateQuestionnaireSubmit(context.l10n, _module!, _answers);
     if (errors.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errors.first), backgroundColor: AppTheme.errorColor),
@@ -180,7 +181,7 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
 
   void _nextStep() {
     if (_module == null || _steps.isEmpty) return;
-    final errors = validateQuestionnaireStep(_module!, _steps[_stepIndex].fields, _answers);
+    final errors = validateQuestionnaireStep(context.l10n, _module!, _steps[_stepIndex].fields, _answers);
     if (errors.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errors.first), backgroundColor: AppTheme.errorColor),
@@ -216,7 +217,7 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Fragebogenlänge',
+          context.l10n.questLengthLabel,
           style: FigmaUi.rubik(
             fontSize: compact ? 15 : 17,
             fontWeight: FontWeight.w600,
@@ -225,7 +226,7 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
         ),
         const SizedBox(height: 8),
         FigmaSegmentedTabs(
-          labels: const ['Kurzversion', 'Vollversion'],
+          labels: [context.l10n.questShortVersion, context.l10n.questFullVersion],
           selectedIndex: selected,
           onSelected: (i) => _setFormDepth(
             i == 1 ? kQuestionnaireFormDepthVoll : kQuestionnaireFormDepthKurz,
@@ -234,8 +235,8 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
         const SizedBox(height: 8),
         Text(
           depth == kQuestionnaireFormDepthVoll
-              ? 'Vollversion: alle Fragen aus dem PDF-Fachpaket (länger).'
-              : 'Kurzversion: Kernfragen für Pilot und App (kürzer).',
+              ? context.l10n.questFullVersionHint
+              : context.l10n.questShortVersionHint,
           style: FigmaUi.bodyLight(
             fontSize: 15,
             color: AppTheme.textColorSecondary,
@@ -253,14 +254,14 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
           FigmaInsetInfoCard(
             icon: Icons.info_outline,
             title:
-                'Dieser Fragebogen ersetzt keine ärztliche Diagnose. Bei akuten oder starken Beschwerden wenden Sie sich bitte an eine Ärztin oder einen Arzt.',
+                context.l10n.questIntroPatientNotice,
           ),
           const SizedBox(height: 16),
           CheckboxListTile(
             value: _dataConsent,
             onChanged: (v) => setState(() => _dataConsent = v ?? false),
             title: Text(
-              'Ich willige ein, dass meine Antworten zur Auswertung des RheumaCheck-Projekts gespeichert werden.',
+              context.l10n.questConsentCheckbox,
               style: FigmaUi.rubik(fontSize: 17, color: AppTheme.textColor),
             ),
             controlAffinity: ListTileControlAffinity.leading,
@@ -270,13 +271,13 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
           FigmaInsetInfoCard(
             icon: Icons.medical_information_outlined,
             title:
-                'Dieser Fragebogen dient der Forschung und Pilotierung von RheumaCheck. Es werden keine Diagnosen abgegeben.',
+                context.l10n.questIntroResearchNotice,
           ),
         const SizedBox(height: 24),
         _buildDepthSwitch(compact: false),
         const SizedBox(height: 28),
         NeumorphicPillButton(
-          label: 'Fragebogen starten',
+          label: context.l10n.questStart,
           height: AppTheme.buttonHeightLarge,
           backgroundColor: AppTheme.primaryBlue,
           foregroundColor: Colors.white,
@@ -297,7 +298,7 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
           children: [
             Expanded(
               child: Text(
-                'Schritt ${step.index} von ${step.total}',
+                context.l10n.questStepProgress('${step.index}', '${step.total}'),
                 style: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColorSecondary),
               ),
             ),
@@ -338,7 +339,7 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
             if (_stepIndex > 0)
               Expanded(
                 child: NeumorphicPillButton(
-                  label: 'Zurück',
+                  label: context.l10n.questBack,
                   height: AppTheme.buttonHeightLarge,
                   backgroundColor: AppTheme.surface,
                   foregroundColor: AppTheme.textColor,
@@ -348,7 +349,7 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
             if (_stepIndex > 0) const SizedBox(width: 12),
             Expanded(
               child: NeumorphicPillButton(
-                label: _stepIndex >= _steps.length - 1 ? 'Absenden' : 'Weiter',
+                label: _stepIndex >= _steps.length - 1 ? context.l10n.questSubmit : context.l10n.questNext,
                 height: AppTheme.buttonHeightLarge,
                 backgroundColor: AppTheme.primaryBlue,
                 foregroundColor: Colors.white,
@@ -367,7 +368,7 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
     final hubRoute = widget.isDoctor ? '/doctor/questionnaires' : '/questionnaires';
 
     return AdaptiveScreen(
-      title: _module?.title ?? 'Fragebogen ${widget.moduleId}',
+      title: _module?.title ?? context.l10n.questFallbackTitle(widget.moduleId),
       showWebHeader: false,
       onBack: () => context.go(hubRoute),
       body: _isLoading
@@ -375,9 +376,9 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
           : _error != null
               ? FigmaEmptyState(
                   icon: Icons.error_outline,
-                  title: 'Fragebogen konnte nicht geladen werden',
-                  message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
-                  actionLabel: 'Erneut versuchen',
+                  title: context.l10n.questLoadFailed,
+                  message: context.l10n.checkConnectionRetry,
+                  actionLabel: context.l10n.retry,
                   onAction: _load,
                 )
               : SingleChildScrollView(

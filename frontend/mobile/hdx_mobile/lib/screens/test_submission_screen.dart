@@ -6,6 +6,7 @@ import '../config/app_theme.dart';
 import '../core/api_service.dart';
 import '../services/test_service.dart';
 import '../widgets/figma_ui.dart';
+import '../l10n/l10n_ext.dart';
 
 class TestSubmissionScreen extends StatefulWidget {
   final String testTypeId;
@@ -92,7 +93,7 @@ class _TestSubmissionScreenState extends State<TestSubmissionScreen> {
 
   Future<void> _submit() async {
     if (!_agreement) {
-      setState(() => _error = 'Bitte stimmen Sie den Bedingungen zu.');
+      setState(() => _error = context.l10n.testAgreeTermsError);
       return;
     }
     setState(() {
@@ -117,7 +118,7 @@ class _TestSubmissionScreenState extends State<TestSubmissionScreen> {
   Widget build(BuildContext context) {
     return FigmaScreen(
       header: FigmaBackHeader(
-        title: 'Test abschließen',
+        title: context.l10n.testSubmitTitle,
         blueTopBar: true,
         onBack: () => context.go('/home'),
       ),
@@ -135,22 +136,20 @@ class _TestSubmissionScreenState extends State<TestSubmissionScreen> {
           if (widget.cubeResult != null) ...[
             const SizedBox(height: 8),
             Text(
-              'Cube-Ergebnis: ${widget.cubeResult}',
+              context.l10n.testCubeResult(widget.cubeResult!),
               style: FigmaUi.rubik(color: AppTheme.textColorSecondary),
             ),
           ],
           const SizedBox(height: 24),
-          _uploadTile('Testfoto (optional)', _photoName, () => _pickAndUpload('photo')),
-          _uploadTile('Testvideo (optional)', _videoName, () => _pickAndUpload('video')),
-          _uploadTile('Ausweis Vorderseite', _idFrontName, () => _pickAndUpload('idFront')),
-          _uploadTile('Ausweis Rückseite', _idBackName, () => _pickAndUpload('idBack')),
+          _uploadTile(context.l10n.testPhotoOptional, _photoName, () => _pickAndUpload('photo')),
+          _uploadTile(context.l10n.testVideoOptional, _videoName, () => _pickAndUpload('video')),
+          _uploadTile(context.l10n.testIdFront, _idFrontName, () => _pickAndUpload('idFront')),
+          _uploadTile(context.l10n.testIdBack, _idBackName, () => _pickAndUpload('idBack')),
           const SizedBox(height: 16),
           CheckboxListTile(
             value: _agreement,
             onChanged: (v) => setState(() => _agreement = v ?? false),
-            title: const Text(
-              'Ich bestätige die Richtigkeit der Angaben und akzeptiere die Testbedingungen.',
-            ),
+            title: Text(context.l10n.testAgreementText),
             controlAffinity: ListTileControlAffinity.leading,
           ),
           Padding(
@@ -158,8 +157,8 @@ class _TestSubmissionScreenState extends State<TestSubmissionScreen> {
             child: Wrap(
               spacing: 16,
               children: [
-                _legalLink(context, 'Testbedingungen', 'TERMS_CONDITIONS'),
-                _legalLink(context, 'Datenschutz', 'PRIVACY_POLICY'),
+                _legalLink(context, context.l10n.testTermsLink, 'TERMS_CONDITIONS'),
+                _legalLink(context, context.l10n.testPrivacyLink, 'PRIVACY_POLICY'),
               ],
             ),
           ),
@@ -169,7 +168,7 @@ class _TestSubmissionScreenState extends State<TestSubmissionScreen> {
           ],
           const SizedBox(height: 24),
           NeumorphicPillButton(
-            label: _submitting ? 'Wird gesendet…' : 'Test absenden',
+            label: _submitting ? context.l10n.testSending : context.l10n.testSubmitButton,
             height: 52,
             onPressed: _submitting ? null : _submit,
           ),
@@ -196,7 +195,7 @@ class _TestSubmissionScreenState extends State<TestSubmissionScreen> {
         tileColor: AppTheme.baseColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: Text(label),
-        subtitle: uploaded != null ? Text('Hochgeladen: $uploaded') : null,
+        subtitle: uploaded != null ? Text(context.l10n.testUploadedAs(uploaded)) : null,
         trailing: Icon(
           uploaded != null ? Icons.check_circle : Icons.upload_file,
           color: uploaded != null ? AppTheme.successColor : AppTheme.primaryColor,

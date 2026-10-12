@@ -6,6 +6,7 @@ import '../models/test_type.dart';
 import '../services/test_service.dart';
 import '../core/api_service.dart';
 import '../widgets/figma_ui.dart';
+import '../l10n/l10n_ext.dart';
 
 class TestSelectionScreen extends StatefulWidget {
   const TestSelectionScreen({super.key});
@@ -45,7 +46,7 @@ class _TestSelectionScreenState extends State<TestSelectionScreen> {
       if (!mounted) return;
       if (rapidTestId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Test konnte nicht gestartet werden')),
+          SnackBar(content: Text(context.l10n.testStartFailed)),
         );
         return;
       }
@@ -59,19 +60,19 @@ class _TestSelectionScreenState extends State<TestSelectionScreen> {
           context: context,
           builder: (ctx) => AlertDialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-            title: Text('Vorab-Anamnese', style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500)),
+            title: Text(context.l10n.testPreAnamnesisTitle, style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500)),
             content: Text(
-              'Möchten Sie vor dem RheumaCheck-Test den Anamnese-Fragebogen (Bogen A) ausfüllen? Das dauert nur wenige Minuten.',
+              context.l10n.testAnamnesisPrompt,
               style: FigmaUi.bodyLight(fontSize: 14),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, 'skip'),
-                child: const Text('Überspringen'),
+                child: Text(context.l10n.testSkip),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(ctx, 'anamnese'),
-                child: const Text('Anamnese starten'),
+                child: Text(context.l10n.testStartAnamnesis),
               ),
             ],
           ),
@@ -99,7 +100,7 @@ class _TestSelectionScreenState extends State<TestSelectionScreen> {
   Widget build(BuildContext context) {
     return FigmaScreen(
       header: FigmaBackHeader(
-        title: 'Testtyp auswählen',
+        title: context.l10n.testSelectTitle,
         blueTopBar: true,
         onBack: () => context.go('/home'),
       ),
@@ -124,9 +125,9 @@ class _TestSelectionScreenState extends State<TestSelectionScreen> {
           const SizedBox(height: 80),
           Icon(Icons.error_outline, size: 64, color: AppTheme.errorColor),
           const SizedBox(height: 16),
-          Text('Fehler beim Laden der Tests', textAlign: TextAlign.center, style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor)),
+          Text(context.l10n.testLoadError, textAlign: TextAlign.center, style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor)),
           const SizedBox(height: 24),
-          Center(child: NeumorphicPillButton(label: 'Erneut versuchen', height: 52, onPressed: _loadTestTypes)),
+          Center(child: NeumorphicPillButton(label: context.l10n.retry, height: 52, onPressed: _loadTestTypes)),
         ],
       );
     }
@@ -136,7 +137,7 @@ class _TestSelectionScreenState extends State<TestSelectionScreen> {
         padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
         children: [
           const SizedBox(height: 80),
-          Center(child: Text('Keine Tests verfügbar', style: FigmaUi.rubik(fontSize: 16, color: AppTheme.textColor))),
+          Center(child: Text(context.l10n.testNoneAvailable, style: FigmaUi.rubik(fontSize: 16, color: AppTheme.textColor))),
         ],
       );
     }
@@ -152,7 +153,7 @@ class _TestSelectionScreenState extends State<TestSelectionScreen> {
   Widget _buildTestCard(TestType testType) {
     final description = testType.description.isNotEmpty
         ? testType.description
-        : 'Rheumatoid arthritis screening test';
+        : context.l10n.testRheumaDescriptionFallback;
 
     return NeumorphicRaisedCard(
       height: AppTheme.testTypeCardHeight,

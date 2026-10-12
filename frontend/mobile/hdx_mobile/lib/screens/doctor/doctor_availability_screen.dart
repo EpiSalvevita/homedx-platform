@@ -8,6 +8,7 @@ import '../../core/api_service.dart';
 import '../../services/doctor_service.dart';
 import '../../widgets/figma_ui.dart';
 import '../../widgets/web/adaptive_screen.dart';
+import '../../l10n/l10n_ext.dart';
 
 /// A single Von/Bis time range within a day, backed by its own controllers
 /// so multiple ranges can coexist per weekday.
@@ -36,13 +37,13 @@ class DoctorAvailabilityScreen extends StatefulWidget {
 
 class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
   static const _weekdays = [1, 2, 3, 4, 5];
-  static const _dayNames = [
-    'Montag',
-    'Dienstag',
-    'Mittwoch',
-    'Donnerstag',
-    'Freitag',
-  ];
+  List<String> get _dayNames => [
+        context.l10n.docMonday,
+        context.l10n.docTuesday,
+        context.l10n.docWednesday,
+        context.l10n.docThursday,
+        context.l10n.docFriday,
+      ];
 
   final Map<int, bool> _enabled = {for (final day in _weekdays) day: true};
   final Map<int, List<_TimeRange>> _ranges = {
@@ -160,7 +161,7 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Ungültiges Zeitfenster an ${_dayNames[_weekdays.indexOf(day)]}: "$start" – "$end". "Bis" muss nach "Von" liegen.',
+                context.l10n.docInvalidRange(_dayNames[_weekdays.indexOf(day)], start, end),
               ),
               backgroundColor: AppTheme.errorColor,
             ),
@@ -196,7 +197,7 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
       setState(() => _isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(ok ? 'Verfügbarkeit gespeichert' : 'Speichern fehlgeschlagen'),
+          content: Text(ok ? context.l10n.docAvailabilitySaved : context.l10n.docSaveFailed),
           backgroundColor: ok ? AppTheme.successColor : AppTheme.errorColor,
         ),
       );
@@ -206,7 +207,7 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScreen(
-      title: 'Verfügbarkeit',
+      title: context.l10n.docAvailability,
       showWebHeader: false,
       showBackOnMobile: false,
       onBack: () => context.go('/doctor/dashboard'),
@@ -222,7 +223,7 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
                         const Icon(Icons.error_outline, size: 40, color: AppTheme.errorColor),
                         const SizedBox(height: 12),
                         Text(
-                          'Verfügbarkeit konnte nicht geladen werden',
+                          context.l10n.docAvailabilityLoadFailed,
                           textAlign: TextAlign.center,
                           style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.textColor),
                         ),
@@ -233,7 +234,7 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
                           style: FigmaUi.bodyLight(fontSize: 13, color: AppTheme.textColorSecondary),
                         ),
                         const SizedBox(height: 16),
-                        NeumorphicPillButton(label: 'Erneut versuchen', expanded: false, onPressed: _load),
+                        NeumorphicPillButton(label: context.l10n.retry, expanded: false, onPressed: _load),
                       ],
                     ),
                   ),
@@ -247,14 +248,14 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
               ),
               children: [
                 Text(
-                  'Legen Sie fest, wann Patienten Termine bei Ihnen buchen können. Sie können pro Tag mehrere Zeitfenster hinzufügen, z. B. vormittags und nachmittags.',
+                  context.l10n.docAvailabilityIntro,
                   style: FigmaUi.bodyLight(
                     fontSize: 14,
                     color: AppTheme.textColorSecondary,
                   ),
                 ),
                 const SizedBox(height: 16),
-                const FigmaSectionTitle('Wöchentliche Sprechzeiten'),
+                FigmaSectionTitle(context.l10n.docWeeklyHours),
                 const SizedBox(height: 12),
                 if (kIsWeb)
                   LayoutBuilder(
@@ -278,7 +279,7 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
                   ..._weekdays.map(_buildDayCard),
                 const SizedBox(height: 24),
                 NeumorphicPillButton(
-                  label: _isSaving ? 'Speichern…' : 'Änderungen speichern',
+                  label: _isSaving ? context.l10n.docSaving : context.l10n.docSaveChanges,
                   leadingIcon: Icons.save_outlined,
                   loading: _isSaving,
                   backgroundColor: AppTheme.primaryBlue,
@@ -333,7 +334,7 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
                       Expanded(
                         child: NeumorphicInsetField(
                           controller: range.startController,
-                          label: 'Von',
+                          label: context.l10n.docFrom,
                           hint: '09:00',
                           prefixIcon: Icons.schedule_outlined,
                         ),
@@ -342,7 +343,7 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
                       Expanded(
                         child: NeumorphicInsetField(
                           controller: range.endController,
-                          label: 'Bis',
+                          label: context.l10n.docTo,
                           hint: '17:00',
                           prefixIcon: Icons.schedule_outlined,
                         ),
@@ -353,7 +354,7 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
                         color: ranges.length > 1
                             ? AppTheme.errorColor
                             : AppTheme.textColorSecondary.withValues(alpha: 0.35),
-                        tooltip: 'Zeitfenster entfernen',
+                        tooltip: context.l10n.docRemoveSlot,
                         onPressed: ranges.length > 1 ? () => _removeRange(day, range.id) : null,
                       ),
                     ],
@@ -364,7 +365,7 @@ class _DoctorAvailabilityScreenState extends State<DoctorAvailabilityScreen> {
                 child: TextButton.icon(
                   onPressed: () => _addRange(day),
                   icon: const Icon(Icons.add, size: 18),
-                  label: const Text('Zeitfenster hinzufügen'),
+                  label: Text(context.l10n.docAddSlot),
                   style: TextButton.styleFrom(
                     foregroundColor: AppTheme.primaryBlue,
                     padding: EdgeInsets.zero,

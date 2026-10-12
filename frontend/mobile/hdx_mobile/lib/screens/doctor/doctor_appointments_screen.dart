@@ -11,6 +11,7 @@ import '../../widgets/doctor/doctor_appointment_calendar.dart';
 import '../../widgets/doctor_appointment_card.dart';
 import '../../widgets/figma_ui.dart';
 import '../../widgets/web/adaptive_screen.dart';
+import '../../l10n/l10n_ext.dart';
 
 enum _ViewMode { list, calendar }
 
@@ -96,7 +97,7 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScreen(
-      title: 'Alle Termine',
+      title: context.l10n.docAllAppointments,
       showWebHeader: false,
       showBackOnMobile: false,
       onBack: () => context.go('/doctor/dashboard'),
@@ -116,8 +117,8 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
                 Expanded(
                   child: Text(
                     _viewMode == _ViewMode.list
-                        ? 'Tippen Sie auf einen Eintrag für Details.'
-                        : 'Tippen Sie auf einen Termin für Details.',
+                        ? context.l10n.apptTapForDetails
+                        : context.l10n.docTapAppointmentForDetails,
                     style: FigmaUi.bodyLight(
                       fontSize: 14,
                       color: AppTheme.textColorSecondary,
@@ -128,7 +129,7 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
                 SizedBox(
                   width: 176,
                   child: FigmaSegmentedTabs(
-                    labels: const ['Liste', 'Kalender'],
+                    labels: [context.l10n.docListView, context.l10n.docCalendarView],
                     selectedIndex: _viewMode.index,
                     selectedColor: AppTheme.accentBlue,
                     onSelected: (i) => setState(() => _viewMode = _ViewMode.values[i]),
@@ -155,15 +156,15 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
                   ),
                   child: const Icon(Icons.error_outline, color: AppTheme.errorColor),
                 ),
-                title: 'Termine konnten nicht geladen werden',
+                title: context.l10n.apptLoadFailed,
                 subtitle: _error!,
               )
             else if (_appointments.isEmpty)
-              const FigmaEmptyState(
+              FigmaEmptyState(
                 assetPath: AppAssets.doctorRelaxed,
                 icon: Icons.event_outlined,
-                title: 'Noch keine Termine',
-                message: 'Gebuchte Patiententermine erscheinen hier.',
+                title: context.l10n.apptNoAppointments,
+                message: context.l10n.docBookedAppointmentsHere,
               )
             else if (_viewMode == _ViewMode.calendar)
               DoctorAppointmentCalendar(
@@ -172,12 +173,12 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
               )
             else ...[
               if (_upcoming.isNotEmpty) ...[
-                _sectionTitle('Bevorstehend'),
+                _sectionTitle(context.l10n.apptUpcoming),
                 ..._upcoming.map(_appointmentCard),
               ],
               if (_past.isNotEmpty) ...[
                 if (_upcoming.isNotEmpty) const SizedBox(height: 4),
-                _sectionTitle('Vergangen'),
+                _sectionTitle(context.l10n.apptPast),
                 ..._past.map(_appointmentCard),
               ],
             ],

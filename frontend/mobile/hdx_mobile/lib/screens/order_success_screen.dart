@@ -1,27 +1,31 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 import '../config/app_theme.dart';
 import '../widgets/figma_ui.dart';
 
 class OrderSuccessScreen extends StatelessWidget {
   final double amount;
   final String currency;
-  final String title;
-  final String subtitle;
+  final String? title;
+  final String? subtitle;
 
   const OrderSuccessScreen({
     super.key,
     required this.amount,
     required this.currency,
-    this.title = 'Bestellung abgeschlossen',
-    this.subtitle = 'Vielen Dank. Ihre Bestellung wurde erfolgreich erfasst.',
+    this.title,
+    this.subtitle,
   });
 
   @override
   Widget build(BuildContext context) {
+    final headingText = title ?? context.l10n.orderTitle;
+    final subtitleText = subtitle ?? context.l10n.orderSubtitle;
+
     return FigmaScreen(
-      header: const FigmaBackHeader(title: 'Bestellung abgeschlossen', showBack: false),
+      header: FigmaBackHeader(title: headingText, showBack: false),
       bottomBar: FigmaBottomActionBar(
-        buttonLabel: 'Zur Startseite',
+        buttonLabel: context.l10n.orderBackToHome,
         onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
       ),
       body: Padding(
@@ -48,12 +52,12 @@ class OrderSuccessScreen extends StatelessWidget {
                       child: const Icon(Icons.check_circle_outline, size: 52, color: AppTheme.textColor),
                     ),
                     const SizedBox(height: 24),
-                    Text(title, textAlign: TextAlign.center, style: FigmaUi.rubik(fontSize: 24, fontWeight: FontWeight.w500, color: AppTheme.textColor)),
+                    Text(headingText, textAlign: TextAlign.center, style: FigmaUi.rubik(fontSize: 24, fontWeight: FontWeight.w500, color: AppTheme.textColor)),
                     const SizedBox(height: 12),
-                    Text(subtitle, textAlign: TextAlign.center, style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary, height: 1.4)),
+                    Text(subtitleText, textAlign: TextAlign.center, style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w300, color: AppTheme.textColorSecondary, height: 1.4)),
                     const SizedBox(height: 24),
                     Text(
-                      'Gesamt: ${amount.toStringAsFixed(2)} $currency',
+                      context.l10n.orderTotal(amount.toStringAsFixed(2), currency),
                       style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor),
                     ),
                   ],

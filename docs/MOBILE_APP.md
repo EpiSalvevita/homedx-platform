@@ -229,6 +229,25 @@ Scanning is filtered to Cube devices only; no Windows service is used.
 6. App sends result data to backend (`POST submit-cube-data`)
 7. Backend stores/normalizes and returns results to app
 
+## Localization
+
+UI text lives in ARB files and is generated with Flutter gen-l10n
+(`l10n.yaml` → `lib/l10n/`):
+
+- Add a key to **both** `lib/l10n/app_de.arb` (template) and `lib/l10n/app_en.arb`.
+  Placeholders use `{name}` and need a matching `"@key"` entry with
+  `"placeholders"`.
+- Use it in widgets as `context.l10n.key` (extension in `lib/l10n/l10n_ext.dart`).
+  Helpers without a `BuildContext` take an `AppLocalizations l10n` parameter.
+- Run `flutter gen-l10n` (or any `flutter run` / `flutter build`) and commit the
+  regenerated `app_localizations*.dart` files with the ARB changes.
+- Do not translate Cube SDK messages, questionnaire content or legal pages
+  without the regulatory review described in
+  [`regulatory/gap-assessment.md`](regulatory/gap-assessment.md).
+
+Without a delegate above the widget (for example a bare `MaterialApp` in a
+test), `context.l10n` falls back to German.
+
 ## Testing
 
 ```bash

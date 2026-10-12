@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
 import '../services/payment_service.dart';
 import '../widgets/figma_ui.dart';
+import '../l10n/l10n_ext.dart';
 
 class CreditCardPaymentScreen extends StatefulWidget {
   final double amount;
@@ -29,6 +30,7 @@ class _CreditCardPaymentScreenState extends State<CreditCardPaymentScreen> {
   bool _isProcessing = false;
 
   Future<void> _processPayment() async {
+    final l10n = context.l10n;
     setState(() {
       _isProcessing = true;
     });
@@ -56,15 +58,15 @@ class _CreditCardPaymentScreenState extends State<CreditCardPaymentScreen> {
 
       await widget.onPaymentComplete();
     } on stripe.StripeException catch (e) {
-      String errorMessage = 'Zahlung fehlgeschlagen';
+      String errorMessage = l10n.payFailed;
       if (e.error.code == stripe.FailureCode.Canceled) {
-        errorMessage = 'Zahlung wurde abgebrochen';
+        errorMessage = l10n.payCancelled;
       } else if (e.error.message != null) {
         errorMessage = e.error.message!;
       }
       widget.onPaymentFailed(errorMessage);
     } catch (e) {
-      widget.onPaymentFailed('Zahlung fehlgeschlagen');
+      widget.onPaymentFailed(l10n.payFailed);
     } finally {
       if (mounted) {
         setState(() {
@@ -77,9 +79,9 @@ class _CreditCardPaymentScreenState extends State<CreditCardPaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return FigmaScreen(
-      header: const FigmaBackHeader(title: 'Kreditkartenzahlung'),
+      header: FigmaBackHeader(title: context.l10n.cardPaymentTitle),
       bottomBar: FigmaBottomActionBar(
-        buttonLabel: _isProcessing ? 'Wird verarbeitet…' : 'Bezahlen',
+        buttonLabel: _isProcessing ? context.l10n.processing : context.l10n.payButton,
         loading: _isProcessing,
         onPressed: _isProcessing ? null : _processPayment,
       ),
@@ -95,8 +97,8 @@ class _CreditCardPaymentScreenState extends State<CreditCardPaymentScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Zu zahlender Betrag:',
+                    Text(
+                      context.l10n.amountDue,
                       style: TextStyle(fontSize: 16),
                     ),
                     Text(
@@ -114,20 +116,20 @@ class _CreditCardPaymentScreenState extends State<CreditCardPaymentScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.blue[50],
+                color: AppTheme.primaryLight,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blue[200]!),
+                border: Border.all(color: AppTheme.accentBlue),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.lock, color: Colors.blue[700]),
+                  Icon(Icons.lock, color: AppTheme.primaryBlue),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Kartendaten werden sicher über Stripe eingegeben. Ihre App verarbeitet keine Kartennummern direkt.',
+                      context.l10n.cardStripeNotice,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.blue[900],
+                        color: AppTheme.navy,
                       ),
                     ),
                   ),

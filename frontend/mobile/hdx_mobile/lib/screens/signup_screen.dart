@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../l10n/l10n_ext.dart';
 import '../config/app_theme.dart';
 import '../providers/auth_provider.dart';
 import '../utils/app_assets.dart';
@@ -100,7 +101,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(error ?? 'Registrierung fehlgeschlagen'),
+          content: Text(error ?? context.l10n.authErrorRegistrationFailed),
           backgroundColor: AppTheme.errorColor,
         ),
       );
@@ -112,7 +113,7 @@ class _SignupScreenState extends State<SignupScreen> {
     required VoidCallback onPressed,
   }) {
     return IconButton(
-      tooltip: obscure ? 'Passwort anzeigen' : 'Passwort verbergen',
+      tooltip: obscure ? context.l10n.authShowPassword : context.l10n.authHidePassword,
       style: IconButton.styleFrom(
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         minimumSize: const Size(48, 48),
@@ -131,55 +132,55 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Widget _firstNameField() => NeumorphicInsetField(
         controller: _firstNameController,
-        label: 'Vorname',
+        label: context.l10n.authFirstNameLabel,
         prefixIcon: Icons.person_outline,
-        validator: (v) => (v == null || v.isEmpty) ? 'Bitte Vorname eingeben' : null,
+        validator: (v) => (v == null || v.isEmpty) ? context.l10n.authFirstNameRequired : null,
       );
 
   Widget _lastNameField() => NeumorphicInsetField(
         controller: _lastNameController,
-        label: 'Nachname',
+        label: context.l10n.authLastNameLabel,
         prefixIcon: Icons.person_outline,
-        validator: (v) => (v == null || v.isEmpty) ? 'Bitte Nachname eingeben' : null,
+        validator: (v) => (v == null || v.isEmpty) ? context.l10n.authLastNameRequired : null,
       );
 
   Widget _emailField() => NeumorphicInsetField(
         controller: _emailController,
-        label: 'E-Mail',
+        label: context.l10n.authEmailLabel,
         hint: 'name@beispiel.de',
         prefixIcon: Icons.mail_outline,
         keyboardType: TextInputType.emailAddress,
         validator: (v) {
           if (_emailServerError != null) return _emailServerError;
-          if (v == null || v.isEmpty) return 'Bitte E-Mail eingeben';
-          if (!v.contains('@')) return 'Ungültige E-Mail';
+          if (v == null || v.isEmpty) return context.l10n.authEmailRequired;
+          if (!v.contains('@')) return context.l10n.authEmailInvalid;
           return null;
         },
       );
 
   Widget _specializationField() => NeumorphicInsetDropdown(
-        label: 'Fachrichtung',
+        label: context.l10n.authSpecializationLabel,
         prefixIcon: Icons.medical_services_outlined,
         value: _specialization,
         items: MedicalSpecializations.all,
         onChanged: (value) => setState(() => _specialization = value),
-        validator: (v) => (v == null || v.isEmpty) ? 'Bitte Fachrichtung auswählen' : null,
+        validator: (v) => (v == null || v.isEmpty) ? context.l10n.authSpecializationRequired : null,
       );
 
   Widget _clinicAddressField() => NeumorphicInsetField(
         controller: _clinicAddressController,
-        label: 'Praxisadresse',
-        hint: 'Straße, PLZ, Stadt',
+        label: context.l10n.authClinicAddressLabel,
+        hint: context.l10n.authClinicAddressHint,
         prefixIcon: Icons.local_hospital_outlined,
-        validator: (v) => (v == null || v.isEmpty) ? 'Bitte Praxisadresse eingeben' : null,
+        validator: (v) => (v == null || v.isEmpty) ? context.l10n.authClinicAddressRequired : null,
       );
 
   Widget _passwordField() => NeumorphicInsetField(
         controller: _passwordController,
-        label: 'Passwort',
+        label: context.l10n.authPasswordLabel,
         prefixIcon: Icons.lock_outline,
         obscureText: _obscurePassword,
-        validator: PasswordPolicy.validate,
+        validator: (v) => PasswordPolicy.validate(v, context.l10n),
         suffix: _passwordVisibilityButton(
           obscure: _obscurePassword,
           onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
@@ -188,12 +189,12 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Widget _confirmPasswordField() => NeumorphicInsetField(
         controller: _confirmPasswordController,
-        label: 'Passwort bestätigen',
+        label: context.l10n.authConfirmPasswordLabel,
         prefixIcon: Icons.lock_outline,
         obscureText: _obscureConfirmPassword,
         validator: (v) {
-          if (v == null || v.isEmpty) return 'Bitte Passwort bestätigen';
-          if (v != _passwordController.text) return 'Passwörter stimmen nicht überein';
+          if (v == null || v.isEmpty) return context.l10n.authConfirmPasswordRequired;
+          if (v != _passwordController.text) return context.l10n.authPasswordsMismatch;
           return null;
         },
         suffix: _passwordVisibilityButton(
@@ -267,10 +268,10 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Widget _buildForm({required bool pairedRows, required bool isWideWeb}) {
     final showWebLogo = kIsWeb && !isWideWeb;
-    final title = widget.isDoctor ? 'Arztkonto erstellen' : 'Konto erstellen';
+    final title = widget.isDoctor ? context.l10n.authSignupDoctorTitle : context.l10n.authSignupTitle;
     final subtitle = widget.isDoctor
-        ? 'Füllen Sie die Angaben zu Ihrer Praxis aus.'
-        : 'Füllen Sie das Formular aus — dauert nur wenige Minuten.';
+        ? context.l10n.authSignupDoctorSubtitle
+        : context.l10n.authSignupSubtitle;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -310,7 +311,7 @@ class _SignupScreenState extends State<SignupScreen> {
           const SizedBox(height: 32),
           Consumer<AuthProvider>(
             builder: (context, auth, _) => NeumorphicPillButton(
-              label: 'Registrieren',
+              label: context.l10n.authRegister,
               loading: auth.isLoading,
               onPressed: auth.isLoading ? null : _handleSignup,
             ),
@@ -322,7 +323,7 @@ class _SignupScreenState extends State<SignupScreen> {
               style: authLinkButtonStyle(foregroundColor: AppTheme.textColor),
               child: Text.rich(
                 TextSpan(
-                  text: 'Bereits ein Konto? ',
+                  text: context.l10n.authAlreadyAccountPrompt,
                   style: FigmaUi.rubik(
                     fontSize: 17,
                     fontWeight: FontWeight.w400,
@@ -330,7 +331,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   children: [
                     TextSpan(
-                      text: 'Anmelden',
+                      text: context.l10n.authSignIn,
                       style: FigmaUi.rubik(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,

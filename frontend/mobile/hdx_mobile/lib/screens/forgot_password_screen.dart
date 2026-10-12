@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../l10n/l10n_ext.dart';
 import '../config/app_theme.dart';
 import '../services/auth_service.dart';
 import '../utils/app_assets.dart';
@@ -83,12 +84,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 const SizedBox(height: 24),
               ],
               Text(
-                'Passwort zurücksetzen',
+                context.l10n.authResetPasswordTitle,
                 style: FigmaUi.rubik(fontSize: 26, fontWeight: FontWeight.w600, color: AppTheme.textColor),
               ),
               const SizedBox(height: 10),
               Text(
-                'Geben Sie Ihre E-Mail-Adresse ein. Wir senden Ihnen einen Link zum Zurücksetzen.',
+                context.l10n.authForgotPasswordSubtitle,
                 style: FigmaUi.bodyLight(fontSize: 18, color: AppTheme.primaryBlue),
               ),
               const SizedBox(height: 32),
@@ -108,19 +109,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
                 const SizedBox(height: 24),
                 NeumorphicPillButton(
-                  label: 'Zurück zur Anmeldung',
+                  label: context.l10n.authBackToSignIn,
                   onPressed: () => context.go(_loginRoute),
                 ),
               ] else ...[
                 NeumorphicInsetField(
                   controller: _emailController,
-                  label: 'E-Mail',
+                  label: context.l10n.authEmailLabel,
                   hint: 'name@beispiel.de',
                   prefixIcon: Icons.mail_outline,
                   keyboardType: TextInputType.emailAddress,
                   validator: (v) {
-                    if (v == null || v.isEmpty) return 'Bitte E-Mail eingeben';
-                    if (!v.contains('@')) return 'Ungültige E-Mail';
+                    if (v == null || v.isEmpty) return context.l10n.authEmailRequired;
+                    if (!v.contains('@')) return context.l10n.authEmailInvalid;
                     return null;
                   },
                 ),
@@ -130,7 +131,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ],
                 const SizedBox(height: 32),
                 NeumorphicPillButton(
-                  label: 'Link senden',
+                  label: context.l10n.authSendLink,
                   loading: _isLoading,
                   onPressed: _isLoading ? null : _handleSubmit,
                 ),
@@ -140,7 +141,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     onPressed: () => context.go(_loginRoute),
                     style: authLinkButtonStyle(),
                     child: Text(
-                      'Zurück zur Anmeldung',
+                      context.l10n.authBackToSignIn,
                       style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w500, color: AppTheme.primaryBlue),
                     ),
                   ),

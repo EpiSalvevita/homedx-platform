@@ -55,6 +55,8 @@ class _NeumorphicPillButtonState extends State<NeumorphicPillButton> {
 
     final text = Text(
       widget.label,
+      softWrap: false,
+      overflow: TextOverflow.visible,
       style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: foreground),
     );
 
@@ -160,7 +162,7 @@ class _NeumorphicPillButtonState extends State<NeumorphicPillButton> {
             overlayColor: _pillHoverOverlay,
             child: Padding(
               padding: pillPadding,
-              child: Center(child: labelWidget),
+              child: Align(widthFactor: 1, child: labelWidget),
             ),
           ),
         ),

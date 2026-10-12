@@ -8,6 +8,7 @@ import '../utils/test_specialization_mapping.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/test_result_badge.dart';
 import '../widgets/web/adaptive_screen.dart';
+import '../l10n/l10n_ext.dart';
 
 /// Full-screen display of a single Cube test result.
 class TestResultScreen extends StatelessWidget {
@@ -57,7 +58,7 @@ class TestResultScreen extends StatelessWidget {
     final when = testDate ?? DateTime.now();
 
     return AdaptiveScreen(
-      title: 'Testergebnis',
+      title: context.l10n.testResultTitle,
       onBack: () => context.canPop() ? context.pop() : context.go('/results'),
       body: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
@@ -128,7 +129,7 @@ class TestResultScreen extends StatelessWidget {
                       if (kind == TestResultKind.pending) ...[
                         const SizedBox(height: 12),
                         Text(
-                          'Das Testergebnis liegt noch nicht vor.',
+                          context.l10n.testResultPending,
                           textAlign: TextAlign.center,
                           style: FigmaUi.bodyLight(
                             fontSize: 17,
@@ -142,7 +143,7 @@ class TestResultScreen extends StatelessWidget {
                 if (result.resultData != null && result.resultData!.isNotEmpty) ...[
                   const SizedBox(height: 32),
                   Text(
-                    'Detaillierte Ergebnisse',
+                    context.l10n.testDetailedResults,
                     style: FigmaUi.rubik(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -158,7 +159,7 @@ class TestResultScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 12, bottom: 16),
                     child: Text(
-                      'Empfohlen: ${TestSpecializationMapping.primarySpecialization(testTypeId)}',
+                      context.l10n.testRecommended(TestSpecializationMapping.primarySpecialization(testTypeId)),
                       textAlign: TextAlign.center,
                       style: FigmaUi.bodyLight(fontSize: 17),
                     ),
@@ -166,7 +167,7 @@ class TestResultScreen extends StatelessWidget {
                 ],
                 if (result.testId != null && result.testId!.isNotEmpty) ...[
                   NeumorphicPillButton(
-                    label: 'Usability-Fragebogen (Bogen C)',
+                    label: context.l10n.testUsabilityQuestionnaire,
                     leadingIcon: Icons.quiz_outlined,
                     height: AppTheme.buttonHeightLarge,
                     backgroundColor: AppTheme.surface,
@@ -181,7 +182,7 @@ class TestResultScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                 ],
                 NeumorphicPillButton(
-                  label: 'Zurück zu Ergebnissen',
+                  label: context.l10n.testBackToResults,
                   leadingIcon: Icons.arrow_back,
                   height: AppTheme.buttonHeightLarge,
                   backgroundColor: isPositive ? AppTheme.surface : AppTheme.primaryBlue,
@@ -190,7 +191,7 @@ class TestResultScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 NeumorphicPillButton(
-                  label: 'Zur Startseite',
+                  label: context.l10n.btGoToHome,
                   leadingIcon: Icons.home_outlined,
                   height: AppTheme.buttonHeightLarge,
                   backgroundColor: AppTheme.accentMint,
@@ -208,7 +209,7 @@ class TestResultScreen extends StatelessWidget {
   Widget _buildBookSpecialistCta(BuildContext context) {
     return NeumorphicPillButton(
       key: const Key('book-specialist-cta'),
-      label: 'Termin mit Facharzt buchen',
+      label: context.l10n.testBookSpecialist,
       leadingIcon: Icons.calendar_today_outlined,
       height: AppTheme.buttonHeightLarge,
       backgroundColor: AppTheme.primaryBlue,

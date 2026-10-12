@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../l10n/l10n_ext.dart';
 import '../config/app_theme.dart';
 import '../services/auth_service.dart';
 import '../utils/app_assets.dart';
@@ -59,7 +60,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
     final token = widget.token?.trim();
     if (token == null || token.isEmpty) {
-      setState(() => _error = 'Der Link zum Zurücksetzen ist ungültig. Bitte fordern Sie einen neuen Link an.');
+      setState(() => _error = context.l10n.authResetLinkInvalid);
       return;
     }
 
@@ -92,7 +93,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     required VoidCallback onPressed,
   }) {
     return IconButton(
-      tooltip: obscure ? 'Passwort anzeigen' : 'Passwort verbergen',
+      tooltip: obscure ? context.l10n.authShowPassword : context.l10n.authHidePassword,
       style: IconButton.styleFrom(
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         minimumSize: const Size(48, 48),
@@ -135,12 +136,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 const SizedBox(height: 24),
               ],
               Text(
-                'Neues Passwort',
+                context.l10n.authNewPassword,
                 style: FigmaUi.rubik(fontSize: 26, fontWeight: FontWeight.w600, color: AppTheme.textColor),
               ),
               const SizedBox(height: 10),
               Text(
-                'Legen Sie ein neues Passwort für Ihr Konto fest.',
+                context.l10n.authResetPasswordSubtitle,
                 style: FigmaUi.bodyLight(fontSize: 18, color: AppTheme.primaryBlue),
               ),
               const SizedBox(height: 32),
@@ -160,16 +161,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 ),
                 const SizedBox(height: 24),
                 NeumorphicPillButton(
-                  label: 'Zur Anmeldung',
+                  label: context.l10n.authGoToSignIn,
                   onPressed: () => context.go(_loginRoute),
                 ),
               ] else if (tokenMissing) ...[
                 NeumorphicFieldError(
-                  text: 'Der Link zum Zurücksetzen ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Link an.',
+                  text: context.l10n.authResetLinkInvalidError,
                 ),
                 const SizedBox(height: 24),
                 NeumorphicPillButton(
-                  label: 'Neuen Link anfordern',
+                  label: context.l10n.authRequestNewLink,
                   onPressed: () => context.go(_forgotRoute),
                 ),
                 const SizedBox(height: 12),
@@ -178,7 +179,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     onPressed: () => context.go(_loginRoute),
                     style: authLinkButtonStyle(),
                     child: Text(
-                      'Zurück zur Anmeldung',
+                      context.l10n.authBackToSignIn,
                       style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w500, color: AppTheme.primaryBlue),
                     ),
                   ),
@@ -188,10 +189,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 const SizedBox(height: 16),
                 NeumorphicInsetField(
                   controller: _passwordController,
-                  label: 'Neues Passwort',
+                  label: context.l10n.authNewPassword,
                   prefixIcon: Icons.lock_outline,
                   obscureText: _obscurePassword,
-                  validator: PasswordPolicy.validate,
+                  validator: (v) => PasswordPolicy.validate(v, context.l10n),
                   suffix: _passwordVisibilityButton(
                     obscure: _obscurePassword,
                     onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
@@ -200,12 +201,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 const SizedBox(height: 24),
                 NeumorphicInsetField(
                   controller: _confirmPasswordController,
-                  label: 'Passwort bestätigen',
+                  label: context.l10n.authConfirmPasswordLabel,
                   prefixIcon: Icons.lock_outline,
                   obscureText: _obscureConfirmPassword,
                   validator: (v) {
-                    if (v == null || v.isEmpty) return 'Bitte Passwort bestätigen';
-                    if (v != _passwordController.text) return 'Passwörter stimmen nicht überein';
+                    if (v == null || v.isEmpty) return context.l10n.authConfirmPasswordRequired;
+                    if (v != _passwordController.text) return context.l10n.authPasswordsMismatch;
                     return null;
                   },
                   suffix: _passwordVisibilityButton(
@@ -219,7 +220,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 ],
                 const SizedBox(height: 32),
                 NeumorphicPillButton(
-                  label: 'Passwort speichern',
+                  label: context.l10n.authSavePassword,
                   loading: _isLoading,
                   onPressed: _isLoading ? null : _handleSubmit,
                 ),
@@ -229,7 +230,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     onPressed: () => context.go(_loginRoute),
                     style: authLinkButtonStyle(),
                     child: Text(
-                      'Zurück zur Anmeldung',
+                      context.l10n.authBackToSignIn,
                       style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w500, color: AppTheme.primaryBlue),
                     ),
                   ),

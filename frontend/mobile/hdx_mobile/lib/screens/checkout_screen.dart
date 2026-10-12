@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
@@ -23,9 +24,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   String _methodName(PaymentMethod m) {
     switch (m) {
-      case PaymentMethod.creditCard: return 'Kreditkarte';
+      case PaymentMethod.creditCard: return context.l10n.methodCard;
       case PaymentMethod.paypal: return 'PayPal';
-      case PaymentMethod.sepa: return 'SEPA-Überweisung';
+      case PaymentMethod.sepa: return context.l10n.sepaTitle;
     }
   }
 
@@ -51,10 +52,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     try {
       final userId = authProvider.userId;
-      if (userId == null || userId.isEmpty) throw Exception('Benutzer nicht angemeldet.');
+      if (userId == null || userId.isEmpty) throw Exception(context.l10n.checkoutNotLoggedIn);
 
       final totalAmount = cartProvider.totalPrice;
-      if (totalAmount <= 0) throw Exception('Ungültiger Betrag');
+      if (totalAmount <= 0) throw Exception(context.l10n.checkoutInvalidAmount);
 
       final lineItems = cartProvider.items
           .map(
@@ -91,7 +92,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Zahlung fehlgeschlagen: ${e.toString().replaceAll("Exception: ", "")}'), backgroundColor: AppTheme.errorColor),
+          SnackBar(content: Text(context.l10n.paymentFailedWith(e.toString().replaceAll("Exception: ", ""))), backgroundColor: AppTheme.errorColor),
         );
       }
     } finally {
@@ -106,22 +107,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final paymentService = Provider.of<PaymentService>(context);
 
     return AdaptiveScreen(
-      title: 'Kasse',
+      title: context.l10n.checkoutTitle,
       showWebHeader: false,
       onBack: () => context.canPop() ? context.pop() : context.go('/shop/cart'),
       bottomBar: cartProvider.isEmpty
           ? null
           : FigmaBottomActionBar(
-              buttonLabel: _isProcessing ? 'Wird verarbeitet…' : 'Jetzt zahlen',
+              buttonLabel: _isProcessing ? context.l10n.processing : context.l10n.checkoutPayNow,
               loading: _isProcessing,
               onPressed: _isProcessing ? null : () => _processPayment(cartProvider, authProvider, paymentService),
             ),
       body: cartProvider.isEmpty
           ? FigmaEmptyState(
               icon: Icons.shopping_cart_outlined,
-              title: 'Ihr Warenkorb ist leer',
-              message: 'Fügen Sie Produkte hinzu, um zur Kasse zu gehen.',
-              actionLabel: 'Zum Shop',
+              title: context.l10n.cartEmpty,
+              message: context.l10n.checkoutEmptyMessage,
+              actionLabel: context.l10n.shopGoToShop,
               onAction: () => context.go('/shop'),
             )
           : SingleChildScrollView(
@@ -139,7 +140,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Bestellübersicht',
+                        context.l10n.checkoutSummary,
                         style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
                       ),
                       const SizedBox(height: 14),
@@ -196,7 +197,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         child: Row(
                           children: [
                             Text(
-                              'Gesamt',
+                              context.l10n.cartTotal,
                               style: FigmaUi.rubik(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
@@ -218,7 +219,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                       const SizedBox(height: 32),
                       Text(
-                        'Zahlungsmethode',
+                        context.l10n.paymentMethodLabel,
                         style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
                       ),
                       const SizedBox(height: 14),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../core/api_service.dart';
 import '../services/video_call_service.dart';
+import '../l10n/l10n_ext.dart';
 
 class VideoCallScreen extends StatefulWidget {
   final String appointmentId;
@@ -43,7 +44,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
       if (token == null) {
         setState(() {
-          _error = 'Videoanruf konnte nicht gestartet werden';
+          _error = context.l10n.videoStartFailed;
           _isLoading = false;
         });
         return;
@@ -52,7 +53,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       final joinUri = Uri.parse(token.joinUrl);
       if (!_isAllowedVideoHost(joinUri.host)) {
         setState(() {
-          _error = 'Ungültige Video-URL';
+          _error = context.l10n.videoInvalidUrl;
           _isLoading = false;
         });
         return;
@@ -82,7 +83,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = 'Videoanruf konnte nicht gestartet werden';
+          _error = context.l10n.videoStartFailed;
           _isLoading = false;
         });
       }
@@ -93,7 +94,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Videoanruf'),
+        title: Text(context.l10n.videoTitle),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),

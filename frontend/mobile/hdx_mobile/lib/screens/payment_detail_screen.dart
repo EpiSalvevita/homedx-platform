@@ -8,6 +8,8 @@ import '../services/payment_service.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/status_pill.dart';
 import '../widgets/web/adaptive_screen.dart';
+import '../l10n/app_localizations.dart';
+import '../l10n/l10n_ext.dart';
 
 class PaymentDetailScreen extends StatefulWidget {
   final String paymentId;
@@ -60,35 +62,35 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
     }
   }
 
-  static String _methodLabel(String method) {
+  static String _methodLabel(AppLocalizations l10n, String method) {
     switch (method.toUpperCase()) {
       case 'CREDIT_CARD':
-        return 'Kreditkarte';
+        return l10n.methodCard;
       case 'PAYPAL':
         return 'PayPal';
       case 'BANK_TRANSFER':
-        return 'Banküberweisung';
+        return l10n.methodBankTransfer;
       case 'CRYPTO':
-        return 'Krypto';
+        return l10n.methodCrypto;
       default:
-        return method.isEmpty ? 'Zahlung' : method;
+        return method.isEmpty ? l10n.paymentGeneric : method;
     }
   }
 
-  static String _statusLabel(String status) {
+  static String _statusLabel(AppLocalizations l10n, String status) {
     switch (status.toUpperCase()) {
       case 'COMPLETED':
-        return 'Abgeschlossen';
+        return l10n.statusCompleted;
       case 'PENDING':
-        return 'Ausstehend';
+        return l10n.statusPending;
       case 'FAILED':
-        return 'Fehlgeschlagen';
+        return l10n.statusFailed;
       case 'REFUNDED':
-        return 'Erstattet';
+        return l10n.statusRefunded;
       case 'CANCELLED':
-        return 'Storniert';
+        return l10n.statusCancelled;
       default:
-        return status.isEmpty ? 'Unbekannt' : status;
+        return status.isEmpty ? l10n.statusUnknown : status;
     }
   }
 
@@ -145,7 +147,7 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScreen(
-      title: 'Zahlungsdetails',
+      title: context.l10n.paymentDetailsTitle,
       showWebHeader: false,
       onBack: () => context.canPop() ? context.pop() : context.go('/payments'),
       body: _loading
@@ -153,9 +155,9 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
           : _error != null && _payment == null
               ? FigmaEmptyState(
                   icon: Icons.error_outline,
-                  title: 'Zahlung konnte nicht geladen werden',
-                  message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
-                  actionLabel: 'Erneut versuchen',
+                  title: context.l10n.paymentLoadError,
+                  message: context.l10n.checkConnectionRetry,
+                  actionLabel: context.l10n.retry,
                   onAction: _load,
                 )
               : _buildContent(),
@@ -208,30 +210,30 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
                           ),
                         ),
                         StatusPill(
-                          label: _statusLabel(status),
+                          label: _statusLabel(context.l10n, status),
                           background: badgeBg,
                           foreground: badgeFg,
                         ),
                       ],
                     ),
                     const SizedBox(height: 20),
-                    _detailRow('Zahlungsmethode', _methodLabel(method)),
+                    _detailRow(context.l10n.paymentMethodLabel, _methodLabel(context.l10n, method)),
                     const SizedBox(height: 14),
-                    _detailRow('Datum', _formatDate(payment['createdAt']?.toString())),
+                    _detailRow(context.l10n.dateLabel, _formatDate(payment['createdAt']?.toString())),
                     if (payment['completedAt'] != null) ...[
                       const SizedBox(height: 14),
-                      _detailRow('Abgeschlossen', _formatDate(payment['completedAt']?.toString())),
+                      _detailRow(context.l10n.statusCompleted, _formatDate(payment['completedAt']?.toString())),
                     ],
                     if (description != null && description.isNotEmpty) ...[
                       const SizedBox(height: 14),
-                      _detailRow('Beschreibung', description),
+                      _detailRow(context.l10n.descriptionLabel, description),
                     ],
                   ],
                 ),
               ),
               const SizedBox(height: 28),
               Text(
-                'Gekaufte Artikel',
+                context.l10n.purchasedItems,
                 style: FigmaUi.rubik(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -244,8 +246,7 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
                   height: null,
                   padding: const EdgeInsets.all(22),
                   child: Text(
-                    'Für diese Zahlung sind keine Artikeldetails gespeichert. '
-                    'Bei neuen Käufen im Shop werden die Produkte hier angezeigt.',
+                    context.l10n.noLineItemsNote,
                     style: FigmaUi.bodyLight(
                       fontSize: 17,
                       color: AppTheme.textColorSecondary,
@@ -254,7 +255,7 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
                 )
               else
                 ...items.map((item) {
-                  final name = item['name']?.toString() ?? 'Artikel';
+                  final name = item['name']?.toString() ?? context.l10n.itemFallback;
                   final qty = item['quantity'] is num ? (item['quantity'] as num).toInt() : 1;
                   final unit = item['unitPrice'] is num ? (item['unitPrice'] as num).toDouble() : 0.0;
                   final lineTotal = unit * qty;
@@ -314,7 +315,7 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
                 }),
               const SizedBox(height: 16),
               NeumorphicPillButton(
-                label: 'Zurück zu Zahlungen',
+                label: context.l10n.backToPayments,
                 height: AppTheme.buttonHeightLarge,
                 leadingIcon: Icons.arrow_back,
                 backgroundColor: AppTheme.surface,

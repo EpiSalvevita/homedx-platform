@@ -1,0 +1,827 @@
+{
+  "@@locale": "en",
+  "payFailed": "Payment failed",
+  "payCancelled": "Payment was cancelled",
+  "cardPaymentTitle": "Card payment",
+  "processing": "Processing…",
+  "payButton": "Pay",
+  "amountDue": "Amount due:",
+  "cardStripeNotice": "Card details are entered securely via Stripe. The app never processes card numbers directly.",
+  "paypalNotConfirmed": "The PayPal payment could not be confirmed",
+  "paypalWebViewError": "WebView error: {description}",
+  "@paypalWebViewError": {
+    "placeholders": {
+      "description": {
+        "type": "String"
+      }
+    }
+  },
+  "paypalOrderFailed": "The PayPal order could not be created",
+  "paypalTitle": "PayPal payment",
+  "paySuccess": "Payment successful",
+  "orderConfirmed": "Your order has been confirmed. You will receive a confirmation in the app.",
+  "paymentFailedWith": "Payment failed: {error}",
+  "@paymentFailedWith": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "paypalSuccess": "PayPal payment successful",
+  "paypalCancelled": "PayPal payment cancelled",
+  "paypalFailedWith": "PayPal payment failed: {error}",
+  "@paypalFailedWith": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "sepaStarted": "SEPA transfer started",
+  "sepaStartedSubtitle": "Please transfer the amount within 3–5 business days. Your order stays reserved until then.",
+  "copiedToClipboard": "Bank details copied to clipboard",
+  "sepaConfirmTitle": "Confirm SEPA transfer",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "sepaTitle": "SEPA transfer",
+  "bankDetails": "Bank details",
+  "ibanLabel": "IBAN:",
+  "copy": "Copy",
+  "bicLabel": "BIC:",
+  "accountHolderLabel": "Account holder:",
+  "referenceLabel": "Payment reference:",
+  "bankDetailsOptional": "Your bank details (optional)",
+  "bankDetailsOptionalNote": "These details are optional and are only stored for your reference.",
+  "ibanOptional": "IBAN (optional)",
+  "invalidIban": "Invalid IBAN",
+  "bicOptional": "BIC (optional)",
+  "invalidBic": "Invalid BIC",
+  "accountHolderOptional": "Account holder (optional)",
+  "confirmTransfer": "Confirm transfer",
+  "sepaConfirmBody": "Please transfer the amount within 3–5 business days to the account below. Use the payment ID as the payment reference.",
+  "sepaNotice": "Please transfer the amount within 3–5 business days. Use the payment ID as the payment reference so we can match your payment.",
+  "amountLabel": "Amount:",
+  "methodCard": "Credit card",
+  "methodBankTransfer": "Bank transfer",
+  "methodCrypto": "Crypto",
+  "paymentGeneric": "Payment",
+  "statusCompleted": "Completed",
+  "statusPending": "Pending",
+  "statusFailed": "Failed",
+  "statusRefunded": "Refunded",
+  "statusCancelled": "Cancelled",
+  "statusUnknown": "Unknown",
+  "paymentsTitle": "Payments",
+  "paymentsOverview": "Overview of your payments and orders.",
+  "paymentsLoadError": "Payments could not be loaded",
+  "checkConnectionRetry": "Please check your connection and try again.",
+  "retry": "Try again",
+  "noPaymentsTitle": "No payments yet",
+  "noPaymentsMessage": "Completed payments appear here.",
+  "paymentDetailsTitle": "Payment details",
+  "paymentLoadError": "Payment could not be loaded",
+  "paymentMethodLabel": "Payment method",
+  "dateLabel": "Date",
+  "descriptionLabel": "Description",
+  "purchasedItems": "Purchased items",
+  "noLineItemsNote": "No item details are stored for this payment. Products from new shop purchases are shown here.",
+  "itemFallback": "Item",
+  "backToPayments": "Back to payments",
+  "videoStartFailed": "The video call could not be started",
+  "videoInvalidUrl": "Invalid video link",
+  "videoTitle": "Video call",
+  "videoOpenFailed": "The video call could not be opened",
+  "videoOpenedInNewTab": "The video call was opened in a new tab.",
+  "videoOpenedHint": "If no new tab opened, use the button below.",
+  "videoOpenAgain": "Open again",
+  "videoBack": "Back",
+  "videoStartCall": "Start video call",
+  "apptLoadSlotsFailed": "Could not load appointments: {error}",
+  "@apptLoadSlotsFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "apptSelectSlotFirst": "Please select an appointment",
+  "apptBooked": "Appointment booked",
+  "apptBookedMessage": "Your appointment has been booked successfully.",
+  "apptDoctor": "Doctor",
+  "apptType": "Type",
+  "apptOnlineConsultation": "Online consultation",
+  "apptOk": "OK",
+  "apptBookFailed": "Could not book the appointment",
+  "apptErrorWith": "Error: {error}",
+  "@apptErrorWith": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "apptBookAppointment": "Book appointment",
+  "apptBooking": "Booking…",
+  "apptAfterTest": "Appointment after {testName}",
+  "@apptAfterTest": {
+    "placeholders": {
+      "testName": {
+        "type": "String"
+      }
+    }
+  },
+  "apptConsultationType": "Consultation type",
+  "apptVideoViaHomeDx": "Video call via HomeDX",
+  "apptAvailable": "Available appointments",
+  "apptNoSlots": "No appointments available",
+  "apptNoSlotsRetry": "Please try again later.",
+  "apptNotesOptional": "Notes (optional)",
+  "apptNotesHint": "Additional information for the doctor…",
+  "apptCancelAppointment": "Cancel appointment",
+  "apptCancelBody": "Do you really want to cancel this appointment? You can optionally send a message to the other person.",
+  "apptCancelMessage": "Message (optional)",
+  "apptCancelReasonHint": "Reason for cancellation…",
+  "apptCancelled": "Appointment cancelled",
+  "apptCancelFailed": "Cancellation failed",
+  "apptGender": "Gender",
+  "apptPatient": "Patient",
+  "apptDateTime": "Appointment",
+  "apptKind": "Type",
+  "apptOnSite": "In-person appointment",
+  "apptRelatedTest": "Related test",
+  "apptNotes": "Notes",
+  "apptJoinVideoCall": "Join video call",
+  "apptNotFound": "Appointment not found",
+  "apptDetailsTitle": "Appointment details",
+  "apptMyAppointments": "My appointments",
+  "apptNewAppointment": "New appointment",
+  "apptTapForDetails": "Tap an entry for details.",
+  "apptLoadFailed": "Appointments could not be loaded",
+  "apptNoAppointments": "No appointments yet",
+  "apptBookPrompt": "Book an appointment with a doctor to see it here.",
+  "apptFindDoctor": "Find a doctor",
+  "apptUpcoming": "Upcoming",
+  "apptPast": "Past",
+  "docDoctorFallback": "Doctor",
+  "docWelcome": "Welcome, {name}",
+  "@docWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "docOverview": "Overview of your appointments and video consultations today.",
+  "docAvailability": "Availability",
+  "docDashboard": "Dashboard",
+  "docTodaysAppointments": "Today's appointments",
+  "docNoAppointmentsToday": "No appointments today",
+  "docAppointmentsTodayHint": "As soon as patients book, today's appointments will appear here.",
+  "docRheumaCheckForms": "RheumaCheck questionnaires",
+  "docFormB": "Form B",
+  "docFormBSubtitle": "Standard method & care pathway",
+  "docFormD": "Form D",
+  "docFormDSubtitle": "Feasibility & benefit",
+  "docAllAppointments": "All appointments",
+  "docTapAppointmentForDetails": "Tap an appointment for details.",
+  "docListView": "List",
+  "docCalendarView": "Calendar",
+  "docBookedAppointmentsHere": "Booked patient appointments will appear here.",
+  "docAvailabilityIntro": "Set when patients can book appointments with you. You can add several time slots per day, e.g. morning and afternoon.",
+  "docWeeklyHours": "Weekly consulting hours",
+  "docMonday": "Monday",
+  "docTuesday": "Tuesday",
+  "docWednesday": "Wednesday",
+  "docThursday": "Thursday",
+  "docFriday": "Friday",
+  "docFrom": "From",
+  "docTo": "To",
+  "docInvalidRange": "Invalid time slot on {day}: \"{start}\" – \"{end}\". \"To\" must be after \"From\".",
+  "@docInvalidRange": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "docAvailabilitySaved": "Availability saved",
+  "docSaveFailed": "Saving failed",
+  "docAvailabilityLoadFailed": "Availability could not be loaded",
+  "docSaving": "Saving…",
+  "docSaveChanges": "Save changes",
+  "docRemoveSlot": "Remove time slot",
+  "docAddSlot": "Add time slot",
+  "docSelectDoctor": "Choose a doctor",
+  "docSearchHint": "Search for doctor or specialty…",
+  "docRecommendedSpecialists": "Recommended specialists: {specialization}",
+  "@docRecommendedSpecialists": {
+    "placeholders": {
+      "specialization": {
+        "type": "String"
+      }
+    }
+  },
+  "docNoMatchingSpecialist": "No matching specialist available",
+  "docNoSpecialistFound": "We could not find a specialist in {specialization} for {testName} at the moment. Here are all available doctors.",
+  "@docNoSpecialistFound": {
+    "placeholders": {
+      "testName": {
+        "type": "String"
+      },
+      "specialization": {
+        "type": "String"
+      }
+    }
+  },
+  "docBasedOnTest": "Based on your positive {testName}, we recommend doctors specializing in {specialization}.",
+  "@docBasedOnTest": {
+    "placeholders": {
+      "testName": {
+        "type": "String"
+      },
+      "specialization": {
+        "type": "String"
+      }
+    }
+  },
+  "docTestFallback": "test",
+  "docDoctorsLoadFailed": "Doctors could not be loaded",
+  "docNoDoctorsFound": "No doctors found",
+  "docNoDoctorsHint": "Try a different search or language.",
+  "docLanguage": "Language",
+  "docAll": "All",
+  "docWeekView": "Week",
+  "docMonthView": "Month",
+  "docToday": "Today",
+  "docMoreCount": "+{count} more",
+  "@docMoreCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "docNoAppointmentsOnDay": "No appointments on this day",
+  "docPickAnotherDay": "Choose another day in the calendar.",
+  "authActivatingAccount": "Your account is being activated…",
+  "authAlreadyAccountPrompt": "Already have an account? ",
+  "authBackToSignIn": "Back to sign-in",
+  "authBackToSignUp": "Back to registration",
+  "authBrandConfirmationDoctorSubtitle": "Confirm your email address to activate your doctor account.",
+  "authBrandConfirmationSubtitle": "Almost there. Confirm your email address and you are ready to go.",
+  "authBrandConfirmationTitle": "Practice created",
+  "authBrandDoctorLoginSubtitle": "Manage appointments, availability and video consultations in your browser.",
+  "authBrandDoctorPortalTitle": "Doctor portal",
+  "authBrandForgotDoctorSubtitle": "Enter the email address of your doctor account and we will send you a link.",
+  "authBrandForgotSubtitle": "We will email you a link that lets you reset your password.",
+  "authBrandLoginSubtitle": "Rapid tests, doctor appointments and results, all in one place.",
+  "authBrandResetDoctorSubtitle": "Choose a new password for your doctor account.",
+  "authBrandResetSubtitle": "Choose a new password and then sign in again.",
+  "authBrandSignupDoctorSubtitle": "Manage appointments and hold video consultations with patients.",
+  "authBrandSignupSubtitle": "Get tested at home, book a doctor and receive your results online.",
+  "authBrandSignupTitle": "Register practice",
+  "authCanSignInNow": "You can now sign in.",
+  "authCheckInboxIntro": "Check your inbox at this address and activate your account using the confirmation link:",
+  "authClinicAddressHint": "Street, postcode, city",
+  "authClinicAddressLabel": "Practice address",
+  "authClinicAddressRequired": "Please enter your practice address",
+  "authConfirmPasswordLabel": "Confirm password",
+  "authConfirmPasswordRequired": "Please confirm your password",
+  "authConfirmationBody": "Your account has been created. Please confirm your email address to continue.",
+  "authConfirmationDoctorBody": "Your doctor account has been created. Please confirm your email address to continue.",
+  "authEmailInvalid": "Invalid email address",
+  "authEmailLabel": "Email",
+  "authEmailRequired": "Please enter your email address",
+  "authErrorEmailAlreadyRegistered": "This email address is already registered. Please sign in or use a different email address.",
+  "authErrorEmailNotEditable": "Email cannot be changed here. Please reload the page (Ctrl+Shift+R) and try again.",
+  "authErrorGenderInvalid": "Please select a valid gender.",
+  "authErrorInvalidCredentials": "Email or password is incorrect. Please check your entries and try again.",
+  "authErrorInvalidRequest": "Invalid request. Please check your entries.",
+  "authErrorInvalidRequestRetry": "Invalid request. Please check your entries and try again.",
+  "authErrorLoginFailed": "Sign-in failed. Please try again.",
+  "authErrorRegistrationFailed": "Registration failed",
+  "authErrorSessionExpired": "Please sign in again.",
+  "authFirstNameLabel": "First name",
+  "authFirstNameRequired": "Please enter your first name",
+  "authForgotPasswordLink": "Forgot password?",
+  "authForgotPasswordSubtitle": "Enter your email address. We will send you a link to reset your password.",
+  "authGoToHomepage": "Go to homepage",
+  "authGoToSignIn": "Go to sign-in",
+  "authHidePassword": "Hide password",
+  "authLastNameLabel": "Last name",
+  "authLastNameRequired": "Please enter your last name",
+  "authLoginDoctorSubtitle": "Sign in with your doctor account.",
+  "authLoginDoctorTitle": "Doctor sign-in",
+  "authLoginFailed": "Sign-in failed",
+  "authLoginSubtitle": "Enter your email address and password.",
+  "authLoginTitle": "Sign in to your account",
+  "authNewPassword": "New password",
+  "authNextStep": "Next step",
+  "authNoAccountPrompt": "No account yet? ",
+  "authOpenLinkHint": "Open the link in the email to activate your account. Please also check your spam folder.",
+  "authPasswordLabel": "Password",
+  "authPasswordMinLength": "At least 8 characters",
+  "authPasswordNeedsDigit": "At least one number",
+  "authPasswordNeedsLowercase": "At least one lowercase letter",
+  "authPasswordNeedsSpecial": "At least one special character",
+  "authPasswordNeedsUppercase": "At least one uppercase letter",
+  "authPasswordRequired": "Please enter a password",
+  "authPasswordRequirementsTitle": "Password requirements",
+  "authPasswordRuleDigit": "At least one number (0–9)",
+  "authPasswordRuleLowercase": "At least one lowercase letter (a–z)",
+  "authPasswordRuleSpecial": "At least one special character (e.g. !@#$)",
+  "authPasswordRuleUppercase": "At least one uppercase letter (A–Z)",
+  "authPasswordsMismatch": "Passwords do not match",
+  "authRegister": "Register",
+  "authRegistrationSuccessTitle": "Registration successful",
+  "authRequestNewLink": "Request new link",
+  "authResendEmail": "Resend email",
+  "authResetLinkInvalid": "The reset link is invalid. Please request a new link.",
+  "authResetLinkInvalidError": "The reset link is invalid or has expired. Please request a new link.",
+  "authResetPasswordSubtitle": "Set a new password for your account.",
+  "authResetPasswordTitle": "Reset password",
+  "authSavePassword": "Save password",
+  "authSendLink": "Send link",
+  "authSendingEmail": "Sending email…",
+  "authShowPassword": "Show password",
+  "authSignIn": "Sign in",
+  "authSignupDoctorSubtitle": "Enter the details of your practice.",
+  "authSignupDoctorTitle": "Create doctor account",
+  "authSignupSubtitle": "Fill in the form. It only takes a few minutes.",
+  "authSignupTitle": "Create account",
+  "authSpecializationLabel": "Specialty",
+  "authSpecializationRequired": "Please select a specialty",
+  "authVerifyChecking": "The confirmation link from your email is being checked.",
+  "authVerifyEmailTitle": "Confirm email",
+  "authVerifyLinkInvalid": "The confirmation link is invalid or has expired. Please request a new email.",
+  "authYourEmailAddress": "Your email address",
+  "testTypeCrp": "CRP (C-reactive protein)",
+  "testTypeGenericName": "Rapid test",
+  "cubeWebStubMessage": "Health tests with the Cube device are only available in the Android app (Bluetooth). Install the mobile app or use the web version for appointments and results.",
+  "btGoToHome": "Go to home",
+  "btBack": "Back",
+  "testStartFailed": "The test could not be started",
+  "testPreAnamnesisTitle": "Pre-test medical history",
+  "testAnamnesisPrompt": "Would you like to complete the medical history questionnaire (form A) before the RheumaCheck test? It only takes a few minutes.",
+  "testSkip": "Skip",
+  "testStartAnamnesis": "Start medical history",
+  "testSelectTitle": "Select test type",
+  "testLoadError": "Failed to load tests",
+  "testNoneAvailable": "No tests available",
+  "testRheumaDescriptionFallback": "Rheumatoid arthritis screening test",
+  "testAgreeTermsError": "Please agree to the terms and conditions.",
+  "testSubmitTitle": "Complete test",
+  "testCubeResult": "Cube result: {result}",
+  "@testCubeResult": {
+    "placeholders": {
+      "result": {
+        "type": "String"
+      }
+    }
+  },
+  "testPhotoOptional": "Test photo (optional)",
+  "testVideoOptional": "Test video (optional)",
+  "testIdFront": "ID front side",
+  "testIdBack": "ID back side",
+  "testAgreementText": "I confirm that the information I provided is correct and I accept the test terms.",
+  "testTermsLink": "Test terms",
+  "testPrivacyLink": "Privacy policy",
+  "testSending": "Sending…",
+  "testSubmitButton": "Submit test",
+  "testUploadedAs": "Uploaded: {name}",
+  "@testUploadedAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "btConnected": "Connected",
+  "btUnknownDevice": "Unknown device",
+  "btServices": "Services",
+  "btRead": "Read",
+  "btWrite": "Write",
+  "btSubscribe": "Subscribe",
+  "btDisconnect": "Disconnect",
+  "btNoDeviceConnected": "No device connected",
+  "btSearchPrompt": "Search for a Bluetooth device and connect to get started",
+  "btSearchDevices": "Search for devices",
+  "btDisconnectTitle": "Disconnect device",
+  "btDisconnectConfirm": "Do you really want to disconnect?",
+  "btDisconnected": "Disconnected",
+  "btReadData": "Data read",
+  "btReadFailed": "Read failed: {error}",
+  "@btReadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "btWriteDataTitle": "Write data",
+  "btHexInputLabel": "Enter data (hex format)",
+  "btHexInputHint": "e.g. 01 02 03",
+  "btWriteSuccess": "Data written successfully",
+  "btWriteFailed": "Write failed: {error}",
+  "@btWriteFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "btNotificationData": "Notification data",
+  "btSubscribed": "Notifications subscribed",
+  "btSubscribeFailed": "Subscribe failed: {error}",
+  "@btSubscribeFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "btClose": "Close",
+  "btNoFilePath": "No file path available. Please choose the file via “Files” or place it in Downloads.",
+  "btCancelTestTitle": "Cancel test?",
+  "btCancelTestBody": "The ongoing measurement will be stopped and you will return to the home page.",
+  "btContinue": "Continue",
+  "btDisconnectTestConfirm": "Do you really want to disconnect? You will need to reconnect to start the test.",
+  "btCubeDisconnected": "Cube device disconnected",
+  "btBluetoothDisabled": "Bluetooth is turned off",
+  "btBluetoothRequired": "Bluetooth must be turned on to connect to the Cube device",
+  "btTurnOnBluetooth": "Turn on Bluetooth",
+  "btCubeConnected": "Cube device connected",
+  "btStatus": "Status: {state}",
+  "@btStatus": {
+    "placeholders": {
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "btReadyToStart": "Ready to start the test",
+  "btReadyBody": "Your Cube device is connected and ready. You can now continue with the {testName} test.",
+  "@btReadyBody": {
+    "placeholders": {
+      "testName": {
+        "type": "String"
+      }
+    }
+  },
+  "btMeasurementConfig": "Measurement configuration (Cube)",
+  "btConfigFile": "Configuration file: {name}",
+  "@btConfigFile": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "btConfigDefault": "Default: calibration via RFID from the inserted cassette. To use a `.config`/`.bin` file from the provider instead (as in the Cube sample app), tap “Choose file”.",
+  "btChooseConfigFile": "Choose configuration file",
+  "btRfidMode": "RFID mode (delete file)",
+  "btTestStarting": "Starting test...",
+  "btStartTest": "Start test",
+  "btNoCubeConnected": "No Cube device connected",
+  "btConnectPrompt": "Please connect your Cube device to continue with the {testName} test",
+  "@btConnectPrompt": {
+    "placeholders": {
+      "testName": {
+        "type": "String"
+      }
+    }
+  },
+  "btSearchCubeDevices": "Search for Cube devices",
+  "btPermissionRequired": "Bluetooth “Devices nearby” / scan and connect permission is required. Please allow it in the app settings.",
+  "btScanStartFailed": "The scan could not be started (the SDK refused to start, e.g. still connected or already scanning). Tap Refresh or restart the app.",
+  "btScanError": "Scan error: {error}",
+  "@btScanError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "btConnectTimeout": "Connecting to the Cube took too long (60 s). Hold the Cube close to the phone, stop the search with “Stop” and tap “Connect” again. If needed, disconnect the device in the Android Bluetooth settings (don't just pair it).",
+  "btConnectFailed": "Connection failed",
+  "btConnectError": "Connection error: {error}",
+  "@btConnectError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "btEnableBluetoothPrompt": "Please turn on Bluetooth to search for Cube devices",
+  "btErrorTitle": "Error",
+  "btSearchingCubes": "Searching for Cube devices...",
+  "btEnsureCubeOn": "Make sure your Cube is switched on",
+  "btNoCubeFound": "No Cube device found",
+  "btEnsureCubeInRange": "Make sure your Cube is switched on and within range",
+  "btCubeDevice": "Cube device",
+  "btSearchAgain": "Search again",
+  "btConnect": "Connect",
+  "testPreparing": "Preparing measurement...",
+  "testLeaveConfirm": "Do you want to leave the measurement and return to the home page?",
+  "testUnknownError": "Unknown error",
+  "testMeasurementFailed": "Measurement failed",
+  "testBackToStart": "Back to start",
+  "testIncubationTime": "Incubation time",
+  "testRemaining": "remaining",
+  "testInsertWhiteCassette": "Insert white cassette",
+  "testInsertTestCassette": "Insert test cassette",
+  "testEvaluating": "Evaluating measurement",
+  "testLoadingResults": "Loading results",
+  "testSubmittingResults": "Submitting results",
+  "testResultsTitle": "Test results",
+  "testTapForDetails": "Tap an entry for details.",
+  "testResultsLoadError": "Results could not be loaded",
+  "testNoResultsYet": "No test results yet",
+  "testResultsWebHint": "Results will appear here after a test in the Android app.",
+  "testStartToSeeResults": "Start a test to see results.",
+  "testResultTitle": "Test result",
+  "testResultPending": "The test result is not yet available.",
+  "testDetailedResults": "Detailed results",
+  "testRecommended": "Recommended: {specialization}",
+  "@testRecommended": {
+    "placeholders": {
+      "specialization": {
+        "type": "String"
+      }
+    }
+  },
+  "testUsabilityQuestionnaire": "Usability questionnaire (form C)",
+  "testBackToResults": "Back to results",
+  "testBookSpecialist": "Book a specialist appointment",
+  "navHome": "Home",
+  "navAppointments": "Appointments",
+  "navResults": "Results",
+  "navQuestionnaires": "Questionnaires",
+  "navShop": "Shop",
+  "navNotifications": "Notifications",
+  "navPayments": "Payment history",
+  "navProfile": "Profile",
+  "navDashboard": "Dashboard",
+  "navAvailability": "Availability",
+  "navVideoCall": "Video call",
+  "navAppointment": "Appointment",
+  "navResult": "Result",
+  "navTests": "Tests",
+  "navTestPrepare": "Prepare test",
+  "navTestSubmit": "Submit test",
+  "navTestFallback": "Test",
+  "navDoctorFallback": "Doctor",
+  "navCertificates": "Certificates",
+  "navApp": "App",
+  "navSignIn": "Sign in",
+  "navRegister": "Register",
+  "homeUserFallback": "User",
+  "homeLogout": "Log out",
+  "homeWelcomeBack": "Welcome back",
+  "homeGreeting": "Hello {name} — choose a quick action below.",
+  "@homeGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGettingStarted": "Getting started",
+  "homeRecentActivity": "Recent activity",
+  "homeQuickActions": "Quick actions",
+  "homeStartTest": "Start test",
+  "homeOnlineConsultation": "Online consultation",
+  "homeMyAppointments": "My appointments",
+  "notifMarkAllRead": "Mark all as read",
+  "notifLoadError": "Notifications could not be loaded",
+  "notifTapHint": "Tap a notification to mark it as read.",
+  "notifEmptyTitle": "No notifications",
+  "notifEmptyMessage": "You're all caught up.",
+  "profileSaved": "Profile saved",
+  "profileErrorWith": "Error: {message}",
+  "@profileErrorWith": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "profileLoadError": "Error loading profile",
+  "profileFirstName": "First name",
+  "profileFirstNameRequired": "First name is required",
+  "profileLastName": "Last name",
+  "profileLastNameRequired": "Last name is required",
+  "profileEmail": "Email",
+  "profileEmailRequired": "Email is required",
+  "profilePhone": "Mobile number",
+  "profileAddress": "Address",
+  "profilePostcode": "Postcode",
+  "profileCity": "City",
+  "profileCountry": "Country",
+  "profileGender": "Gender",
+  "profileGenderRequired": "Please select a gender",
+  "profileGenderMale": "Male",
+  "profileGenderFemale": "Female",
+  "profileGenderDivers": "Diverse",
+  "profileSaving": "Saving…",
+  "profileSaveChanges": "Save changes",
+  "profileCubeSdkTitle": "Cube device (SDK)",
+  "profileCubeSdkChecking": "Checking Cube SDK…",
+  "profileVersion": "Version: {version}",
+  "@profileVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "profileLicenseValid": "Bundled license: valid (per SDK)",
+  "profileLicenseInvalid": "Bundled license: invalid or expired — import a new cube_license.dat from the provider and rebuild the app.",
+  "shopTitle": "Shop",
+  "shopFilterAll": "All",
+  "shopFilterTestStrips": "Test strips",
+  "shopFilterTestDevices": "Test devices",
+  "shopLoadError": "The shop could not be loaded",
+  "shopNoProducts": "No products found",
+  "shopNoProductsMessage": "No items are currently available in this category.",
+  "shopItemAdded": "{name} added",
+  "@shopItemAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shopSoldOut": "Sold out",
+  "shopCategoryTestStrip": "Test strips",
+  "shopCategoryTestDevice": "Test device",
+  "shopCategoryAccessory": "Accessories",
+  "shopCategoryOther": "Other",
+  "shopQuantity": "Quantity",
+  "shopTotalAmount": "Total: {amount} €",
+  "@shopTotalAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "shopAddToCart": "Add to cart",
+  "shopUnavailable": "Currently unavailable",
+  "shopAddedToCart": "{name} added to cart",
+  "@shopAddedToCart": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shopViewCart": "View cart",
+  "shopGoToShop": "Go to shop",
+  "cartTitle": "Cart",
+  "cartCheckout": "Proceed to checkout",
+  "cartEmpty": "Your cart is empty",
+  "cartEmptyMessage": "Browse the shop and add products.",
+  "cartRemove": "Remove",
+  "cartTotal": "Total",
+  "checkoutTitle": "Checkout",
+  "checkoutSummary": "Order summary",
+  "checkoutPayNow": "Pay now",
+  "checkoutEmptyMessage": "Add products to proceed to checkout.",
+  "checkoutNotLoggedIn": "You are not signed in.",
+  "checkoutInvalidAmount": "Invalid amount",
+  "orderTitle": "Order completed",
+  "orderSubtitle": "Thank you. Your order has been placed successfully.",
+  "orderBackToHome": "Back to home",
+  "orderTotal": "Total: {amount} {currency}",
+  "@orderTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "certTitle": "Certificates",
+  "certDetailTitle": "Certificate",
+  "certTapHint": "Tap a certificate for details.",
+  "certLoadError": "Certificates could not be loaded",
+  "certEmpty": "No certificates yet",
+  "certEmptyMessage": "Certificates appear here after a completed test.",
+  "certTest": "Test",
+  "certStatusIssued": "Issued",
+  "certStatusDraft": "Draft",
+  "certStatusExpired": "Expired",
+  "certStatusRevoked": "Revoked",
+  "certTypeTestResult": "Test result",
+  "certTypeVaccination": "Vaccination",
+  "certTypeRecovery": "Recovery",
+  "certTypeMedicalClearance": "Medical clearance",
+  "certSharePdf": "Share PDF",
+  "certLoading": "Loading…",
+  "certNotFound": "Certificate not found",
+  "certPdfDownload": "PDF download",
+  "certPdfDownloadHint": "Open the HomeDX app on your smartphone to share this certificate as a PDF.",
+  "certPdfSaved": "PDF saved: {path}",
+  "@certPdfSaved": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "certErrorWith": "Error: {error}",
+  "@certErrorWith": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "certResult": "Result",
+  "certValidity": "Validity",
+  "certIssuedOn": "Issued on",
+  "questTitle": "Questionnaires",
+  "questLoadError": "Questionnaires could not be loaded",
+  "questEmpty": "No questionnaires available",
+  "questEmptyMessage": "Questionnaires will appear here once they are unlocked.",
+  "questHubIntroDoctor": "As part of RheumaCheck, these questionnaires collect structured information from the perspective of the rheumatology network and on how well the approach can be implemented in practice. Your answers support the accompanying research and the further development of HomeDX. They do not replace a diagnosis and do not provide treatment recommendations.",
+  "questHubIntroPatient": "As part of RheumaCheck, these questionnaires help us record your details before the test and your feedback after use in a structured way. This helps us improve HomeDX and better understand care. The questionnaires do not replace a medical diagnosis.",
+  "questBadgeBeforeTest": "Before the test",
+  "questBadgeNetwork": "Rheumatology network",
+  "questBadgeAfterUse": "After use",
+  "questBadgePilot": "Pilot / implementation",
+  "questModuleLabel": "Form {moduleId}",
+  "@questModuleLabel": {
+    "placeholders": {
+      "moduleId": {
+        "type": "String"
+      }
+    }
+  },
+  "questResume": "Continue draft",
+  "questStartNow": "Start now",
+  "questDoneTitle": "Questionnaire completed",
+  "questThanks": "Thank you!",
+  "questDoneMessage": "Form {moduleId} was submitted successfully. Your answers have been saved.",
+  "@questDoneMessage": {
+    "placeholders": {
+      "moduleId": {
+        "type": "String"
+      }
+    }
+  },
+  "questBackToList": "Back to questionnaires",
+  "questContinue": "Continue",
+  "questLengthLabel": "Questionnaire length",
+  "questShortVersion": "Short version",
+  "questFullVersion": "Full version",
+  "questShortVersionHint": "Short version: core questions for the pilot and app (shorter).",
+  "questFullVersionHint": "Full version: all questions from the PDF specialist package (longer).",
+  "questIntroPatientNotice": "This questionnaire does not replace a medical diagnosis. For acute or severe symptoms, please contact a doctor.",
+  "questConsentCheckbox": "I agree that my answers may be stored for the evaluation of the RheumaCheck project.",
+  "questIntroResearchNotice": "This questionnaire supports the research and piloting of RheumaCheck. No diagnoses are made.",
+  "questStart": "Start questionnaire",
+  "questStepProgress": "Step {index} of {total}",
+  "@questStepProgress": {
+    "placeholders": {
+      "index": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "questBack": "Back",
+  "questNext": "Next",
+  "questSubmit": "Submit",
+  "questFallbackTitle": "Questionnaire {moduleId}",
+  "@questFallbackTitle": {
+    "placeholders": {
+      "moduleId": {
+        "type": "String"
+      }
+    }
+  },
+  "questLoadFailed": "Questionnaire could not be loaded",
+  "questAnswerRequired": "Please answer: {label}",
+  "@questAnswerRequired": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "questConsentRequired": "Please confirm the consent notice.",
+  "questSelectHint": "Select"
+}

@@ -10,6 +10,7 @@ import '../utils/app_assets.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/web/adaptive_screen.dart';
 import '../widgets/appointment_status_badge.dart';
+import '../l10n/l10n_ext.dart';
 
 class AppointmentsListScreen extends StatefulWidget {
   const AppointmentsListScreen({super.key});
@@ -82,13 +83,13 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScreen(
-      title: 'Meine Termine',
+      title: context.l10n.apptMyAppointments,
       showBackOnMobile: false,
       onBack: () => context.go('/home'),
       actions: [
         IconButton(
           icon: const Icon(Icons.add, size: 28),
-          tooltip: 'Neuer Termin',
+          tooltip: context.l10n.apptNewAppointment,
           iconSize: 28,
           constraints: const BoxConstraints(
             minWidth: AppTheme.largeTouchTarget,
@@ -116,7 +117,7 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Tippen Sie auf einen Eintrag für Details.',
+                      context.l10n.apptTapForDetails,
                       style: FigmaUi.bodyLight(
                         fontSize: 17,
                         color: AppTheme.textColorSecondary,
@@ -133,28 +134,28 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen> {
                     else if (_error != null)
                       FigmaEmptyState(
                         icon: Icons.error_outline,
-                        title: 'Termine konnten nicht geladen werden',
-                        message: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
-                        actionLabel: 'Erneut versuchen',
+                        title: context.l10n.apptLoadFailed,
+                        message: context.l10n.checkConnectionRetry,
+                        actionLabel: context.l10n.retry,
                         onAction: _loadAppointments,
                       )
                     else if (_appointments.isEmpty)
                       FigmaEmptyState(
                         assetPath: AppAssets.patientManHome,
                         icon: Icons.event_outlined,
-                        title: 'Noch keine Termine',
-                        message: 'Buchen Sie einen Termin bei einem Arzt, um ihn hier zu sehen.',
-                        actionLabel: 'Arzt finden',
+                        title: context.l10n.apptNoAppointments,
+                        message: context.l10n.apptBookPrompt,
+                        actionLabel: context.l10n.apptFindDoctor,
                         onAction: () => context.push('/doctors'),
                       )
                     else ...[
                       if (_upcoming.isNotEmpty) ...[
-                        _sectionTitle('Bevorstehend'),
+                        _sectionTitle(context.l10n.apptUpcoming),
                         ..._upcoming.map(_appointmentCard),
                       ],
                       if (_past.isNotEmpty) ...[
                         if (_upcoming.isNotEmpty) const SizedBox(height: 8),
-                        _sectionTitle('Vergangen'),
+                        _sectionTitle(context.l10n.apptPast),
                         ..._past.map(_appointmentCard),
                       ],
                     ],

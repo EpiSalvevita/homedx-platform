@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config/app_theme.dart';
+import '../l10n/app_localizations.dart';
+import '../l10n/l10n_ext.dart';
 import '../widgets/figma_ui.dart';
 
 /// Registration password policy — must match [backend/src/auth/password-policy.ts].
@@ -24,23 +26,23 @@ class PasswordPolicy {
       hasDigit(value) &&
       hasSpecial(value);
 
-  static String? validate(String? value) {
-    if (value == null || value.isEmpty) return 'Bitte Passwort eingeben';
-    if (!hasMinLength(value)) return 'Mindestens 8 Zeichen';
-    if (!hasLowercase(value)) return 'Mindestens ein Kleinbuchstabe';
-    if (!hasUppercase(value)) return 'Mindestens ein Großbuchstabe';
-    if (!hasDigit(value)) return 'Mindestens eine Zahl';
-    if (!hasSpecial(value)) return 'Mindestens ein Sonderzeichen';
+  static String? validate(String? value, AppLocalizations l10n) {
+    if (value == null || value.isEmpty) return l10n.authPasswordRequired;
+    if (!hasMinLength(value)) return l10n.authPasswordMinLength;
+    if (!hasLowercase(value)) return l10n.authPasswordNeedsLowercase;
+    if (!hasUppercase(value)) return l10n.authPasswordNeedsUppercase;
+    if (!hasDigit(value)) return l10n.authPasswordNeedsDigit;
+    if (!hasSpecial(value)) return l10n.authPasswordNeedsSpecial;
     return null;
   }
 
-  static final List<({String label, bool Function(String) check})> rules = [
-    (label: 'Mindestens 8 Zeichen', check: hasMinLength),
-    (label: 'Mindestens ein Großbuchstabe (A–Z)', check: hasUppercase),
-    (label: 'Mindestens ein Kleinbuchstabe (a–z)', check: hasLowercase),
-    (label: 'Mindestens eine Zahl (0–9)', check: hasDigit),
-    (label: 'Mindestens ein Sonderzeichen (z. B. !@#\$)', check: hasSpecial),
-  ];
+  static List<({String label, bool Function(String) check})> rules(AppLocalizations l10n) => [
+        (label: l10n.authPasswordMinLength, check: hasMinLength),
+        (label: l10n.authPasswordRuleUppercase, check: hasUppercase),
+        (label: l10n.authPasswordRuleLowercase, check: hasLowercase),
+        (label: l10n.authPasswordRuleDigit, check: hasDigit),
+        (label: l10n.authPasswordRuleSpecial, check: hasSpecial),
+      ];
 }
 
 /// Shows registration password rules with live pass/fail indicators.
@@ -55,7 +57,7 @@ class PasswordRulesHint extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Passwort-Anforderungen',
+          context.l10n.authPasswordRequirementsTitle,
           style: FigmaUi.rubik(
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -63,7 +65,7 @@ class PasswordRulesHint extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        ...PasswordPolicy.rules.map((rule) {
+        ...PasswordPolicy.rules(context.l10n).map((rule) {
           final met = password.isNotEmpty && rule.check(password);
           return Padding(
             padding: const EdgeInsets.only(bottom: 4),

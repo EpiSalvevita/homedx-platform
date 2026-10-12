@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
+import '../../l10n/l10n_ext.dart';
 import '../../providers/locale_provider.dart';
 import '../../utils/app_assets.dart';
 import '../../widgets/figma_ui.dart';
@@ -41,7 +42,7 @@ class MarketingNav extends StatelessWidget {
                 TextButton(
                   onPressed: () => context.go('/'),
                   child: Text(
-                    localeProvider.isGerman ? 'App' : 'App',
+                    context.l10n.navApp,
                     style: FigmaUi.rubik(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -53,7 +54,7 @@ class MarketingNav extends StatelessWidget {
                 TextButton(
                   onPressed: () => context.go('/login'),
                   child: Text(
-                    localeProvider.isGerman ? 'Anmelden' : 'Sign in',
+                    context.l10n.navSignIn,
                     style: FigmaUi.rubik(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -73,7 +74,7 @@ class MarketingNav extends StatelessWidget {
                   vertical: 14,
                 ),
                 child: Text(
-                  localeProvider.isGerman ? 'Registrieren' : 'Register',
+                  context.l10n.navRegister,
                   style: FigmaUi.rubik(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,

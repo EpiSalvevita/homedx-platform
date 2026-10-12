@@ -37,9 +37,17 @@ class AdaptiveScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (showWebHeader)
-              WebPageHeader(
-                title: title,
-                actions: actions,
+              // Same 800px column as the page body, so title and content share a left edge.
+              Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: WebPageHeader(
+                    title: title,
+                    actions: actions,
+                    padding: const EdgeInsets.fromLTRB(0, 28, 0, 4),
+                  ),
+                ),
               ),
             Expanded(child: body),
           ],

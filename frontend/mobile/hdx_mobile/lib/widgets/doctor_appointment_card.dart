@@ -4,6 +4,7 @@ import '../models/doctor.dart';
 import '../utils/gender_labels.dart';
 import 'appointment_status_badge.dart';
 import 'figma_ui.dart';
+import '../l10n/l10n_ext.dart';
 
 /// Raised appointment tile for the doctor portal (patient-centric labels).
 class DoctorAppointmentCard extends StatelessWidget {
@@ -25,8 +26,8 @@ class DoctorAppointmentCard extends StatelessWidget {
         '${dateTime.day.toString().padLeft(2, '0')}.${dateTime.month.toString().padLeft(2, '0')}.${dateTime.year}';
     final timeStr =
         '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-    final patientName = appointment.patientName ?? 'Patient';
-    final genderLabel = formatGenderDe(appointment.patientGender);
+    final patientName = appointment.patientName ?? context.l10n.apptPatient;
+    final genderLabel = formatGenderDe(appointment.patientGender, context.l10n);
 
     final nameStyle = FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.textColor);
     final metaStyle = FigmaUi.rubik(fontSize: 12, fontWeight: FontWeight.w300, color: AppTheme.primaryBlue);
@@ -97,7 +98,7 @@ class DoctorAppointmentCard extends StatelessWidget {
               if (appointment.canJoin && onJoinCall != null)
                 IconButton(
                   icon: const Icon(Icons.play_circle_fill, size: 22, color: AppTheme.successColor),
-                  tooltip: 'Videoanruf starten',
+                  tooltip: context.l10n.videoStartCall,
                   onPressed: onJoinCall,
                 )
               else

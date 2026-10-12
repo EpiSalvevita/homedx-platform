@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../config/app_theme.dart';
+import '../l10n/l10n_ext.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
 import '../models/app_notification.dart';
@@ -76,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.quiz_outlined, color: AppTheme.textColor),
-              title: Text('Fragebögen', style: FigmaUi.rubik(fontWeight: FontWeight.w500, color: AppTheme.textColor)),
+              title: Text(context.l10n.navQuestionnaires, style: FigmaUi.rubik(fontWeight: FontWeight.w500, color: AppTheme.textColor)),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/questionnaires');
@@ -84,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.person_outline, color: AppTheme.textColor),
-              title: Text('Profil', style: FigmaUi.rubik(fontWeight: FontWeight.w500, color: AppTheme.textColor)),
+              title: Text(context.l10n.navProfile, style: FigmaUi.rubik(fontWeight: FontWeight.w500, color: AppTheme.textColor)),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/profile');
@@ -92,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.payment_outlined, color: AppTheme.textColor),
-              title: Text('Zahlungsverlauf', style: FigmaUi.rubik(fontWeight: FontWeight.w500, color: AppTheme.textColor)),
+              title: Text(context.l10n.navPayments, style: FigmaUi.rubik(fontWeight: FontWeight.w500, color: AppTheme.textColor)),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/payments');
@@ -100,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.logout, color: AppTheme.errorColor),
-              title: Text('Abmelden', style: FigmaUi.rubik(fontWeight: FontWeight.w500, color: AppTheme.errorColor)),
+              title: Text(context.l10n.homeLogout, style: FigmaUi.rubik(fontWeight: FontWeight.w500, color: AppTheme.errorColor)),
               onTap: () { Navigator.pop(context); _handleLogout(); },
             ),
           ],
@@ -112,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
-    final firstName = _userData?.firstName ?? authProvider.userEmail?.split('@').first ?? 'Benutzer';
+    final firstName = _userData?.firstName ?? authProvider.userEmail?.split('@').first ?? context.l10n.homeUserFallback;
     final email = _userData?.email ?? authProvider.userEmail ?? '';
 
     final homeContent = RefreshIndicator(
@@ -136,8 +137,8 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             WebPageHeader(
-              title: 'Willkommen zurück',
-              subtitle: 'Hallo $firstName — wählen Sie unten eine Schnellaktion.',
+              title: context.l10n.homeWelcomeBack,
+              subtitle: context.l10n.homeGreeting(firstName),
             ),
             Expanded(child: homeContent),
           ],
@@ -169,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: const LinearProgressIndicator(),
           ),
         SizedBox(height: kIsWeb ? 24 : 28),
-        const FigmaSectionTitle('Schnellaktionen'),
+        FigmaSectionTitle(context.l10n.homeQuickActions),
         const SizedBox(height: 16),
         _buildQuickActionGrid(context),
         const SizedBox(height: 28),
@@ -206,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const FigmaSectionTitle('Letzte Aktivität'),
+        FigmaSectionTitle(context.l10n.homeRecentActivity),
         const SizedBox(height: 16),
         for (var i = 0; i < rows.length; i++) ...[
           if (i > 0) const SizedBox(height: AppTheme.quickActionGridSpacing),
@@ -224,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return FigmaActivityRow(
       icon: Icons.person_outline,
-      title: 'Erste Schritte',
+      title: context.l10n.homeGettingStarted,
       subtitle: user.profileCompletionHint,
       onTap: () => context.push('/profile'),
     );
@@ -244,42 +245,42 @@ class _HomeScreenState extends State<HomeScreen> {
       if (PlatformCapabilities.canRunCubeTests)
         FigmaQuickActionTile(
           assetPath: AppAssets.iconHomeHeart,
-          label: 'Test starten',
+          label: context.l10n.homeStartTest,
           onTap: () => context.go('/tests'),
         ),
       FigmaQuickActionTile(
         assetPath: AppAssets.doctorExplaining,
-        label: 'Online Sprechstunde',
+        label: context.l10n.homeOnlineConsultation,
         iconHeight: 180,
         onTap: () => context.pushNamed('doctors'),
       ),
       FigmaQuickActionTile(
-        assetPath: AppAssets.iconHomeCalendar,
-        label: 'Meine Termine',
-        iconHeight: 80,
+        assetPath: AppAssets.doctorAppointment,
+        label: context.l10n.homeMyAppointments,
+        iconHeight: 180,
         onTap: () => context.push('/appointments'),
       ),
       FigmaQuickActionTile(
         assetPath: AppAssets.microscope,
-        label: 'Ergebnisse',
+        label: context.l10n.navResults,
         iconHeight: 180,
         onTap: () => context.push('/results'),
       ),
       FigmaQuickActionTile(
         assetPath: AppAssets.certificates,
-        label: 'Zertifikate',
+        label: context.l10n.navCertificates,
         iconHeight: 180,
         onTap: () => context.push('/certificates'),
       ),
       FigmaQuickActionTile(
         assetPath: AppAssets.iconHomeBag,
-        label: 'Shop',
+        label: context.l10n.navShop,
         iconHeight: 180,
         onTap: () => context.push('/shop'),
       ),
       FigmaQuickActionTile(
         assetPath: AppAssets.notifications,
-        label: 'Benachrichtigungen',
+        label: context.l10n.navNotifications,
         iconHeight: 180,
         onTap: () => context.goNamed('notifications'),
       ),
@@ -295,7 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
           tiles.length,
           spacing: spacing,
           minTileWidth: kIsWeb ? 185 : 130,
-          maxColumns: kIsWeb ? 4 : 3,
+          maxColumns: 3,
         );
 
         final rows = <List<Widget>>[];

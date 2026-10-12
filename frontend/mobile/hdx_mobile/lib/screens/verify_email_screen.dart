@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../l10n/l10n_ext.dart';
 import '../config/app_theme.dart';
 import '../services/auth_service.dart';
 import '../utils/app_assets.dart';
@@ -47,7 +48,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     if (token == null || token.isEmpty) {
       setState(() {
         _error =
-            'Der Bestätigungslink ist ungültig oder abgelaufen. Bitte fordern Sie eine neue E-Mail an.';
+            context.l10n.authVerifyLinkInvalid;
       });
       return;
     }
@@ -100,7 +101,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 const SizedBox(height: 24),
               ],
               Text(
-                'E-Mail bestätigen',
+                context.l10n.authVerifyEmailTitle,
                 style: FigmaUi.rubik(
                   fontSize: 26,
                   fontWeight: FontWeight.w600,
@@ -110,7 +111,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
               const SizedBox(height: 12),
               if (_isLoading)
                 Text(
-                  'Ihr Konto wird aktiviert…',
+                  context.l10n.authActivatingAccount,
                   style: FigmaUi.bodyLight(fontSize: 18, color: AppTheme.textColorSecondary),
                 )
               else if (_successMessage != null)
@@ -120,7 +121,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 )
               else
                 Text(
-                  'Der Bestätigungslink aus Ihrer E-Mail wird geprüft.',
+                  context.l10n.authVerifyChecking,
                   style: FigmaUi.bodyLight(fontSize: 18, color: AppTheme.textColorSecondary),
                 ),
               const SizedBox(height: 24),
@@ -136,13 +137,13 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                     border: Border.all(color: AppTheme.successColor.withValues(alpha: 0.35)),
                   ),
                   child: Text(
-                    'Sie können sich jetzt anmelden.',
+                    context.l10n.authCanSignInNow,
                     style: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColor),
                   ),
                 ),
                 const SizedBox(height: 24),
                 NeumorphicPillButton(
-                  label: 'Zur Anmeldung',
+                  label: context.l10n.authGoToSignIn,
                   leadingIcon: Icons.login,
                   onPressed: () => context.go(_loginRoute),
                 ),
@@ -150,7 +151,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 if (_error != null) NeumorphicFieldError(text: _error),
                 const SizedBox(height: 24),
                 NeumorphicPillButton(
-                  label: 'Erneut versuchen',
+                  label: context.l10n.retry,
                   onPressed: _isLoading ? null : _verify,
                 ),
                 const SizedBox(height: 12),
@@ -159,7 +160,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                     onPressed: () => context.go(_signupRoute),
                     style: authLinkButtonStyle(),
                     child: Text(
-                      'Zurück zur Registrierung',
+                      context.l10n.authBackToSignUp,
                       style: FigmaUi.rubik(
                         fontSize: 17,
                         fontWeight: FontWeight.w500,

@@ -13,6 +13,7 @@ import '../utils/test_type_labels.dart';
 import '../widgets/appointment_status_badge.dart';
 import '../widgets/figma_ui.dart';
 import '../widgets/web/adaptive_screen.dart';
+import '../l10n/l10n_ext.dart';
 
 class AppointmentDetailScreen extends StatefulWidget {
   final String appointmentId;
@@ -62,7 +63,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         backgroundColor: AppTheme.surface,
         title: Text(
-          'Termin stornieren',
+          context.l10n.apptCancelAppointment,
           style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
         ),
         content: Column(
@@ -70,7 +71,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Möchten Sie diesen Termin wirklich stornieren? Sie können optional eine Nachricht an die andere Person senden.',
+              context.l10n.apptCancelBody,
               style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w400, color: AppTheme.textColorSecondary),
             ),
             const SizedBox(height: 16),
@@ -80,8 +81,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               maxLength: 500,
               style: FigmaUi.rubik(fontSize: 17, color: AppTheme.textColor),
               decoration: InputDecoration(
-                labelText: 'Nachricht (optional)',
-                hintText: 'Grund für die Stornierung…',
+                labelText: context.l10n.apptCancelMessage,
+                hintText: context.l10n.apptCancelReasonHint,
                 filled: true,
                 fillColor: AppTheme.background,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -99,7 +100,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             style: TextButton.styleFrom(minimumSize: const Size(0, AppTheme.largeTouchTarget)),
             onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(
-              'Abbrechen',
+              context.l10n.cancel,
               style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w500, color: AppTheme.textColor),
             ),
           ),
@@ -107,7 +108,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             style: TextButton.styleFrom(minimumSize: const Size(0, AppTheme.largeTouchTarget)),
             onPressed: () => Navigator.pop(dialogContext, true),
             child: Text(
-              'Stornieren',
+              context.l10n.apptCancelAppointment,
               style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.errorColor),
             ),
           ),
@@ -131,13 +132,13 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
       setState(() => _isCancelling = false);
       if (ok) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Termin storniert'), backgroundColor: AppTheme.successColor),
+          SnackBar(content: Text(context.l10n.apptCancelled), backgroundColor: AppTheme.successColor),
         );
         await _loadAppointment();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Stornierung fehlgeschlagen'),
+          SnackBar(
+            content: Text(context.l10n.apptCancelFailed),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -149,7 +150,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     final bodyStyle = FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w400, color: AppTheme.textColor);
     final labelStyle = FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w400, color: AppTheme.textColorSecondary);
     final headline = isDoctor
-        ? (appointment.patientName ?? 'Patient')
+        ? (appointment.patientName ?? context.l10n.apptPatient)
         : appointment.doctorName;
 
     return NeumorphicRaisedCard(
@@ -171,24 +172,24 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           ),
           if (isDoctor && appointment.patientGender != null) ...[
             const SizedBox(height: 16),
-            Text('Geschlecht', style: labelStyle),
+            Text(context.l10n.apptGender, style: labelStyle),
             const SizedBox(height: 6),
-            Text(formatGenderDe(appointment.patientGender), style: bodyStyle),
+            Text(formatGenderDe(appointment.patientGender, context.l10n), style: bodyStyle),
           ],
           if (!isDoctor && appointment.patientName != null) ...[
             const SizedBox(height: 16),
-            Text('Patient', style: labelStyle),
+            Text(context.l10n.apptPatient, style: labelStyle),
             const SizedBox(height: 6),
             Text(appointment.patientName!, style: bodyStyle),
           ],
           if (!isDoctor && appointment.patientGender != null) ...[
             const SizedBox(height: 16),
-            Text('Geschlecht', style: labelStyle),
+            Text(context.l10n.apptGender, style: labelStyle),
             const SizedBox(height: 6),
-            Text(formatGenderDe(appointment.patientGender), style: bodyStyle),
+            Text(formatGenderDe(appointment.patientGender, context.l10n), style: bodyStyle),
           ],
           const SizedBox(height: 16),
-          Text('Termin', style: labelStyle),
+          Text(context.l10n.apptDateTime, style: labelStyle),
           const SizedBox(height: 6),
           Row(
             children: [
@@ -198,7 +199,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          Text('Art', style: labelStyle),
+          Text(context.l10n.apptKind, style: labelStyle),
           const SizedBox(height: 6),
           Row(
             children: [
@@ -209,26 +210,26 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               ),
               const SizedBox(width: 10),
               Text(
-                appointment.isOnline ? 'Online-Beratung' : 'Vor-Ort-Termin',
+                appointment.isOnline ? context.l10n.apptOnlineConsultation : context.l10n.apptOnSite,
                 style: bodyStyle,
               ),
             ],
           ),
           if (appointment.testTypeId != null && appointment.testTypeId!.isNotEmpty) ...[
             const SizedBox(height: 16),
-            Text('Zugehöriger Test', style: labelStyle),
+            Text(context.l10n.apptRelatedTest, style: labelStyle),
             const SizedBox(height: 6),
             Row(
               children: [
                 const Icon(Icons.science_outlined, size: 22, color: AppTheme.primaryBlue),
                 const SizedBox(width: 10),
-                Text(testTypeDisplayName(appointment.testTypeId), style: bodyStyle),
+                Text(testTypeDisplayName(appointment.testTypeId, context.l10n), style: bodyStyle),
               ],
             ),
           ],
           if (appointment.notes != null && appointment.notes!.isNotEmpty) ...[
             const SizedBox(height: 16),
-            Text('Notizen', style: labelStyle),
+            Text(context.l10n.apptNotes, style: labelStyle),
             const SizedBox(height: 6),
             Text(appointment.notes!, style: bodyStyle),
           ],
@@ -247,7 +248,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
       children: [
         if (appointment.canJoin && appointment.isOnline) ...[
           NeumorphicPillButton(
-            label: 'Videoanruf beitreten',
+            label: context.l10n.apptJoinVideoCall,
             leadingIcon: Icons.videocam_outlined,
             height: AppTheme.buttonHeightLarge,
             onPressed: () => context.push(callRoute),
@@ -257,7 +258,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         if (appointment.isUpcoming)
           Center(
             child: NeumorphicPillButton(
-              label: 'Termin stornieren',
+              label: context.l10n.apptCancelAppointment,
               height: AppTheme.buttonHeightLarge,
               expanded: false,
               loading: _isCancelling,
@@ -275,7 +276,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     final isDoctor = context.watch<AuthProvider>().isDoctor;
 
     return AdaptiveScreen(
-      title: 'Termindetails',
+      title: context.l10n.apptDetailsTitle,
       showWebHeader: false,
       onBack: () => context.pop(),
       body: _isLoading
@@ -283,14 +284,14 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           : _appointment == null
               ? Center(
                   child: Text(
-                    'Termin nicht gefunden',
+                    context.l10n.apptNotFound,
                     style: FigmaUi.rubik(fontSize: 18, fontWeight: FontWeight.w500, color: AppTheme.textColor),
                   ),
                 )
               : LayoutBuilder(
                   builder: (context, constraints) {
                     final appointment = _appointment!;
-                    final formatted = DateFormat('EEEE, dd.MM.yyyy HH:mm', 'de_DE')
+                    final formatted = DateFormat('EEEE, dd.MM.yyyy HH:mm', context.l10n.localeName)
                         .format(appointment.appointmentTime);
 
                     return SingleChildScrollView(

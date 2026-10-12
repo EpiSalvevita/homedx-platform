@@ -7,18 +7,20 @@ class WebPageHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
   final List<Widget>? actions;
+  final EdgeInsetsGeometry padding;
 
   const WebPageHeader({
     super.key,
     required this.title,
     this.subtitle,
     this.actions,
+    this.padding = const EdgeInsets.fromLTRB(32, 28, 32, 4),
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(32, 28, 32, 4),
+      padding: padding,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

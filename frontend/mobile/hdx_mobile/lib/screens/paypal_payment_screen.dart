@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:provider/provider.dart';
 import '../services/payment_service.dart';
+import '../l10n/l10n_ext.dart';
 
 class PayPalPaymentScreen extends StatefulWidget {
   final double amount;
@@ -53,6 +54,7 @@ class _PayPalPaymentScreenState extends State<PayPalPaymentScreen> {
   }
 
   Future<void> _handlePayPalReturn() async {
+    final l10n = context.l10n;
     if (_handledReturn) return;
     _handledReturn = true;
 
@@ -68,12 +70,13 @@ class _PayPalPaymentScreenState extends State<PayPalPaymentScreen> {
         await paymentService.waitForPaymentCompleted(widget.paymentId);
         await widget.onPaymentComplete();
       } catch (e) {
-        widget.onPaymentFailed('PayPal-Zahlung konnte nicht bestätigt werden');
+        widget.onPaymentFailed(l10n.paypalNotConfirmed);
       }
     }
   }
 
   void _initializeWebView() async {
+    final l10n = context.l10n;
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
@@ -111,7 +114,7 @@ class _PayPalPaymentScreenState extends State<PayPalPaymentScreen> {
             return NavigationDecision.navigate;
           },
           onWebResourceError: (WebResourceError error) {
-            widget.onPaymentFailed('WebView-Fehler: ${error.description}');
+            widget.onPaymentFailed(l10n.paypalWebViewError(error.description));
           },
         ),
       );
@@ -131,7 +134,7 @@ class _PayPalPaymentScreenState extends State<PayPalPaymentScreen> {
       await _controller.loadRequest(Uri.parse(approvalUrl));
     } catch (e) {
       if (mounted) {
-        widget.onPaymentFailed('PayPal-Bestellung konnte nicht erstellt werden');
+        widget.onPaymentFailed(l10n.paypalOrderFailed);
       }
     }
   }
@@ -140,7 +143,7 @@ class _PayPalPaymentScreenState extends State<PayPalPaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PayPal-Zahlung'),
+        title: Text(context.l10n.paypalTitle),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
