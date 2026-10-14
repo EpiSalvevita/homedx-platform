@@ -1855,4 +1855,23 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get questOverviewUnavailable =>
       'Die Übersicht Ihrer Angaben konnte nicht geladen werden.';
+
+  @override
+  String get webRoleAreaPatient => 'Patientenbereich';
+
+  @override
+  String get webRoleAreaDoctor => 'Ärztebereich';
+
+  @override
+  String get questResumePromptTitle => 'Gespeicherter Entwurf vorhanden';
+
+  @override
+  String get questResumePromptBody =>
+      'Möchten Sie an Ihrem gespeicherten Entwurf weiterarbeiten? Er wird erst geladen, wenn Sie das bestätigen.';
+
+  @override
+  String get questResumeConfirm => 'Entwurf fortsetzen';
+
+  @override
+  String get questResumeBack => 'Zurück zur Liste';
 }

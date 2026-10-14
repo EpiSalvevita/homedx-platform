@@ -3439,6 +3439,42 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Die Übersicht Ihrer Angaben konnte nicht geladen werden.'**
   String get questOverviewUnavailable;
+
+  /// No description provided for @webRoleAreaPatient.
+  ///
+  /// In de, this message translates to:
+  /// **'Patientenbereich'**
+  String get webRoleAreaPatient;
+
+  /// No description provided for @webRoleAreaDoctor.
+  ///
+  /// In de, this message translates to:
+  /// **'Ärztebereich'**
+  String get webRoleAreaDoctor;
+
+  /// No description provided for @questResumePromptTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Gespeicherter Entwurf vorhanden'**
+  String get questResumePromptTitle;
+
+  /// No description provided for @questResumePromptBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Möchten Sie an Ihrem gespeicherten Entwurf weiterarbeiten? Er wird erst geladen, wenn Sie das bestätigen.'**
+  String get questResumePromptBody;
+
+  /// No description provided for @questResumeConfirm.
+  ///
+  /// In de, this message translates to:
+  /// **'Entwurf fortsetzen'**
+  String get questResumeConfirm;
+
+  /// No description provided for @questResumeBack.
+  ///
+  /// In de, this message translates to:
+  /// **'Zurück zur Liste'**
+  String get questResumeBack;
 }
 
 class _AppLocalizationsDelegate

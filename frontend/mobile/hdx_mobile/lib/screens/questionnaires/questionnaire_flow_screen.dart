@@ -23,6 +23,8 @@ class QuestionnaireFlowScreen extends StatefulWidget {
   final bool isDoctor;
   final String? linkedRapidTestId;
   final String? returnRoute;
+  /// Injected in tests. The app uses the API-backed service when this is null.
+  final QuestionnaireService? service;
 
   const QuestionnaireFlowScreen({
     super.key,
@@ -30,6 +32,7 @@ class QuestionnaireFlowScreen extends StatefulWidget {
     this.isDoctor = false,
     this.linkedRapidTestId,
     this.returnRoute,
+    this.service,
   });
 
   @override
@@ -45,6 +48,9 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
   bool _isSaving = false;
   bool _showIntro = true;
   bool _showOverview = false;
+  /// A saved draft the person has not yet chosen to continue. Nothing is loaded
+  /// or saved until they confirm.
+  QuestionnaireSubmission? _pendingDraft;
   bool _dataConsent = false;
   int _stepIndex = 0;
   List<QuestionnaireStep> _steps = [];
@@ -63,7 +69,7 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
   }
 
   QuestionnaireService get _service =>
-      QuestionnaireService(Provider.of<ApiService>(context, listen: false));
+      widget.service ?? QuestionnaireService(Provider.of<ApiService>(context, listen: false));
 
   Future<void> _load() async {
     setState(() {
@@ -86,12 +92,11 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
       if (!mounted) return;
       setState(() {
         _module = module;
-        if (existing != null) {
-          _answers = pruneAnswers(module, Map<String, dynamic>.from(existing.answers));
-          _submissionId = existing.id;
-          _revision = existing.revision;
-          _showIntro = existing.isDraft;
-          _dataConsent = existing.consentStatus == 'yes' || !_isPatientModule;
+        // A saved draft with answers is offered first, never loaded silently.
+        if (existing != null && existing.isDraft && existing.answers.isNotEmpty) {
+          _pendingDraft = existing;
+        } else if (existing != null) {
+          _applyDraft(module, existing);
         }
         _rebuildSteps();
         _isLoading = false;
@@ -111,6 +116,81 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
         });
       }
     }
+  }
+
+  void _applyDraft(QuestionnaireModule module, QuestionnaireSubmission draft) {
+    _answers = pruneAnswers(module, Map<String, dynamic>.from(draft.answers));
+    _submissionId = draft.id;
+    _revision = draft.revision;
+    _showIntro = draft.isDraft;
+    _dataConsent = draft.consentStatus == 'yes' || !_isPatientModule;
+  }
+
+  void _resumePendingDraft() {
+    final draft = _pendingDraft;
+    if (draft == null || _module == null) return;
+    setState(() {
+      _applyDraft(_module!, draft);
+      _pendingDraft = null;
+      _rebuildSteps();
+    });
+  }
+
+  /// A notice that grows with its text. FigmaInsetInfoCard has a fixed height for
+  /// a title-only card, so long questionnaire text overflowed on narrow screens.
+  Widget _buildNotice(IconData icon, String text) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: AppTheme.neumorphicRaised,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: AppTheme.primaryBlue, size: 21),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w400, color: AppTheme.textColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResumePrompt() {
+    final l10n = context.l10n;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildNotice(Icons.edit_note, l10n.questResumePromptTitle),
+        const SizedBox(height: 12),
+        Text(
+          l10n.questResumePromptBody,
+          style: FigmaUi.bodyLight(fontSize: 16, color: AppTheme.textColorSecondary),
+        ),
+        const SizedBox(height: 28),
+        NeumorphicPillButton(
+          label: l10n.questResumeConfirm,
+          height: AppTheme.buttonHeightLarge,
+          backgroundColor: AppTheme.primaryBlue,
+          foregroundColor: Colors.white,
+          onPressed: _resumePendingDraft,
+        ),
+        const SizedBox(height: 12),
+        NeumorphicPillButton(
+          label: l10n.questResumeBack,
+          height: AppTheme.buttonHeightLarge,
+          backgroundColor: AppTheme.surface,
+          foregroundColor: AppTheme.textColor,
+          onPressed: () => context.go(_hubRoute),
+        ),
+      ],
+    );
   }
 
   void _rebuildSteps() {
@@ -397,10 +477,7 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
       children: [
         if (_isDemo) ...[_buildDemoBanner(), _buildDemoPrefill()],
         if (_isPatientModule) ...[
-          FigmaInsetInfoCard(
-            icon: Icons.info_outline,
-            title: context.l10n.questIntroPatientNotice,
-          ),
+          _buildNotice(Icons.info_outline, context.l10n.questIntroPatientNotice),
           const SizedBox(height: 16),
           CheckboxListTile(
             value: _dataConsent,
@@ -413,10 +490,7 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
             contentPadding: EdgeInsets.zero,
           ),
         ] else
-          FigmaInsetInfoCard(
-            icon: Icons.medical_information_outlined,
-            title: context.l10n.questIntroResearchNotice,
-          ),
+          _buildNotice(Icons.medical_information_outlined, context.l10n.questIntroResearchNotice),
         const SizedBox(height: 28),
         NeumorphicPillButton(
           label: context.l10n.questStart,
@@ -545,11 +619,13 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
                         alignment: Alignment.topCenter,
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 800),
-                          child: _showIntro
-                              ? _buildIntro()
-                              : _showOverview
-                                  ? _buildOverview()
-                                  : _buildStep(),
+                          child: _pendingDraft != null
+                              ? _buildResumePrompt()
+                              : _showIntro
+                                  ? _buildIntro()
+                                  : _showOverview
+                                      ? _buildOverview()
+                                      : _buildStep(),
                         ),
                       ),
                     ),

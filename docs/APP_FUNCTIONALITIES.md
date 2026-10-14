@@ -27,11 +27,15 @@ Snapshot of what exists today in the backend vs the Flutter app, plus a short ba
 ### RheumaCheck Anamnesefragebögen (A–D)
 
 - **Backend:** `get-questionnaire-modules`, `get-questionnaire-definition`, `save-questionnaire-draft`, `submit-questionnaire`, `get-questionnaire-submission`, `export-questionnaire-submissions` (ADMIN)
-- **Data:** `QuestionnaireSubmission` (modules A–D, answers JSON, draft/submitted, optional `linkedRapidTestId`); definition JSON under `backend/data/questionnaires/`
-- **App:** JSON-driven wizard; hub at `/questionnaires` (patient A/C) and `/doctor/questionnaires` (doctor B/D)
+- **Catalogue:** RheumaCheck V04 internal-review draft (171 items: A 45, B 34, C 47, follow-up CFU 8, D 37). Content is not medically or regulatorily approved. Source: `backend/data/questionnaires/rheumacheck_questionnaires_v04.public.json`
+- **Data:** `QuestionnaireSubmission`; rows of the current catalogue carry the moduleVersion prefix `v04:`. Older v6.2 rows stay in the database and are excluded everywhere
+- **App:** hub at `/questionnaires` (patient A, C) and `/doctor/questionnaires` (doctor B, D). The follow-up (CFU) shows as "Noch nicht vorgesehen" and is answerable only for users in `QUESTIONNAIRE_REVIEWER_USER_IDS`
+- **Flow:** saved drafts are offered before they load; answer overview before submit; completion page shows the person's own answers, with no score or diagnosis
+- **Saving:** revision token on every draft write; a stale or concurrent save returns `REVISION_CONFLICT`
 - **Flow hooks:** Bogen A before RheumaCheck test; Bogen C after result; B/D on doctor dashboard
-- **Regulatory (v1):** capture-only — no automatic diagnosis or care routing; consent required for patient forms; audit logs store metadata only
-- **Gap:** CSV export UI; GDPR erasure; FHIR export
+- **Demo build:** `--dart-define=HDX_QUESTIONNAIRE_DEMO=true` shows synthetic example answers and never writes to a server
+- **Regulatory:** capture-only — no automatic diagnosis or care routing; patient submit requires consent (checked server-side); audit logs store metadata only. Open sign-offs are in `docs/regulatory/questionnaire-submissions-v1.md`
+- **Gap:** review comments tied to items; CSV export UI; GDPR erasure; FHIR export; invitation flow for the follow-up; doctor avatar upload
 
 ### Payments
 

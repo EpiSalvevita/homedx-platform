@@ -150,6 +150,7 @@ class _SignupScreenState extends State<SignupScreen> {
         hint: 'name@beispiel.de',
         prefixIcon: Icons.mail_outline,
         keyboardType: TextInputType.emailAddress,
+        autofillHints: const [AutofillHints.newUsername, AutofillHints.email],
         validator: (v) {
           if (_emailServerError != null) return _emailServerError;
           if (v == null || v.isEmpty) return context.l10n.authEmailRequired;
@@ -180,6 +181,7 @@ class _SignupScreenState extends State<SignupScreen> {
         label: context.l10n.authPasswordLabel,
         prefixIcon: Icons.lock_outline,
         obscureText: _obscurePassword,
+        autofillHints: const [AutofillHints.newPassword],
         validator: (v) => PasswordPolicy.validate(v, context.l10n),
         suffix: _passwordVisibilityButton(
           obscure: _obscurePassword,
@@ -192,6 +194,7 @@ class _SignupScreenState extends State<SignupScreen> {
         label: context.l10n.authConfirmPasswordLabel,
         prefixIcon: Icons.lock_outline,
         obscureText: _obscureConfirmPassword,
+        autofillHints: const [AutofillHints.newPassword],
         validator: (v) {
           if (v == null || v.isEmpty) return context.l10n.authConfirmPasswordRequired;
           if (v != _passwordController.text) return context.l10n.authPasswordsMismatch;
@@ -356,10 +359,12 @@ class _SignupScreenState extends State<SignupScreen> {
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(color: AppTheme.navy.withValues(alpha: 0.08)),
       ),
-      child: Form(
-        key: _formKey,
-        autovalidateMode: _autovalidate ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled,
-        child: _buildForm(pairedRows: pairedRows, isWideWeb: isWideWeb),
+      child: AutofillGroup(
+        child: Form(
+          key: _formKey,
+          autovalidateMode: _autovalidate ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled,
+          child: _buildForm(pairedRows: pairedRows, isWideWeb: isWideWeb),
+        ),
       ),
     );
   }
@@ -429,11 +434,13 @@ class _SignupScreenState extends State<SignupScreen> {
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: pairedRows ? 560 : 440),
-              child: Form(
-                key: _formKey,
-                autovalidateMode:
-                    _autovalidate ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled,
-                child: _buildForm(pairedRows: pairedRows, isWideWeb: false),
+              child: AutofillGroup(
+                child: Form(
+                  key: _formKey,
+                  autovalidateMode:
+                      _autovalidate ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled,
+                  child: _buildForm(pairedRows: pairedRows, isWideWeb: false),
+                ),
               ),
             ),
           ),

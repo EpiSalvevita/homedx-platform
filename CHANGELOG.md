@@ -10,6 +10,54 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 
 ## Unreleased
 
+**Mobile: web feedback fixes (HDX-03, HDX-05, HDX-06):**
+- Web shell: below 850 px the sidebar becomes a drawer, opened from the app bar.
+  Navigation taps close the drawer (`layout/web_app_shell.dart`).
+- The active area is shown as text in the sidebar and the app bar:
+  "Patientenbereich" or "Ärztebereich", with the account name below. Colour is
+  not the only signal.
+- Login and signup fields carry autofill hints (username, current-password,
+  new-password). The login form saves credentials after a successful sign-in.
+  A password manager round trip still needs a manual test in an approved browser.
+
+*Regulatory note:* authentication and on-screen wording, both in scope. Failure
+modes: a wrong area label shows the user the wrong role; autofill stores a
+password in the wrong field. Test evidence: `test/layout/web_app_shell_test.dart`
+(wide and narrow layout, drawer opens); `flutter analyze` clean. Not done: a
+password manager test, a check at 320 and 390 px on a real device, and any
+change to the session or cookie policy (see below). Sign-off: human review of
+the wording.
+
+**Mobile: landing page language switch:**
+- The landing page now translates its hero, navigation, doctor cards, doctor
+  call-to-action and footer. Before, only the story section followed the
+  language switch. German text is unchanged.
+- Test evidence: `test/l10n/marketing_strings_test.dart`. Marketing copy only,
+  no regulatory impact.
+
+**Questionnaires: resume after confirmation (handover gap 11):**
+- A saved draft with answers is offered first ("Entwurf fortsetzen" or "Zurück
+  zur Liste"). It is loaded only after the person confirms. Nothing is saved on
+  open. Empty drafts load directly as before. There is no "start new" option,
+  because clearing a draft would need a delete endpoint.
+- Questionnaire intro notices grow with their text. The fixed-height card
+  overflowed on narrow screens.
+
+*Regulatory note:* a stale draft could be continued without the person noticing.
+The confirmation step and the draft's revision token limit this. Test evidence:
+`test/screens/questionnaires/questionnaire_resume_test.dart` (3 cases).
+
+**Open, not changed here (HDX-04 reload and HDX-07 avatar):**
+- The web session after a reload depends on the `homedx_auth` cookie. The
+  cookie is `Secure` whenever `NODE_ENV=production`. The NAS compose file sets
+  that, and the NAS is reached over plain HTTP. Browsers do not store `Secure`
+  cookies over HTTP, so a reload loses the session while login itself still
+  works. The fix is to serve the app over HTTPS
+  (`deploy/nas/nginx-tls.conf.example`). Changing the cookie policy instead is
+  a security decision and needs approval.
+- Doctor avatar editing needs a new profile field, an upload endpoint and
+  storage. The duplicate doctor profile check needs the live database.
+
 **Questionnaires: RheumaCheck V04 catalogue (backend and mobile):**
 - The questionnaire API and app now use the V04 internal-review catalogue
   (171 items: A 45, B 34, C 47, optional follow-up CFU 8, D 37) in place of

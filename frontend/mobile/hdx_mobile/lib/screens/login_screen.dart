@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../l10n/l10n_ext.dart';
@@ -66,6 +67,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (success && mounted) {
+      // Offer the browser or password manager to save the credentials.
+      TextInput.finishAutofillContext();
       context.go(homeRouteForRole(authProvider.userRole));
     } else if (mounted) {
       final error = localizeLoginError(authProvider.error ?? context.l10n.authLoginFailed, l10n: context.l10n);
@@ -122,6 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontSize: 17,
                 labelFontSize: 15,
                 keyboardType: TextInputType.emailAddress,
+                autofillHints: const [AutofillHints.username, AutofillHints.email],
                 textInputAction: TextInputAction.next,
                 onFieldSubmitted: () => _passwordFocusNode.requestFocus(),
                 validator: (v) {
@@ -139,6 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontSize: 17,
                 labelFontSize: 15,
                 obscureText: _obscurePassword,
+                autofillHints: const [AutofillHints.password],
                 textInputAction: TextInputAction.done,
                 onFieldSubmitted: _submitLogin,
                 validator: (v) {
@@ -223,7 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 borderRadius: BorderRadius.circular(16),
                 side: BorderSide(color: AppTheme.navy.withValues(alpha: 0.08)),
               ),
-              child: Form(key: _formKey, child: _buildForm(isWideWeb: isWide)),
+              child: AutofillGroup(child: Form(key: _formKey, child: _buildForm(isWideWeb: isWide))),
             );
 
             if (isWide) {
@@ -264,7 +269,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         top: false,
         child: SingleChildScrollView(
-          child: Form(key: _formKey, child: _buildForm(isWideWeb: false)),
+          child: AutofillGroup(child: Form(key: _formKey, child: _buildForm(isWideWeb: false))),
         ),
       ),
     );

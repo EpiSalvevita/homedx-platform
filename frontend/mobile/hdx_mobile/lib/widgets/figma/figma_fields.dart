@@ -87,6 +87,8 @@ class NeumorphicInsetField extends StatelessWidget {
   final FocusNode? focusNode;
   final TextInputAction? textInputAction;
   final VoidCallback? onFieldSubmitted;
+  /// Lets password managers recognise the field (for example AutofillHints.password).
+  final Iterable<String>? autofillHints;
   final double fieldHeight;
   final EdgeInsetsGeometry fieldPadding;
   final double fontSize;
@@ -109,6 +111,7 @@ class NeumorphicInsetField extends StatelessWidget {
     this.focusNode,
     this.textInputAction,
     this.onFieldSubmitted,
+    this.autofillHints,
     this.fieldHeight = AppTheme.fieldHeight,
     this.fieldPadding = AppTheme.fieldPadding,
     this.fontSize = 17,
@@ -153,6 +156,7 @@ class NeumorphicInsetField extends StatelessWidget {
                       onChanged: field.didChange,
                       obscureText: obscureText,
                       keyboardType: keyboardType,
+                      autofillHints: autofillHints,
                       textInputAction: textInputAction,
                       onSubmitted: onFieldSubmitted != null ? (_) => onFieldSubmitted!() : null,
                       textAlignVertical: TextAlignVertical.center,
