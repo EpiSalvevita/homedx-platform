@@ -849,5 +849,9 @@
   "questDoneNextStep": "Diese Übersicht zeigt nur, was Sie eingegeben haben. Sie ist keine Bewertung und keine Diagnose.",
   "questOverviewUnavailable": "Die Übersicht Ihrer Angaben konnte nicht geladen werden.",
   "webRoleAreaPatient": "Patientenbereich",
-  "webRoleAreaDoctor": "Ärztebereich"
+  "webRoleAreaDoctor": "Ärztebereich",
+  "questResumePromptTitle": "Gespeicherter Entwurf vorhanden",
+  "questResumePromptBody": "Möchten Sie an Ihrem gespeicherten Entwurf weiterarbeiten? Er wird erst geladen, wenn Sie das bestätigen.",
+  "questResumeConfirm": "Entwurf fortsetzen",
+  "questResumeBack": "Zurück zur Liste"
 }

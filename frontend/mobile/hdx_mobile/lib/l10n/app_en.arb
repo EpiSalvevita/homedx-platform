@@ -849,5 +849,9 @@
   "questDoneNextStep": "This overview only shows what you entered. It is not an assessment and not a diagnosis.",
   "questOverviewUnavailable": "Your answer overview could not be loaded.",
   "webRoleAreaPatient": "Patient area",
-  "webRoleAreaDoctor": "Doctor area"
+  "webRoleAreaDoctor": "Doctor area",
+  "questResumePromptTitle": "Saved draft found",
+  "questResumePromptBody": "Do you want to continue your saved draft? It is only loaded once you confirm.",
+  "questResumeConfirm": "Continue draft",
+  "questResumeBack": "Back to the list"
 }

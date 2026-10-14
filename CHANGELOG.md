@@ -28,6 +28,18 @@ password manager test, a check at 320 and 390 px on a real device, and any
 change to the session or cookie policy (see below). Sign-off: human review of
 the wording.
 
+**Questionnaires: resume after confirmation (handover gap 11):**
+- A saved draft with answers is offered first ("Entwurf fortsetzen" or "Zurück
+  zur Liste"). It is loaded only after the person confirms. Nothing is saved on
+  open. Empty drafts load directly as before. There is no "start new" option,
+  because clearing a draft would need a delete endpoint.
+- Questionnaire intro notices grow with their text. The fixed-height card
+  overflowed on narrow screens.
+
+*Regulatory note:* a stale draft could be continued without the person noticing.
+The confirmation step and the draft's revision token limit this. Test evidence:
+`test/screens/questionnaires/questionnaire_resume_test.dart` (3 cases).
+
 **Open, not changed here (HDX-04 reload and HDX-07 avatar):**
 - The web session after a reload depends on the `homedx_auth` cookie. The
   cookie is `Secure` whenever `NODE_ENV=production`. The NAS compose file sets

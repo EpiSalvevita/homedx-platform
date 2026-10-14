@@ -1841,4 +1841,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webRoleAreaDoctor => 'Doctor area';
+
+  @override
+  String get questResumePromptTitle => 'Saved draft found';
+
+  @override
+  String get questResumePromptBody =>
+      'Do you want to continue your saved draft? It is only loaded once you confirm.';
+
+  @override
+  String get questResumeConfirm => 'Continue draft';
+
+  @override
+  String get questResumeBack => 'Back to the list';
 }
