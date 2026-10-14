@@ -10,6 +10,35 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 
 ## Unreleased
 
+**Mobile: web feedback fixes (HDX-03, HDX-05, HDX-06):**
+- Web shell: below 850 px the sidebar becomes a drawer, opened from the app bar.
+  Navigation taps close the drawer (`layout/web_app_shell.dart`).
+- The active area is shown as text in the sidebar and the app bar:
+  "Patientenbereich" or "Ärztebereich", with the account name below. Colour is
+  not the only signal.
+- Login and signup fields carry autofill hints (username, current-password,
+  new-password). The login form saves credentials after a successful sign-in.
+  A password manager round trip still needs a manual test in an approved browser.
+
+*Regulatory note:* authentication and on-screen wording, both in scope. Failure
+modes: a wrong area label shows the user the wrong role; autofill stores a
+password in the wrong field. Test evidence: `test/layout/web_app_shell_test.dart`
+(wide and narrow layout, drawer opens); `flutter analyze` clean. Not done: a
+password manager test, a check at 320 and 390 px on a real device, and any
+change to the session or cookie policy (see below). Sign-off: human review of
+the wording.
+
+**Open, not changed here (HDX-04 reload and HDX-07 avatar):**
+- The web session after a reload depends on the `homedx_auth` cookie. The
+  cookie is `Secure` whenever `NODE_ENV=production`. The NAS compose file sets
+  that, and the NAS is reached over plain HTTP. Browsers do not store `Secure`
+  cookies over HTTP, so a reload loses the session while login itself still
+  works. The fix is to serve the app over HTTPS
+  (`deploy/nas/nginx-tls.conf.example`). Changing the cookie policy instead is
+  a security decision and needs approval.
+- Doctor avatar editing needs a new profile field, an upload endpoint and
+  storage. The duplicate doctor profile check needs the live database.
+
 **Questionnaires: RheumaCheck V04 catalogue (backend and mobile):**
 - The questionnaire API and app now use the V04 internal-review catalogue
   (171 items: A 45, B 34, C 47, optional follow-up CFU 8, D 37) in place of

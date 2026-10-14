@@ -1835,4 +1835,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get questOverviewUnavailable =>
       'Your answer overview could not be loaded.';
+
+  @override
+  String get webRoleAreaPatient => 'Patient area';
+
+  @override
+  String get webRoleAreaDoctor => 'Doctor area';
 }

@@ -9,6 +9,9 @@ import '../widgets/figma_ui.dart';
 import 'web_nav_config.dart';
 
 /// Desktop web shell: persistent sidebar and wide content column.
+/// Below this width the sidebar becomes a drawer, so content keeps its space on phones.
+const double _compactShellBreakpoint = 850;
+
 class WebAppShell extends StatelessWidget {
   final Widget child;
 
@@ -26,6 +29,54 @@ class WebAppShell extends StatelessWidget {
     final userLabel = auth.displayName == null
         ? fallbackLabel
         : (auth.isDoctor ? 'Dr. ${auth.displayName}' : auth.displayName!);
+    // The active area is always shown as text, never only as colour.
+    final roleLabel = auth.isDoctor
+        ? context.l10n.webRoleAreaDoctor
+        : context.l10n.webRoleAreaPatient;
+
+    Future<void> logout() async {
+      await auth.logout();
+      if (!context.mounted) return;
+      context.go('/login');
+    }
+
+    final compact = MediaQuery.sizeOf(context).width < _compactShellBreakpoint;
+    if (compact) {
+      return Scaffold(
+        backgroundColor: AppTheme.surface,
+        appBar: AppBar(
+          backgroundColor: AppTheme.primaryBlue,
+          foregroundColor: Colors.white,
+          title: Text(
+            '$roleLabel | $userLabel',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: FigmaUi.rubik(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+          ),
+        ),
+        drawer: Drawer(
+          backgroundColor: AppTheme.primaryBlue,
+          child: SafeArea(
+            child: _WebSidebar(
+              navItems: navItems,
+              currentPath: currentPath,
+              roleLabel: roleLabel,
+              userLabel: userLabel,
+              userEmail: auth.userEmail,
+              onLogout: logout,
+              onNavigate: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ),
+        body: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: WebNavConfig.maxContentWidth),
+            child: child,
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppTheme.surface,
@@ -35,13 +86,10 @@ class WebAppShell extends StatelessWidget {
           _WebSidebar(
             navItems: navItems,
             currentPath: currentPath,
+            roleLabel: roleLabel,
             userLabel: userLabel,
             userEmail: auth.userEmail,
-            onLogout: () async {
-              await auth.logout();
-              if (!context.mounted) return;
-              context.go('/login');
-            },
+            onLogout: logout,
           ),
           Expanded(
             child: DecoratedBox(
@@ -69,16 +117,21 @@ class WebAppShell extends StatelessWidget {
 class _WebSidebar extends StatelessWidget {
   final List<WebNavItem> navItems;
   final String currentPath;
+  final String roleLabel;
   final String userLabel;
   final String? userEmail;
   final VoidCallback onLogout;
+  /// Called after a navigation tap. The drawer uses it to close itself.
+  final VoidCallback? onNavigate;
 
   const _WebSidebar({
     required this.navItems,
     required this.currentPath,
+    required this.roleLabel,
     required this.userLabel,
     required this.userEmail,
     required this.onLogout,
+    this.onNavigate,
   });
 
   @override
@@ -126,6 +179,7 @@ class _WebSidebar extends StatelessWidget {
                         } else {
                           context.go(item.path);
                         }
+                        onNavigate?.call();
                       },
                     ),
                   );
@@ -135,6 +189,7 @@ class _WebSidebar extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: _SidebarUserChip(
+                roleLabel: roleLabel,
                 label: userLabel,
                 email: userEmail,
               ),
@@ -163,10 +218,12 @@ class _WebSidebar extends StatelessWidget {
 }
 
 class _SidebarUserChip extends StatelessWidget {
+  final String roleLabel;
   final String label;
   final String? email;
 
   const _SidebarUserChip({
+    required this.roleLabel,
     required this.label,
     required this.email,
   });
@@ -215,6 +272,16 @@ class _SidebarUserChip extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text(
+                        roleLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: FigmaUi.rubik(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withValues(alpha: 0.85),
+                        ),
+                      ),
                       Text(
                         label,
                         maxLines: 1,

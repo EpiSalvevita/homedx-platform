@@ -1855,4 +1855,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get questOverviewUnavailable =>
       'Die Übersicht Ihrer Angaben konnte nicht geladen werden.';
+
+  @override
+  String get webRoleAreaPatient => 'Patientenbereich';
+
+  @override
+  String get webRoleAreaDoctor => 'Ärztebereich';
 }

@@ -847,5 +847,7 @@
   "questSendAnswers": "Submit",
   "questDoneYourAnswers": "Your answers",
   "questDoneNextStep": "This overview only shows what you entered. It is not an assessment and not a diagnosis.",
-  "questOverviewUnavailable": "Your answer overview could not be loaded."
+  "questOverviewUnavailable": "Your answer overview could not be loaded.",
+  "webRoleAreaPatient": "Patient area",
+  "webRoleAreaDoctor": "Doctor area"
 }

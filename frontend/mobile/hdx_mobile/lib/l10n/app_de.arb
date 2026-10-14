@@ -847,5 +847,7 @@
   "questSendAnswers": "Absenden",
   "questDoneYourAnswers": "Ihre Angaben",
   "questDoneNextStep": "Diese Übersicht zeigt nur, was Sie eingegeben haben. Sie ist keine Bewertung und keine Diagnose.",
-  "questOverviewUnavailable": "Die Übersicht Ihrer Angaben konnte nicht geladen werden."
+  "questOverviewUnavailable": "Die Übersicht Ihrer Angaben konnte nicht geladen werden.",
+  "webRoleAreaPatient": "Patientenbereich",
+  "webRoleAreaDoctor": "Ärztebereich"
 }

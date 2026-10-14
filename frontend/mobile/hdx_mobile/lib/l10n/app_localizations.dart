@@ -3439,6 +3439,18 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Die Übersicht Ihrer Angaben konnte nicht geladen werden.'**
   String get questOverviewUnavailable;
+
+  /// No description provided for @webRoleAreaPatient.
+  ///
+  /// In de, this message translates to:
+  /// **'Patientenbereich'**
+  String get webRoleAreaPatient;
+
+  /// No description provided for @webRoleAreaDoctor.
+  ///
+  /// In de, this message translates to:
+  /// **'Ärztebereich'**
+  String get webRoleAreaDoctor;
 }
 
 class _AppLocalizationsDelegate
