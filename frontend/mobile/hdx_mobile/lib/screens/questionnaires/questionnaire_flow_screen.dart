@@ -5,13 +5,18 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../models/questionnaire/questionnaire_models.dart';
+import '../../questionnaires/questionnaire_answer_format.dart';
 import '../../questionnaires/questionnaire_branching.dart';
+import '../../questionnaires/questionnaire_demo.dart';
 import '../../questionnaires/questionnaire_field_widgets.dart';
 import '../../questionnaires/questionnaire_validator.dart';
 import '../../core/api_service.dart';
 import '../../services/questionnaire_service.dart';
 import '../../widgets/figma_ui.dart';
 import '../../widgets/web/adaptive_screen.dart';
+
+/// Modules answered by patients. Follow-up (CFU) is patient-side too.
+const _patientModuleIds = {'A', 'C', 'CFU'};
 
 class QuestionnaireFlowScreen extends StatefulWidget {
   final String moduleId;
@@ -35,15 +40,21 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
   QuestionnaireModule? _module;
   Map<String, dynamic> _answers = {};
   String? _submissionId;
+  String? _revision;
   bool _isLoading = true;
   bool _isSaving = false;
   bool _showIntro = true;
+  bool _showOverview = false;
   bool _dataConsent = false;
   int _stepIndex = 0;
   List<QuestionnaireStep> _steps = [];
   String? _error;
 
-  bool get _isPatientModule => widget.moduleId == 'A' || widget.moduleId == 'C';
+  bool get _isPatientModule => _patientModuleIds.contains(widget.moduleId);
+
+  bool get _isDemo => kQuestionnaireDemoBuild;
+
+  String get _hubRoute => widget.isDoctor ? '/doctor/questionnaires' : '/questionnaires';
 
   @override
   void initState() {
@@ -51,20 +62,20 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
     _load();
   }
 
+  QuestionnaireService get _service =>
+      QuestionnaireService(Provider.of<ApiService>(context, listen: false));
+
   Future<void> _load() async {
     setState(() {
       _isLoading = true;
       _error = null;
     });
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
-      final service = QuestionnaireService(api);
-      final module = await service.getDefinition(widget.moduleId);
-      if (module == null) throw Exception('Fragebogen nicht gefunden');
+      final module = await _service.getDefinition(widget.moduleId);
 
       QuestionnaireSubmission? existing;
       try {
-        existing = await service.getSubmission(
+        existing = await _service.getSubmission(
           moduleId: widget.moduleId,
           linkedRapidTestId: widget.linkedRapidTestId,
         );
@@ -76,18 +87,22 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
       setState(() {
         _module = module;
         if (existing != null) {
-          _answers = Map<String, dynamic>.from(existing.answers);
+          _answers = pruneAnswers(module, Map<String, dynamic>.from(existing.answers));
           _submissionId = existing.id;
+          _revision = existing.revision;
           _showIntro = existing.isDraft;
           _dataConsent = existing.consentStatus == 'yes' || !_isPatientModule;
         }
-        _answers.putIfAbsent(
-          kQuestionnaireFormDepthKey,
-          () => kQuestionnaireFormDepthKurz,
-        );
         _rebuildSteps();
         _isLoading = false;
       });
+    } on QuestionnaireApiException catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = _messageFor(e);
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -106,32 +121,13 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
     }
   }
 
-  void _onAnswerChanged(String fieldId, dynamic value) {
+  void _onAnswerChanged(String itemId, dynamic value) {
     setState(() {
-      _answers[fieldId] = value;
+      _answers[itemId] = value;
+      // Hiding a question drops its answer, the same way the server does.
+      _answers = pruneAnswers(_module!, _answers);
       _rebuildSteps();
     });
-  }
-
-  Future<void> _saveDraft() async {
-    if (_module == null) return;
-    setState(() => _isSaving = true);
-    try {
-      final api = Provider.of<ApiService>(context, listen: false);
-      final service = QuestionnaireService(api);
-      final saved = await service.saveDraft(
-        moduleId: widget.moduleId,
-        answers: _answers,
-        submissionId: _submissionId,
-        linkedRapidTestId: widget.linkedRapidTestId,
-        consentStatus: _consentStatusValue(),
-      );
-      if (saved != null && mounted) {
-        setState(() => _submissionId = saved.id);
-      }
-    } finally {
-      if (mounted) setState(() => _isSaving = false);
-    }
   }
 
   String? _consentStatusValue() {
@@ -139,61 +135,131 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
     return _dataConsent ? 'yes' : 'no';
   }
 
+  String _messageFor(QuestionnaireApiException e) {
+    final l10n = context.l10n;
+    switch (e.code) {
+      case 'REVISION_CONFLICT':
+        return l10n.questRevisionConflict;
+      case 'NOT_ASSIGNED':
+        return l10n.questNotAssignedMessage;
+      case 'CONSENT_REQUIRED':
+        return l10n.questConsentRequired;
+      case 'VALIDATION':
+        if (e.validation.contains('CONSENT_REQUIRED')) return l10n.questConsentRequired;
+        return l10n.questCheckAnswers;
+      default:
+        return l10n.questSaveFailed;
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppTheme.errorColor),
+    );
+  }
+
+  Future<bool> _saveDraft() async {
+    if (_module == null) return false;
+    if (_isDemo) return true;
+    setState(() => _isSaving = true);
+    try {
+      final saved = await _service.saveDraft(
+        moduleId: widget.moduleId,
+        answers: pruneAnswers(_module!, _answers),
+        submissionId: _submissionId,
+        expectedUpdatedAt: _revision,
+        linkedRapidTestId: widget.linkedRapidTestId,
+        consentStatus: _consentStatusValue(),
+      );
+      if (!mounted) return false;
+      setState(() {
+        _submissionId = saved.id;
+        _revision = saved.revision;
+      });
+      return true;
+    } on QuestionnaireApiException catch (e) {
+      if (mounted) _showError(_messageFor(e));
+      return false;
+    } catch (_) {
+      if (mounted) _showError(context.l10n.questSaveFailed);
+      return false;
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
   Future<void> _submit() async {
     if (_module == null) return;
-    final errors = validateQuestionnaireSubmit(context.l10n, _module!, _answers);
+    final l10n = context.l10n;
+    if (_isPatientModule && !_dataConsent) {
+      _showError(l10n.questConsentRequired);
+      return;
+    }
+    final errors = validateQuestionnaireSubmit(l10n, _module!, _answers);
     if (errors.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errors.first), backgroundColor: AppTheme.errorColor),
+      _showError(errors.first);
+      return;
+    }
+
+    final returnQuery =
+        widget.returnRoute != null ? 'return=${Uri.encodeComponent(widget.returnRoute!)}' : '';
+    if (_isDemo) {
+      // Demo: nothing is sent. The completion page reads these in-memory answers.
+      final answers = pruneAnswers(_module!, _answers);
+      context.go(
+        '$_hubRoute/${widget.moduleId}/done?demo=1${returnQuery.isEmpty ? '' : '&$returnQuery'}',
+        extra: answers,
       );
       return;
     }
 
     setState(() => _isSaving = true);
     try {
-      final api = Provider.of<ApiService>(context, listen: false);
-      final service = QuestionnaireService(api);
-      final result = await service.submit(
+      final submitted = await _service.submit(
         moduleId: widget.moduleId,
-        answers: _answers,
+        answers: pruneAnswers(_module!, _answers),
         submissionId: _submissionId,
+        expectedUpdatedAt: _revision,
         linkedRapidTestId: widget.linkedRapidTestId,
         consentStatus: _consentStatusValue(),
       );
       if (!mounted) return;
-      if (result != null) {
-        final base = widget.isDoctor ? '/doctor/questionnaires' : '/questionnaires';
-        context.go('$base/${widget.moduleId}/done${widget.returnRoute != null ? '?return=${Uri.encodeComponent(widget.returnRoute!)}' : ''}');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
-            backgroundColor: AppTheme.errorColor,
-          ),
-        );
-      }
+      final query = [
+        'submissionId=${Uri.encodeComponent(submitted.id)}',
+        if (returnQuery.isNotEmpty) returnQuery,
+      ].join('&');
+      context.go('$_hubRoute/${widget.moduleId}/done?$query');
+    } on QuestionnaireApiException catch (e) {
+      if (mounted) _showError(_messageFor(e));
+    } catch (_) {
+      if (mounted) _showError(context.l10n.questSaveFailed);
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
   }
 
-  void _nextStep() {
+  Future<void> _nextStep() async {
     if (_module == null || _steps.isEmpty) return;
-    final errors = validateQuestionnaireStep(context.l10n, _module!, _steps[_stepIndex].fields, _answers);
+    final errors = validateQuestionnaireStep(
+      context.l10n,
+      _steps[_stepIndex].items,
+      _answers,
+    );
     if (errors.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errors.first), backgroundColor: AppTheme.errorColor),
-      );
+      _showError(errors.first);
       return;
     }
-    _saveDraft();
+    // The last step opens the overview. Submitting happens there.
     if (_stepIndex >= _steps.length - 1) {
-      _submit();
+      setState(() => _showOverview = true);
       return;
     }
-    setState(() => _stepIndex++);
+    if (!await _saveDraft()) return;
+    if (!mounted) return;
+    setState(() {
+      _stepIndex++;
+      _rebuildSteps();
+    });
   }
 
   void _prevStep() {
@@ -202,45 +268,124 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
     }
   }
 
-  void _setFormDepth(String depth) {
+  void _editStep(int index) {
     setState(() {
-      _answers[kQuestionnaireFormDepthKey] = normalizeFormDepth(depth);
-      _stepIndex = 0;
+      _showOverview = false;
+      _stepIndex = index;
+    });
+  }
+
+  void _applyDemoAnswers() {
+    if (_module == null) return;
+    setState(() {
+      _answers = syntheticDemoAnswers(_module!);
       _rebuildSteps();
     });
   }
 
-  Widget _buildDepthSwitch({required bool compact}) {
-    final depth = formDepthFromAnswers(_answers);
-    final selected = depth == kQuestionnaireFormDepthVoll ? 1 : 0;
+  Widget _buildDemoBanner() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppTheme.accentMint,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        context.l10n.questDemoBanner,
+        style: FigmaUi.rubik(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.onMint),
+      ),
+    );
+  }
+
+  Widget _buildDemoPrefill() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: NeumorphicPillButton(
+        label: context.l10n.questDemoPrefill,
+        height: AppTheme.buttonHeightLarge,
+        backgroundColor: AppTheme.surface,
+        foregroundColor: AppTheme.textColor,
+        onPressed: _applyDemoAnswers,
+      ),
+    );
+  }
+
+  Widget _buildOverview() {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          context.l10n.questLengthLabel,
-          style: FigmaUi.rubik(
-            fontSize: compact ? 15 : 17,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.textColor,
-          ),
-        ),
-        const SizedBox(height: 8),
-        FigmaSegmentedTabs(
-          labels: [context.l10n.questShortVersion, context.l10n.questFullVersion],
-          selectedIndex: selected,
-          onSelected: (i) => _setFormDepth(
-            i == 1 ? kQuestionnaireFormDepthVoll : kQuestionnaireFormDepthKurz,
-          ),
+          l10n.questOverviewTitle,
+          style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
         ),
         const SizedBox(height: 8),
         Text(
-          depth == kQuestionnaireFormDepthVoll
-              ? context.l10n.questFullVersionHint
-              : context.l10n.questShortVersionHint,
-          style: FigmaUi.bodyLight(
-            fontSize: 15,
-            color: AppTheme.textColorSecondary,
+          l10n.questOverviewHint,
+          style: FigmaUi.bodyLight(fontSize: 15, color: AppTheme.textColorSecondary),
+        ),
+        const SizedBox(height: 18),
+        for (final step in _steps) ...[
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  step.section.title,
+                  style: FigmaUi.rubik(fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.textColor),
+                ),
+              ),
+              TextButton(
+                onPressed: () => _editStep(step.index - 1),
+                child: Text(l10n.questEditSection),
+              ),
+            ],
           ),
+          for (final item in step.items)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(item.text, style: FigmaUi.bodyLight(fontSize: 15, color: AppTheme.textColorSecondary)),
+                  const SizedBox(height: 2),
+                  Text(
+                    formatAnswer(item, _answers[item.id]).isEmpty
+                        ? l10n.questNotAnswered
+                        : formatAnswer(item, _answers[item.id]),
+                    style: FigmaUi.rubik(fontSize: 16, color: AppTheme.textColor),
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(height: 10),
+        ],
+        Row(
+          children: [
+            Expanded(
+              child: NeumorphicPillButton(
+                label: l10n.questBack,
+                height: AppTheme.buttonHeightLarge,
+                backgroundColor: AppTheme.surface,
+                foregroundColor: AppTheme.textColor,
+                onPressed: () => setState(() {
+                  _showOverview = false;
+                  _stepIndex = _steps.isEmpty ? 0 : _steps.length - 1;
+                }),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: NeumorphicPillButton(
+                label: l10n.questSendAnswers,
+                height: AppTheme.buttonHeightLarge,
+                backgroundColor: AppTheme.primaryBlue,
+                foregroundColor: Colors.white,
+                loading: _isSaving,
+                onPressed: _isSaving ? null : _submit,
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -250,11 +395,11 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (_isDemo) ...[_buildDemoBanner(), _buildDemoPrefill()],
         if (_isPatientModule) ...[
           FigmaInsetInfoCard(
             icon: Icons.info_outline,
-            title:
-                context.l10n.questIntroPatientNotice,
+            title: context.l10n.questIntroPatientNotice,
           ),
           const SizedBox(height: 16),
           CheckboxListTile(
@@ -270,11 +415,8 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
         ] else
           FigmaInsetInfoCard(
             icon: Icons.medical_information_outlined,
-            title:
-                context.l10n.questIntroResearchNotice,
+            title: context.l10n.questIntroResearchNotice,
           ),
-        const SizedBox(height: 24),
-        _buildDepthSwitch(compact: false),
         const SizedBox(height: 28),
         NeumorphicPillButton(
           label: context.l10n.questStart,
@@ -291,9 +433,11 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
 
   Widget _buildStep() {
     final step = _steps[_stepIndex];
+    final isLast = _stepIndex >= _steps.length - 1;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (_isDemo) ...[_buildDemoBanner(), _buildDemoPrefill()],
         Row(
           children: [
             Expanded(
@@ -318,18 +462,23 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
           minHeight: 8,
           borderRadius: BorderRadius.circular(4),
         ),
-        const SizedBox(height: 16),
-        _buildDepthSwitch(compact: true),
         const SizedBox(height: 20),
         Text(
-          step.sectionTitle,
+          step.section.title,
           style: FigmaUi.rubik(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textColor),
         ),
+        if (step.section.intro != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            step.section.intro!,
+            style: FigmaUi.bodyLight(fontSize: 15, color: AppTheme.textColorSecondary),
+          ),
+        ],
         const SizedBox(height: 18),
-        ...step.fields.map(
-          (field) => QuestionnaireFieldWidget(
-            field: field,
-            value: _answers[field.id],
+        ...step.items.map(
+          (item) => QuestionnaireFieldWidget(
+            item: item,
+            value: _answers[item.id],
             onChanged: _onAnswerChanged,
           ),
         ),
@@ -349,7 +498,7 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
             if (_stepIndex > 0) const SizedBox(width: 12),
             Expanded(
               child: NeumorphicPillButton(
-                label: _stepIndex >= _steps.length - 1 ? context.l10n.questSubmit : context.l10n.questNext,
+                label: isLast ? context.l10n.questOpenOverview : context.l10n.questNext,
                 height: AppTheme.buttonHeightLarge,
                 backgroundColor: AppTheme.primaryBlue,
                 foregroundColor: Colors.white,
@@ -365,37 +514,45 @@ class _QuestionnaireFlowScreenState extends State<QuestionnaireFlowScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hubRoute = widget.isDoctor ? '/doctor/questionnaires' : '/questionnaires';
-
     return AdaptiveScreen(
       title: _module?.title ?? context.l10n.questFallbackTitle(widget.moduleId),
       showWebHeader: false,
-      onBack: () => context.go(hubRoute),
+      onBack: () => context.go(_hubRoute),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? FigmaEmptyState(
                   icon: Icons.error_outline,
                   title: context.l10n.questLoadFailed,
-                  message: context.l10n.checkConnectionRetry,
+                  message: _error ?? context.l10n.checkConnectionRetry,
                   actionLabel: context.l10n.retry,
                   onAction: _load,
                 )
-              : SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
-                    kIsWeb ? 24 : 8,
-                    kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
-                    24,
-                  ),
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 800),
-                      child: _showIntro ? _buildIntro() : _buildStep(),
+              : _steps.isEmpty && !_showIntro
+                  ? FigmaEmptyState(
+                      icon: Icons.task_alt,
+                      title: context.l10n.questNoQuestions,
+                      message: context.l10n.questNoQuestionsMessage,
+                    )
+                  : SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                        kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+                        kIsWeb ? 24 : 8,
+                        kIsWeb ? 32 : AppTheme.screenHorizontalPadding,
+                        24,
+                      ),
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 800),
+                          child: _showIntro
+                              ? _buildIntro()
+                              : _showOverview
+                                  ? _buildOverview()
+                                  : _buildStep(),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
     );
   }
 }

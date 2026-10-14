@@ -3230,36 +3230,6 @@ abstract class AppLocalizations {
   /// **'Weiter im Ablauf'**
   String get questContinue;
 
-  /// No description provided for @questLengthLabel.
-  ///
-  /// In de, this message translates to:
-  /// **'Fragebogenlänge'**
-  String get questLengthLabel;
-
-  /// No description provided for @questShortVersion.
-  ///
-  /// In de, this message translates to:
-  /// **'Kurzversion'**
-  String get questShortVersion;
-
-  /// No description provided for @questFullVersion.
-  ///
-  /// In de, this message translates to:
-  /// **'Vollversion'**
-  String get questFullVersion;
-
-  /// No description provided for @questShortVersionHint.
-  ///
-  /// In de, this message translates to:
-  /// **'Kurzversion: Kernfragen für Pilot und App (kürzer).'**
-  String get questShortVersionHint;
-
-  /// No description provided for @questFullVersionHint.
-  ///
-  /// In de, this message translates to:
-  /// **'Vollversion: alle Fragen aus dem PDF-Fachpaket (länger).'**
-  String get questFullVersionHint;
-
   /// No description provided for @questIntroPatientNotice.
   ///
   /// In de, this message translates to:
@@ -3337,6 +3307,138 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Auswählen'**
   String get questSelectHint;
+
+  /// No description provided for @questBadgeFollowUp.
+  ///
+  /// In de, this message translates to:
+  /// **'Nachbefragung'**
+  String get questBadgeFollowUp;
+
+  /// No description provided for @questNotAssigned.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch nicht vorgesehen'**
+  String get questNotAssigned;
+
+  /// No description provided for @questNotAssignedMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Dieser Fragebogen ist noch nicht vorgesehen. Er wird erst nach einer gesonderten Einladung verfügbar.'**
+  String get questNotAssignedMessage;
+
+  /// No description provided for @questRequiredMarker.
+  ///
+  /// In de, this message translates to:
+  /// **'Pflichtfeld'**
+  String get questRequiredMarker;
+
+  /// No description provided for @questUnsupportedQuestion.
+  ///
+  /// In de, this message translates to:
+  /// **'Diese Frage kann in dieser Version nicht angezeigt werden.'**
+  String get questUnsupportedQuestion;
+
+  /// No description provided for @questRankHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte wählen Sie bis zu {maximum} Antworten in der gewünschten Reihenfolge.'**
+  String questRankHint(int maximum);
+
+  /// No description provided for @questRevisionConflict.
+  ///
+  /// In de, this message translates to:
+  /// **'Ihr Entwurf wurde inzwischen an anderer Stelle geändert. Bitte laden Sie den Fragebogen neu.'**
+  String get questRevisionConflict;
+
+  /// No description provided for @questCheckAnswers.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte prüfen Sie Ihre Angaben. Einige Fragen sind unvollständig oder ungültig.'**
+  String get questCheckAnswers;
+
+  /// No description provided for @questSaveFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Speichern fehlgeschlagen. Bitte versuchen Sie es erneut.'**
+  String get questSaveFailed;
+
+  /// No description provided for @questNoQuestions.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine weiteren Fragen'**
+  String get questNoQuestions;
+
+  /// No description provided for @questNoQuestionsMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Für Ihre bisherigen Angaben gibt es in diesem Bogen keine weiteren Fragen.'**
+  String get questNoQuestionsMessage;
+
+  /// No description provided for @questDemoBanner.
+  ///
+  /// In de, this message translates to:
+  /// **'DEMO – nur synthetische Beispielantworten. Es wird nichts gespeichert oder übermittelt.'**
+  String get questDemoBanner;
+
+  /// No description provided for @questDemoPrefill.
+  ///
+  /// In de, this message translates to:
+  /// **'Synthetisches Beispiel vorbefüllen'**
+  String get questDemoPrefill;
+
+  /// No description provided for @questOpenOverview.
+  ///
+  /// In de, this message translates to:
+  /// **'Antwortübersicht'**
+  String get questOpenOverview;
+
+  /// No description provided for @questOverviewTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Antwortübersicht'**
+  String get questOverviewTitle;
+
+  /// No description provided for @questOverviewHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Prüfen Sie Ihre Angaben. Mit „Ändern“ springen Sie direkt zum Abschnitt.'**
+  String get questOverviewHint;
+
+  /// No description provided for @questEditSection.
+  ///
+  /// In de, this message translates to:
+  /// **'Ändern'**
+  String get questEditSection;
+
+  /// No description provided for @questNotAnswered.
+  ///
+  /// In de, this message translates to:
+  /// **'nicht beantwortet'**
+  String get questNotAnswered;
+
+  /// No description provided for @questSendAnswers.
+  ///
+  /// In de, this message translates to:
+  /// **'Absenden'**
+  String get questSendAnswers;
+
+  /// No description provided for @questDoneYourAnswers.
+  ///
+  /// In de, this message translates to:
+  /// **'Ihre Angaben'**
+  String get questDoneYourAnswers;
+
+  /// No description provided for @questDoneNextStep.
+  ///
+  /// In de, this message translates to:
+  /// **'Diese Übersicht zeigt nur, was Sie eingegeben haben. Sie ist keine Bewertung und keine Diagnose.'**
+  String get questDoneNextStep;
+
+  /// No description provided for @questOverviewUnavailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Übersicht Ihrer Angaben konnte nicht geladen werden.'**
+  String get questOverviewUnavailable;
 }
 
 class _AppLocalizationsDelegate

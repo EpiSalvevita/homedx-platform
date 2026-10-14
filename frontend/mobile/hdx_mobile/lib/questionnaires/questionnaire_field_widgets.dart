@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import '../config/app_theme.dart';
+import '../l10n/l10n_ext.dart';
 import '../models/questionnaire/questionnaire_models.dart';
 import '../widgets/figma_ui.dart';
 
-typedef AnswerChanged = void Function(String fieldId, dynamic value);
+typedef AnswerChanged = void Function(String itemId, dynamic value);
 
+/// Renders one V04 question. Response kinds come from responseContract.kind.
+/// Nothing is pre-selected: an unanswered scale is null, never 0.
 class QuestionnaireFieldWidget extends StatelessWidget {
-  final QuestionnaireField field;
+  final QuestionnaireItem item;
   final dynamic value;
   final AnswerChanged onChanged;
 
   const QuestionnaireFieldWidget({
     super.key,
-    required this.field,
+    required this.item,
     required this.value,
     required this.onChanged,
   });
@@ -25,18 +28,25 @@ class QuestionnaireFieldWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            field.label,
+            item.text,
             style: FigmaUi.rubik(
               fontSize: 17,
               fontWeight: FontWeight.w500,
               color: AppTheme.textColor,
             ),
           ),
-          if (field.required)
+          if (item.help != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              item.help!,
+              style: FigmaUi.bodyLight(fontSize: 14, color: AppTheme.textColorSecondary),
+            ),
+          ],
+          if (item.required)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                'Pflichtfeld',
+                context.l10n.questRequiredMarker,
                 style: FigmaUi.bodyLight(fontSize: 14, color: AppTheme.textColorSecondary),
               ),
             ),
@@ -48,38 +58,62 @@ class QuestionnaireFieldWidget extends StatelessWidget {
   }
 
   Widget _buildInput(BuildContext context) {
-    switch (field.type) {
-      case 'single_choice':
+    switch (item.type) {
+      case 'single':
+      case 'scale_agree':
+      case 'scale_1_5':
         return _SingleChoiceInput(
-          options: field.options,
-          value: value?.toString(),
-          onChanged: (v) => onChanged(field.id, v),
+          options: item.options,
+          value: value is String ? value as String : null,
+          onChanged: (v) => onChanged(item.id, v),
         );
-      case 'multi_choice':
+      case 'multi':
+      case 'bodymap_multi':
+      case 'lab_multi':
+      case 'multi_with_detail':
         return _MultiChoiceInput(
-          options: field.options,
-          values: value is List ? List<String>.from(value.map((e) => e.toString())) : <String>[],
-          onChanged: (v) => onChanged(field.id, v),
+          options: item.options,
+          exclusiveOptions: item.exclusiveOptions,
+          values: value is List ? value.map<String>((e) => e.toString()).toList() : <String>[],
+          onChanged: (v) => onChanged(item.id, v),
         );
-      case 'likert_5':
-        return _LikertInput(
-          value: value is int ? value : int.tryParse('$value'),
-          onChanged: (v) => onChanged(field.id, v),
+      case 'rank_top3':
+      case 'rank_top5':
+        return _RankInput(
+          options: item.options,
+          maximum: item.responseContract.maximumSelected ?? item.options.length,
+          values: value is List ? value.map<String>((e) => e.toString()).toList() : <String>[],
+          onChanged: (v) => onChanged(item.id, v),
         );
-      case 'nrs_0_10':
-        return _NrsInput(
-          value: value is int ? value : int.tryParse('$value'),
-          onChanged: (v) => onChanged(field.id, v),
+      case 'matrix_presence':
+      case 'matrix_importance':
+        return _MatrixInput(
+          rows: item.options,
+          ratings: item.responseContract.ratings,
+          values: value is Map ? Map<String, dynamic>.from(value) : <String, dynamic>{},
+          onChanged: (v) => onChanged(item.id, v),
         );
-      case 'text':
+      case 'scale_0_10':
+        return _ScaleInput(
+          value: value is int ? value : null,
+          lowLabel: item.options.isNotEmpty ? item.options.first : null,
+          highLabel: item.options.length > 1 ? item.options[1] : null,
+          onChanged: (v) => onChanged(item.id, v),
+        );
+      case 'textarea':
+      case 'version':
         return _TextInput(
           value: value?.toString() ?? '',
-          onChanged: (v) => onChanged(field.id, v),
+          maxLength: item.responseContract.maximumLength,
+          onChanged: (v) => onChanged(item.id, v),
         );
+      case 'review':
+        // UI control only. Never stored, never rendered as a question.
+        return const SizedBox.shrink();
       default:
-        return _TextInput(
-          value: value?.toString() ?? '',
-          onChanged: (v) => onChanged(field.id, v),
+        return Text(
+          context.l10n.questUnsupportedQuestion,
+          style: FigmaUi.bodyLight(fontSize: 15, color: AppTheme.errorColor),
         );
     }
   }
@@ -122,14 +156,27 @@ class _SingleChoiceInput extends StatelessWidget {
 
 class _MultiChoiceInput extends StatelessWidget {
   final List<String> options;
+  final List<String> exclusiveOptions;
   final List<String> values;
   final ValueChanged<List<String>> onChanged;
 
   const _MultiChoiceInput({
     required this.options,
+    required this.exclusiveOptions,
     required this.values,
     required this.onChanged,
   });
+
+  /// Explicit exclusiveOptions only. Wording is never used to infer exclusivity.
+  List<String> _toggle(String option, bool checked) {
+    final isExclusive = exclusiveOptions.contains(option);
+    if (!checked) return values.where((v) => v != option).toList();
+    if (isExclusive) return [option];
+    return [
+      ...values.where((v) => !exclusiveOptions.contains(v) && v != option),
+      option,
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,15 +188,7 @@ class _MultiChoiceInput extends StatelessWidget {
         return FilterChip(
           label: Text(opt),
           selected: selected,
-          onSelected: (v) {
-            final next = List<String>.from(values);
-            if (v) {
-              next.add(opt);
-            } else {
-              next.remove(opt);
-            }
-            onChanged(next);
-          },
+          onSelected: (v) => onChanged(_toggle(opt, v)),
           selectedColor: AppTheme.primaryLight,
           checkmarkColor: AppTheme.primaryBlue,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -164,73 +203,173 @@ class _MultiChoiceInput extends StatelessWidget {
   }
 }
 
-class _LikertInput extends StatelessWidget {
-  final int? value;
-  final ValueChanged<int> onChanged;
+class _RankInput extends StatelessWidget {
+  final List<String> options;
+  final int maximum;
+  final List<String> values;
+  final ValueChanged<List<String>> onChanged;
 
-  const _LikertInput({required this.value, required this.onChanged});
+  const _RankInput({
+    required this.options,
+    required this.maximum,
+    required this.values,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: List.generate(5, (i) {
-        final n = i + 1;
-        final selected = value == n;
-        return Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(right: i < 4 ? 6 : 0),
-            child: InkWell(
-              onTap: () => onChanged(n),
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                decoration: BoxDecoration(
-                  color: selected ? AppTheme.primaryBlue : AppTheme.surface,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: selected ? null : AppTheme.neumorphicRaised,
-                ),
-                child: Center(
-                  child: Text(
-                    '$n',
-                    style: FigmaUi.rubik(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: selected ? Colors.white : AppTheme.textColor,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      }),
+    final full = values.length >= maximum;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          context.l10n.questRankHint(maximum),
+          style: FigmaUi.bodyLight(fontSize: 14, color: AppTheme.textColorSecondary),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: options.map((opt) {
+            final position = values.indexOf(opt);
+            final selected = position >= 0;
+            return FilterChip(
+              avatar: selected
+                  ? CircleAvatar(
+                      backgroundColor: AppTheme.primaryBlue,
+                      child: Text(
+                        '${position + 1}',
+                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                    )
+                  : null,
+              label: Text(opt),
+              selected: selected,
+              onSelected: (v) {
+                if (v && full) return;
+                onChanged(v
+                    ? [...values, opt]
+                    : values.where((x) => x != opt).toList());
+              },
+              selectedColor: AppTheme.primaryLight,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }
 
-class _NrsInput extends StatelessWidget {
-  final int? value;
-  final ValueChanged<int> onChanged;
+class _MatrixInput extends StatelessWidget {
+  final List<String> rows;
+  final List<String> ratings;
+  final Map<String, dynamic> values;
+  final ValueChanged<Map<String, dynamic>> onChanged;
 
-  const _NrsInput({required this.value, required this.onChanged});
+  const _MatrixInput({
+    required this.rows,
+    required this.ratings,
+    required this.values,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: rows.map((row) {
+        final current = values[row] as String?;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                row,
+                style: FigmaUi.rubik(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.textColor),
+              ),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: ratings.map((r) {
+                  final selected = current == r;
+                  return ChoiceChip(
+                    label: Text(r),
+                    selected: selected,
+                    onSelected: (_) => onChanged({...values, row: r}),
+                    selectedColor: AppTheme.primaryBlue,
+                    labelStyle: FigmaUi.rubik(
+                      fontSize: 14,
+                      color: selected ? Colors.white : AppTheme.textColor,
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _ScaleInput extends StatelessWidget {
+  final int? value;
+  final String? lowLabel;
+  final String? highLabel;
+  final ValueChanged<int> onChanged;
+
+  const _ScaleInput({
+    required this.value,
+    required this.lowLabel,
+    required this.highLabel,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Slider(
-          value: (value ?? 0).toDouble(),
-          min: 0,
-          max: 10,
-          divisions: 10,
-          label: '${value ?? 0}',
-          activeColor: AppTheme.primaryBlue,
-          onChanged: (v) => onChanged(v.round()),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: List.generate(11, (n) {
+            final selected = value == n;
+            return ChoiceChip(
+              label: Text('$n'),
+              selected: selected,
+              onSelected: (_) => onChanged(n),
+              selectedColor: AppTheme.primaryBlue,
+              labelStyle: FigmaUi.rubik(
+                fontSize: 15,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                color: selected ? Colors.white : AppTheme.textColor,
+              ),
+            );
+          }),
         ),
-        Text(
-          'Aktuell: ${value ?? 0}',
-          style: FigmaUi.bodyLight(fontSize: 17, color: AppTheme.textColorSecondary),
-        ),
+        const SizedBox(height: 8),
+        if (lowLabel != null || highLabel != null)
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  lowLabel ?? '',
+                  style: FigmaUi.bodyLight(fontSize: 13, color: AppTheme.textColorSecondary),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  highLabel ?? '',
+                  textAlign: TextAlign.end,
+                  style: FigmaUi.bodyLight(fontSize: 13, color: AppTheme.textColorSecondary),
+                ),
+              ),
+            ],
+          ),
       ],
     );
   }
@@ -238,9 +377,10 @@ class _NrsInput extends StatelessWidget {
 
 class _TextInput extends StatefulWidget {
   final String value;
+  final int? maxLength;
   final ValueChanged<String> onChanged;
 
-  const _TextInput({required this.value, required this.onChanged});
+  const _TextInput({required this.value, required this.maxLength, required this.onChanged});
 
   @override
   State<_TextInput> createState() => _TextInputState();
@@ -274,6 +414,7 @@ class _TextInputState extends State<_TextInput> {
     return TextField(
       controller: _controller,
       maxLines: 4,
+      maxLength: widget.maxLength,
       style: FigmaUi.rubik(fontSize: 17, color: AppTheme.textColor),
       onChanged: widget.onChanged,
       decoration: InputDecoration(

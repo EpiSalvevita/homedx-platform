@@ -10,6 +10,53 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 
 ## Unreleased
 
+**Questionnaires: RheumaCheck V04 catalogue (backend and mobile):**
+- The questionnaire API and app now use the V04 internal-review catalogue
+  (171 items: A 45, B 34, C 47, optional follow-up CFU 8, D 37) in place of
+  the v6.2 catalogue. API module keys stay `A`, `B`, `C`, `CFU`, `D`.
+- The follow-up (`CFU`) is split from the experience form and is shown as
+  "Noch nicht vorgesehen". Only users listed in `QUESTIONNAIRE_REVIEWER_USER_IDS`
+  (comma-separated user ids) can open and answer it, for internal review. No
+  other user can, until an invitation mechanism exists.
+- Before submit, the flow shows an answer overview with "Ändern" per section.
+  The completion page shows the person's own answers. It states that this is
+  neither an assessment nor a diagnosis.
+- Demo build (`--dart-define=HDX_QUESTIONNAIRE_DEMO=true`): shows a labelled demo
+  banner and a button that pre-fills synthetic example answers. The build never
+  writes questionnaire data to a server, so synthetic data cannot reach a real
+  endpoint. Default builds have no demo controls.
+- Submit is strict (all visible required answers, complete matrices, rank
+  bounds, scale integers 0-10, exclusive options by explicit list only). Draft
+  save is lenient but still rejects unknown items and invalid values. Item ids
+  and codes are returned; answer values are not.
+- Hidden questions drop their answers on save, on the server and in the app.
+- Patient submit requires consent (`consentStatus: yes`). This is now enforced
+  server-side; the previous code did not check it.
+- Saves carry a revision token (`expectedUpdatedAt`). An update to an existing
+  draft is written only if it is still a draft at that revision, as one
+  conditional write. A stale or missing token gets `REVISION_CONFLICT`, so
+  concurrent saves cannot overwrite each other. Submit finalises at the revision
+  its own save produced.
+- v6.2 rows stay in the database, marked by the moduleVersion prefix. They are
+  excluded from listing, drafts, readback and export. No data migration.
+- Mobile: new question widgets (rank, matrix, 0-10 scale, exclusive options,
+  bodymap and lab lists as multi-select). Scales start unanswered; they are never
+  pre-set to 0.
+
+*Regulatory note:* health-data capture (GDPR Art. 9). Failure modes (ISO 14971
+terms): wrong branching drops or keeps answers; a stale save overwrites a newer
+draft; consent bypass on submit; a demo or synthetic payload reaching a real
+endpoint (server accepts only catalogue ids and types; mode is not client-set);
+a matrix rating label mismatch on D11 (`nicht beurteilbar` vs help text
+`kann ich nicht beurteilen`) shows a different label than the stored rating.
+Test evidence: backend unit 21 (`npm test`), backend e2e 56 (incl.
+`questionnaire.e2e-spec.ts`, 20 cases on a local database; 61 in total), Flutter `analyze`
+clean, `flutter test` 129 passing (17 questionnaire), `flutter build web
+--release` ok. Not yet done: manual check at 320/390/768 px, a real-device
+test, and the review by `regulatory-reviewer`. Sign-off needed: content owner
+for question wording and D11 labels, consent and DPO review, and the PRRC for
+classification. No merge until these are recorded.
+
 **Mobile: localization (de / en):**
 - UI strings for the auth, profile, navigation, Bluetooth and test flow,
   appointments and doctor, shop, cart, checkout, certificate, questionnaire

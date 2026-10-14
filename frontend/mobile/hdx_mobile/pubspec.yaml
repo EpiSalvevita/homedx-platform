@@ -109,7 +109,6 @@ flutter:
     - assets/images/brand/
     - assets/images/illustrations/
     - assets/images/icons/
-    - assets/questionnaires/
 
 # App Icon Configuration
 flutter_launcher_icons:

@@ -63,6 +63,8 @@ class _QuestionnaireHubScreenState extends State<QuestionnaireHubScreen> {
         return context.l10n.questBadgeNetwork;
       case 'C':
         return context.l10n.questBadgeAfterUse;
+      case 'CFU':
+        return context.l10n.questBadgeFollowUp;
       case 'D':
         return context.l10n.questBadgePilot;
       default:
@@ -71,6 +73,7 @@ class _QuestionnaireHubScreenState extends State<QuestionnaireHubScreen> {
   }
 
   void _openModule(QuestionnaireModuleSummary module) {
+    if (!module.isAssignable) return;
     final base = widget.isDoctor ? '/doctor/questionnaires' : '/questionnaires';
     context.push('$base/${module.moduleId}');
   }
@@ -137,7 +140,7 @@ class _QuestionnaireHubScreenState extends State<QuestionnaireHubScreen> {
                                   child: NeumorphicRaisedCard(
                                     height: null,
                                     padding: const EdgeInsets.all(22),
-                                    onTap: () => _openModule(m),
+                                    onTap: m.isAssignable ? () => _openModule(m) : null,
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
@@ -168,7 +171,9 @@ class _QuestionnaireHubScreenState extends State<QuestionnaireHubScreen> {
                                                 ),
                                               ),
                                             ),
-                                            if (m.hasSubmitted)
+                                            if (!m.isAssignable)
+                                              const Icon(Icons.schedule, color: AppTheme.textColorSecondary, size: 26)
+                                            else if (m.hasSubmitted)
                                               const Icon(Icons.check_circle, color: AppTheme.successColor, size: 26)
                                             else if (m.hasDraft)
                                               const Icon(Icons.edit_note, color: AppTheme.primaryBlue, size: 26)
@@ -185,10 +190,10 @@ class _QuestionnaireHubScreenState extends State<QuestionnaireHubScreen> {
                                             color: AppTheme.textColor,
                                           ),
                                         ),
-                                        if (m.purpose != null) ...[
+                                        if (m.targetGroup.isNotEmpty) ...[
                                           const SizedBox(height: 8),
                                           Text(
-                                            m.purpose!,
+                                            m.targetGroup,
                                             style: FigmaUi.bodyLight(
                                               fontSize: 15,
                                               color: AppTheme.textColorSecondary,
@@ -197,15 +202,19 @@ class _QuestionnaireHubScreenState extends State<QuestionnaireHubScreen> {
                                         ],
                                         const SizedBox(height: 14),
                                         Text(
-                                          m.hasSubmitted
-                                              ? context.l10n.statusCompleted
-                                              : m.hasDraft
-                                                  ? context.l10n.questResume
-                                                  : context.l10n.questStartNow,
+                                          !m.isAssignable
+                                              ? context.l10n.questNotAssigned
+                                              : m.hasSubmitted
+                                                  ? context.l10n.statusCompleted
+                                                  : m.hasDraft
+                                                      ? context.l10n.questResume
+                                                      : context.l10n.questStartNow,
                                           style: FigmaUi.rubik(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
-                                            color: AppTheme.primaryBlue,
+                                            color: m.isAssignable
+                                                ? AppTheme.primaryBlue
+                                                : AppTheme.textColorSecondary,
                                           ),
                                         ),
                                       ],
