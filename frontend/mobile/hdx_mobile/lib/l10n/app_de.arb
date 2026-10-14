@@ -782,11 +782,6 @@
   },
   "questBackToList": "Zurück zu Fragebögen",
   "questContinue": "Weiter im Ablauf",
-  "questLengthLabel": "Fragebogenlänge",
-  "questShortVersion": "Kurzversion",
-  "questFullVersion": "Vollversion",
-  "questShortVersionHint": "Kurzversion: Kernfragen für Pilot und App (kürzer).",
-  "questFullVersionHint": "Vollversion: alle Fragen aus dem PDF-Fachpaket (länger).",
   "questIntroPatientNotice": "Dieser Fragebogen ersetzt keine ärztliche Diagnose. Bei akuten oder starken Beschwerden wenden Sie sich bitte an eine Ärztin oder einen Arzt.",
   "questConsentCheckbox": "Ich willige ein, dass meine Antworten zur Auswertung des RheumaCheck-Projekts gespeichert werden.",
   "questIntroResearchNotice": "Dieser Fragebogen dient der Forschung und Pilotierung von RheumaCheck. Es werden keine Diagnosen abgegeben.",
@@ -823,5 +818,34 @@
     }
   },
   "questConsentRequired": "Bitte bestätigen Sie den Hinweis zur Einwilligung.",
-  "questSelectHint": "Auswählen"
+  "questSelectHint": "Auswählen",
+  "questBadgeFollowUp": "Nachbefragung",
+  "questNotAssigned": "Noch nicht vorgesehen",
+  "questNotAssignedMessage": "Dieser Fragebogen ist noch nicht vorgesehen. Er wird erst nach einer gesonderten Einladung verfügbar.",
+  "questRequiredMarker": "Pflichtfeld",
+  "questUnsupportedQuestion": "Diese Frage kann in dieser Version nicht angezeigt werden.",
+  "questRankHint": "Bitte wählen Sie bis zu {maximum} Antworten in der gewünschten Reihenfolge.",
+  "@questRankHint": {
+    "placeholders": {
+      "maximum": {
+        "type": "int"
+      }
+    }
+  },
+  "questRevisionConflict": "Ihr Entwurf wurde inzwischen an anderer Stelle geändert. Bitte laden Sie den Fragebogen neu.",
+  "questCheckAnswers": "Bitte prüfen Sie Ihre Angaben. Einige Fragen sind unvollständig oder ungültig.",
+  "questSaveFailed": "Speichern fehlgeschlagen. Bitte versuchen Sie es erneut.",
+  "questNoQuestions": "Keine weiteren Fragen",
+  "questNoQuestionsMessage": "Für Ihre bisherigen Angaben gibt es in diesem Bogen keine weiteren Fragen.",
+  "questDemoBanner": "DEMO – nur synthetische Beispielantworten. Es wird nichts gespeichert oder übermittelt.",
+  "questDemoPrefill": "Synthetisches Beispiel vorbefüllen",
+  "questOpenOverview": "Antwortübersicht",
+  "questOverviewTitle": "Antwortübersicht",
+  "questOverviewHint": "Prüfen Sie Ihre Angaben. Mit „Ändern“ springen Sie direkt zum Abschnitt.",
+  "questEditSection": "Ändern",
+  "questNotAnswered": "nicht beantwortet",
+  "questSendAnswers": "Absenden",
+  "questDoneYourAnswers": "Ihre Angaben",
+  "questDoneNextStep": "Diese Übersicht zeigt nur, was Sie eingegeben haben. Sie ist keine Bewertung und keine Diagnose.",
+  "questOverviewUnavailable": "Die Übersicht Ihrer Angaben konnte nicht geladen werden."
 }

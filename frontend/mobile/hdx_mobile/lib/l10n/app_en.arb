@@ -782,11 +782,6 @@
   },
   "questBackToList": "Back to questionnaires",
   "questContinue": "Continue",
-  "questLengthLabel": "Questionnaire length",
-  "questShortVersion": "Short version",
-  "questFullVersion": "Full version",
-  "questShortVersionHint": "Short version: core questions for the pilot and app (shorter).",
-  "questFullVersionHint": "Full version: all questions from the PDF specialist package (longer).",
   "questIntroPatientNotice": "This questionnaire does not replace a medical diagnosis. For acute or severe symptoms, please contact a doctor.",
   "questConsentCheckbox": "I agree that my answers may be stored for the evaluation of the RheumaCheck project.",
   "questIntroResearchNotice": "This questionnaire supports the research and piloting of RheumaCheck. No diagnoses are made.",
@@ -823,5 +818,34 @@
     }
   },
   "questConsentRequired": "Please confirm the consent notice.",
-  "questSelectHint": "Select"
+  "questSelectHint": "Select",
+  "questBadgeFollowUp": "Follow-up",
+  "questNotAssigned": "Not scheduled yet",
+  "questNotAssignedMessage": "This questionnaire is not scheduled yet. It becomes available after a separate invitation.",
+  "questRequiredMarker": "Required",
+  "questUnsupportedQuestion": "This question cannot be shown in this version.",
+  "questRankHint": "Choose up to {maximum} answers in order of preference.",
+  "@questRankHint": {
+    "placeholders": {
+      "maximum": {
+        "type": "int"
+      }
+    }
+  },
+  "questRevisionConflict": "Your draft was changed elsewhere in the meantime. Please reload the questionnaire.",
+  "questCheckAnswers": "Please check your answers. Some questions are incomplete or invalid.",
+  "questSaveFailed": "Saving failed. Please try again.",
+  "questNoQuestions": "No further questions",
+  "questNoQuestionsMessage": "There are no further questions in this questionnaire for your answers so far.",
+  "questDemoBanner": "DEMO – synthetic example answers only. Nothing is saved or sent.",
+  "questDemoPrefill": "Pre-fill with synthetic example",
+  "questOpenOverview": "Answer overview",
+  "questOverviewTitle": "Answer overview",
+  "questOverviewHint": "Check your answers. “Change” takes you straight to that section.",
+  "questEditSection": "Change",
+  "questNotAnswered": "not answered",
+  "questSendAnswers": "Submit",
+  "questDoneYourAnswers": "Your answers",
+  "questDoneNextStep": "This overview only shows what you entered. It is not an assessment and not a diagnosis.",
+  "questOverviewUnavailable": "Your answer overview could not be loaded."
 }

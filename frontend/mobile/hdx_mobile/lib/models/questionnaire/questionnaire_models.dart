@@ -1,185 +1,202 @@
-/// Stored in answers so drafts remember Kurz vs Voll.
-const kQuestionnaireFormDepthKey = '__formDepth';
-const kQuestionnaireFormDepthKurz = 'kurz';
-const kQuestionnaireFormDepthVoll = 'voll';
+/// RheumaCheck V04 catalogue models. The server is the source of truth for
+/// content, visibility and validation; these types only describe what the app
+/// receives and renders.
+library;
 
-class QuestionnaireShowIf {
-  final String field;
-  final String equals;
-
-  const QuestionnaireShowIf({required this.field, required this.equals});
-
-  factory QuestionnaireShowIf.fromJson(Map<String, dynamic> json) {
-    return QuestionnaireShowIf(
-      field: json['field'] as String,
-      equals: json['equals'] as String,
-    );
-  }
-}
-
-class QuestionnaireField {
+class QuestionnaireItem {
   final String id;
   final String type;
   final bool required;
-  final String label;
+  final String text;
+  final String? help;
   final List<String> options;
-  final QuestionnaireShowIf? showIf;
-  /// Which form depths include this field (`kurz` / `voll`). Empty = both.
-  final List<String> depth;
+  final List<String> exclusiveOptions;
+  final Map<String, dynamic>? visibilityRule;
+  final QuestionnaireOptionSource? optionSource;
+  final QuestionnaireResponseContract responseContract;
 
-  const QuestionnaireField({
+  const QuestionnaireItem({
     required this.id,
     required this.type,
     required this.required,
-    required this.label,
+    required this.text,
+    this.help,
     this.options = const [],
-    this.showIf,
-    this.depth = const [kQuestionnaireFormDepthKurz, kQuestionnaireFormDepthVoll],
+    this.exclusiveOptions = const [],
+    this.visibilityRule,
+    this.optionSource,
+    required this.responseContract,
   });
 
-  factory QuestionnaireField.fromJson(Map<String, dynamic> json) {
-    final rawDepth = json['depth'] as List<dynamic>?;
-    return QuestionnaireField(
+  factory QuestionnaireItem.fromJson(Map<String, dynamic> json) {
+    return QuestionnaireItem(
       id: json['id'] as String,
       type: json['type'] as String,
       required: json['required'] as bool? ?? false,
-      label: json['label'] as String,
-      options: (json['options'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          [],
-      showIf: json['show_if'] != null
-          ? QuestionnaireShowIf.fromJson(json['show_if'] as Map<String, dynamic>)
-          : null,
-      depth: rawDepth == null || rawDepth.isEmpty
-          ? const [kQuestionnaireFormDepthKurz, kQuestionnaireFormDepthVoll]
-          : rawDepth.map((e) => e as String).toList(),
+      text: json['text'] as String,
+      help: json['help'] as String?,
+      options: _stringList(json['options']),
+      exclusiveOptions: _stringList(json['exclusiveOptions']),
+      visibilityRule: json['visibilityRule'] == null
+          ? null
+          : Map<String, dynamic>.from(json['visibilityRule'] as Map),
+      optionSource: json['optionSource'] == null
+          ? null
+          : QuestionnaireOptionSource.fromJson(
+              Map<String, dynamic>.from(json['optionSource'] as Map),
+            ),
+      responseContract: QuestionnaireResponseContract.fromJson(
+        Map<String, dynamic>.from(json['responseContract'] as Map? ?? const {}),
+      ),
     );
   }
 
-  bool includesDepth(String formDepth) => depth.contains(formDepth);
+  bool get isUiControl => responseContract.kind == 'ui_control_not_research_response';
+}
+
+class QuestionnaireOptionSource {
+  final String item;
+  final List<String> intersection;
+
+  const QuestionnaireOptionSource({required this.item, this.intersection = const []});
+
+  factory QuestionnaireOptionSource.fromJson(Map<String, dynamic> json) {
+    return QuestionnaireOptionSource(
+      item: json['item'] as String,
+      intersection: _stringList(json['intersection']),
+    );
+  }
+}
+
+class QuestionnaireResponseContract {
+  final String kind;
+  final int? minimum;
+  final int? maximum;
+  final int? maximumLength;
+  final int? minimumSelected;
+  final int? maximumSelected;
+  final List<String> ratings;
+
+  const QuestionnaireResponseContract({
+    required this.kind,
+    this.minimum,
+    this.maximum,
+    this.maximumLength,
+    this.minimumSelected,
+    this.maximumSelected,
+    this.ratings = const [],
+  });
+
+  factory QuestionnaireResponseContract.fromJson(Map<String, dynamic> json) {
+    return QuestionnaireResponseContract(
+      kind: json['kind'] as String? ?? '',
+      minimum: json['minimum'] as int?,
+      maximum: json['maximum'] as int?,
+      maximumLength: json['maximumLength'] as int?,
+      minimumSelected: json['minimumSelected'] as int?,
+      maximumSelected: json['maximumSelected'] as int?,
+      ratings: _stringList(json['ratings']),
+    );
+  }
 }
 
 class QuestionnaireSection {
-  final String sectionId;
+  final String id;
   final String title;
-  final List<QuestionnaireField> fields;
+  final String? intro;
+  final List<QuestionnaireItem> items;
 
   const QuestionnaireSection({
-    required this.sectionId,
+    required this.id,
     required this.title,
-    required this.fields,
+    this.intro,
+    required this.items,
   });
 
   factory QuestionnaireSection.fromJson(Map<String, dynamic> json) {
     return QuestionnaireSection(
-      sectionId: json['section_id'] as String,
+      id: json['id'] as String,
       title: json['title'] as String,
-      fields: (json['fields'] as List<dynamic>)
-          .map((e) => QuestionnaireField.fromJson(e as Map<String, dynamic>))
+      intro: json['intro'] as String?,
+      items: (json['items'] as List<dynamic>)
+          .map((e) => QuestionnaireItem.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
     );
   }
 }
 
 class QuestionnaireModule {
+  /// API key: A, B, C, CFU or D.
   final String moduleId;
+  /// Catalogue id, for example RC-A.
+  final String catalogueId;
   final String title;
-  final String targetGroup;
-  final String? timing;
-  final String? purpose;
+  final String audience;
+  final String? estimatedTime;
   final List<QuestionnaireSection> sections;
 
   const QuestionnaireModule({
     required this.moduleId,
+    required this.catalogueId,
     required this.title,
-    required this.targetGroup,
-    this.timing,
-    this.purpose,
+    required this.audience,
+    this.estimatedTime,
     required this.sections,
   });
 
   factory QuestionnaireModule.fromJson(Map<String, dynamic> json) {
     return QuestionnaireModule(
-      moduleId: json['module_id'] as String,
+      moduleId: json['moduleId'] as String,
+      catalogueId: json['catalogueId'] as String? ?? '',
       title: json['title'] as String,
-      targetGroup: json['target_group'] as String,
-      timing: json['timing'] as String?,
-      purpose: json['purpose'] as String?,
+      audience: json['audience'] as String? ?? '',
+      estimatedTime: json['estimatedTime'] as String?,
       sections: (json['sections'] as List<dynamic>)
-          .map((e) => QuestionnaireSection.fromJson(e as Map<String, dynamic>))
+          .map((e) => QuestionnaireSection.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
     );
   }
-}
 
-class QuestionnairePackage {
-  final String project;
-  final String packageVersion;
-  final String language;
-  final List<QuestionnaireModule> modules;
-  final List<String> formDepths;
-  final String defaultFormDepth;
-
-  const QuestionnairePackage({
-    required this.project,
-    required this.packageVersion,
-    required this.language,
-    required this.modules,
-    this.formDepths = const [kQuestionnaireFormDepthKurz, kQuestionnaireFormDepthVoll],
-    this.defaultFormDepth = kQuestionnaireFormDepthKurz,
-  });
-
-  factory QuestionnairePackage.fromJson(Map<String, dynamic> json) {
-    final depths = (json['form_depths'] as List<dynamic>?)
-            ?.map((e) => e as String)
-            .toList() ??
-        const [kQuestionnaireFormDepthKurz, kQuestionnaireFormDepthVoll];
-    return QuestionnairePackage(
-      project: json['project'] as String,
-      packageVersion: json['package_version'] as String,
-      language: json['language'] as String,
-      modules: (json['modules'] as List<dynamic>)
-          .map((e) => QuestionnaireModule.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      formDepths: depths,
-      defaultFormDepth:
-          json['default_form_depth'] as String? ?? kQuestionnaireFormDepthKurz,
-    );
-  }
+  Iterable<QuestionnaireItem> get items => sections.expand((s) => s.items);
 }
 
 class QuestionnaireModuleSummary {
   final String moduleId;
+  final String catalogueId;
   final String title;
   final String targetGroup;
   final String? timing;
-  final String? purpose;
   final String moduleVersion;
+  /// not_assigned | available | in_progress | completed
+  final String status;
   final bool hasDraft;
   final bool hasSubmitted;
   final String? submissionId;
 
   const QuestionnaireModuleSummary({
     required this.moduleId,
+    required this.catalogueId,
     required this.title,
     required this.targetGroup,
     this.timing,
-    this.purpose,
     required this.moduleVersion,
+    required this.status,
     required this.hasDraft,
     required this.hasSubmitted,
     this.submissionId,
   });
 
+  bool get isAssignable => status != 'not_assigned';
+
   factory QuestionnaireModuleSummary.fromJson(Map<String, dynamic> json) {
     return QuestionnaireModuleSummary(
       moduleId: json['moduleId'] as String,
+      catalogueId: json['catalogueId'] as String? ?? '',
       title: json['title'] as String,
-      targetGroup: json['targetGroup'] as String,
+      targetGroup: json['targetGroup'] as String? ?? '',
       timing: json['timing'] as String?,
-      purpose: json['purpose'] as String?,
       moduleVersion: json['moduleVersion'] as String,
+      status: json['status'] as String? ?? 'available',
       hasDraft: json['hasDraft'] as bool? ?? false,
       hasSubmitted: json['hasSubmitted'] as bool? ?? false,
       submissionId: json['submissionId'] as String?,
@@ -200,6 +217,8 @@ class QuestionnaireSubmission {
   final DateTime? submittedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
+  /// Concurrency token. Send it back as expectedUpdatedAt when saving again.
+  final String revision;
 
   const QuestionnaireSubmission({
     required this.id,
@@ -214,6 +233,7 @@ class QuestionnaireSubmission {
     this.submittedAt,
     required this.createdAt,
     required this.updatedAt,
+    required this.revision,
   });
 
   factory QuestionnaireSubmission.fromJson(Map<String, dynamic> json) {
@@ -232,6 +252,7 @@ class QuestionnaireSubmission {
           : null,
       createdAt: DateTime.parse(json['createdAt'] as String).toLocal(),
       updatedAt: DateTime.parse(json['updatedAt'] as String).toLocal(),
+      revision: json['revision'] as String? ?? json['updatedAt'] as String,
     );
   }
 
@@ -239,25 +260,7 @@ class QuestionnaireSubmission {
   bool get isDraft => status == 'draft';
 }
 
-class QuestionnaireStep {
-  final String sectionTitle;
-  final List<QuestionnaireField> fields;
-  final int index;
-  final int total;
-
-  const QuestionnaireStep({
-    required this.sectionTitle,
-    required this.fields,
-    required this.index,
-    required this.total,
-  });
-}
-
-String normalizeFormDepth(String? raw) {
-  if (raw == kQuestionnaireFormDepthVoll) return kQuestionnaireFormDepthVoll;
-  return kQuestionnaireFormDepthKurz;
-}
-
-String formDepthFromAnswers(Map<String, dynamic> answers) {
-  return normalizeFormDepth(answers[kQuestionnaireFormDepthKey]?.toString());
+List<String> _stringList(Object? raw) {
+  if (raw is! List) return const [];
+  return raw.map<String>((e) => e.toString()).toList();
 }

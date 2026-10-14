@@ -1,0 +1,30 @@
+{
+  "handoffVersion":"V03", "contentVersion":"3.0.0-internal-review.20261007", "clinicalContentChanged":false,
+  "status":"LOCAL_INTERNAL_REVIEW_PROPOSAL_NOT_RELEASED_FOR_PATIENTS", "routeStatus":"containers observed; detail routes proposed, not existing links",
+  "forms":[
+    {"id":"RC-A","items":45,"role":"patient","purpose":"self-report and conversation preparation","primaryContainer":"/questionnaires","secondaryContainer":"/home","cardLabel":"Beschwerden und Vorgeschichte - Bogen A","proposedDetailRoute":"/questionnaires/RC-A","timepoint":"before clarification, assignment to be confirmed","liveEntry":"not found in tested patient views","contentCompared":false},
+    {"id":"RC-B","items":34,"role":"professional","purpose":"current care pathway","primaryContainer":"/doctor/questionnaires","secondaryContainer":"/doctor/dashboard","cardLabel":"Der heutige Versorgungspfad - Bogen B","proposedDetailRoute":"/doctor/questionnaires/RC-B","timepoint":"current pathway baseline","liveEntry":"doctor dashboard, load error","contentCompared":false},
+    {"id":"RC-C","items":47,"role":"patient","purpose":"experience after documented exposure","primaryContainer":"/questionnaires","secondaryContainer":"RheumaCheck result detail and due card on /home","cardLabel":"Ihre Erfahrung mit HomeDX - Bogen C","proposedDetailRoute":"/questionnaires/RC-C","timepoint":"after defined actual use or explicitly classified demo","liveEntry":"patient result detail, load error","contentCompared":false},
+    {"id":"RC-D","items":37,"role":"professional","purpose":"implementation and feasibility","primaryContainer":"/doctor/questionnaires","secondaryContainer":"/doctor/dashboard","cardLabel":"HomeDX im professionellen Alltag - Bogen D","proposedDetailRoute":"/doctor/questionnaires/RC-D","timepoint":"after documented demo/pilot exposure","liveEntry":"doctor dashboard, load error","contentCompared":false},
+    {"id":"RC-C-FU","items":8,"role":"patient","purpose":"later pathway follow-up","primaryContainer":"/questionnaires","secondaryContainer":"separate invitation, no immediate obligation","cardLabel":"Wie ist es weitergegangen? - Follow-up","proposedDetailRoute":"/questionnaires/RC-C-FU","timepoint":"not approved; historical 4-8 weeks not confirmed","liveEntry":"not found in tested views","contentCompared":false}
+  ],
+  "roleRequirements":["server role, not name/title/color/query parameter","persistent labelled patient/professional badges","different accent colors plus text","reviewer rights separately authorized","no patient edits to physician avatar/profile"],
+  "availabilityStates":["not_assigned","not_due","available","in_progress","completed","new_version_for_review","technical_load_error"],
+  "syntheticDemo":{"explicitStartPrefill":true,"realAnswersPrefill":false,"clientFlagIsNotServerAuthorization":true,"separateStorageAndExports":true},
+  "openDecisions":["population and safety route","C03-C05 actual exposure applicability","study endpoints and recall/time units","follow-up invitation/timepoint","privacy/consent/purpose","regulatory scope","clinical and method approval","reviewer access"],
+  "acceptanceCases":[
+    {"id":"ROLE-01","expected":"same person may be patient or professional; heading/menu/permissions reflect active server role"},
+    {"id":"LOAD-01","expected":"A/B/C/D/FU load through their assigned containers with visible content version"},
+    {"id":"VERSION-01","expected":"171 IDs preserved; complete option/rule/source-version comparison"},
+    {"id":"NAV-01","expected":"Back/Edit retain valid inputs; changed parents remove inactive active-draft values"},
+    {"id":"VALUE-01","expected":"zero, unknown, optional empty and not-shown remain distinct"},
+    {"id":"INPUT-01","expected":"matrix/rank/exclusive options validate without invented scores"},
+    {"id":"SAVE-01","expected":"authorized server write then actual readback of run/revision, reload and resume"},
+    {"id":"DEMO-01","expected":"explicit synthetic prefill only in demo; no acceptance of synthetic data at production endpoints"},
+    {"id":"MOBILE-01","expected":"390px/768px usable content and navigation, keyboard and focus"},
+    {"id":"AVATAR-01","expected":"own physician image editable only with physician rights; stable profile identity; no duplicate visible unintended account"},
+    {"id":"REVIEW-01","expected":"item-bound comments/version/status, comments are not approval"},
+    {"id":"RELEASE-01","expected":"internal review and later patient release independently approved"}
+  ],
+  "serverImplementationOrPatientRelease":false
+}

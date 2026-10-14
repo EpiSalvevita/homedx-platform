@@ -1,0 +1,17 @@
+{
+  "handoffVersion": "V03",
+  "contentVersion": "3.0.0-internal-review.20261007",
+  "status": "WORKFLOW_MAPPING_NOT_SERVER_AUTHORIZATION",
+  "forms": [
+    {"id":"RC-A","items":45,"perspective":"patient","timepoint":"before clarification / preparing a discussion","purpose":"self-reported symptoms and history, no diagnosis","researchContext":"baseline/description; endpoint mapping requires approval"},
+    {"id":"RC-B","items":34,"perspective":"professional","timepoint":"description of current care pathway","purpose":"existing workflow, gaps and handovers","researchContext":"process baseline, not an individually matched clinical control arm"},
+    {"id":"RC-C","items":47,"perspective":"patient","timepoint":"after defined actual use or explicitly classified demo","purpose":"understanding and user experience of exposed components","researchContext":"exposure/context required; C03-C05 after demo remains an open decision"},
+    {"id":"RC-D","items":37,"perspective":"professional","timepoint":"after documented demo/pilot experience","purpose":"implementation requirements and feasibility","researchContext":"professional feedback, not clinical or technical acceptance"},
+    {"id":"RC-C-FU","items":8,"perspective":"patient","timepoint":"separate later invitation; timing not approved","purpose":"follow-up on further pathway","researchContext":"invitation/consent/timing/endpoints open; 4-8 weeks is not confirmed"}
+  ],
+  "totalCatalogueItems":171,
+  "reviewerAccess":"full catalogue and comments, rights to be decided separately",
+  "researchIsNotAutomaticallyAnAuthRole":true,
+  "clinicalDetailGatesAreNotAccessControl":["B33","D34"],
+  "medicalMethodologicalPrivacyRegulatoryApproval":"OPEN"
+}

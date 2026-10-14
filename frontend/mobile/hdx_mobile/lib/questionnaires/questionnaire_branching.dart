@@ -1,140 +1,129 @@
 import '../models/questionnaire/questionnaire_models.dart';
 
-bool matchesShowIf(QuestionnaireShowIf? showIf, Map<String, dynamic> answers) {
-  if (showIf == null) return true;
-  final value = answers[showIf.field];
-  if (value is List) {
-    return value.contains(showIf.equals);
-  }
-  return (value ?? '').toString() == showIf.equals;
-}
+/// Client-side visibility for showing and hiding questions while answering.
+///
+/// The server engine (backend/src/utils/questionnaire-v04-engine.ts) stays
+/// authoritative and re-evaluates everything on save and submit. These rules
+/// mirror it so the screen never shows a question the server would not accept.
+///
+/// Rules:
+/// - An unanswered parent never satisfies a rule, including `neq`.
+/// - A hidden parent hides its children.
+/// - A cycle is treated as hidden (the server rejects such catalogues).
 
-bool passesSupplementalRules(
-  String moduleId,
-  String fieldId,
-  Map<String, dynamic> answers,
-) {
-  if (moduleId == 'A') {
-    final jointPain = (answers['A_joint_pain'] ?? '').toString();
-    if (jointPain == 'nein') {
-      const hidden = {
-        'A_symptom_duration',
-        'A_morning_stiffness',
-        'A_morning_stiffness_duration',
-        'A_affected_joints',
-        'A_joint_count',
-        'A_joint_swelling',
-        'A_symmetrical',
-        'A_pain_nrs',
-        'A_function_limit',
-        'A_known_lab_values',
-        'A_prior_physician_contact',
-      };
-      if (hidden.contains(fieldId)) return false;
-    }
-    // Vollversion gate: A_v05 = aktuelle Gelenkschmerzen
-    final vollPain = (answers['A_v05'] ?? '').toString();
-    if (vollPain == 'nein') {
-      const vollHidden = {
-        'A_v06', 'A_v07', 'A_v08', 'A_v09', 'A_v10', 'A_v11', 'A_v12',
-        'A_v13', 'A_v14', 'A_v15', 'A_v16',
-      };
-      if (vollHidden.contains(fieldId)) return false;
-    }
-  }
-
-  if (moduleId == 'C') {
-    final usedApp = (answers['C_used_app'] ?? '').toString();
-    if (usedApp == 'nein') {
-      const appOnly = {
-        'C_instructions_clear',
-        'C_steps_easy',
-        'C_visual_readability',
-      };
-      if (appOnly.contains(fieldId)) return false;
-    }
-    final testPerformed = (answers['C_test_performed'] ?? '').toString();
-    if (testPerformed == 'nein' || testPerformed == 'weiß nicht') {
-      const testOnly = {
-        'C_instructions_clear',
-        'C_steps_easy',
-        'C_visual_readability',
-        'C_result_shown',
-        'C_result_understood',
-        'C_overall_nrs',
-        'C_would_reuse',
-      };
-      if (testOnly.contains(fieldId)) return false;
-    }
-    final resultShown = (answers['C_result_shown'] ?? '').toString();
-    if (resultShown == 'nein' || resultShown == 'weiß nicht') {
-      if (fieldId == 'C_result_understood') return false;
-    }
-  }
-
+bool isAnswered(Object? value) {
+  if (value == null || value == '') return false;
+  if (value is List) return value.isNotEmpty;
+  if (value is Map) return value.isNotEmpty;
   return true;
 }
 
-bool isFieldVisible(
-  String moduleId,
-  QuestionnaireField field,
-  Map<String, dynamic> answers,
-) {
-  final depth = formDepthFromAnswers(answers);
-  if (!field.includesDepth(depth)) return false;
-  if (!matchesShowIf(field.showIf, answers)) return false;
-  return passesSupplementalRules(moduleId, field.id, answers);
-}
+Set<String> visibleItemIds(QuestionnaireModule module, Map<String, dynamic> answers) {
+  final byId = {for (final item in module.items) item.id: item};
+  final memo = <String, bool>{};
+  final visiting = <String>{};
 
-List<QuestionnaireField> listVisibleFields(
-  QuestionnaireModule module,
-  Map<String, dynamic> answers,
-) {
-  final visible = <QuestionnaireField>[];
-  for (final section in module.sections) {
-    for (final field in section.fields) {
-      if (isFieldVisible(module.moduleId, field, answers)) {
-        visible.add(field);
-      }
-    }
+  bool isVisible(String id) {
+    final cached = memo[id];
+    if (cached != null) return cached;
+    if (!visiting.add(id)) return false;
+    final item = byId[id];
+    final result = item != null && _ruleHolds(item.visibilityRule, answers, isVisible);
+    visiting.remove(id);
+    memo[id] = result;
+    return result;
   }
-  return visible;
+
+  return {for (final id in byId.keys) if (isVisible(id)) id};
 }
 
+bool _ruleHolds(
+  Map<String, dynamic>? rule,
+  Map<String, dynamic> answers,
+  bool Function(String id) isVisible,
+) {
+  if (rule == null) return true;
+  if (rule.containsKey('any')) {
+    return (rule['any'] as List).any((r) => _ruleHolds(_asMap(r), answers, isVisible));
+  }
+  if (rule.containsKey('all')) {
+    return (rule['all'] as List).every((r) => _ruleHolds(_asMap(r), answers, isVisible));
+  }
+  if (rule.containsKey('feature')) return false;
+
+  final itemId = rule['item'] as String?;
+  if (itemId == null || !isVisible(itemId)) return false;
+  final value = answers[itemId];
+  if (!isAnswered(value)) return false;
+
+  switch (rule['op']) {
+    case 'answered':
+      return true;
+    case 'eq':
+      return value == rule['value'];
+    case 'neq':
+      return value != rule['value'];
+    case 'in':
+      return value is String && (rule['values'] as List? ?? const []).contains(value);
+    case 'contains':
+      return value is List && value.contains(rule['value']);
+    default:
+      return false;
+  }
+}
+
+Map<String, dynamic>? _asMap(Object? raw) =>
+    raw == null ? null : Map<String, dynamic>.from(raw as Map);
+
+/// Drops answers for items that are no longer visible. Mirrors the server's pruning.
+Map<String, dynamic> pruneAnswers(QuestionnaireModule module, Map<String, dynamic> answers) {
+  final visible = visibleItemIds(module, answers);
+  return {
+    for (final entry in answers.entries)
+      if (visible.contains(entry.key)) entry.key: entry.value,
+  };
+}
+
+class QuestionnaireStep {
+  final QuestionnaireSection section;
+  final List<QuestionnaireItem> items;
+  final int index;
+  final int total;
+
+  const QuestionnaireStep({
+    required this.section,
+    required this.items,
+    required this.index,
+    required this.total,
+  });
+}
+
+/// One step per section that has at least one visible, answerable question.
+/// UI-only controls (for example review) are never rendered as questions.
 List<QuestionnaireStep> buildQuestionnaireSteps(
   QuestionnaireModule module,
-  Map<String, dynamic> answers, {
-  int fieldsPerStep = 2,
-}) {
-  final steps = <QuestionnaireStep>[];
-  for (final section in module.sections) {
-    final visible = section.fields
-        .where((f) => isFieldVisible(module.moduleId, f, answers))
-        .toList();
-    if (visible.isEmpty) continue;
+  Map<String, dynamic> answers,
+) {
+  final visible = visibleItemIds(module, answers);
+  final sections = <QuestionnaireSection>[];
+  final itemsBySection = <List<QuestionnaireItem>>[];
 
-    for (var i = 0; i < visible.length; i += fieldsPerStep) {
-      final chunk = visible.sublist(
-        i,
-        i + fieldsPerStep > visible.length ? visible.length : i + fieldsPerStep,
-      );
-      steps.add(QuestionnaireStep(
-        sectionTitle: section.title,
-        fields: chunk,
-        index: 0,
-        total: 0,
-      ));
-    }
+  for (final section in module.sections) {
+    final items = section.items
+        .where((i) => visible.contains(i.id) && !i.isUiControl)
+        .toList();
+    if (items.isEmpty) continue;
+    sections.add(section);
+    itemsBySection.add(items);
   }
 
-  final total = steps.length;
   return [
-    for (var i = 0; i < steps.length; i++)
+    for (var i = 0; i < sections.length; i++)
       QuestionnaireStep(
-        sectionTitle: steps[i].sectionTitle,
-        fields: steps[i].fields,
+        section: sections[i],
+        items: itemsBySection[i],
         index: i + 1,
-        total: total,
+        total: sections.length,
       ),
   ];
 }

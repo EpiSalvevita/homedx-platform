@@ -328,6 +328,10 @@ class AppRouter {
                     return QuestionnaireDoneScreen(
                       moduleId: moduleId.toUpperCase(),
                       returnRoute: returnRoute,
+                      submissionId: state.uri.queryParameters['submissionId'],
+                      demoAnswers: state.extra is Map
+                          ? Map<String, dynamic>.from(state.extra as Map)
+                          : null,
                     );
                   },
                 ),
@@ -374,6 +378,10 @@ class AppRouter {
                     return QuestionnaireDoneScreen(
                       moduleId: moduleId.toUpperCase(),
                       isDoctor: true,
+                      submissionId: state.uri.queryParameters['submissionId'],
+                      demoAnswers: state.extra is Map
+                          ? Map<String, dynamic>.from(state.extra as Map)
+                          : null,
                     );
                   },
                 ),

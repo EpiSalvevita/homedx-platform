@@ -1730,23 +1730,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get questContinue => 'Weiter im Ablauf';
 
   @override
-  String get questLengthLabel => 'Fragebogenlänge';
-
-  @override
-  String get questShortVersion => 'Kurzversion';
-
-  @override
-  String get questFullVersion => 'Vollversion';
-
-  @override
-  String get questShortVersionHint =>
-      'Kurzversion: Kernfragen für Pilot und App (kürzer).';
-
-  @override
-  String get questFullVersionHint =>
-      'Vollversion: alle Fragen aus dem PDF-Fachpaket (länger).';
-
-  @override
   String get questIntroPatientNotice =>
       'Dieser Fragebogen ersetzt keine ärztliche Diagnose. Bei akuten oder starken Beschwerden wenden Sie sich bitte an eine Ärztin oder einen Arzt.';
 
@@ -1794,4 +1777,82 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get questSelectHint => 'Auswählen';
+
+  @override
+  String get questBadgeFollowUp => 'Nachbefragung';
+
+  @override
+  String get questNotAssigned => 'Noch nicht vorgesehen';
+
+  @override
+  String get questNotAssignedMessage =>
+      'Dieser Fragebogen ist noch nicht vorgesehen. Er wird erst nach einer gesonderten Einladung verfügbar.';
+
+  @override
+  String get questRequiredMarker => 'Pflichtfeld';
+
+  @override
+  String get questUnsupportedQuestion =>
+      'Diese Frage kann in dieser Version nicht angezeigt werden.';
+
+  @override
+  String questRankHint(int maximum) {
+    return 'Bitte wählen Sie bis zu $maximum Antworten in der gewünschten Reihenfolge.';
+  }
+
+  @override
+  String get questRevisionConflict =>
+      'Ihr Entwurf wurde inzwischen an anderer Stelle geändert. Bitte laden Sie den Fragebogen neu.';
+
+  @override
+  String get questCheckAnswers =>
+      'Bitte prüfen Sie Ihre Angaben. Einige Fragen sind unvollständig oder ungültig.';
+
+  @override
+  String get questSaveFailed =>
+      'Speichern fehlgeschlagen. Bitte versuchen Sie es erneut.';
+
+  @override
+  String get questNoQuestions => 'Keine weiteren Fragen';
+
+  @override
+  String get questNoQuestionsMessage =>
+      'Für Ihre bisherigen Angaben gibt es in diesem Bogen keine weiteren Fragen.';
+
+  @override
+  String get questDemoBanner =>
+      'DEMO – nur synthetische Beispielantworten. Es wird nichts gespeichert oder übermittelt.';
+
+  @override
+  String get questDemoPrefill => 'Synthetisches Beispiel vorbefüllen';
+
+  @override
+  String get questOpenOverview => 'Antwortübersicht';
+
+  @override
+  String get questOverviewTitle => 'Antwortübersicht';
+
+  @override
+  String get questOverviewHint =>
+      'Prüfen Sie Ihre Angaben. Mit „Ändern“ springen Sie direkt zum Abschnitt.';
+
+  @override
+  String get questEditSection => 'Ändern';
+
+  @override
+  String get questNotAnswered => 'nicht beantwortet';
+
+  @override
+  String get questSendAnswers => 'Absenden';
+
+  @override
+  String get questDoneYourAnswers => 'Ihre Angaben';
+
+  @override
+  String get questDoneNextStep =>
+      'Diese Übersicht zeigt nur, was Sie eingegeben haben. Sie ist keine Bewertung und keine Diagnose.';
+
+  @override
+  String get questOverviewUnavailable =>
+      'Die Übersicht Ihrer Angaben konnte nicht geladen werden.';
 }

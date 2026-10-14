@@ -1712,23 +1712,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get questContinue => 'Continue';
 
   @override
-  String get questLengthLabel => 'Questionnaire length';
-
-  @override
-  String get questShortVersion => 'Short version';
-
-  @override
-  String get questFullVersion => 'Full version';
-
-  @override
-  String get questShortVersionHint =>
-      'Short version: core questions for the pilot and app (shorter).';
-
-  @override
-  String get questFullVersionHint =>
-      'Full version: all questions from the PDF specialist package (longer).';
-
-  @override
   String get questIntroPatientNotice =>
       'This questionnaire does not replace a medical diagnosis. For acute or severe symptoms, please contact a doctor.';
 
@@ -1775,4 +1758,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get questSelectHint => 'Select';
+
+  @override
+  String get questBadgeFollowUp => 'Follow-up';
+
+  @override
+  String get questNotAssigned => 'Not scheduled yet';
+
+  @override
+  String get questNotAssignedMessage =>
+      'This questionnaire is not scheduled yet. It becomes available after a separate invitation.';
+
+  @override
+  String get questRequiredMarker => 'Required';
+
+  @override
+  String get questUnsupportedQuestion =>
+      'This question cannot be shown in this version.';
+
+  @override
+  String questRankHint(int maximum) {
+    return 'Choose up to $maximum answers in order of preference.';
+  }
+
+  @override
+  String get questRevisionConflict =>
+      'Your draft was changed elsewhere in the meantime. Please reload the questionnaire.';
+
+  @override
+  String get questCheckAnswers =>
+      'Please check your answers. Some questions are incomplete or invalid.';
+
+  @override
+  String get questSaveFailed => 'Saving failed. Please try again.';
+
+  @override
+  String get questNoQuestions => 'No further questions';
+
+  @override
+  String get questNoQuestionsMessage =>
+      'There are no further questions in this questionnaire for your answers so far.';
+
+  @override
+  String get questDemoBanner =>
+      'DEMO – synthetic example answers only. Nothing is saved or sent.';
+
+  @override
+  String get questDemoPrefill => 'Pre-fill with synthetic example';
+
+  @override
+  String get questOpenOverview => 'Answer overview';
+
+  @override
+  String get questOverviewTitle => 'Answer overview';
+
+  @override
+  String get questOverviewHint =>
+      'Check your answers. “Change” takes you straight to that section.';
+
+  @override
+  String get questEditSection => 'Change';
+
+  @override
+  String get questNotAnswered => 'not answered';
+
+  @override
+  String get questSendAnswers => 'Submit';
+
+  @override
+  String get questDoneYourAnswers => 'Your answers';
+
+  @override
+  String get questDoneNextStep =>
+      'This overview only shows what you entered. It is not an assessment and not a diagnosis.';
+
+  @override
+  String get questOverviewUnavailable =>
+      'Your answer overview could not be loaded.';
 }

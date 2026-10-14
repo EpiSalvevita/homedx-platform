@@ -1,0 +1,74 @@
+{
+  "handoffVersion": "V03",
+  "date": "2026-10-12",
+  "contentVersion": "3.0.0-internal-review.20261007",
+  "status": "LOCAL_TEMPLATES_IMPLEMENTED_SERVER_ADAPTER_SPEC_ONLY",
+  "catalogue": "catalogue/questionnaires.de-DE.V04.public.json",
+  "roleTimeMapping": "ROLE_TIME_MAPPING.json",
+  "agentInstructions": "AGENT_INTEGRATION.md",
+  "serverPersistenceSpec": "PERSISTENZ_UND_READBACK.md",
+  "variants": {
+    "demo": {
+      "path": "demo/index.html",
+      "kind": "SYNTHETIC_PARTNER_DEMO",
+      "mode": "demo",
+      "uiVersion": "20261012-Handoff-V03-demo",
+      "storageKey": "homedx.synthetic.handoff.v03.demo",
+      "schema": "schemas/demo.snapshot.v03.schema.json",
+      "prefill": "explicit user click, invented values only"
+    },
+    "unfilledEntry": {
+      "path": "entry-template/index.html",
+      "kind": "SYNTHETIC_ENTRY_TEMPLATE",
+      "mode": "entry-template",
+      "uiVersion": "20261012-Handoff-V03-entry-template",
+      "storageKey": "homedx.synthetic.handoff.v03.entry-template",
+      "schema": "schemas/entry-template.snapshot.v03.schema.json",
+      "prefill": false,
+      "realPatientUseReleased": false
+    }
+  },
+  "bothVariants": {
+    "syntheticOnly": true,
+    "notSubmitted": true,
+    "answerBackend": false,
+    "serverAuth": false,
+    "serverRoles": false,
+    "localPersistenceOptIn": true,
+    "localReadbackImplemented": true,
+    "crossVariantImportAllowed": false
+  },
+  "productionGate": {
+    "implemented": false,
+    "mustBeServerSide": true,
+    "rejectKinds": [
+      "SYNTHETIC_PARTNER_DEMO",
+      "SYNTHETIC_ENTRY_TEMPLATE"
+    ],
+    "separateTestProductionStoresRequired": true,
+    "clientFlagsAreNotAuthorization": true
+  },
+  "serverAdapter": {
+    "framework": "UNKNOWN",
+    "databaseSchema": "UNKNOWN",
+    "endpoints": [],
+    "proposedOperations": [
+      "createRun",
+      "saveDraft",
+      "readRun",
+      "finalizeRun",
+      "deleteOrWithdraw"
+    ],
+    "implementationOwner": "Epirot / existing HomeDX platform",
+    "readbackTestPassed": false
+  },
+  "legacyResponseHelper": {
+    "file": "demo/responses.js",
+    "notCurrentSnapshotContract": true,
+    "shownByRuleIsNotProvenHumanExposure": true
+  },
+  "loginAutofillIsNotSyntheticQuestionnairePrefill": true,
+  "originalPlatformUserObservations": "Harald confirmed port 8080. Recheck: both roles authenticated, both lists empty, B/C/D load errors; B retry fails. Port 80 was an agent misunderstanding and is excluded from HomeDX feedback. Server content comparison remains blocked by question load failures.",
+  "clinicalMethodologicalPrivacyRegulatoryApproval": "OPEN",
+  "deliveryVersion": "V03.2; local UI versions stay V03"
+}

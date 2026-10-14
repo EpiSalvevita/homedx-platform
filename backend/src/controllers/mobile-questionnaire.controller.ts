@@ -67,7 +67,7 @@ export class MobileQuestionnaireController {
       const userId = req.user?.sub;
       if (!userId) return { success: false, error: 'Invalid token' };
       const role = await this.mobileUserHelper.resolveUserRole(userId);
-      const def = this.questionnaireService.getDefinition(body.moduleId, role);
+      const def = this.questionnaireService.getDefinition(body.moduleId, role, userId);
       return {
         success: true,
         definition: def.module,
@@ -97,6 +97,7 @@ export class MobileQuestionnaireController {
         submissionId: body.submissionId,
         linkedRapidTestId: body.linkedRapidTestId,
         consentStatus: body.consentStatus,
+        expectedUpdatedAt: body.expectedUpdatedAt,
       });
       return { success: true, submission };
     } catch (error) {
@@ -122,6 +123,7 @@ export class MobileQuestionnaireController {
         submissionId: body.submissionId,
         linkedRapidTestId: body.linkedRapidTestId,
         consentStatus: body.consentStatus,
+        expectedUpdatedAt: body.expectedUpdatedAt,
       });
       return { success: true, submission };
     } catch (error) {
