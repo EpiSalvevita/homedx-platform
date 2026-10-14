@@ -28,6 +28,10 @@ APP_URL=http://localhost:4000
 # CORS: comma-separated allowed origins (omit in dev = allow all)
 # CORS_ORIGINS=http://localhost:8080,http://192.168.1.50:8080
 
+# Questionnaire reviewers: comma-separated user ids allowed to open the follow-up (CFU)
+# before an invitation mechanism exists. Empty = nobody. Keep the list short.
+# QUESTIONNAIRE_REVIEWER_USER_IDS=
+
 # Public web URL used in verification / password-reset emails
 # FRONTEND_URL=http://localhost:8080
 

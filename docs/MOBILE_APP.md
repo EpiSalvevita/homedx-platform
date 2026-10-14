@@ -152,6 +152,12 @@ Build a release bundle:
 flutter build web --release
 ```
 
+Review demo for the questionnaires (synthetic example answers, nothing is sent to a server):
+
+```bash
+flutter build web --release --dart-define=HDX_QUESTIONNAIRE_DEMO=true
+```
+
 Output is in `build/web/`. Serve locally for smoke testing:
 
 ```bash
