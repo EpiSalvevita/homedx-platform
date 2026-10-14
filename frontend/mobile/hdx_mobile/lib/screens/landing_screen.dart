@@ -97,23 +97,23 @@ class _LandingScreenState extends State<LandingScreen> {
                   HowItWorksSection(isWide: isWide),
                   ProductShowcaseSection(isWide: isWide),
                   _FeatureSection(
-                    title: 'Für Ärzte',
-                    subtitle: 'Dashboard, Verfügbarkeit und Videoanrufe im Browser.',
-                    features: const [
+                    title: MarketingStrings.of(context).doctorsTitle,
+                    subtitle: MarketingStrings.of(context).doctorsSubtitle,
+                    features: [
                       _FeatureItem(
                         iconPath: AppAssets.doctorAppointment,
-                        title: 'Dashboard',
-                        description: 'Heutige Termine und Patienten auf einen Blick.',
+                        title: MarketingStrings.of(context).doctorDashboardTitle,
+                        description: MarketingStrings.of(context).doctorDashboardBody,
                       ),
                       _FeatureItem(
                         iconPath: AppAssets.medicationReminder,
-                        title: 'Verfügbarkeit',
-                        description: 'Wöchentliche Sprechzeiten flexibel verwalten.',
+                        title: MarketingStrings.of(context).doctorAvailabilityTitle,
+                        description: MarketingStrings.of(context).doctorAvailabilityBody,
                       ),
                       _FeatureItem(
                         iconPath: AppAssets.digitalDoctor,
-                        title: 'Videoanrufe',
-                        description: 'Sichere Video-Konsultationen mit Patienten.',
+                        title: MarketingStrings.of(context).doctorVideoTitle,
+                        description: MarketingStrings.of(context).doctorVideoBody,
                       ),
                     ],
                     isWide: isWide,
@@ -210,7 +210,7 @@ class _DesktopNavActions extends StatelessWidget {
             foregroundColor: AppTheme.textColor,
           ),
           child: Text(
-            'Anmelden',
+            MarketingStrings.of(context).navSignIn,
             style: FigmaUi.rubik(
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -224,7 +224,7 @@ class _DesktopNavActions extends StatelessWidget {
           onPressed: () => context.go('/signup'),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           child: Text(
-            'Registrieren',
+            MarketingStrings.of(context).navRegister,
             style: FigmaUi.rubik(
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -254,7 +254,7 @@ class _MobileNavActions extends StatelessWidget {
           onPressed: () => context.go('/login'),
           padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 16),
           child: Text(
-            'Anmelden',
+            MarketingStrings.of(context).navSignIn,
             style: FigmaUi.rubik(
               fontSize: 17,
               fontWeight: FontWeight.w500,
@@ -267,7 +267,7 @@ class _MobileNavActions extends StatelessWidget {
           onPressed: () => context.go('/signup'),
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
           child: Text(
-            'Registrieren',
+            MarketingStrings.of(context).navRegister,
             style: FigmaUi.rubik(
               fontSize: 17,
               fontWeight: FontWeight.w500,
@@ -291,7 +291,7 @@ class _HeroSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Gesundheitstests\nund Online-Versorgung',
+          MarketingStrings.of(context).heroHeadline,
           style: FigmaUi.rubik(
             fontSize: isWide ? 40 : 32,
             fontWeight: FontWeight.w600,
@@ -301,7 +301,7 @@ class _HeroSection extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          'HomeDX verbindet Schnelltests mit Cube, Arztterminen und Video-Konsultationen — für Patienten und Ärzte.',
+          MarketingStrings.of(context).heroLead,
           style: FigmaUi.rubik(
             fontSize: isWide ? 20 : 18,
             fontWeight: FontWeight.w400,
@@ -319,7 +319,7 @@ class _HeroSection extends StatelessWidget {
               onPressed: () => context.go('/signup'),
               padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 18),
               child: Text(
-                'Jetzt starten',
+                MarketingStrings.of(context).startNow,
                 style: FigmaUi.rubik(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
@@ -331,7 +331,7 @@ class _HeroSection extends StatelessWidget {
               onPressed: () => context.go('/login/doctor'),
               padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 18),
               child: Text(
-                'Für Ärzte',
+                MarketingStrings.of(context).doctorsTitle,
                 style: FigmaUi.rubik(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
@@ -542,7 +542,7 @@ class _DoctorCta extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Sind Sie Arzt?',
+                              MarketingStrings.of(context).areYouDoctor,
                               style: FigmaUi.rubik(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w600,
@@ -551,7 +551,7 @@ class _DoctorCta extends StatelessWidget {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Melden Sie sich mit Ihrem Arztkonto an, um Termine und Videoanrufe zu verwalten.',
+                              MarketingStrings.of(context).doctorCtaBody,
                               style: FigmaUi.rubik(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w400,
@@ -566,7 +566,7 @@ class _DoctorCta extends StatelessWidget {
                         onPressed: () => context.go('/signup/doctor'),
                         padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 18),
                         child: Text(
-                          'Arzt registrieren',
+                          MarketingStrings.of(context).registerDoctor,
                           style: FigmaUi.rubik(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
@@ -580,7 +580,7 @@ class _DoctorCta extends StatelessWidget {
                         onPressed: () => context.go('/login/doctor'),
                         padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 18),
                         child: Text(
-                          'Arzt-Login',
+                          MarketingStrings.of(context).doctorLogin,
                           style: FigmaUi.rubik(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
@@ -594,7 +594,7 @@ class _DoctorCta extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        'Sind Sie Arzt?',
+                        MarketingStrings.of(context).areYouDoctor,
                         style: FigmaUi.rubik(
                           fontSize: 22,
                           fontWeight: FontWeight.w600,
@@ -603,7 +603,7 @@ class _DoctorCta extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Melden Sie sich mit Ihrem Arztkonto an, um Termine und Videoanrufe zu verwalten.',
+                        MarketingStrings.of(context).doctorCtaBody,
                         style: FigmaUi.rubik(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
@@ -615,7 +615,7 @@ class _DoctorCta extends StatelessWidget {
                         onPressed: () => context.go('/signup/doctor'),
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         child: Text(
-                          'Arzt registrieren',
+                          MarketingStrings.of(context).registerDoctor,
                           style: FigmaUi.rubik(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
@@ -629,7 +629,7 @@ class _DoctorCta extends StatelessWidget {
                         onPressed: () => context.go('/login/doctor'),
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         child: Text(
-                          'Arzt-Login',
+                          MarketingStrings.of(context).doctorLogin,
                           style: FigmaUi.rubik(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
@@ -829,12 +829,12 @@ class _LandingFooter extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
-                children: const [
-                  _FooterLink(label: 'Impressum', legalPageType: 'IMPRESSUM'),
+                children: [
+                  _FooterLink(label: MarketingStrings.of(context).footerImprint, legalPageType: 'IMPRESSUM'),
                   _FooterLinkDivider(),
-                  _FooterLink(label: 'Datenschutz', legalPageType: 'PRIVACY_POLICY'),
+                  _FooterLink(label: MarketingStrings.of(context).footerPrivacy, legalPageType: 'PRIVACY_POLICY'),
                   _FooterLinkDivider(),
-                  _FooterLink(label: 'AGB', legalPageType: 'TERMS_CONDITIONS'),
+                  _FooterLink(label: MarketingStrings.of(context).footerTerms, legalPageType: 'TERMS_CONDITIONS'),
                 ],
               ),
             ],

@@ -28,6 +28,13 @@ password manager test, a check at 320 and 390 px on a real device, and any
 change to the session or cookie policy (see below). Sign-off: human review of
 the wording.
 
+**Mobile: landing page language switch:**
+- The landing page now translates its hero, navigation, doctor cards, doctor
+  call-to-action and footer. Before, only the story section followed the
+  language switch. German text is unchanged.
+- Test evidence: `test/l10n/marketing_strings_test.dart`. Marketing copy only,
+  no regulatory impact.
+
 **Questionnaires: resume after confirmation (handover gap 11):**
 - A saved draft with answers is offered first ("Entwurf fortsetzen" or "Zurück
   zur Liste"). It is loaded only after the person confirms. Nothing is saved on

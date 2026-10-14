@@ -142,4 +142,33 @@ class MarketingStrings {
     final locale = context.watch<LocaleProvider>().locale;
     return MarketingStrings(locale);
   }
+
+  String get navRegister => isGerman ? 'Registrieren' : 'Register';
+  String get heroHeadline =>
+      isGerman ? 'Gesundheitstests\nund Online-Versorgung' : 'Health tests\nand online care';
+  String get heroLead => isGerman
+      ? 'HomeDX verbindet Schnelltests mit Cube, Arztterminen und Video-Konsultationen — für Patienten und Ärzte.'
+      : 'HomeDX connects rapid tests with Cube, doctor appointments and video consultations — for patients and doctors.';
+  String get startNow => isGerman ? 'Jetzt starten' : 'Get started';
+  String get doctorDashboardTitle => 'Dashboard';
+  String get doctorDashboardBody => isGerman
+      ? 'Heutige Termine und Patienten auf einen Blick.'
+      : 'Today\'s appointments and patients at a glance.';
+  String get doctorAvailabilityTitle => isGerman ? 'Verfügbarkeit' : 'Availability';
+  String get doctorAvailabilityBody => isGerman
+      ? 'Wöchentliche Sprechzeiten flexibel verwalten.'
+      : 'Manage weekly consultation hours flexibly.';
+  String get doctorVideoTitle => isGerman ? 'Videoanrufe' : 'Video calls';
+  String get doctorVideoBody => isGerman
+      ? 'Sichere Video-Konsultationen mit Patienten.'
+      : 'Secure video consultations with patients.';
+  String get areYouDoctor => isGerman ? 'Sind Sie Arzt?' : 'Are you a doctor?';
+  String get doctorCtaBody => isGerman
+      ? 'Melden Sie sich mit Ihrem Arztkonto an, um Termine und Videoanrufe zu verwalten.'
+      : 'Sign in with your doctor account to manage appointments and video calls.';
+  String get registerDoctor => isGerman ? 'Arzt registrieren' : 'Register as a doctor';
+  String get doctorLogin => isGerman ? 'Arzt-Login' : 'Doctor login';
+  String get footerImprint => isGerman ? 'Impressum' : 'Imprint';
+  String get footerPrivacy => isGerman ? 'Datenschutz' : 'Privacy policy';
+  String get footerTerms => isGerman ? 'AGB' : 'Terms';
 }
