@@ -1,0 +1,50 @@
+ENTWURF – NICHT VERÖFFENTLICHEN, BIS DIE DATENSCHUTZBEAUFTRAGTE / DER DATENSCHUTZBEAUFTRAGTE GEPRÜFT HAT.
+Eckige Klammern markieren Angaben, die vor der Veröffentlichung ergänzt oder geprüft werden müssen.
+
+Datenschutzerklärung
+
+1. Verantwortliche Stelle
+salvevita Managementgesellschaft mbH, Hauptstraße 163a, 13158 Berlin
+E-Mail: [E-Mail-Adresse ergänzen] · Telefon: [Telefonnummer ergänzen]
+
+2. Datenschutzbeauftragte / Datenschutzbeauftragter
+[Name und Kontakt ergänzen, oder begründen, warum keine Benennung erforderlich ist]
+
+3. Welche Daten wir verarbeiten
+- Kontodaten: E-Mail-Adresse, Name, Rolle (Patientin/Patient oder Ärztin/Arzt). Bei Ärztinnen und Ärzten zusätzlich Fachrichtung und Praxisadresse. Passwörter werden nur als verschlüsselte Prüfsumme (bcrypt) gespeichert.
+- Testdaten: Ergebnisse von Schnelltests, die über das Auswertegerät erfasst werden, mit Zeitpunkt und Testart. Testfotos, soweit sie aufgenommen werden.
+- Gesundheitsdaten: Antworten in Fragebögen (Art. 9 DSGVO). Patientinnen und Patienten beantworten Fragebögen nur nach ausdrücklicher Einwilligung.
+- Termine und Videoberatung: Termindaten und die für den Videoanruf nötigen Verbindungsdaten.
+- Zahlungsdaten: Zahlungen werden über PayPal und Stripe abgewickelt. Wir erhalten nur den Zahlungsstatus. [Prüfen, welche Daten an den Zahlungsdienst übermittelt werden]
+- Zertifikate und Benachrichtigungen, die in der App angezeigt werden.
+- Technische Daten: Serverprotokolle, ein Anmelde-Cookie für den Browser (nur http-only, nicht per Skript lesbar) und Anmeldedaten, die auf dem Gerät sicher gespeichert werden.
+
+4. Zwecke und Rechtsgrundlagen
+- Vertragserfüllung und Bereitstellung der App (Art. 6 Abs. 1 lit. b DSGVO)
+- Gesundheitsdaten nur mit Einwilligung (Art. 9 Abs. 2 lit. a und Art. 6 Abs. 1 lit. a DSGVO). Die Einwilligung kann jederzeit widerrufen werden, mit Wirkung für die Zukunft.
+- Berechtigtes Interesse an Informationssicherheit und Fehleranalyse (Art. 6 Abs. 1 lit. f DSGVO)
+- Gesetzliche Aufbewahrungspflichten (Art. 6 Abs. 1 lit. c DSGVO), soweit anwendbar. [Prüfen]
+
+5. Empfänger und Dienstleister
+- PayPal und Stripe (Zahlungsabwicklung)
+- Daily.co (Videoberatung)
+- Google Firebase (Push-Benachrichtigungen)
+- [E-Mail-Versanddienst ergänzen] (Transaktionsmails)
+- [Hosting-Anbieter und Standort ergänzen]
+Bei Dienstleistern außerhalb der EU: [Drittlandübermittlung und Garantien prüfen, z. B. Standardvertragsklauseln]
+
+6. Speicherdauer
+[Speicherfristen je Datenart festlegen. Die App bietet derzeit keine automatische Löschung.]
+
+7. Ihre Rechte
+Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch. Eine Einwilligung können Sie jederzeit widerrufen.
+Eine Löschfunktion in der App ist derzeit nicht vorhanden. Bitte richten Sie Anfragen per E-Mail an [E-Mail-Adresse ergänzen].
+
+8. Beschwerderecht
+Sie können sich bei der Datenschutzaufsichtsbehörde beschweren. Für Berlin ist das [Aufsichtsbehörde prüfen, z. B. die Berliner Beauftragte für Datenschutz und Informationsfreiheit].
+
+9. Automatisierte Entscheidungen
+[Prüfen: Die App trifft derzeit keine automatisierten Entscheidungen im Sinne von Art. 22 DSGVO.]
+
+10. Stand
+[Datum ergänzen]
