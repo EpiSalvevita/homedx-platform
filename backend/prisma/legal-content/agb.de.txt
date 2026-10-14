@@ -1,0 +1,39 @@
+ENTWURF – NICHT VERÖFFENTLICHEN, BIS DIE GESCHÄFTSBEDINGUNGEN RECHTLICH GEPRÜFT SIND.
+Eckige Klammern markieren Angaben, die vor der Veröffentlichung ergänzt oder geprüft werden müssen.
+
+Allgemeine Geschäftsbedingungen (AGB)
+
+1. Geltungsbereich
+Diese Bedingungen gelten für die Nutzung der HomeDX-App und der damit verbundenen Dienste von [Anbieter ergänzen].
+
+2. Leistungen
+Wir stellen die App bereit. Über die App können Sie Schnelltests auswerten lassen, Termine bei Ärztinnen und Ärzten vereinbaren, Videoberatungen nutzen, Testkits im Shop bestellen und Zertifikate abrufen.
+HomeDX stellt keine Diagnose. Testergebnisse ersetzen keine ärztliche Beratung. Bei Notfällen wählen Sie bitte die 112.
+
+3. Registrierung und Zugang
+Ihre Angaben bei der Registrierung müssen richtig und vollständig sein. Zugangsdaten sind vertraulich zu behandeln.
+
+4. Vertragsschluss im Shop
+[Bestellvorgang beschreiben, z. B. Angebot, Bestätigung und Annahme]
+
+5. Preise und Zahlung
+Die Preise werden im Shop angegeben. [Angabe zur Umsatzsteuer prüfen]
+Zahlungsarten: [Zahlungsarten bestätigen, z. B. PayPal, Stripe].
+
+6. Termine und Videoberatung
+[Fristen und Bedingungen für Absage und Stornierung festlegen]
+
+7. Widerrufsrecht für Verbraucherinnen und Verbraucher
+[Widerrufsbelehrung einfügen. Die Regeln unterscheiden sich für Waren (Testkits) und digitale Leistungen. Bitte rechtlich prüfen lassen.]
+
+8. Gewährleistung und Haftung
+Es gelten die gesetzlichen Gewährleistungsrechte. [Haftungsbeschränkung im gesetzlichen Rahmen prüfen]
+
+9. Änderungen dieser Bedingungen
+[Verfahren für Änderungen und Benachrichtigung festlegen]
+
+10. Datenschutz
+Informationen zur Verarbeitung personenbezogener Daten finden Sie in unserer Datenschutzerklärung.
+
+11. Schlussbestimmungen
+Es gilt deutsches Recht. [Gerichtsstand prüfen]

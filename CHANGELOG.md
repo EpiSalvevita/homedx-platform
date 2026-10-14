@@ -28,6 +28,12 @@ password manager test, a check at 320 and 390 px on a real device, and any
 change to the session or cookie policy (see below). Sign-off: human review of
 the wording.
 
+**Backend: legal pages seed (Impressum, Datenschutz, AGB):**
+- `npm run seed:legal` loads the German legal pages from `backend/prisma/legal-content/`. Before this, the `LegalPage` table had no rows, so the pages were empty.
+- The Impressum is the salvevita Managementgesellschaft mbH text. Its contact e-mail and phone are still placeholders.
+- Datenschutz and AGB are generated drafts, marked as drafts in the text. They need review by the data protection officer and legal advice before publication.
+- Do not run the seed against production without that review.
+
 **Mobile: landing page language switch:**
 - The landing page now translates its hero, navigation, doctor cards, doctor
   call-to-action and footer. Before, only the story section followed the
