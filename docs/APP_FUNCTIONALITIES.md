@@ -46,7 +46,7 @@ Snapshot of what exists today in the backend vs the Flutter app, plus a short ba
 ### Certificates
 
 - **Backend:** `list-certificates`, `get-certificate`, `get-certificate-pdf` (`MobileCertificateService`; auto-issue on certifiable Cube results)
-- **App:** certificates list + detail (PDF download path)
+- **App:** certificates list + detail (PDF download path). Shown to the user as "Dokumente" / "Documents" (nav and list title; the API and code names stay `certificate`)
 - **Gap:** share UX polish; types beyond `TEST_RESULT` unused
 
 ### Licenses & coupons
