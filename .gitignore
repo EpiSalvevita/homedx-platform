@@ -58,3 +58,7 @@ vendor/cube-android/
 vendor/cube-windows/
 # Prefer Flutter SDK installed outside the repo; ignore if checked out here
 /flutter/
+
+# Local dev server logs
+/backend.log
+/web.log
