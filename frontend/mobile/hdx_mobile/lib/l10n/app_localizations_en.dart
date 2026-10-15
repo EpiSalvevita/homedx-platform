@@ -1310,7 +1310,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navDoctorFallback => 'Doctor';
 
   @override
-  String get navCertificates => 'Certificates';
+  String get navCertificates => 'Documents';
 
   @override
   String get navApp => 'App';
@@ -1570,23 +1570,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get certTitle => 'Certificates';
+  String get certTitle => 'Documents';
 
   @override
-  String get certDetailTitle => 'Certificate';
+  String get certDetailTitle => 'Document';
 
   @override
-  String get certTapHint => 'Tap a certificate for details.';
+  String get certTapHint => 'Tap a document for details.';
 
   @override
-  String get certLoadError => 'Certificates could not be loaded';
+  String get certLoadError => 'Documents could not be loaded';
 
   @override
-  String get certEmpty => 'No certificates yet';
+  String get certEmpty => 'No documents yet';
 
   @override
   String get certEmptyMessage =>
-      'Certificates appear here after a completed test.';
+      'Documents appear here after a completed test.';
 
   @override
   String get certTest => 'Test';
@@ -1622,14 +1622,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get certLoading => 'Loading…';
 
   @override
-  String get certNotFound => 'Certificate not found';
+  String get certNotFound => 'Document not found';
 
   @override
   String get certPdfDownload => 'PDF download';
 
   @override
   String get certPdfDownloadHint =>
-      'Open the HomeDX app on your smartphone to share this certificate as a PDF.';
+      'Open the HomeDX app on your smartphone to share this document as a PDF.';
 
   @override
   String certPdfSaved(String path) {

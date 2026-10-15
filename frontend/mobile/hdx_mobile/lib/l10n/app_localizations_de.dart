@@ -1324,7 +1324,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get navDoctorFallback => 'Arzt';
 
   @override
-  String get navCertificates => 'Zertifikate';
+  String get navCertificates => 'Dokumente';
 
   @override
   String get navApp => 'App';
@@ -1588,23 +1588,23 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get certTitle => 'Zertifikate';
+  String get certTitle => 'Dokumente';
 
   @override
-  String get certDetailTitle => 'Zertifikat';
+  String get certDetailTitle => 'Dokument';
 
   @override
-  String get certTapHint => 'Tippen Sie auf ein Zertifikat für Details.';
+  String get certTapHint => 'Tippen Sie auf ein Dokument für Details.';
 
   @override
-  String get certLoadError => 'Zertifikate konnten nicht geladen werden';
+  String get certLoadError => 'Dokumente konnten nicht geladen werden';
 
   @override
-  String get certEmpty => 'Noch keine Zertifikate';
+  String get certEmpty => 'Noch keine Dokumente';
 
   @override
   String get certEmptyMessage =>
-      'Zertifikate erscheinen hier nach einem abgeschlossenen Test.';
+      'Dokumente erscheinen hier nach einem abgeschlossenen Test.';
 
   @override
   String get certTest => 'Test';
@@ -1640,14 +1640,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get certLoading => 'Wird geladen…';
 
   @override
-  String get certNotFound => 'Zertifikat nicht gefunden';
+  String get certNotFound => 'Dokument nicht gefunden';
 
   @override
   String get certPdfDownload => 'PDF-Download';
 
   @override
   String get certPdfDownloadHint =>
-      'Öffnen Sie die HomeDX-App auf Ihrem Smartphone, um dieses Zertifikat als PDF zu teilen.';
+      'Öffnen Sie die HomeDX-App auf Ihrem Smartphone, um dieses Dokument als PDF zu teilen.';
 
   @override
   String certPdfSaved(String path) {

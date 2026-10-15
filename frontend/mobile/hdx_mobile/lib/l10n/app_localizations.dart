@@ -2489,7 +2489,7 @@ abstract class AppLocalizations {
   /// No description provided for @navCertificates.
   ///
   /// In de, this message translates to:
-  /// **'Zertifikate'**
+  /// **'Dokumente'**
   String get navCertificates;
 
   /// No description provided for @navApp.
@@ -2975,37 +2975,37 @@ abstract class AppLocalizations {
   /// No description provided for @certTitle.
   ///
   /// In de, this message translates to:
-  /// **'Zertifikate'**
+  /// **'Dokumente'**
   String get certTitle;
 
   /// No description provided for @certDetailTitle.
   ///
   /// In de, this message translates to:
-  /// **'Zertifikat'**
+  /// **'Dokument'**
   String get certDetailTitle;
 
   /// No description provided for @certTapHint.
   ///
   /// In de, this message translates to:
-  /// **'Tippen Sie auf ein Zertifikat für Details.'**
+  /// **'Tippen Sie auf ein Dokument für Details.'**
   String get certTapHint;
 
   /// No description provided for @certLoadError.
   ///
   /// In de, this message translates to:
-  /// **'Zertifikate konnten nicht geladen werden'**
+  /// **'Dokumente konnten nicht geladen werden'**
   String get certLoadError;
 
   /// No description provided for @certEmpty.
   ///
   /// In de, this message translates to:
-  /// **'Noch keine Zertifikate'**
+  /// **'Noch keine Dokumente'**
   String get certEmpty;
 
   /// No description provided for @certEmptyMessage.
   ///
   /// In de, this message translates to:
-  /// **'Zertifikate erscheinen hier nach einem abgeschlossenen Test.'**
+  /// **'Dokumente erscheinen hier nach einem abgeschlossenen Test.'**
   String get certEmptyMessage;
 
   /// No description provided for @certTest.
@@ -3077,7 +3077,7 @@ abstract class AppLocalizations {
   /// No description provided for @certNotFound.
   ///
   /// In de, this message translates to:
-  /// **'Zertifikat nicht gefunden'**
+  /// **'Dokument nicht gefunden'**
   String get certNotFound;
 
   /// No description provided for @certPdfDownload.
@@ -3089,7 +3089,7 @@ abstract class AppLocalizations {
   /// No description provided for @certPdfDownloadHint.
   ///
   /// In de, this message translates to:
-  /// **'Öffnen Sie die HomeDX-App auf Ihrem Smartphone, um dieses Zertifikat als PDF zu teilen.'**
+  /// **'Öffnen Sie die HomeDX-App auf Ihrem Smartphone, um dieses Dokument als PDF zu teilen.'**
   String get certPdfDownloadHint;
 
   /// No description provided for @certPdfSaved.

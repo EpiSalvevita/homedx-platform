@@ -10,6 +10,20 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 
 ## Unreleased
 
+**Mobile: certificates renamed to "Dokumente" (UI wording only):**
+- Bottom-nav label and list title: "Zertifikate" → "Dokumente" (EN: "Documents").
+- Detail title, tap hint, load error, empty state, not-found and PDF hint
+  reworded to "Dokument(e)" (EN: "Document(s)"). Keys unchanged, so no logic changed.
+- Marketing text on the landing page is not changed.
+
+*Regulatory note:* wording on certificate screens, in scope (IEC 62366-1 use
+error). Failure mode: a user does not recognise "Dokumente" as the place for
+their test certificate and cannot find or share it. No result, threshold or
+certificate content changed. Test evidence: `gen-l10n` and `flutter build web`
+pass; the new strings are in the bundle. Not done: a check on a logged-in
+session, and an automated test of the label. Sign-off: human or PRRC review of
+the wording before merge.
+
 **Mobile: web feedback fixes (HDX-03, HDX-05, HDX-06):**
 - Web shell: below 850 px the sidebar becomes a drawer, opened from the app bar.
   Navigation taps close the drawer (`layout/web_app_shell.dart`).
