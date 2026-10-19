@@ -7,7 +7,7 @@ Status: `INTERNAL_REVIEW_DRAFT_NOT_MEDICALLY_OR_REGULATORILY_APPROVED`. Content 
 | Item | Source | SHA-256 (prefix) |
 | --- | --- | --- |
 | Previous app catalogue | `backend/data/questionnaires/rheumacheck_questionnaires_v6_2.forms.json` (package `6.2`) | — |
-| New catalogue | `docs/imports/rheumacheck-v04/catalogue/questionnaires.de-DE.V04.public.json` (package `3.0.0-internal-review.20261007`) | `09c18640` |
+| New catalogue | `work/imports/rheumacheck-v04/catalogue/questionnaires.de-DE.V04.public.json` (package `3.0.0-internal-review.20261007`) | `09c18640` |
 
 The V04 file is copied byte-identical to `backend/data/questionnaires/rheumacheck_questionnaires_v04.public.json` and `frontend/mobile/hdx_mobile/assets/questionnaires/rheumacheck_questionnaires_v04.public.json`.
 
