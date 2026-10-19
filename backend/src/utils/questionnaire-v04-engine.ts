@@ -2,8 +2,9 @@
  * RheumaCheck V04 catalogue engine (server side).
  *
  * Pure functions, no I/O. Source of truth for behaviour is the handover
- * catalogue docs/imports/rheumacheck-v04/catalogue/questionnaires.de-DE.V04.public.json
- * and FACHLICHE_PRUEFPUNKTE / INTERFACE_CONTRACT in the same folder.
+ * catalogue work/imports/rheumacheck-v04/catalogue/questionnaires.de-DE.V04.public.json
+ * and INTERFACE_CONTRACT in the same folder. FACHLICHE_PRUEFPUNKTE is in
+ * docs/regulatory/FACHLICHE_PRUEFPUNKTE_V04.md.
  *
  * Rules (fail closed):
  * - An unanswered parent never satisfies a rule, including `neq`.
