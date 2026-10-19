@@ -10,7 +10,9 @@
 - `deploy/nas/` – NAS/LAN Docker deploy (see `docs/NAS_DEPLOY.md`)
 - `scripts/` – Git hooks; WSL helpers under `scripts/wsl/`
 - `.claude/`, `.cursor/` – Agent configuration and rules (`.cursor/rules/`, `.claude/agents/`)
-- `docs/imports/`, `docs/exports/` – Source material for questionnaires and exported review documents, not living docs
+- `docs/exports/` – Exported review documents (not living docs)
+- `work/imports/` – Questionnaire source material (handover packages, DOCX/PDF sources)
+- `work/brand/style-guide/` – Brand source assets (fonts, logos, illustrations, colour palette)
 - `deploy.sh`, `stop.sh` – local start/stop (repo root)
 - `scripts/wsl/check-homedx-connectivity.ps1` – Windows: verify LAN IP, portproxy, and TCP 4000
 - `scripts/wsl/setup-wsl-port-forward.cmd` / `.ps1` – WSL2 port forwarding (run as Admin on Windows; prefer `.cmd`)

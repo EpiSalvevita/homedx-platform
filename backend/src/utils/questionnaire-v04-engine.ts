@@ -2,7 +2,7 @@
  * RheumaCheck V04 catalogue engine (server side).
  *
  * Pure functions, no I/O. Source of truth for behaviour is the handover
- * catalogue docs/imports/rheumacheck-v04/catalogue/questionnaires.de-DE.V04.public.json
+ * catalogue work/imports/rheumacheck-v04/catalogue/questionnaires.de-DE.V04.public.json
  * and FACHLICHE_PRUEFPUNKTE / INTERFACE_CONTRACT in the same folder.
  *
  * Rules (fail closed):

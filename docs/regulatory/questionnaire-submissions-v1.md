@@ -9,7 +9,7 @@ Questionnaire capture moves from the v6.2 catalogue to the V04 catalogue
 (171 items; modules A, B, C, optional follow-up CFU, D). Backend persistence
 stays in `QuestionnaireSubmission`. Rows are marked with the moduleVersion prefix
 `v04:`. Earlier v6.2 rows stay in the database and are excluded from every
-read path. See `CHANGELOG.md` (Unreleased) and `docs/imports/rheumacheck-v04/`.
+read path. See `CHANGELOG.md` (Unreleased) and `work/imports/rheumacheck-v04/`.
 
 ## Regulatory relevance
 
@@ -20,7 +20,7 @@ risk value is computed. Only the response kind and the rules in the catalogue
 decide what is accepted.
 
 Intended purpose remains data capture for study and usability (see
-`docs/imports/rheumacheck-v04/FACHLICHE_PRUEFPUNKTE_V04.md`). Not diagnostic
+`work/imports/rheumacheck-v04/FACHLICHE_PRUEFPUNKTE_V04.md`). Not diagnostic
 decision support.
 
 ## Failure modes (ISO 14971 terms)

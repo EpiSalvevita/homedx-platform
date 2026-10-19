@@ -1,6 +1,6 @@
 /// Bundled image paths under [assets/images/].
 ///
-/// Brand files come from `Style guide/` (official logos + illustrations).
+/// Brand files come from `work/brand/style-guide/` (official logos + illustrations).
 class AppAssets {
   /// Official horizontal lockup: cube + homeDX (Main / ICON + TYPE).
   static const String logo = 'assets/images/brand/logo-full.png';
