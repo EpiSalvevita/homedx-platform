@@ -20,7 +20,7 @@ risk value is computed. Only the response kind and the rules in the catalogue
 decide what is accepted.
 
 Intended purpose remains data capture for study and usability (see
-`work/imports/rheumacheck-v04/FACHLICHE_PRUEFPUNKTE_V04.md`). Not diagnostic
+`docs/regulatory/FACHLICHE_PRUEFPUNKTE_V04.md`). Not diagnostic
 decision support.
 
 ## Failure modes (ISO 14971 terms)

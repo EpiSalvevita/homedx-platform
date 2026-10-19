@@ -49,4 +49,4 @@ The V04 file is copied byte-identical to `backend/data/questionnaires/rheumachec
 
 ## Open items (not decided by this integration)
 
-C03–C05 exposure applicability, minor/safety route, study endpoints, C-FU timing and invitation, consent wording, regulatory classification. See `FACHLICHE_PRUEFPUNKTE_V04.md`.
+C03–C05 exposure applicability, minor/safety route, study endpoints, C-FU timing and invitation, consent wording, regulatory classification. See `docs/regulatory/FACHLICHE_PRUEFPUNKTE_V04.md`.
