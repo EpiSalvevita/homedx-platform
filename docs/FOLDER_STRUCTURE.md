@@ -7,8 +7,10 @@
 - `vendor/` – Cube SDK reference material (local/gitignored where binary; see below)
 - `docs/` – Detailed setup docs
 - `work/` – Non-code project space (market, meetings, roadmap, partnerships, brand, finance, notes)
-- `deploy/` – NAS/LAN Docker deploy
+- `deploy/nas/` – NAS/LAN Docker deploy (see `docs/NAS_DEPLOY.md`)
 - `scripts/` – Git hooks; WSL helpers under `scripts/wsl/`
+- `.claude/`, `.cursor/` – Agent configuration and rules (`.cursor/rules/`, `.claude/agents/`)
+- `docs/imports/`, `docs/exports/` – Source material for questionnaires and exported review documents, not living docs
 - `deploy.sh`, `stop.sh` – local start/stop (repo root)
 - `scripts/wsl/check-homedx-connectivity.ps1` – Windows: verify LAN IP, portproxy, and TCP 4000
 - `scripts/wsl/setup-wsl-port-forward.cmd` / `.ps1` – WSL2 port forwarding (run as Admin on Windows; prefer `.cmd`)
@@ -31,6 +33,7 @@
 - **Other services:** `lib/services/` (auth, payments, appointments, …)
 - **Config:** `.env` (`API_BASE_URL`, `STRIPE_PUBLISHABLE_KEY`)
 - **Android applicationId:** `com.homedx.app`
+- **Troubleshooting notes:** the one-off `*.md` notes in the app folder are out of date. Use `docs/MOBILE_APP.md`, `docs/WSL2_MOBILE_SETUP.md` and `docs/ENV_SETUP.md` instead.
 
 ## Reference / vendor (not the active app)
 
