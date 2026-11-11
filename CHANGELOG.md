@@ -11,7 +11,7 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 ## Unreleased
 
 **Mobile: certificates renamed to "Dokumente" (UI wording only):**
-- Bottom-nav label and list title: "Zertifikate" → "Dokumente" (EN: "Documents").
+- Home quick-action tile label and list title: "Zertifikate" → "Dokumente" (EN: "Documents").
 - Detail title, tap hint, load error, empty state, not-found and PDF hint
   reworded to "Dokument(e)" (EN: "Document(s)"). Keys unchanged, so no logic changed.
 - Marketing text on the landing page is not changed.
@@ -20,8 +20,9 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 error). Failure mode: a user does not recognise "Dokumente" as the place for
 their test certificate and cannot find or share it. No result, threshold or
 certificate content changed. Test evidence: `gen-l10n` and `flutter build web`
-pass; the new strings are in the bundle. Not done: a check on a logged-in
-session, and an automated test of the label. Sign-off: human or PRRC review of
+pass; the new strings are in the bundle; `test/screens/certificates_list_screen_test.dart`
+pins the list title ("Dokumente" / "Documents") and the empty state. Not done:
+a check on a logged-in session, and a test of the home tile label. Sign-off: human or PRRC review of
 the wording before merge.
 
 **Mobile: web feedback fixes (HDX-03, HDX-05, HDX-06):**
