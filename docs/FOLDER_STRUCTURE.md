@@ -35,7 +35,7 @@
 - **Other services:** `lib/services/` (auth, payments, appointments, …)
 - **Config:** `.env` (`API_BASE_URL`, `STRIPE_PUBLISHABLE_KEY`)
 - **Android applicationId:** `com.homedx.app`
-- **Troubleshooting notes:** the one-off `*.md` notes in the app folder are out of date. Use `docs/MOBILE_APP.md`, `docs/WSL2_MOBILE_SETUP.md` and `docs/ENV_SETUP.md` instead.
+- **Setup and troubleshooting:** use `docs/MOBILE_APP.md`, `docs/WSL2_MOBILE_SETUP.md` and `docs/ENV_SETUP.md`.
 
 ## Reference / vendor (not the active app)
 

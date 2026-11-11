@@ -6,9 +6,9 @@ import 'package:hdx_mobile/core/api_service.dart';
 import 'package:hdx_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-/// Previously untested (see docs/regulatory/gap-assessment.md §1) and
-/// unreachable in the app (no router entry). This is a smoke test for the
-/// list rendering, not a full regression suite for the certificate feature.
+/// Previously untested (see docs/regulatory/gap-assessment.md §1). This is a
+/// smoke test for the list rendering, not a full regression suite for the
+/// certificate feature.
 class _CertificatesMockApi extends ApiService {
   _CertificatesMockApi() : super(baseUrl: 'http://mock');
 
