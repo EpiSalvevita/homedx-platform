@@ -16,10 +16,11 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 - Questionnaire handover sources moved from `docs/imports/` to `work/imports/`;
   path references in docs and code comments updated.
 
-*Regulatory note:* in-scope paths (`docs/regulatory/**`, comments in
-`backend/src` and `lib/`), but no logic, wording or document content changed.
+*Regulatory note:* in-scope paths (`docs/regulatory/**`, a comment in
+`backend/src/utils/questionnaire-v04-engine.ts`), but no logic, wording or document content changed.
 Failure mode: a broken reference makes the review points hard to trace;
-checked with `git grep` for the old paths (no hits). Test evidence: `flutter
+checked with `git grep` for the old paths (no hits outside this
+changelog). Test evidence: `flutter
 analyze` clean, `flutter test` passes. Sign-off: not needed for the move; the
 document's open clinical items still need PRRC/clinical sign-off.
 
