@@ -1,7 +1,7 @@
 # Competitor: Mologic Ltd → Global Access Diagnostics (GADx)
 
 - **Slug:** `mologic-gadx`
-- **Last updated:** 2026-08-26
+- **Last updated:** 2026-11-11 (change-only refresh, see ../analyses/2026-11-11-refresh.md)
 - **Owner:** _
 
 ## Snapshot
