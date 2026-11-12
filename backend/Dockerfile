@@ -10,6 +10,7 @@ RUN npm ci --legacy-peer-deps
 COPY prisma ./prisma
 COPY tsconfig.json ./
 COPY src ./src
+COPY data ./data
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 RUN ./node_modules/.bin/prisma generate && npm run build && chmod 755 /docker-entrypoint.sh

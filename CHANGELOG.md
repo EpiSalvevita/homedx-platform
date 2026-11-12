@@ -10,6 +10,21 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 
 ## Unreleased
 
+**Backend Docker image: include the questionnaire catalogue:**
+- `backend/Dockerfile` now copies `backend/data/` into the image. The
+  questionnaire service loads the RheumaCheck V04 catalogue from
+  `data/questionnaires/` at runtime; images built from `main` lacked it. The
+  NAS preview already carried this line as an uncommitted local edit.
+
+*Regulatory note:* relevant (availability of the questionnaire in deployed
+backends), no logic, wording or catalogue content changed. Failure mode: a
+backend built without the catalogue cannot serve the questionnaire (fails
+loudly, no wrong result). Test evidence: image built locally from this branch;
+the catalogue file named in `questionnaire.service.ts` exists at
+`/app/data/questionnaires/` and parses as JSON. Backend logic not exercised
+(unchanged). Sign-off: not needed (build
+packaging only).
+
 **Docs: regulatory and import material reorganised (paths only):**
 - `FACHLICHE_PRUEFPUNKTE_V04.md` moved to `docs/regulatory/` and added to the
   regulatory README index as an internal-review draft.
