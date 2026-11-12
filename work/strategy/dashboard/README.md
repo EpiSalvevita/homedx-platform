@@ -10,6 +10,8 @@ source of truth, and every value here must trace back to them and their sources.
 | `competitors.json` | tracked competitor | `slug` |
 | `market.json` | published market figure | `slice` |
 | `watchlist.json` | regulatory date, action or open question | `id` |
+| `telemed_players.json` | telemedicine / home-test player (DE/EU) | `slug` |
+| `telemed_market.json` | published telemedicine / digital-health figure | `slice` |
 
 ## Fields
 
@@ -30,6 +32,16 @@ SAM-Näherung or Nur Kontext), `why`, `source`, `url`, `accessed`, `paywalled`
 **watchlist.json**: `id`, `item`, `date` (YYYY-MM-DD or ""), `kind`
 (Regulatorische Frist, Aufgabe or Offene Frage), `priority` (Hoch, Mittel,
 Niedrig), `owner`, `note`.
+
+**telemed_players.json**: `slug`, `name`, `country`, `model` (e.g.
+Heimtest + Arztzugang, Videosprechstunde, Online-Rezept), `home_test` and
+`doctor_access` (ja, nein, unklar), `payer` (Selbstzahler, GKV, PKV, gemischt,
+unklar), `overlap` (Niedrig, Mittel, Hoch), `note` (one sourced sentence),
+`url`, `accessed`.
+
+**telemed_market.json**: `slice`, `value` (number), `unit` (Mrd. EUR or
+Mrd. USD), `year`, `geography`, `role` (Kontext), `why`, `source`, `url`,
+`accessed`, `paywalled` (ja/nein).
 
 ## Rules
 
