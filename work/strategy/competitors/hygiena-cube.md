@@ -1,7 +1,8 @@
 # Competitor: Hygiena (Cube Reader)
 
 - **Slug:** `hygiena-cube`
-- **Last updated:** 2026-08-26
+- **Last updated:** 2026-08-26 (last full check)
+- **Partial re-check:** 2026-11-11, changes only; see [`../analyses/2026-11-11-refresh.md`](../analyses/2026-11-11-refresh.md) for what was and was not re-checked
 - **Owner:** _
 
 ## Snapshot

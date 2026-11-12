@@ -2,7 +2,7 @@
 
 Living comparison of relevant players. Add a profile file per competitor (copy [`_template.md`](_template.md)), then link it here.
 
-**Focus (2026-07-22, refreshed 2026-08-26):** same-hardware Cube / CubePlus OEM peers in the opTricon ecosystem. **homeDX assay:** RheumaCheck (RA-related, in development) — none of the five current Cube-class peers publicly list an RA Cube kit. Broader substitutes (lab RA panels, visual LFAs, smartphone-camera LFA, questionnaire-only sites) are noted in [`../analyses/2026-07-22-cube-oem-landscape.md`](../analyses/2026-07-22-cube-oem-landscape.md). Latest web re-check: [`../analyses/2026-08-26-cube-oem-refresh.md`](../analyses/2026-08-26-cube-oem-refresh.md).
+**Focus (2026-07-22, refreshed 2026-08-26):** same-hardware Cube / CubePlus OEM peers in the opTricon ecosystem. **homeDX assay:** RheumaCheck (RA-related, in development) — none of the five current Cube-class peers publicly list an RA Cube kit. Broader substitutes (lab RA panels, visual LFAs, smartphone-camera LFA, questionnaire-only sites) are noted in [`../analyses/2026-07-22-cube-oem-landscape.md`](../analyses/2026-07-22-cube-oem-landscape.md). Latest web re-check: [`../analyses/2026-11-11-refresh.md`](../analyses/2026-11-11-refresh.md) (change-only; VHC site not re-checked; previous: [`2026-08-26`](../analyses/2026-08-26-cube-oem-refresh.md)).
 
 **Interactive view:** open the Cursor canvas
 [cube-oem-landscape](/home/epi_linux/.cursor/projects/home-epi-linux-homedx-platform/canvases/cube-oem-landscape.canvas.tsx)

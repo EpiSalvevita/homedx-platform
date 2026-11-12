@@ -2,7 +2,7 @@
 
 Starter for market sizing and segment notes. Update with dated sources under [`../sources/`](../sources/) and deeper write-ups under [`../analyses/`](../analyses/). Product context: [`../../product-brief.md`](../../product-brief.md).
 
-Last web pass: [`../sources/2026-08-26-cube-oem-refresh.md`](../sources/2026-08-26-cube-oem-refresh.md) and [`../analyses/2026-08-26-cube-oem-refresh.md`](../analyses/2026-08-26-cube-oem-refresh.md).
+Last web pass: [`../sources/2026-11-11-refresh.md`](../sources/2026-11-11-refresh.md) and [`../analyses/2026-11-11-refresh.md`](../analyses/2026-11-11-refresh.md) (change-only; Mordor and Verified Market figures re-checked and unchanged, MarkWide returned HTTP 410 and was not re-checked). Previous: [`../analyses/2026-08-26-cube-oem-refresh.md`](../analyses/2026-08-26-cube-oem-refresh.md).
 
 **Interactive view:** open the Cursor canvas
 [market-overview](/home/epi_linux/.cursor/projects/home-epi-linux-homedx-platform/canvases/market-overview.canvas.tsx)
@@ -79,6 +79,7 @@ Do not invent a Cube-accessory SAM by scaling these down.
   - Notified-body **application**: 26 May 2026 *(already past as of this note)*
   - **Signed NB agreement**: **26 September 2026**
   - Placing on the market into **31 Dec 2028** only if those conditions hold
+  - Status 2026-11-11: the NB-agreement date (26 Sep 2026) has passed. Separately, a targeted MDR/IVDR revision is in the legislative procedure: COM(2025) 1023, 2025/0404(COD), referred to Parliament 2 Feb 2026 and Council 24 Mar 2026; EESC opinion adopted 29 Apr 2026. Parliament/Council positions not confirmed; the proposal's adoption date is not in this source ([Council doc 9402/26](https://data.consilium.europa.eu/doc/document/ST-9402-2026-INIT/en/pdf), accessed 2026-11-11).
   - Primary explainer: [European Commission Q&A on the IVDR extension](https://health.ec.europa.eu/document/download/dfd7a1c6-f319-4682-9bac-77bef1165818_en); also [HPRA](https://www.hpra.ie/regulation/medical-devices/manufacturers-and-authorised-representatives/ivdr-transitional-provisions)
 - Payments / subscription models for test access.
 - Data privacy (GDPR Art. 9 health data) as a trust differentiator.
