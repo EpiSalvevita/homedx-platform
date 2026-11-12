@@ -135,6 +135,19 @@ docker compose up -d --build
 - **Web loads but login fails:** API not reachable — check `http://NAS_IP:8080/gg-homedx-json/gg-api/v1/get-be-status-flags` (nginx proxies this). If you still call the API on :4002 from a browser, that origin must be in `CORS_ORIGINS`.
 - **`salvenas.fritz.box` does not open:** use **http://** (not https). That name exists only if the device uses the FritzBox as DNS (`192.168.178.1`). Public DNS (8.8.8.8, 1.1.1.1) returns NXDOMAIN. Fallback on LAN: `http://192.168.178.88:8080/`. If the IP works but the name hangs, the browser is likely trying IPv6 first.
 - **Blank page:** ensure `web/` contains `index.html` from `build-artifacts.sh`.
+- **APK download returns 403 Forbidden although the file exists:** the nginx log shows `open() "/usr/share/nginx/downloads/hdx-mobile.apk" failed (13: Permission denied)`. On Ugreen shares, new files and folders inherit the share's ACL, which blocks the container's `nginx` user (uid 101) even when `ls -l` shows the file as readable. Remove the ACL from the downloads folder:
+  ```bash
+  setfacl -b -R deploy/nas/downloads
+  chmod 755 deploy/nas/downloads && chmod 644 deploy/nas/downloads/*
+  docker exec homedx-web su -s /bin/sh nginx -c 'head -c1 /usr/share/nginx/downloads/hdx-mobile.apk >/dev/null && echo ok'
+  ```
+  The same applies to `web/` if the web app returns 403. Copying with `tar` (as below) does not carry the ACL over.
+- **Copying artifacts to the NAS:** the Ugreen `rsync` only accepts configured paths (`invalid path`). Copy over SSH instead:
+  ```bash
+  tar -C deploy/nas/web -cf - . | ssh nas 'D=/path/to/deploy/nas; mkdir -p $D/web.new && tar -C $D/web.new -xf - && rm -rf $D/web.old && mv $D/web $D/web.old && mv $D/web.new $D/web'
+  ssh nas 'docker restart homedx-web'   # bind mounts keep the old folder until restart
+  ```
+  Files replaced in place (e.g. `cat hdx-mobile.apk | ssh nas 'cat > …'`) need no restart.
 - **No emails after signup / password reset:** set SMTP in `deploy/nas/.env` (`SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`) and `WEB_APP_URL` to the public web origin (e.g. `http://homedx.de:8080`). Recreate the backend so Compose reloads the env file (`docker compose up -d --force-recreate backend` — a plain `restart` keeps the old password). Check `docker compose logs backend` for `SMTP is not configured` or `535 Authentication credentials invalid`. Use port **587** with STARTTLS (`SMTP_SECURE=false`); residential ISPs often block port 25. After changing mailer/UI code, rebuild web (`build-artifacts.sh`) so `/verify-email` exists for the confirmation link.
 - **Video calls:** set `DAILY_API_KEY` and `DAILY_DOMAIN` in `.env`.
 - **Backend crash loop (`CORS_ORIGINS is required`):** set `CORS_ORIGINS=http://YOUR_NAS_IP:8080` in `.env` (required when `NODE_ENV=production`).
