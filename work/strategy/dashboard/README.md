@@ -33,7 +33,9 @@ SAM-Näherung or Nur Kontext), `why`, `source`, `url`, `accessed`, `paywalled`
 (Regulatorische Frist, Aufgabe or Offene Frage), `priority` (Hoch, Mittel,
 Niedrig), `owner`, `note`.
 
-**telemed_players.json**: `slug`, `name`, `country`, `model` (e.g.
+**telemed_players.json**: `slug`, `name`, `country`, `region` (DACH, Europa
+= Europe outside DACH, Global = outside Europe; by headquarters or by the
+service checked when the HQ is not on the page), `model` (e.g.
 Heimtest + Arztzugang, Videosprechstunde, Online-Rezept), `home_test` and
 `doctor_access` (ja, nein, unklar), `payer` (Selbstzahler, GKV, PKV, gemischt,
 unklar), `overlap` (Niedrig, Mittel, Hoch), `note` (one sourced sentence),
