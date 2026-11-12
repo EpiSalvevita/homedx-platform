@@ -1,0 +1,41 @@
+[
+ {
+  "slice": "Europe IVD (all)",
+  "usd_bn": 30.58,
+  "year": 2026,
+  "role": "Context only",
+  "why": "Entire human IVD market; homeDX sells none of it.",
+  "source": "Mordor Intelligence",
+  "url": "https://www.mordorintelligence.com/industry-reports/europe-in-vitro-diagnostics-market",
+  "accessed": "2026-08-26",
+  "paywalled": "no",
+  "rechecked": "2026-11-11",
+  "recheck_note": "Unchanged; page updated 11 Sep 2026."
+ },
+ {
+  "slice": "Europe at-home testing",
+  "usd_bn": 8.7,
+  "year": 2026,
+  "role": "TAM proxy",
+  "why": "Mostly glucose, pregnancy and OTC; most spend never touches a Cube.",
+  "source": "MarkWide Research",
+  "url": "https://markwideresearch.com/europe-at-home-testing-market",
+  "accessed": "2026-08-26",
+  "paywalled": "yes",
+  "rechecked": "",
+  "recheck_note": "Not re-checked: page returned HTTP 410 on 11 Nov 2026."
+ },
+ {
+  "slice": "Global rapid-test readers",
+  "usd_bn": 1.2,
+  "year": 2025,
+  "role": "SAM proxy",
+  "why": "All reader types worldwide, hardware only.",
+  "source": "Verified Market Reports",
+  "url": "https://www.verifiedmarketreports.com/product/rapid-test-reader-market/",
+  "accessed": "2026-08-26",
+  "paywalled": "yes",
+  "rechecked": "2026-11-11",
+  "recheck_note": "Unchanged; 7th edition, updated 22 May 2026."
+ }
+]

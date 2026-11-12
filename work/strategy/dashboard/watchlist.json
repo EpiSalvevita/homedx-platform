@@ -1,0 +1,92 @@
+[
+ {
+  "id": "ivdr-app",
+  "item": "IVDR legacy Class C: notified-body application deadline",
+  "date": "2026-05-26",
+  "kind": "Regulatory date",
+  "priority": "High",
+  "owner": "PRRC",
+  "note": "Industry context, not a homeDX status. Confirm with PRRC whether it applies."
+ },
+ {
+  "id": "ivdr-agreement",
+  "item": "IVDR legacy Class C: signed notified-body agreement deadline",
+  "date": "2026-09-26",
+  "kind": "Regulatory date",
+  "priority": "High",
+  "owner": "PRRC",
+  "note": "Date has passed. Industry context, not a homeDX status. Confirm with PRRC whether it applied."
+ },
+ {
+  "id": "ivdr-runway",
+  "item": "IVDR legacy Class C: end of transition runway",
+  "date": "2028-12-31",
+  "kind": "Regulatory date",
+  "priority": "High",
+  "owner": "PRRC",
+  "note": "Only if the earlier conditions are met."
+ },
+ {
+  "id": "vhc-watch",
+  "item": "Watch VHC for a consumer app or remote-specialist add-on",
+  "date": "",
+  "kind": "Action",
+  "priority": "Medium",
+  "owner": "Strategy",
+  "note": "Closest human Cube peer."
+ },
+ {
+  "id": "headstart",
+  "item": "Re-check HeadStart if GADx announces a commercial reader + app",
+  "date": "",
+  "kind": "Action",
+  "priority": "Low",
+  "owner": "Strategy",
+  "note": "Pipeline only today."
+ },
+ {
+  "id": "som",
+  "item": "Size the obtainable market (SOM)",
+  "date": "",
+  "kind": "Open question",
+  "priority": "Medium",
+  "owner": "Strategy",
+  "note": "No sourced figure. Needs kit, channel and PRRC decisions first."
+ },
+ {
+  "id": "sdk-terms",
+  "item": "opTricon SDK licence terms for homeDX-style accessories",
+  "date": "",
+  "kind": "Open question",
+  "priority": "Medium",
+  "owner": "Strategy",
+  "note": "Not public."
+ },
+ {
+  "id": "mdr-ivdr-revision",
+  "item": "Targeted MDR/IVDR revision, COM(2025) 1023, in the legislative procedure",
+  "date": "2026-04-29",
+  "kind": "Regulatory date",
+  "priority": "High",
+  "owner": "PRRC",
+  "note": "Date is the EESC opinion. Parliament and Council positions not confirmed. Source: Council doc 9402/26."
+ },
+ {
+  "id": "vhc-recheck",
+  "item": "Re-check VHC: its site did not load on 11 Nov 2026",
+  "date": "",
+  "kind": "Action",
+  "priority": "Medium",
+  "owner": "Strategy",
+  "note": "Closest human Cube peer; last full check 26 Aug 2026."
+ },
+ {
+  "id": "biosynex-leads",
+  "item": "Verify three Biosynex leads from search snippets",
+  "date": "",
+  "kind": "Action",
+  "priority": "Low",
+  "owner": "Strategy",
+  "note": "CARB-X typhoid grant, Syphilis TnT FDA filing, court ruling of 12 Oct 2026. Not opened yet."
+ }
+]
