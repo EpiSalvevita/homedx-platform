@@ -94,6 +94,6 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Noch keine Zertifikate'), findsOneWidget);
+    expect(find.text('Noch keine Dokumente'), findsOneWidget);
   });
 }
