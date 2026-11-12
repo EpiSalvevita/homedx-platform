@@ -1,41 +1,41 @@
 [
  {
-  "slice": "Europe IVD (all)",
+  "slice": "IVD-Markt Europa (gesamt)",
   "usd_bn": 30.58,
   "year": 2026,
-  "role": "Context only",
-  "why": "Entire human IVD market; homeDX sells none of it.",
+  "role": "Nur Kontext",
+  "why": "Gesamter IVD-Markt für Menschen; homeDX verkauft davon nichts.",
   "source": "Mordor Intelligence",
   "url": "https://www.mordorintelligence.com/industry-reports/europe-in-vitro-diagnostics-market",
   "accessed": "2026-08-26",
-  "paywalled": "no",
+  "paywalled": "nein",
   "rechecked": "2026-11-11",
-  "recheck_note": "Unchanged; page updated 11 Sep 2026."
+  "recheck_note": "Unverändert; Seite aktualisiert am 11.09.2026."
  },
  {
-  "slice": "Europe at-home testing",
+  "slice": "Heimtests Europa",
   "usd_bn": 8.7,
   "year": 2026,
-  "role": "TAM proxy",
-  "why": "Mostly glucose, pregnancy and OTC; most spend never touches a Cube.",
+  "role": "TAM-Näherung",
+  "why": "Überwiegend Blutzucker, Schwangerschaft und rezeptfreie Tests; das meiste Geld berührt nie einen Cube.",
   "source": "MarkWide Research",
   "url": "https://markwideresearch.com/europe-at-home-testing-market",
   "accessed": "2026-08-26",
-  "paywalled": "yes",
+  "paywalled": "ja",
   "rechecked": "",
-  "recheck_note": "Not re-checked: page returned HTTP 410 on 11 Nov 2026."
+  "recheck_note": "Nicht erneut geprüft: Seite lieferte am 11.11.2026 HTTP 410."
  },
  {
-  "slice": "Global rapid-test readers",
+  "slice": "Schnelltest-Reader weltweit",
   "usd_bn": 1.2,
   "year": 2025,
-  "role": "SAM proxy",
-  "why": "All reader types worldwide, hardware only.",
+  "role": "SAM-Näherung",
+  "why": "Alle Reader-Typen weltweit, nur Hardware.",
   "source": "Verified Market Reports",
   "url": "https://www.verifiedmarketreports.com/product/rapid-test-reader-market/",
   "accessed": "2026-08-26",
-  "paywalled": "yes",
+  "paywalled": "ja",
   "rechecked": "2026-11-11",
-  "recheck_note": "Unchanged; 7th edition, updated 22 May 2026."
+  "recheck_note": "Unverändert; 7. Ausgabe, aktualisiert am 22.05.2026."
  }
 ]

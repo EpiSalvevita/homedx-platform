@@ -10,22 +10,38 @@ source of truth, and every value here must trace back to them and their sources.
 | `competitors.json` | tracked competitor | `slug` |
 | `market.json` | published market figure | `slice` |
 | `watchlist.json` | regulatory date, action or open question | `id` |
+| `telemed_players.json` | telemedicine / home-test player (DE/EU) | `slug` |
+| `telemed_market.json` | published telemedicine / digital-health figure | `slice` |
 
 ## Fields
 
-**competitors.json**: `slug`, `name`, `segment`, `category`, `overlap`,
-`threat_now`, `threat_24m` (one of Low, Low–Medium, Medium, Medium–High, High),
+**Language:** the dashboard is in German. Field names stay English; text
+values are written in German (company names and quoted claims stay as published).
+
+**competitors.json**: `slug`, `name`, `segment`, `category`, `overlap`
+(Niedrig, Mittel, Mittel–Hoch, Hoch), `threat_now`, `threat_24m` (one of
+Niedrig, Niedrig–Mittel, Mittel, Mittel–Hoch, Hoch),
 `last_checked` (last *full* check, YYYY-MM-DD), `partial_check` (last
 changes-only re-check, or ""), `recheck_note` (what that re-check covered),
 `latest` (latest sourced change, one sentence), `watch`, `website`, `profile`.
 
-**market.json**: `slice`, `usd_bn` (number), `year`, `role` (TAM proxy, SAM
-proxy or Context only), `why`, `source`, `url`, `accessed`, `paywalled`
-(yes/no), `rechecked` (date or ""), `recheck_note`.
+**market.json**: `slice`, `usd_bn` (number), `year`, `role` (TAM-Näherung,
+SAM-Näherung or Nur Kontext), `why`, `source`, `url`, `accessed`, `paywalled`
+(ja/nein), `rechecked` (date or ""), `recheck_note`.
 
 **watchlist.json**: `id`, `item`, `date` (YYYY-MM-DD or ""), `kind`
-(Regulatory date, Action or Open question), `priority` (High, Medium, Low),
-`owner`, `note`.
+(Regulatorische Frist, Aufgabe or Offene Frage), `priority` (Hoch, Mittel,
+Niedrig), `owner`, `note`.
+
+**telemed_players.json**: `slug`, `name`, `country`, `model` (e.g.
+Heimtest + Arztzugang, Videosprechstunde, Online-Rezept), `home_test` and
+`doctor_access` (ja, nein, unklar), `payer` (Selbstzahler, GKV, PKV, gemischt,
+unklar), `overlap` (Niedrig, Mittel, Hoch), `note` (one sourced sentence),
+`url`, `accessed`.
+
+**telemed_market.json**: `slice`, `value` (number), `unit` (Mrd. EUR or
+Mrd. USD), `year`, `geography`, `role` (Kontext), `why`, `source`, `url`,
+`accessed`, `paywalled` (ja/nein).
 
 ## Rules
 

@@ -1,92 +1,92 @@
 [
  {
   "id": "ivdr-app",
-  "item": "IVDR legacy Class C: notified-body application deadline",
+  "item": "IVDR Altprodukte Klasse C: Frist für den Antrag bei der Benannten Stelle",
   "date": "2026-05-26",
-  "kind": "Regulatory date",
-  "priority": "High",
+  "kind": "Regulatorische Frist",
+  "priority": "Hoch",
   "owner": "PRRC",
-  "note": "Industry context, not a homeDX status. Confirm with PRRC whether it applies."
+  "note": "Branchenkontext, kein homeDX-Status. Mit der PRRC klären, ob es zutrifft."
  },
  {
   "id": "ivdr-agreement",
-  "item": "IVDR legacy Class C: signed notified-body agreement deadline",
+  "item": "IVDR Altprodukte Klasse C: Frist für den unterschriebenen Vertrag mit der Benannten Stelle",
   "date": "2026-09-26",
-  "kind": "Regulatory date",
-  "priority": "High",
+  "kind": "Regulatorische Frist",
+  "priority": "Hoch",
   "owner": "PRRC",
-  "note": "Date has passed. Industry context, not a homeDX status. Confirm with PRRC whether it applied."
+  "note": "Frist ist verstrichen. Branchenkontext, kein homeDX-Status. Mit der PRRC klären, ob es zutraf."
  },
  {
   "id": "ivdr-runway",
-  "item": "IVDR legacy Class C: end of transition runway",
+  "item": "IVDR Altprodukte Klasse C: Ende der Übergangsfrist",
   "date": "2028-12-31",
-  "kind": "Regulatory date",
-  "priority": "High",
+  "kind": "Regulatorische Frist",
+  "priority": "Hoch",
   "owner": "PRRC",
-  "note": "Only if the earlier conditions are met."
+  "note": "Nur wenn die früheren Bedingungen erfüllt sind."
  },
  {
   "id": "vhc-watch",
-  "item": "Watch VHC for a consumer app or remote-specialist add-on",
+  "item": "VHC beobachten: Verbraucher-App oder Fernzugang zu Fachärzten",
   "date": "",
-  "kind": "Action",
-  "priority": "Medium",
-  "owner": "Strategy",
-  "note": "Closest human Cube peer."
+  "kind": "Aufgabe",
+  "priority": "Mittel",
+  "owner": "Strategie",
+  "note": "Nächster Cube-Wettbewerber im Humanbereich."
  },
  {
   "id": "headstart",
-  "item": "Re-check HeadStart if GADx announces a commercial reader + app",
+  "item": "HeadStart erneut prüfen, falls GADx einen kommerziellen Reader mit App ankündigt",
   "date": "",
-  "kind": "Action",
-  "priority": "Low",
-  "owner": "Strategy",
-  "note": "Pipeline only today."
+  "kind": "Aufgabe",
+  "priority": "Niedrig",
+  "owner": "Strategie",
+  "note": "Derzeit nur in der Pipeline."
  },
  {
   "id": "som",
-  "item": "Size the obtainable market (SOM)",
+  "item": "Erreichbaren Markt (SOM) bestimmen",
   "date": "",
-  "kind": "Open question",
-  "priority": "Medium",
-  "owner": "Strategy",
-  "note": "No sourced figure. Needs kit, channel and PRRC decisions first."
+  "kind": "Offene Frage",
+  "priority": "Mittel",
+  "owner": "Strategie",
+  "note": "Keine belegte Zahl. Erst nach Entscheidungen zu Test-Kit, Vertriebsweg und PRRC."
  },
  {
   "id": "sdk-terms",
-  "item": "opTricon SDK licence terms for homeDX-style accessories",
+  "item": "Lizenzbedingungen des opTricon-SDK für Zubehör-Apps wie homeDX",
   "date": "",
-  "kind": "Open question",
-  "priority": "Medium",
-  "owner": "Strategy",
-  "note": "Not public."
+  "kind": "Offene Frage",
+  "priority": "Mittel",
+  "owner": "Strategie",
+  "note": "Nicht öffentlich."
  },
  {
   "id": "mdr-ivdr-revision",
-  "item": "Targeted MDR/IVDR revision, COM(2025) 1023, in the legislative procedure",
+  "item": "Gezielte MDR/IVDR-Revision, COM(2025) 1023, im Gesetzgebungsverfahren",
   "date": "2026-04-29",
-  "kind": "Regulatory date",
-  "priority": "High",
+  "kind": "Regulatorische Frist",
+  "priority": "Hoch",
   "owner": "PRRC",
-  "note": "Date is the EESC opinion. Parliament and Council positions not confirmed. Source: Council doc 9402/26."
+  "note": "Datum ist die EWSA-Stellungnahme. Positionen von Parlament und Rat nicht bestätigt. Quelle: Ratsdokument 9402/26."
  },
  {
   "id": "vhc-recheck",
-  "item": "Re-check VHC: its site did not load on 11 Nov 2026",
+  "item": "VHC erneut prüfen: Website lud am 11.11.2026 nicht",
   "date": "",
-  "kind": "Action",
-  "priority": "Medium",
-  "owner": "Strategy",
-  "note": "Closest human Cube peer; last full check 26 Aug 2026."
+  "kind": "Aufgabe",
+  "priority": "Mittel",
+  "owner": "Strategie",
+  "note": "Nächster Cube-Wettbewerber im Humanbereich; letzte vollständige Prüfung 26.08.2026."
  },
  {
   "id": "biosynex-leads",
-  "item": "Verify three Biosynex leads from search snippets",
+  "item": "Drei Biosynex-Hinweise aus Suchergebnissen prüfen",
   "date": "",
-  "kind": "Action",
-  "priority": "Low",
-  "owner": "Strategy",
-  "note": "CARB-X typhoid grant, Syphilis TnT FDA filing, court ruling of 12 Oct 2026. Not opened yet."
+  "kind": "Aufgabe",
+  "priority": "Niedrig",
+  "owner": "Strategie",
+  "note": "CARB-X-Förderung Typhus, FDA-Einreichung Syphilis TnT, Gerichtsentscheidung vom 12.10.2026. Noch nicht geöffnet."
  }
 ]
