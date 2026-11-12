@@ -20,6 +20,16 @@ class _FakeCubeService extends CubeService {
   int runCount = 0;
   bool? lastUseTimer;
   String? lastConfigAssetName;
+  int listenCount = 0;
+
+  /// The screen subscribes to the native Cube event channel on start. Tests
+  /// have no native plugin, so the real subscription throws a
+  /// MissingPluginException asynchronously and can fail whichever test is
+  /// running when it lands. The fake never needs native events.
+  @override
+  void startListening() {
+    listenCount++;
+  }
 
   @override
   Future<CubeTestResult> runTestAndSubmit({
