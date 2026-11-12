@@ -3,11 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hdx_mobile/screens/certificates_list_screen.dart';
 import 'package:hdx_mobile/core/api_service.dart';
+import 'package:hdx_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-/// Previously untested (see docs/regulatory/gap-assessment.md §1) and
-/// unreachable in the app (no router entry). This is a smoke test for the
-/// list rendering, not a full regression suite for the certificate feature.
+/// Previously untested (see docs/regulatory/gap-assessment.md §1). This is a
+/// smoke test for the list rendering, not a full regression suite for the
+/// certificate feature.
 class _CertificatesMockApi extends ApiService {
   _CertificatesMockApi() : super(baseUrl: 'http://mock');
 
@@ -96,4 +97,37 @@ void main() {
 
     expect(find.text('Noch keine Dokumente'), findsOneWidget);
   });
+
+  // The screen was renamed from "Zertifikate" to "Dokumente" (see CHANGELOG).
+  // Pin the visible title in both locales so the wording cannot drift silently.
+  for (final (locale, title) in [(const Locale('de'), 'Dokumente'), (const Locale('en'), 'Documents')]) {
+    testWidgets('list title reads "$title" for locale ${locale.languageCode}', (tester) async {
+      final router = GoRouter(
+        initialLocation: '/certificates',
+        routes: [
+          GoRoute(
+            path: '/certificates',
+            builder: (context, state) => const CertificatesListScreen(),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        Provider<ApiService>.value(
+          value: _CertificatesMockApi(),
+          child: MaterialApp.router(
+            locale: locale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            routerConfig: router,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(title), findsWidgets);
+      expect(find.textContaining('Zertifikat'), findsNothing);
+      expect(find.textContaining('Certificate'), findsNothing);
+    });
+  }
 }

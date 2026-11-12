@@ -10,8 +10,22 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 
 ## Unreleased
 
+**Docs: regulatory and import material reorganised (paths only):**
+- `FACHLICHE_PRUEFPUNKTE_V04.md` moved to `docs/regulatory/` and added to the
+  regulatory README index as an internal-review draft.
+- Questionnaire handover sources moved from `docs/imports/` to `work/imports/`;
+  path references in docs and code comments updated.
+
+*Regulatory note:* in-scope paths (`docs/regulatory/**`, a comment in
+`backend/src/utils/questionnaire-v04-engine.ts`), but no logic, wording or document content changed.
+Failure mode: a broken reference makes the review points hard to trace;
+checked with `git grep` for the old paths (no hits outside this
+changelog). Test evidence: `flutter
+analyze` clean, `flutter test` passes. Sign-off: not needed for the move; the
+document's open clinical items still need PRRC/clinical sign-off.
+
 **Mobile: certificates renamed to "Dokumente" (UI wording only):**
-- Bottom-nav label and list title: "Zertifikate" → "Dokumente" (EN: "Documents").
+- Home quick-action tile label and list title: "Zertifikate" → "Dokumente" (EN: "Documents").
 - Detail title, tap hint, load error, empty state, not-found and PDF hint
   reworded to "Dokument(e)" (EN: "Document(s)"). Keys unchanged, so no logic changed.
 - Marketing text on the landing page is not changed.
@@ -20,9 +34,11 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 error). Failure mode: a user does not recognise "Dokumente" as the place for
 their test certificate and cannot find or share it. No result, threshold or
 certificate content changed. Test evidence: `gen-l10n` and `flutter build web`
-pass; the new strings are in the bundle. Not done: a check on a logged-in
-session, and an automated test of the label. Sign-off: human or PRRC review of
-the wording before merge.
+pass; the new strings are in the bundle; `test/screens/certificates_list_screen_test.dart`
+pins the list title ("Dokumente" / "Documents") and the empty state. Not done:
+a check on a logged-in session, and a test of the home tile label. Sign-off: human or PRRC review of
+the wording is still pending. The change was merged to `main` in `567fc74a`
+without a recorded review.
 
 **Mobile: web feedback fixes (HDX-03, HDX-05, HDX-06):**
 - Web shell: below 850 px the sidebar becomes a drawer, opened from the app bar.

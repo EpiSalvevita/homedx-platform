@@ -81,4 +81,3 @@ For a second opinion on an in-scope change, invoke the `regulatory-reviewer` sub
 - `docs/MOBILE_APP.md`, `docs/ENV_SETUP.md`, `docs/NAS_DEPLOY.md`, `docs/APP_FUNCTIONALITIES.md` (shipped features and gaps).
 - `docs/regulatory/` — gap assessment, classification draft (not yet signed off), SOUP list.
 - `frontend/mobile/hdx_mobile/PAYMENT_INTEGRATION.md` — the complete list of payment env vars.
-- Ignore the one-off troubleshooting notes in `frontend/mobile/hdx_mobile/` (`SUCCESS.md`, `IMMEDIATE_SOLUTION.md`, `START_EMULATOR.md`, `*DEVTOOLS*.md` and similar). They are personal and out of date.
