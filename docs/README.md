@@ -19,6 +19,7 @@ description: Documentation index for homeDX platform
 - `FOLDER_STRUCTURE.md` – Project layout and API entry points
 - `APPOINTMENTS_VIDEO.md` – Doctor appointments and Daily.co video calls
 - `NAS_DEPLOY.md` – LAN preview deploy (Docker on NAS)
+- `IOS_SETUP.md` – iOS build on a Mac with a free Apple ID and the local Cube SDK
 
 ## Frontend
 

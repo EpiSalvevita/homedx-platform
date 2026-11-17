@@ -15,6 +15,11 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 
 *Regulatory note:* permission/connectivity-adjacent, no result logic or result/certificate wording touched. Failure mode: denied permission blocks scan (fail closed, error shown), no result affected. Tests: `test/services/bluetooth_permissions_test.dart` (iOS granted/denied/permanentlyDenied, location never asked; Android sequence unchanged), `flutter analyze` and `flutter test` green. The iOS permission path only works once `ios/project-setup` (Podfile `PERMISSION_BLUETOOTH` macro, `NSBluetoothAlwaysUsageDescription`) lands, and Cube tests on iOS need the separate native bridge PR. iOS adapter-state check now waits (3 s, fail closed) for the first non-unknown state. On-device iOS verification pending.
 
+**Mobile: iOS project setup (Podfile, iOS 17, bundle id, CI):**
+- Min iOS 13 to 17, bundle id `com.example.hdxMobile` to `com.homedx.app`, Podfile with `PERMISSION_BLUETOOTH` macro only (no location on iOS), optional local `CubeReader` pod (proprietary SDK not in git), `NSBluetoothAlwaysUsageDescription`, `bluetooth-central` background mode (timed evaluations up to ~20 min may continue with the screen locked), new `ios` CI job (path-filtered), `docs/IOS_SETUP.md`.
+
+*Regulatory note:* project configuration only; no result logic, thresholds, status mapping or result/certificate wording changed. iOS 13-16 devices are no longer supported (compatibility change). Usage string states that the app receives the result determined by the Cube. Tests: CI `ios` job (simulator build and RunnerTests). On-device Cube verification pending (needs the native bridge PR and a Mac).
+
 **Backend Docker image: include the questionnaire catalogue:**
 - `backend/Dockerfile` now copies `backend/data/` into the image. The
   questionnaire service loads the RheumaCheck V04 catalogue from
