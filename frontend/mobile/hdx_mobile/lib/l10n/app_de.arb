@@ -364,7 +364,7 @@
   "authYourEmailAddress": "Ihre E-Mail-Adresse",
   "testTypeCrp": "CRP (C-reaktives Protein)",
   "testTypeGenericName": "Schnelltest",
-  "cubeWebStubMessage": "Gesundheitstests mit dem Cube-Gerät sind nur in der Android-App verfügbar (Bluetooth). Installieren Sie die mobile App oder nutzen Sie die Web-Version für Termine und Ergebnisse.",
+  "cubeWebStubMessage": "Gesundheitstests mit dem Cube-Gerät sind nur in der mobilen App (Android/iOS) verfügbar (Bluetooth). Installieren Sie die mobile App oder nutzen Sie die Web-Version für Termine und Ergebnisse.",
   "btGoToHome": "Zur Startseite",
   "btBack": "Zurück",
   "testStartFailed": "Test konnte nicht gestartet werden",
@@ -509,7 +509,7 @@
       }
     }
   },
-  "btConnectTimeout": "Verbindung zum Cube dauerte zu lange (60 s). Cube nah ans Telefon halten, Suche mit „Stopp“ beenden und erneut „Verbinden“ tippen. In Android-Bluetooth ggf. Gerät trennen (nicht nur paaren).",
+  "btConnectTimeout": "Verbindung zum Cube dauerte zu lange (60 s). Cube nah ans Telefon halten, Suche mit „Stopp“ beenden und erneut „Verbinden“ tippen. In den Bluetooth-Einstellungen ggf. Gerät trennen (nicht nur paaren).",
   "btConnectFailed": "Verbindung fehlgeschlagen",
   "btConnectError": "Verbindungsfehler: {error}",
   "@btConnectError": {
