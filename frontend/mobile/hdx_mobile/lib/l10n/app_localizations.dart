@@ -1709,7 +1709,7 @@ abstract class AppLocalizations {
   /// No description provided for @cubeWebStubMessage.
   ///
   /// In de, this message translates to:
-  /// **'Gesundheitstests mit dem Cube-Gerät sind nur in der mobilen App (Android/iOS) verfügbar (Bluetooth). Installieren Sie die mobile App oder nutzen Sie die Web-Version für Termine und Ergebnisse.'**
+  /// **'Gesundheitstests mit dem Cube-Gerät sind nur in der mobilen App verfügbar (Bluetooth). Installieren Sie die mobile App oder nutzen Sie die Web-Version für Termine und Ergebnisse.'**
   String get cubeWebStubMessage;
 
   /// No description provided for @btGoToHome.

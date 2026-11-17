@@ -364,7 +364,7 @@
   "authYourEmailAddress": "Your email address",
   "testTypeCrp": "CRP (C-reactive protein)",
   "testTypeGenericName": "Rapid test",
-  "cubeWebStubMessage": "Health tests with the Cube device are only available in the mobile app (Android/iOS) (Bluetooth). Install the mobile app or use the web version for appointments and results.",
+  "cubeWebStubMessage": "Health tests with the Cube device are only available in the mobile app (Bluetooth). Install the mobile app or use the web version for appointments and results.",
   "btGoToHome": "Go to home",
   "btBack": "Back",
   "testStartFailed": "The test could not be started",

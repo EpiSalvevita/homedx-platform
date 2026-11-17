@@ -103,7 +103,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
         );
         setState(() {
           _error =
-              'Cube-Lizenz fehlt oder ist ungültig (App-Bundle). Gültige Lizenzdatei vom Anbieter einbinden und die App neu bauen.';
+              'Cube-Lizenz fehlt, ist ungültig oder abgelaufen (App-Bundle). Gültige Lizenzdatei vom Anbieter einbinden und die App neu bauen.';
         });
         return;
       }

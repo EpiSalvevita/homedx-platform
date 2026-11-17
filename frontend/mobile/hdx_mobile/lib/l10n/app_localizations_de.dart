@@ -891,7 +891,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get cubeWebStubMessage =>
-      'Gesundheitstests mit dem Cube-Gerät sind nur in der mobilen App (Android/iOS) verfügbar (Bluetooth). Installieren Sie die mobile App oder nutzen Sie die Web-Version für Termine und Ergebnisse.';
+      'Gesundheitstests mit dem Cube-Gerät sind nur in der mobilen App verfügbar (Bluetooth). Installieren Sie die mobile App oder nutzen Sie die Web-Version für Termine und Ergebnisse.';
 
   @override
   String get btGoToHome => 'Zur Startseite';

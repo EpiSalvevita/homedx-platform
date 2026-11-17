@@ -127,12 +127,35 @@ class AppBluetoothService {
 
     await ensurePlatformPermissions();
 
-    final adapterState = await FlutterBluePlus.adapterState.first;
+    await ensureAdapterOn();
+
+    return true;
+  }
+
+  /// Throws unless the Bluetooth adapter is on (fail closed).
+  /// On iOS the adapter state is `unknown` right after CBCentralManager is
+  /// created, so wait (bounded) for the first non-unknown state. Android uses
+  /// the first emitted state as before. [states]/[isIOS]/[iosTimeout] are
+  /// injectable for tests.
+  @visibleForTesting
+  Future<void> ensureAdapterOn({
+    bool? isIOS,
+    Stream<BluetoothAdapterState>? states,
+    Duration iosTimeout = const Duration(seconds: 3),
+  }) async {
+    final stream = states ?? FlutterBluePlus.adapterState;
+    final BluetoothAdapterState adapterState;
+    if (isIOS ?? Platform.isIOS) {
+      adapterState = await stream
+          .where((s) => s != BluetoothAdapterState.unknown)
+          .first
+          .timeout(iosTimeout, onTimeout: () => BluetoothAdapterState.unknown);
+    } else {
+      adapterState = await stream.first;
+    }
     if (adapterState != BluetoothAdapterState.on) {
       throw Exception('Bluetooth is not enabled. Please enable Bluetooth in settings.');
     }
-
-    return true;
   }
 
   /// Check if Bluetooth is enabled

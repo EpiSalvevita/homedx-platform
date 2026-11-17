@@ -13,7 +13,7 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 **Mobile: iOS Bluetooth permission flow and platform-neutral wording:**
 - `requestPermissions()` now requests `Permission.bluetooth` on iOS (and no location); Android flow unchanged. Cube-not-available, license-hint and BT-timeout wording no longer names Android only (DE+EN).
 
-*Regulatory note:* permission/connectivity-adjacent, no result logic or result/certificate wording touched. Failure mode: denied permission blocks scan (fail closed, error shown), no result affected. Tests: `test/services/bluetooth_permissions_test.dart` (iOS granted/denied/permanentlyDenied, location never asked; Android sequence unchanged), `flutter analyze` and `flutter test` green. On-device iOS verification pending.
+*Regulatory note:* permission/connectivity-adjacent, no result logic or result/certificate wording touched. Failure mode: denied permission blocks scan (fail closed, error shown), no result affected. Tests: `test/services/bluetooth_permissions_test.dart` (iOS granted/denied/permanentlyDenied, location never asked; Android sequence unchanged), `flutter analyze` and `flutter test` green. The iOS permission path only works once `ios/project-setup` (Podfile `PERMISSION_BLUETOOTH` macro, `NSBluetoothAlwaysUsageDescription`) lands, and Cube tests on iOS need the separate native bridge PR. iOS adapter-state check now waits (3 s, fail closed) for the first non-unknown state. On-device iOS verification pending.
 
 **Backend Docker image: include the questionnaire catalogue:**
 - `backend/Dockerfile` now copies `backend/data/` into the image. The
