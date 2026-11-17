@@ -143,24 +143,47 @@ class AppBluetoothService {
     Stream<BluetoothAdapterState>? states,
     Duration iosTimeout = const Duration(seconds: 3),
   }) async {
-    final stream = states ?? FlutterBluePlus.adapterState;
-    final BluetoothAdapterState adapterState;
-    if (isIOS ?? Platform.isIOS) {
-      adapterState = await stream
-          .where((s) => s != BluetoothAdapterState.unknown)
-          .first
-          .timeout(iosTimeout, onTimeout: () => BluetoothAdapterState.unknown);
-    } else {
-      adapterState = await stream.first;
-    }
+    final adapterState = await settledAdapterState(
+      isIOS: isIOS,
+      states: states,
+      iosTimeout: iosTimeout,
+    );
     if (adapterState != BluetoothAdapterState.on) {
       throw Exception('Bluetooth is not enabled. Please enable Bluetooth in settings.');
     }
   }
 
+  /// Current adapter state. On iOS the first state after launch is
+  /// `unknown` until CBCentralManager reports, so this waits (bounded) for
+  /// the first non-unknown state; on timeout it returns `unknown`. Android
+  /// returns the first emitted state, as before.
+  @visibleForTesting
+  Future<BluetoothAdapterState> settledAdapterState({
+    bool? isIOS,
+    Stream<BluetoothAdapterState>? states,
+    Duration iosTimeout = const Duration(seconds: 3),
+  }) {
+    final stream = states ?? FlutterBluePlus.adapterState;
+    if (isIOS ?? Platform.isIOS) {
+      return stream
+          .where((s) => s != BluetoothAdapterState.unknown)
+          .first
+          .timeout(iosTimeout, onTimeout: () => BluetoothAdapterState.unknown);
+    }
+    return stream.first;
+  }
+
   /// Check if Bluetooth is enabled
-  Future<bool> isBluetoothEnabled() async {
-    final adapterState = await FlutterBluePlus.adapterState.first;
+  Future<bool> isBluetoothEnabled({
+    bool? isIOS,
+    Stream<BluetoothAdapterState>? states,
+    Duration iosTimeout = const Duration(seconds: 3),
+  }) async {
+    final adapterState = await settledAdapterState(
+      isIOS: isIOS,
+      states: states,
+      iosTimeout: iosTimeout,
+    );
     return adapterState == BluetoothAdapterState.on;
   }
 

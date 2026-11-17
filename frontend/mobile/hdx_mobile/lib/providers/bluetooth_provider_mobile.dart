@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../services/bluetooth_service_mobile.dart' show AppBluetoothService, BluetoothDeviceInfo;
@@ -13,6 +16,7 @@ class BluetoothProvider with ChangeNotifier {
   String? _errorMessage;
   List<BluetoothService> _services = [];
   List<BluetoothCharacteristic> _characteristics = [];
+  StreamSubscription<BluetoothAdapterState>? _adapterStateSubscription;
 
   // Getters
   bool get isScanning => _isScanning;
@@ -45,13 +49,37 @@ class BluetoothProvider with ChangeNotifier {
         notifyListeners();
       });
 
-      // Check initial Bluetooth state
+      // On iOS the adapter reports `unknown` right after launch. Follow the
+      // adapter-state stream so the flag settles (and tracks later on/off
+      // changes) instead of sticking to the first `unknown` → "disabled".
+      // Android keeps the one-shot read below.
+      if (Platform.isIOS) {
+        _adapterStateSubscription =
+            FlutterBluePlus.adapterState.listen(applyAdapterState);
+      }
+
+      // Check initial Bluetooth state (iOS: waits for a settled state)
       _isBluetoothEnabled = await _bluetoothService.isBluetoothEnabled();
       notifyListeners();
     } catch (e) {
       _errorMessage = 'Failed to initialize Bluetooth: $e';
       notifyListeners();
     }
+  }
+
+  /// Maps an adapter state to the enabled flag. `null` for `unknown` (iOS
+  /// start-up), which must never flip the flag to "disabled".
+  @visibleForTesting
+  static bool? enabledFromAdapterState(BluetoothAdapterState state) {
+    if (state == BluetoothAdapterState.unknown) return null;
+    return state == BluetoothAdapterState.on;
+  }
+
+  void applyAdapterState(BluetoothAdapterState state) {
+    final enabled = enabledFromAdapterState(state);
+    if (enabled == null || enabled == _isBluetoothEnabled) return;
+    _isBluetoothEnabled = enabled;
+    notifyListeners();
   }
 
   Future<void> checkBluetoothStatus() async {
@@ -197,6 +225,7 @@ class BluetoothProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    _adapterStateSubscription?.cancel();
     _bluetoothService.dispose();
     super.dispose();
   }

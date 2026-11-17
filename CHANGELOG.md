@@ -50,6 +50,13 @@ the real-SDK adapter compiles only on a Mac with the SDK, and the on-device
 checklist in the PR (license, connect, RFID and CRP config test matching the
 Cube display, power-off mid-test) is pending. Sign-off: human/PRRC sign-off
 needed before iOS results are used.
+- Follow-ups in the same PR: the iOS CI workflow now writes an `.xcresult`
+  bundle, fails if fewer than 20 tests ran or any failed, and uploads the
+  summary as a 90-day artifact (test evidence). The SOUP list records
+  CubeReader 1.3.0 (iOS). `BluetoothProvider` no longer shows "Bluetooth
+  deaktiviert" on a cold iOS launch: it waits for a settled adapter state
+  and follows adapter-state updates on iOS (Android unchanged). Dart tests
+  added for both.
 
 **Backend Docker image: include the questionnaire catalogue:**
 - `backend/Dockerfile` now copies `backend/data/` into the image. The
