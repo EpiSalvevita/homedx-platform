@@ -49,7 +49,10 @@ app.*.map.json
 /android/app/src/main/assets/cube_test_config.bin
 /android/app/src/main/assets/CRP_*.bin
 
-# BIOSYNEX Cube SDK (proprietary, local only)
-ios/CubeSDK/CubeReader.xcframework/
+# BIOSYNEX Cube SDK (proprietary, local only): allowlist
+ios/CubeSDK/*
+!ios/CubeSDK/CubeReader.podspec
+!ios/CubeSDK/README.md
+!ios/CubeSDK/assets/
 ios/CubeSDK/assets/*
 !ios/CubeSDK/assets/.gitkeep
