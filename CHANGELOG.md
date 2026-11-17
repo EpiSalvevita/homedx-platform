@@ -20,6 +20,37 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 
 *Regulatory note:* project configuration only; no result logic, thresholds, status mapping or result/certificate wording changed. iOS 13-16 devices are no longer supported (compatibility change). Usage string states that the app receives the result determined by the Cube. Tests: CI `ios` job (simulator build and RunnerTests). On-device Cube verification pending (needs the native bridge PR and a Mac).
 
+**iOS: Cube bridge for the CubeReader SDK (`ios/Runner/Cube/`):**
+- New Swift bridge that serves the same `com.homedx.cube/analysis` method
+  channel and `com.homedx.cube/events` event channel as the Android
+  `CubeBridge`, so `cube_service.dart` runs unchanged on iOS. All 14 methods,
+  the `invalid_args` / `missing_asset` / `open_failed` error codes and the
+  event shapes match Kotlin. Results are passed through unchanged: `class`
+  verbatim, `value` = the SDK's formatted string, `validity` = `0` (valid) or
+  `3` (invalid) as an Int.
+- Wrong-measurement guard: `startEvaluation` snapshots the stored
+  measurements. `IM_MEASUREMENT_DONE` reports the index of the one new
+  measurement; zero or several new ones emit `MT_ERROR` code 99, and
+  `selectMeasurement` rejects any other measurement (`measurement_mismatch`).
+- Without `CubeReader.xcframework` (CI, public checkouts) the app builds with
+  a fail-closed fallback: license invalid, every device call returns
+  `sdk_unavailable`.
+
+*Regulatory note:* regulatory-relevant (transport of Cube results to the
+screen and backend on a new platform; no thresholds, rounding or class mapping
+in the app). ISO 14971 failure modes: wrong measurement attached to a run
+(mitigated by the guard and the selection lock), result dropped or delayed
+(fails closed: error, no submission), result field altered in transit (class
+and value verbatim, validity Int-only, covered by tests), wrong device serial
+(taken from the selected measurement). Test evidence: XCTest suite
+`RunnerTests/CubeBridgeTests.swift` in the CI `ios` job with a fake SDK
+(state/message/error mapping, result shape, ordering, guard with 0/1/2 new
+measurements and shifted indices, config resolution, listen/cancel). Missing:
+the real-SDK adapter compiles only on a Mac with the SDK, and the on-device
+checklist in the PR (license, connect, RFID and CRP config test matching the
+Cube display, power-off mid-test) is pending. Sign-off: human/PRRC sign-off
+needed before iOS results are used.
+
 **Backend Docker image: include the questionnaire catalogue:**
 - `backend/Dockerfile` now copies `backend/data/` into the image. The
   questionnaire service loads the RheumaCheck V04 catalogue from
