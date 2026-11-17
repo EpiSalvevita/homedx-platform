@@ -60,7 +60,7 @@ void main() {
     await settleInitState(tester);
 
     expect(find.text('Fehler'), findsOneWidget);
-    expect(find.textContaining('Cube-Lizenz ungültig'), findsOneWidget);
+    expect(find.textContaining('Cube-Lizenz fehlt, ist ungültig oder abgelaufen'), findsOneWidget);
     expect(find.text('Erneut versuchen'), findsOneWidget);
   });
 

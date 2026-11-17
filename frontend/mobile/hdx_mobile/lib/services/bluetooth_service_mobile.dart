@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' hide BluetoothService;
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' as blue show BluetoothService;
 import 'package:permission_handler/permission_handler.dart';
@@ -76,17 +77,22 @@ class AppBluetoothService {
     }
   }
 
-  /// Check and request Bluetooth permissions
-  Future<bool> requestPermissions() async {
-    // Check if Bluetooth is supported
-    if (await FlutterBluePlus.isSupported == false) {
-      throw Exception('Bluetooth is not supported on this device');
-    }
+  /// Runtime permissions per platform. [isAndroid]/[isIOS]/[request] are
+  /// injectable for tests; defaults use the real platform and permission_handler.
+  @visibleForTesting
+  Future<void> ensurePlatformPermissions({
+    bool? isAndroid,
+    bool? isIOS,
+    Future<PermissionStatus> Function(Permission permission)? request,
+  }) async {
+    final onAndroid = isAndroid ?? Platform.isAndroid;
+    final onIOS = isIOS ?? Platform.isIOS;
+    Future<PermissionStatus> ask(Permission p) => request != null ? request(p) : p.request();
 
     // Android 12+ (API 31+): Cube SDK and flutter_blue_plus need these at runtime.
-    if (Platform.isAndroid) {
-      final scan = await Permission.bluetoothScan.request();
-      final connect = await Permission.bluetoothConnect.request();
+    if (onAndroid) {
+      final scan = await ask(Permission.bluetoothScan);
+      final connect = await ask(Permission.bluetoothConnect);
       if (!scan.isGranted || !connect.isGranted) {
         throw Exception(
           'Bluetooth „Geräte in der Nähe“ / Scan und Verbinden ist erforderlich. Bitte in den App-Einstellungen erlauben.',
@@ -94,18 +100,62 @@ class AppBluetoothService {
       }
     }
 
+    if (onIOS) {
+      // CoreBluetooth needs only the Bluetooth permission, not location.
+      final bluetooth = await ask(Permission.bluetooth);
+      if (!bluetooth.isGranted) {
+        throw Exception(
+          'Bluetooth-Berechtigung ist erforderlich. Bitte in den iOS-Einstellungen erlauben.',
+        );
+      }
+      return;
+    }
+
     // Location (still required on many Android builds for BLE scan / discovery)
-    final locationStatus = await Permission.locationWhenInUse.request();
+    final locationStatus = await ask(Permission.locationWhenInUse);
     if (!locationStatus.isGranted) {
       throw Exception('Standort-Berechtigung ist für Bluetooth-Scan nötig. Bitte erlauben.');
     }
+  }
 
-    final adapterState = await FlutterBluePlus.adapterState.first;
+  /// Check and request Bluetooth permissions
+  Future<bool> requestPermissions() async {
+    // Check if Bluetooth is supported
+    if (await FlutterBluePlus.isSupported == false) {
+      throw Exception('Bluetooth is not supported on this device');
+    }
+
+    await ensurePlatformPermissions();
+
+    await ensureAdapterOn();
+
+    return true;
+  }
+
+  /// Throws unless the Bluetooth adapter is on (fail closed).
+  /// On iOS the adapter state is `unknown` right after CBCentralManager is
+  /// created, so wait (bounded) for the first non-unknown state. Android uses
+  /// the first emitted state as before. [states]/[isIOS]/[iosTimeout] are
+  /// injectable for tests.
+  @visibleForTesting
+  Future<void> ensureAdapterOn({
+    bool? isIOS,
+    Stream<BluetoothAdapterState>? states,
+    Duration iosTimeout = const Duration(seconds: 3),
+  }) async {
+    final stream = states ?? FlutterBluePlus.adapterState;
+    final BluetoothAdapterState adapterState;
+    if (isIOS ?? Platform.isIOS) {
+      adapterState = await stream
+          .where((s) => s != BluetoothAdapterState.unknown)
+          .first
+          .timeout(iosTimeout, onTimeout: () => BluetoothAdapterState.unknown);
+    } else {
+      adapterState = await stream.first;
+    }
     if (adapterState != BluetoothAdapterState.on) {
       throw Exception('Bluetooth is not enabled. Please enable Bluetooth in settings.');
     }
-
-    return true;
   }
 
   /// Check if Bluetooth is enabled

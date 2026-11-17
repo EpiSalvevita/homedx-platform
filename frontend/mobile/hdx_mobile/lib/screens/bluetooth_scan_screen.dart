@@ -98,12 +98,12 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
       if (!mounted) return;
       if (!licensed) {
         developer.log(
-          'BluetoothScan: licenseValid=false — replace android/app/src/main/assets/cube_license.dat',
+          'BluetoothScan: licenseValid=false — Cube license missing or invalid (app bundle)',
           name: 'HDX_CUBE',
         );
         setState(() {
           _error =
-              'Cube-Lizenz ungültig oder abgelaufen. Ersetzen Sie android/app/src/main/assets/cube_license.dat durch die gültige Datei vom Anbieter und bauen Sie die App neu.';
+              'Cube-Lizenz fehlt, ist ungültig oder abgelaufen (App-Bundle). Gültige Lizenzdatei vom Anbieter einbinden und die App neu bauen.';
         });
         return;
       }

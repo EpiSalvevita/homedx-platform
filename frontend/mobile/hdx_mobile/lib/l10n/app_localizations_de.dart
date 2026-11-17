@@ -891,7 +891,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get cubeWebStubMessage =>
-      'Gesundheitstests mit dem Cube-Gerät sind nur in der Android-App verfügbar (Bluetooth). Installieren Sie die mobile App oder nutzen Sie die Web-Version für Termine und Ergebnisse.';
+      'Gesundheitstests mit dem Cube-Gerät sind nur in der mobilen App verfügbar (Bluetooth). Installieren Sie die mobile App oder nutzen Sie die Web-Version für Termine und Ergebnisse.';
 
   @override
   String get btGoToHome => 'Zur Startseite';
@@ -1149,7 +1149,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get btConnectTimeout =>
-      'Verbindung zum Cube dauerte zu lange (60 s). Cube nah ans Telefon halten, Suche mit „Stopp“ beenden und erneut „Verbinden“ tippen. In Android-Bluetooth ggf. Gerät trennen (nicht nur paaren).';
+      'Verbindung zum Cube dauerte zu lange (60 s). Cube nah ans Telefon halten, Suche mit „Stopp“ beenden und erneut „Verbinden“ tippen. In den Bluetooth-Einstellungen ggf. Gerät trennen (nicht nur paaren).';
 
   @override
   String get btConnectFailed => 'Verbindung fehlgeschlagen';
