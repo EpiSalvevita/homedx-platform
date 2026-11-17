@@ -55,7 +55,7 @@ class BluetoothProvider with ChangeNotifier {
       // Android keeps the one-shot read below.
       if (Platform.isIOS) {
         _adapterStateSubscription =
-            FlutterBluePlus.adapterState.listen(applyAdapterState);
+            FlutterBluePlus.adapterState.listen(_applyAdapterState);
       }
 
       // Check initial Bluetooth state (iOS: waits for a settled state)
@@ -75,7 +75,7 @@ class BluetoothProvider with ChangeNotifier {
     return state == BluetoothAdapterState.on;
   }
 
-  void applyAdapterState(BluetoothAdapterState state) {
+  void _applyAdapterState(BluetoothAdapterState state) {
     final enabled = enabledFromAdapterState(state);
     if (enabled == null || enabled == _isBluetoothEnabled) return;
     _isBluetoothEnabled = enabled;

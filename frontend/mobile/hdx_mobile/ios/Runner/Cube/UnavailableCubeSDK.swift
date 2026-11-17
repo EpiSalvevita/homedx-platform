@@ -15,6 +15,8 @@ final class UnavailableCubeSDK: CubeSDK {
   var devices: [CubeDeviceValue] { [] }
   var measurements: [CubeMeasurementValue] { [] }
   var isConnected: Bool { false }
+  var connectedDeviceSerial: String? { nil }
+  var connectedDeviceDate: Date? { nil }
 
   func startScan(timeoutMs: Int) -> Bool { false }
   func stopScan() {}

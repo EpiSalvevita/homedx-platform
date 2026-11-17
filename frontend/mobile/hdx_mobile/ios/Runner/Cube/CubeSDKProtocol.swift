@@ -135,6 +135,10 @@ protocol CubeSDK: AnyObject {
   /// Unordered; the bridge defines the order exposed to Flutter.
   var measurements: [CubeMeasurementValue] { get }
   var isConnected: Bool { get }
+  /// Serial of the connected Cube (`connectedDevice.deviceSerial`), if known.
+  var connectedDeviceSerial: String? { get }
+  /// Cube clock as last read by the SDK (`connectedDevice.lastDeviceDate`).
+  var connectedDeviceDate: Date? { get }
 
   func startScan(timeoutMs: Int) -> Bool
   func stopScan()

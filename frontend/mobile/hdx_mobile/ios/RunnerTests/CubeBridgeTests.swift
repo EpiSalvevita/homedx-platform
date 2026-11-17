@@ -19,6 +19,8 @@ final class FakeCubeSDK: CubeSDK {
   var devices: [CubeDeviceValue] = []
   var measurements: [CubeMeasurementValue] = []
   var isConnected = false
+  var connectedDeviceSerial: String? = "SYN-TEST-0001"
+  var connectedDeviceDate: Date? = Date(timeIntervalSince1970: 0)
 
   var startScanResult = true
   var connectResult = true
@@ -441,23 +443,21 @@ final class CubeBridgeTests: XCTestCase {
     XCTAssertEqual(h.messages.count, countBefore, "generic messages are not forwarded")
   }
 
+  /// The meaning of InfoMessage.data is unverified, so no IM_TIMER_RUNNING
+  /// countdown is derived from it, even for timed evaluations.
   @MainActor
-  func testTimerProgressMapsToTimerRunningOnlyForTimedEvaluation() {
+  func testProgressIsAlwaysEvaluationRunning() {
     let h = BridgeHarness()
     h.listen()
     _ = h.call("startEvaluation", ["useTimer": true])
     h.clearEvents()
 
-    h.sdk.send(.info(.measurementProgress, numericData: 75))
-    assertInfo(h.messages.last, code: 5, name: "IM_TIMER_RUNNING", data: 75)
-    h.sdk.send(.info(.measurementProgress, numericData: nil))
-    assertInfo(h.messages.last, code: 6, name: "IM_EVALUATION_RUNNING", data: 0)
-    h.sdk.send(.info(.measurementProgress, numericData: -1))
-    assertInfo(h.messages.last, code: 6, name: "IM_EVALUATION_RUNNING", data: 0)
-
-    _ = h.call("startEvaluation", ["useTimer": false])
-    h.sdk.send(.info(.measurementProgress, numericData: 75))
-    assertInfo(h.messages.last, code: 6, name: "IM_EVALUATION_RUNNING", data: 0)
+    let values: [Int?] = [75, -1, nil]
+    for data in values {
+      h.sdk.send(.info(.measurementProgress, numericData: data))
+      assertInfo(h.messages.last, code: 6, name: "IM_EVALUATION_RUNNING", data: 0)
+    }
+    XCTAssertFalse(infoCodes(h.messages).contains(5))
   }
 
   @MainActor
@@ -466,8 +466,9 @@ final class CubeBridgeTests: XCTestCase {
     h.listen()
     h.clearEvents()
 
+    // msgData 0 until DeviceError.rawValue is verified to be the firmware code.
     h.sdk.send(.error(.device(code: 0x91)))
-    assertError(h.messages.last, code: 1, data: 0x91)
+    assertError(h.messages.last, code: 1, data: 0)
     h.sdk.send(.error(.communication))
     assertError(h.messages.last, code: 2, data: 0)
     h.sdk.send(.error(.timeout))
@@ -878,5 +879,336 @@ final class CubeBridgeTests: XCTestCase {
     h.sdk.publishState(.evaluating)
     XCTAssertTrue(h.events.isEmpty)
     XCTAssertEqual(secondSink.count, 1)
+  }
+
+  // MARK: Wrong-measurement guard: DB import and device checks (review round 1)
+
+  /// S1: no measurementEnd (e.g. cancel not reported as such), Dart reads the
+  /// DB, which imports one old Cube-stored measurement. It must not be pinned.
+  @MainActor
+  func testDatabaseImportWithoutMeasurementEndIsNeverPinned() {
+    let h = BridgeHarness()
+    let old = measurement("m-old", at: 1000)
+    h.sdk.measurements = [old]
+    h.listen()
+    _ = h.call("startEvaluation", [:])
+    h.sdk.publishState(.evaluating)
+    h.sdk.publishState(.idle)
+    h.clearEvents()
+
+    _ = h.call("readDeviceDatabase")
+    h.sdk.publishState(.readingDB)
+    h.sdk.publishMeasurements([old, measurement("m-import", at: 5000)])
+    h.sdk.send(.success(.dbRead))
+
+    XCTAssertFalse(infoCodes(h.messages).contains(8))
+    XCTAssertFalse(infoCodes(h.messages).contains(9))
+    assertError(h.messages.last, code: CubeBridgeCore.measurementGuardErrorCode, data: 0)
+    assertErrorCode(h.call("selectMeasurement", ["index": 1]), CubeBridgeErrorCode.measurementMismatch)
+  }
+
+  /// DBRead with exactly one new row but no measurementEnd: still an error.
+  @MainActor
+  func testDatabaseReadWithoutMeasurementEndIsAnError() {
+    let h = BridgeHarness()
+    let old = measurement("m-old", at: 1000)
+    h.sdk.measurements = [old]
+    h.listen()
+    _ = h.call("startEvaluation", [:])
+    h.clearEvents()
+
+    h.sdk.publishMeasurements([old, measurement("m-new", at: 5000)])
+    h.sdk.send(.success(.dbRead))
+
+    XCTAssertEqual(infoCodes(h.messages), [])
+    assertError(h.messages.last, code: CubeBridgeCore.measurementGuardErrorCode, data: 0)
+  }
+
+  /// S2: measurementEnd arrives before the row is listed, then the DB read
+  /// publishes imports. The first single new row must not be pinned.
+  @MainActor
+  func testDeferredMeasurementEndFailsOnceDatabaseReadStarted() {
+    let h = BridgeHarness()
+    let old = measurement("m-old", at: 1000)
+    h.sdk.measurements = [old]
+    h.listen()
+    _ = h.call("startEvaluation", [:])
+    h.clearEvents()
+
+    h.sdk.send(.info(.measurementEnd, numericData: nil))
+    XCTAssertTrue(h.messages.isEmpty)
+
+    _ = h.call("readDeviceDatabase")
+    h.sdk.publishMeasurements([old, measurement("m-import", at: 5000)])
+
+    XCTAssertFalse(infoCodes(h.messages).contains(8))
+    assertError(h.messages.last, code: CubeBridgeCore.measurementGuardErrorCode, data: 0)
+    h.sdk.send(.success(.dbRead))
+    XCTAssertFalse(infoCodes(h.messages).contains(9))
+    assertErrorCode(h.call("selectMeasurement", ["index": 1]), CubeBridgeErrorCode.measurementMismatch)
+  }
+
+  /// The readingDB state alone also closes the identification window.
+  @MainActor
+  func testReadingDBStateBlocksIdentification() {
+    let h = BridgeHarness()
+    let old = measurement("m-old", at: 1000)
+    h.sdk.measurements = [old]
+    h.listen()
+    _ = h.call("startEvaluation", [:])
+    h.clearEvents()
+
+    h.sdk.publishState(.readingDB)
+    h.sdk.publishMeasurements([old, measurement("m-import", at: 5000)])
+    h.sdk.send(.info(.measurementEnd, numericData: nil))
+
+    XCTAssertFalse(infoCodes(h.messages).contains(8))
+    assertError(h.messages.last, code: CubeBridgeCore.measurementGuardErrorCode, data: 0)
+  }
+
+  @MainActor
+  func testCandidateFromAnotherCubeIsRejected() {
+    let h = BridgeHarness()
+    h.listen()
+    _ = h.call("startEvaluation", [:])
+    h.clearEvents()
+
+    let foreign = CubeMeasurementValue(
+      uid: "m-foreign",
+      deviceSerial: "SYN-OTHER-0002",
+      deviceDate: Date(timeIntervalSince1970: 5000),
+      temperature: 21.5,
+      cfgName: "SYNTH-CFG",
+      cfgLotNr: "LOT-TEST",
+      results: []
+    )
+    h.sdk.publishMeasurements([foreign])
+    h.sdk.send(.info(.measurementEnd, numericData: nil))
+
+    XCTAssertFalse(infoCodes(h.messages).contains(8))
+    assertError(h.messages.last, code: CubeBridgeCore.measurementGuardErrorCode, data: 1)
+    assertErrorCode(h.call("selectMeasurement", ["index": 0]), CubeBridgeErrorCode.measurementMismatch)
+  }
+
+  @MainActor
+  func testCandidateOlderThanTheRunIsRejected() {
+    let h = BridgeHarness()
+    h.sdk.connectedDeviceDate = Date(timeIntervalSince1970: 5000)
+    h.listen()
+    _ = h.call("startEvaluation", [:])
+    h.clearEvents()
+
+    // Older than the Cube clock at start minus the 2 s tolerance.
+    h.sdk.publishMeasurements([measurement("m-older", at: 4997)])
+    h.sdk.send(.info(.measurementEnd, numericData: nil))
+
+    XCTAssertFalse(infoCodes(h.messages).contains(8))
+    assertError(h.messages.last, code: CubeBridgeCore.measurementGuardErrorCode, data: 1)
+  }
+
+  @MainActor
+  func testCandidateWithinClockToleranceIsAccepted() {
+    let h = BridgeHarness()
+    h.sdk.connectedDeviceDate = Date(timeIntervalSince1970: 5000)
+    h.listen()
+    _ = h.call("startEvaluation", [:])
+    h.clearEvents()
+
+    h.sdk.publishMeasurements([measurement("m-new", at: 4999)])
+    h.sdk.send(.info(.measurementEnd, numericData: nil))
+    assertInfo(h.messages.last, code: 8, name: "IM_MEASUREMENT_DONE", data: 0)
+  }
+
+  @MainActor
+  func testStartEvaluationWithoutIdentifiedCubeIsRefused() {
+    let cases: [(String?, Date?)] = [
+      (nil, Date(timeIntervalSince1970: 0)),
+      ("  ", Date(timeIntervalSince1970: 0)),
+      ("SYN-TEST-0001", nil),
+    ]
+    for (serial, date) in cases {
+      let h = BridgeHarness()
+      h.sdk.measurements = [measurement("m-a", at: 1000)]
+      h.sdk.connectedDeviceSerial = serial
+      h.sdk.connectedDeviceDate = date
+      assertErrorCode(h.call("startEvaluation", [:]), CubeBridgeErrorCode.deviceUnknown)
+      XCTAssertTrue(h.sdk.startEvaluationCalls.isEmpty)
+      assertErrorCode(h.call("selectMeasurement", ["index": 0]), CubeBridgeErrorCode.measurementMismatch)
+    }
+  }
+
+  @MainActor
+  func testRefusedStartEvaluationEmitsErrorAndBlocksSelection() {
+    let h = BridgeHarness()
+    h.sdk.measurements = [measurement("m-a", at: 1000)]
+    h.sdk.startEvaluationResult = false
+    h.listen()
+    h.clearEvents()
+
+    XCTAssertEqual(successValue(h.call("startEvaluation", [:])) as? Bool, false)
+    assertError(h.messages.last, code: CubeBridgeCore.commandRejectedErrorCode, data: 0)
+    assertErrorCode(h.call("selectMeasurement", ["index": 0]), CubeBridgeErrorCode.measurementMismatch)
+  }
+
+  @MainActor
+  func testRefusedDatabaseReadDuringRunEmitsError() {
+    let h = BridgeHarness()
+    h.sdk.readDatabaseResult = false
+    h.listen()
+
+    // Outside a run: just false, no event.
+    h.clearEvents()
+    XCTAssertEqual(successValue(h.call("readDeviceDatabase")) as? Bool, false)
+    XCTAssertTrue(h.messages.isEmpty)
+
+    _ = h.call("startEvaluation", [:])
+    h.clearEvents()
+    XCTAssertEqual(successValue(h.call("readDeviceDatabase")) as? Bool, false)
+    assertError(h.messages.last, code: CubeBridgeCore.commandRejectedErrorCode, data: 0)
+  }
+
+  /// After IM_MEASURE_COUNT the run is complete: later SDK messages must not
+  /// produce a stale IM_MEASUREMENT_DONE, but the pinned selection stays.
+  @MainActor
+  func testCompletedRunEmitsNoStaleMeasurementDone() {
+    let h = BridgeHarness()
+    let old = measurement("m-old", at: 1000)
+    let fresh = measurement("m-new", at: 2000)
+    h.sdk.measurements = [old]
+    h.listen()
+    _ = h.call("startEvaluation", [:])
+    h.sdk.publishMeasurements([old, fresh])
+    h.sdk.send(.info(.measurementEnd, numericData: nil))
+    h.sdk.send(.success(.dbRead))
+    h.clearEvents()
+
+    h.sdk.publishMeasurements([measurement("m-early", at: 500), old, fresh])
+    h.sdk.send(.success(.dbRead))
+    XCTAssertEqual(infoCodes(h.messages), [9])
+
+    h.sdk.send(.info(.measurementEnd, numericData: nil))
+    XCTAssertFalse(infoCodes(h.messages).contains(8))
+    assertError(h.messages.last, code: CubeBridgeCore.measurementGuardErrorCode, data: 0)
+
+    XCTAssertEqual(successValue(h.call("selectMeasurement", ["index": 2])) as? Bool, true)
+    assertErrorCode(h.call("selectMeasurement", ["index": 1]), CubeBridgeErrorCode.measurementMismatch)
+  }
+
+  @MainActor
+  func testDuplicateUidIsAmbiguous() {
+    let h = BridgeHarness()
+    h.listen()
+    _ = h.call("startEvaluation", [:])
+    h.clearEvents()
+
+    h.sdk.publishMeasurements([measurement("m-dup", at: 2000), measurement("m-dup", at: 2000)])
+    h.sdk.send(.info(.measurementEnd, numericData: nil))
+
+    XCTAssertFalse(infoCodes(h.messages).contains(8))
+    assertError(h.messages.last, code: CubeBridgeCore.measurementGuardErrorCode, data: 2)
+  }
+
+  @MainActor
+  func testPinnedMeasurementRemovedBeforeDatabaseRead() {
+    let h = BridgeHarness()
+    let old = measurement("m-old", at: 1000)
+    h.sdk.measurements = [old]
+    h.listen()
+    _ = h.call("startEvaluation", [:])
+    h.sdk.publishMeasurements([old, measurement("m-new", at: 2000)])
+    h.sdk.send(.info(.measurementEnd, numericData: nil))
+    h.clearEvents()
+
+    h.sdk.publishMeasurements([old])
+    h.sdk.send(.success(.dbRead))
+
+    XCTAssertEqual(infoCodes(h.messages), [])
+    assertError(h.messages.last, code: CubeBridgeCore.measurementGuardErrorCode, data: 0)
+    assertErrorCode(h.call("selectMeasurement", ["index": 0]), CubeBridgeErrorCode.measurementMismatch)
+  }
+
+  @MainActor
+  func testBackToBackRunsPinTheirOwnMeasurement() {
+    let h = BridgeHarness()
+    h.listen()
+
+    _ = h.call("startEvaluation", [:])
+    let first = measurement("m-run1", at: 1000)
+    h.sdk.publishMeasurements([first])
+    h.sdk.send(.info(.measurementEnd, numericData: nil))
+    h.sdk.send(.success(.dbRead))
+    XCTAssertEqual(successValue(h.call("selectMeasurement", ["index": 0])) as? Bool, true)
+
+    _ = h.call("startEvaluation", [:])
+    h.clearEvents()
+    let second = measurement("m-run2", at: 2000)
+    h.sdk.publishMeasurements([first, second])
+    h.sdk.send(.info(.measurementEnd, numericData: nil))
+    assertInfo(h.messages.last, code: 8, name: "IM_MEASUREMENT_DONE", data: 1)
+    h.sdk.send(.success(.dbRead))
+    XCTAssertEqual(infoCodes(h.messages), [8, 8, 9])
+
+    assertErrorCode(h.call("selectMeasurement", ["index": 0]), CubeBridgeErrorCode.measurementMismatch)
+    XCTAssertEqual(successValue(h.call("selectMeasurement", ["index": 1])) as? Bool, true)
+  }
+
+  // MARK: Lazy SDK creation and SDK-independent helpers
+
+  @MainActor
+  func testLazySDKIsCreatedOnFirstUseAndKeepsObserver() {
+    var created = 0
+    let inner = FakeCubeSDK()
+    let lazy = LazyCubeSDK(factory: {
+      created += 1
+      return inner
+    })
+    let core = CubeBridgeCore(sdk: lazy, loadBundledResource: { _ in nil }, readFile: { _ in nil })
+    XCTAssertEqual(created, 0, "no SDK at bridge construction (app launch)")
+    XCTAssertFalse(lazy.isCreated)
+
+    XCTAssertEqual(successValue(core.handle(method: "getVersion", arguments: nil)) as? String, "0.0.0-test")
+    XCTAssertEqual(created, 1)
+    XCTAssertTrue(inner.observer === core)
+
+    _ = core.handle(method: "licenseValid", arguments: nil)
+    XCTAssertEqual(created, 1)
+  }
+
+  func testMeasurementUidIsStableAndFieldSensitive() {
+    let date = Date(timeIntervalSince1970: 1000.25)
+    func uid(_ serial: String = "SYN-1", _ d: Date = date, _ cfg: String = "CFG", _ lot: String = "LOT", _ vendor: String = "V") -> String {
+      CubeMeasurementUID.make(
+        deviceSerial: serial,
+        deviceDate: d,
+        configurationName: cfg,
+        configurationLotNumber: lot,
+        configurationVendor: vendor
+      )
+    }
+    let base = uid()
+    XCTAssertEqual(base, uid())
+    XCTAssertTrue(base.hasPrefix("m-"))
+    XCTAssertEqual(base.count, 26)
+    XCTAssertFalse(base.contains("SYN-1"))
+    XCTAssertNotEqual(base, uid("SYN-2"))
+    XCTAssertNotEqual(base, uid("SYN-1", Date(timeIntervalSince1970: 1000.26)))
+    XCTAssertNotEqual(base, uid("SYN-1", date, "CFG2"))
+    XCTAssertNotEqual(base, uid("SYN-1", date, "CFG", "LOT2"))
+    XCTAssertNotEqual(base, uid("SYN-1", date, "CFG", "LOT", "V2"))
+  }
+
+  func testInfoDataConversionNeverTraps() {
+    XCTAssertEqual(CubeSDKValue.intValue(75), 75)
+    XCTAssertEqual(CubeSDKValue.intValue(Int32(5)), 5)
+    XCTAssertEqual(CubeSDKValue.intValue(Double(12)), 12)
+    XCTAssertNil(CubeSDKValue.intValue(nil))
+    XCTAssertNil(CubeSDKValue.intValue(true))
+    XCTAssertNil(CubeSDKValue.intValue("5"))
+    XCTAssertNil(CubeSDKValue.intValue(Double(2.5)))
+    XCTAssertNil(CubeSDKValue.intValue(Double.nan))
+    XCTAssertNil(CubeSDKValue.intValue(Double.infinity))
+    XCTAssertNil(CubeSDKValue.intValue(Double(1e30)))
+    XCTAssertNil(CubeSDKValue.intValue(UInt.max))
+    XCTAssertNil(CubeSDKValue.intValue(Float.nan))
   }
 }

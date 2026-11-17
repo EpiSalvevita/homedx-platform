@@ -48,8 +48,10 @@ final class CubeBridge: NSObject, FlutterStreamHandler {
 
   @MainActor
   static func makeCore() -> CubeBridgeCore {
+    // Lazy: CubeViewModel (and its Bluetooth prompt) starts on the first
+    // Cube channel call, not at app launch.
     CubeBridgeCore(
-      sdk: makeSDK(),
+      sdk: LazyCubeSDK(factory: { makeSDK() }),
       loadBundledResource: { name in cubeBundledResourceData(named: name) },
       readFile: { path in cubeFileData(atPath: path) }
     )

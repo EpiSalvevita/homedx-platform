@@ -64,12 +64,13 @@ jobs:
             CODE_SIGNING_ALLOWED=NO
 
       # Test evidence (IEC 62304): the job fails unless the result bundle
-      # shows at least MIN_TESTS executed tests and no failures. CI never has
+      # reports result "Passed", at least MIN_TESTS executed tests (the current
+      # RunnerTests count; raise it when tests are added) and no failures. CI never has
       # the proprietary Cube SDK, so the bundle contains no vendor material.
       - name: Summarise test results
         if: always()
         env:
-          MIN_TESTS: '20'
+          MIN_TESTS: '46'
         run: |
           set -euo pipefail
           BUNDLE="$RUNNER_TEMP/RunnerTests.xcresult"
@@ -93,6 +94,10 @@ jobs:
           (cd "$RUNNER_TEMP" && zip -qr RunnerTests.xcresult.zip RunnerTests.xcresult)
           if [ "$TOTAL" -lt "$MIN_TESTS" ]; then
             echo "::error::Only $TOTAL tests ran (minimum $MIN_TESTS)"
+            exit 1
+          fi
+          if [ "$RESULT" != "Passed" ]; then
+            echo "::error::xcresult result is '$RESULT', expected 'Passed'"
             exit 1
           fi
           if [ "$FAILED" -ne 0 ]; then

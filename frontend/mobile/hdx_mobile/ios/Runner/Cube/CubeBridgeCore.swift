@@ -34,6 +34,9 @@ enum CubeBridgeErrorCode {
   /// `selectMeasurement` asked for a measurement other than the one the
   /// current evaluation produced (wrong-measurement guard).
   static let measurementMismatch = "measurement_mismatch"
+  /// `startEvaluation` without a known connected Cube (serial and clock are
+  /// needed to verify the measurement afterwards).
+  static let deviceUnknown = "device_unknown"
 }
 
 /// MT_INFO codes and names as cube_sdk_messages.dart decodes them
@@ -92,6 +95,18 @@ final class CubeBridgeCore: CubeSDKObserver {
   /// abgebrochen (SDK-Fehlercode 99, Zusatz n)" text, where n is the number
   /// of candidate measurements the guard found.
   static let measurementGuardErrorCode = 99
+  /// MT_ERROR code emitted when the SDK refuses `startEvaluation` or
+  /// `readDeviceDatabase` during a run, so Dart fails at once instead of
+  /// waiting for its timeout.
+  static let commandRejectedErrorCode = 98
+  /// A candidate measurement must not be older than the Cube clock captured
+  /// at `startEvaluation` minus this tolerance. The captured value is the
+  /// Cube time last read by the SDK's idle keep-alive loop, so it is never
+  /// later than the real Cube time at start, and the new measurement is
+  /// taken after start. The tolerance only absorbs the Cube clock's
+  /// one-second resolution and millisecond rounding. An SDK clock correction
+  /// during the run could still violate it; the run then fails closed.
+  static let deviceDateTolerance: TimeInterval = 2
 
   private static let knownMethods: Set<String> = [
     "getVersion", "licenseValid", "getState", "startScan", "stopScan",
@@ -108,23 +123,42 @@ final class CubeBridgeCore: CubeSDKObserver {
 
   /// Bookkeeping for one `startEvaluation` call (wrong-measurement guard).
   private struct EvaluationSession {
+    enum Phase {
+      /// Waiting for the run's measurement and the DB read.
+      case active
+      /// IM_MEASURE_COUNT was sent. The pin stays for selectMeasurement, but
+      /// no further IM_MEASUREMENT_DONE is emitted for this run.
+      case completed
+      /// The guard or the SDK reported an error. Nothing may be selected.
+      case failed
+    }
+
     /// uids of all measurements that existed before the evaluation started.
     let snapshot: Set<String>
     let useTimer: Bool
+    /// Serial of the Cube connected at startEvaluation.
+    let deviceSerial: String
+    /// Earliest acceptable `deviceDate` (Cube clock at start minus tolerance).
+    let notBefore: Date
+    var phase: Phase = .active
     /// uid of the one measurement this evaluation produced, once identified.
     var pinnedUid: String?
     /// Last index reported to Dart with IM_MEASUREMENT_DONE.
     var reportedIndex: Int?
-    /// measurementEnd arrived before the new measurement was in the list.
-    var awaitingMeasurement = false
-    /// The guard or the SDK reported an error. Nothing may be selected.
-    var failed = false
+    /// The SDK reported measurementEnd for this run.
+    var sawMeasurementEnd = false
+    /// readDeviceDatabase was called or the SDK entered readingDB. From here
+    /// on new rows may be old Cube-stored measurements, so an unpinned run
+    /// can no longer be identified.
+    var databaseReadStarted = false
   }
 
   private enum Identification {
     case found(index: Int)
     case none
     case ambiguous(count: Int)
+    /// Exactly one candidate, but from another Cube or older than the run.
+    case rejected
   }
 
   private let sdk: CubeSDK
@@ -147,7 +181,9 @@ final class CubeBridgeCore: CubeSDKObserver {
     self.sdk = sdk
     self.loadBundledResource = loadBundledResource
     self.readFile = readFile
-    self.deviceSnapshot = sdk.devices
+    // Do not touch the SDK here: with `LazyCubeSDK` that would create
+    // CubeViewModel (and its Bluetooth prompt) at app launch.
+    self.deviceSnapshot = []
     // The core observes the SDK for its whole lifetime, independent of
     // Flutter listeners: the wrong-measurement guard must see every
     // message even if Dart re-subscribes in the middle of a run.
@@ -245,7 +281,16 @@ final class CubeBridgeCore: CubeSDKObserver {
       return startEvaluation(args)
 
     case "readDeviceDatabase":
-      return .success(sdk.readDeviceDatabase())
+      if session?.phase == .active {
+        session?.databaseReadStarted = true
+      }
+      let ok = sdk.readDeviceDatabase()
+      if !ok, session?.phase == .active {
+        log.error("readDeviceDatabase refused during a run")
+        session?.phase = .failed
+        emitError(code: Self.commandRejectedErrorCode, data: 0)
+      }
+      return .success(ok)
 
     case "selectMeasurement":
       return selectMeasurement(args)
@@ -316,14 +361,33 @@ final class CubeBridgeCore: CubeSDKObserver {
     }
 
     // Wrong-measurement guard, step 1: remember which measurements already
-    // exist. Results of an earlier selection must not leak into this run.
+    // exist and which Cube (serial, clock) runs the test. Results of an
+    // earlier selection must not leak into this run.
     selectedUid = nil
+    let serial = sdk.connectedDeviceSerial?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    guard !serial.isEmpty, let deviceDate = sdk.connectedDeviceDate else {
+      log.error("startEvaluation refused: connected Cube serial or clock unknown")
+      session = EvaluationSession(
+        snapshot: [],
+        useTimer: useTimer,
+        deviceSerial: "",
+        notBefore: .distantFuture,
+        phase: .failed
+      )
+      return .error(code: CubeBridgeErrorCode.deviceUnknown, message: "Connected Cube is not identified")
+    }
     session = EvaluationSession(
       snapshot: Set(sdk.measurements.map { $0.uid }),
-      useTimer: useTimer
+      useTimer: useTimer,
+      deviceSerial: serial,
+      notBefore: deviceDate.addingTimeInterval(-Self.deviceDateTolerance)
     )
     let ok = sdk.startEvaluation(useTimer: useTimer, configuration: configuration)
     log.info("startEvaluation source=\(source, privacy: .public) useTimer=\(useTimer, privacy: .public) ok=\(ok, privacy: .public)")
+    if !ok {
+      session?.phase = .failed
+      emitError(code: Self.commandRejectedErrorCode, data: 0)
+    }
     return .success(ok)
   }
 
@@ -340,7 +404,7 @@ final class CubeBridgeCore: CubeSDKObserver {
     // Wrong-measurement guard, step 3: after startEvaluation only the
     // measurement identified for that evaluation may be selected. This
     // also blocks Dart's "last item" fallback when no index was reported.
-    if let current = session, current.failed || current.pinnedUid != measurement.uid {
+    if let current = session, current.phase == .failed || current.pinnedUid != measurement.uid {
       log.error("selectMeasurement rejected: not the measurement of the current evaluation")
       return .error(
         code: CubeBridgeErrorCode.measurementMismatch,
@@ -358,6 +422,9 @@ final class CubeBridgeCore: CubeSDKObserver {
   func cubeSDKDidChangeState(_ state: CubeSDKState) {
     let name = Self.stateName(state)
     log.info("state \(name, privacy: .public)")
+    if state == .readingDB, session?.phase == .active {
+      session?.databaseReadStarted = true
+    }
     emitState(state)
   }
 
@@ -375,19 +442,15 @@ final class CubeBridgeCore: CubeSDKObserver {
 
   func cubeSDKDidReceive(_ message: CubeSDKMessage) {
     switch message {
-    case let .info(kind, numericData):
+    case let .info(kind, _):
       switch kind {
       case .measurementStart, .measurementConfigWrite:
         emitInfo(.evaluationRunning, data: 0)
       case .measurementProgress:
-        // A timed evaluation reports the countdown as IM_TIMER_RUNNING with
-        // the remaining seconds, like the Android SDK. Without a timer, or
-        // without a numeric payload, it is plain evaluation progress.
-        if session?.useTimer == true, let seconds = numericData, seconds >= 0 {
-          emitInfo(.timerRunning, data: seconds)
-        } else {
-          emitInfo(.evaluationRunning, data: 0)
-        }
+        // Always plain progress (IM_EVALUATION_RUNNING). The meaning of
+        // `InfoMessage.data` is undocumented, so no IM_TIMER_RUNNING
+        // countdown is derived from it until it is verified on a device.
+        emitInfo(.evaluationRunning, data: 0)
       case .measurementRead:
         emitInfo(.evaluationReadData, data: 0)
       case .measurementEnd:
@@ -414,10 +477,13 @@ final class CubeBridgeCore: CubeSDKObserver {
 
     case let .error(kind):
       let mapped = Self.errorCode(for: kind)
-      if session != nil {
-        // Any SDK error ends the evaluation for selection purposes. Dart
-        // fails the run on every MT_ERROR anyway.
-        session?.failed = true
+      if case let .device(code) = kind {
+        log.error("SDK DeviceError raw=\(code, privacy: .public)")
+      }
+      if session?.phase == .active {
+        // Any SDK error ends the evaluation. Dart fails the run on every
+        // MT_ERROR anyway.
+        session?.phase = .failed
       }
       emitError(code: mapped.code, data: mapped.data)
     }
@@ -427,44 +493,64 @@ final class CubeBridgeCore: CubeSDKObserver {
   //
   // ISO 14971: the highest-severity failure of this bridge is attaching a
   // different measurement's result to the current run. The iOS SDK does not
-  // say which stored measurement an evaluation produced, so the bridge
-  // works it out:
-  //   1. startEvaluation snapshots the uids of all stored measurements.
-  //   2. On measurementEnd, on later list updates and on DBRead, the bridge
-  //      looks for measurements that are not in the snapshot. Exactly one
-  //      must exist. Its index, in getMeasurements order (deviceDate
-  //      ascending, uid as tie-break), is sent as IM_MEASUREMENT_DONE
-  //      msgData and the uid is pinned. Zero (by DBRead) or several
-  //      candidates emit MT_ERROR code 99 instead. The bridge never guesses.
-  //   3. selectMeasurement only accepts the pinned measurement (see above).
-  // If measurementEnd arrives before the SDK has published the new
-  // measurement, the decision is deferred to the next list update or, at
-  // the latest, to DBRead, where zero candidates is an error. If a DB read
-  // adds older measurements and the pinned index shifts, IM_MEASUREMENT_DONE
-  // is sent again with the new index before IM_MEASURE_COUNT, so the index
-  // Dart selects always points at the pinned measurement.
+  // say which stored measurement an evaluation produced, and
+  // readDeviceDatabase imports Cube-stored measurements the phone has never
+  // seen. "The only row not in the snapshot" is therefore trusted only
+  // before any DB read. The rules:
+  //   1. startEvaluation snapshots the stored uids and captures the
+  //      connected Cube's serial and clock (refused if either is unknown).
+  //   2. The run's measurement can be identified (pinned) only after the
+  //      SDK reported measurementEnd and before a DB read has started
+  //      (readDeviceDatabase call or readingDB state). Exactly one row must
+  //      be new, from the same Cube serial, with deviceDate not earlier than
+  //      the captured Cube clock minus `deviceDateTolerance`. Its index, in
+  //      getMeasurements order, is sent as IM_MEASUREMENT_DONE msgData.
+  //      If measurementEnd arrives before the row is listed, the decision
+  //      waits for the next list update, but only until a DB read starts.
+  //   3. DBRead never pins. If the run is pinned, IM_MEASUREMENT_DONE is
+  //      sent again with the current index (a DB import can shift it),
+  //      followed by IM_MEASURE_COUNT, and the run is completed. If the run
+  //      is not pinned, the pinned row is missing or duplicated, or any rule
+  //      above fails, MT_ERROR 99 is sent (msgData = number of candidates)
+  //      and no IM_MEASURE_COUNT, so Dart's DB wait fails. Nothing is
+  //      guessed.
+  //   4. selectMeasurement accepts only the pinned measurement while a
+  //      session exists (see selectMeasurement).
+
+  private var activeSession: EvaluationSession? {
+    guard let current = session, current.phase == .active else { return nil }
+    return current
+  }
 
   private func handleMeasurementEnd() {
-    guard session != nil else {
-      // Not started through this bridge: nothing to attribute it to.
-      log.error("measurementEnd without startEvaluation")
+    guard let current = activeSession else {
+      // No run of this bridge is waiting for a measurement.
+      log.error("measurementEnd without an active evaluation")
       emitGuardError(candidates: 0)
+      return
+    }
+    session?.sawMeasurementEnd = true
+    if current.pinnedUid == nil, current.databaseReadStarted {
+      log.error("measurementEnd after a DB read started")
+      failEvaluation(candidates: 0)
       return
     }
     switch identifyEvaluationMeasurement() {
     case let .found(index):
       emitInfo(.measurementDone, data: index)
     case .none:
-      log.info("measurementEnd: new measurement not yet listed, deferring")
-      session?.awaitingMeasurement = true
+      log.info("measurementEnd: new measurement not yet listed, waiting")
     case let .ambiguous(count):
       failEvaluation(candidates: count)
+    case .rejected:
+      failEvaluation(candidates: 1)
     }
   }
 
   private func handleMeasurementsUpdated() {
-    guard let current = session, !current.failed else { return }
+    guard let current = activeSession else { return }
     if current.pinnedUid != nil {
+      // Keep Dart's index in sync if the list order shifted.
       let previousIndex = current.reportedIndex
       if case let .found(index) = identifyEvaluationMeasurement(), index != previousIndex {
         log.info("pinned measurement moved to index \(index, privacy: .public)")
@@ -472,49 +558,92 @@ final class CubeBridgeCore: CubeSDKObserver {
       }
       return
     }
-    guard current.awaitingMeasurement else { return }
-    switch identifyEvaluationMeasurement() {
-    case let .found(index):
-      session?.awaitingMeasurement = false
-      emitInfo(.measurementDone, data: index)
-    case .none:
-      break
-    case let .ambiguous(count):
-      failEvaluation(candidates: count)
-    }
-  }
-
-  private func handleDatabaseRead() {
-    guard session != nil else {
-      emitInfo(.measureCount, data: sdk.measurements.count)
+    guard current.sawMeasurementEnd else { return }
+    if current.databaseReadStarted {
+      // New rows may now be imports of old Cube measurements.
+      failEvaluation(candidates: 0)
       return
     }
     switch identifyEvaluationMeasurement() {
     case let .found(index):
       emitInfo(.measurementDone, data: index)
+    case .none:
+      break
+    case let .ambiguous(count):
+      failEvaluation(candidates: count)
+    case .rejected:
+      failEvaluation(candidates: 1)
+    }
+  }
+
+  private func handleDatabaseRead() {
+    guard let current = session else {
+      emitInfo(.measureCount, data: sdk.measurements.count)
+      return
+    }
+    switch current.phase {
+    case .completed:
+      // DB read outside a run.
+      emitInfo(.measureCount, data: sdk.measurements.count)
+      return
+    case .failed:
+      emitGuardError(candidates: 0)
+      return
+    case .active:
+      break
+    }
+    guard current.pinnedUid != nil else {
+      log.error("DBRead before the run's measurement was identified")
+      failEvaluation(candidates: 0)
+      return
+    }
+    switch identifyEvaluationMeasurement() {
+    case let .found(index):
+      emitInfo(.measurementDone, data: index)
+      session?.phase = .completed
       emitInfo(.measureCount, data: sdk.measurements.count)
     case .none:
       failEvaluation(candidates: 0)
     case let .ambiguous(count):
       failEvaluation(candidates: count)
+    case .rejected:
+      failEvaluation(candidates: 1)
     }
   }
 
+  /// Finds the run's measurement. A pinned uid is looked up again (it must
+  /// still exist exactly once). Without a pin, identification is allowed
+  /// only after measurementEnd and before a DB read (see rules above).
   private func identifyEvaluationMeasurement() -> Identification {
-    guard var current = session, !current.failed else { return .none }
+    guard var current = activeSession else { return .none }
     let ordered = orderedMeasurements()
-    let candidates: [Int]
     if let pinned = current.pinnedUid {
-      candidates = ordered.indices.filter { ordered[$0].uid == pinned }
-    } else {
-      candidates = ordered.indices.filter { !current.snapshot.contains(ordered[$0].uid) }
+      let hits = ordered.indices.filter { ordered[$0].uid == pinned }
+      guard hits.count == 1 else {
+        log.error("pinned measurement found \(hits.count, privacy: .public) times")
+        return hits.isEmpty ? .none : .ambiguous(count: hits.count)
+      }
+      current.reportedIndex = hits[0]
+      session = current
+      return .found(index: hits[0])
     }
+    guard current.sawMeasurementEnd, !current.databaseReadStarted else { return .none }
+    let candidates = ordered.indices.filter { !current.snapshot.contains(ordered[$0].uid) }
     guard candidates.count == 1 else {
       log.info("guard candidates=\(candidates.count, privacy: .public)")
       return candidates.isEmpty ? .none : .ambiguous(count: candidates.count)
     }
     let index = candidates[0]
-    current.pinnedUid = ordered[index].uid
+    let candidate = ordered[index]
+    guard candidate.deviceSerial == current.deviceSerial else {
+      log.error("guard rejected candidate: different Cube serial")
+      return .rejected
+    }
+    guard candidate.deviceDate >= current.notBefore else {
+      log.error("guard rejected candidate: older than the run")
+      return .rejected
+    }
+    current.pinnedUid = candidate.uid
     current.reportedIndex = index
     session = current
     log.info("guard identified measurement index=\(index, privacy: .public)")
@@ -523,9 +652,8 @@ final class CubeBridgeCore: CubeSDKObserver {
 
   private func failEvaluation(candidates: Int) {
     log.error("guard failed, candidates=\(candidates, privacy: .public)")
-    session?.awaitingMeasurement = false
     session?.pinnedUid = nil
-    session?.failed = true
+    session?.phase = .failed
     emitGuardError(candidates: candidates)
   }
 
@@ -552,9 +680,15 @@ final class CubeBridgeCore: CubeSDKObserver {
   }
 
   /// Result rows in the Kotlin shape, sorted by the configuration's index.
-  /// `class` is verbatim. `validity` is an Int (0 valid, 3 invalid, the
-  /// Cube `CL_GetResultValidity` codes), never a Bool: Dart maps Bool true
-  /// to 1 ("Kein Wert").
+  /// `class` is verbatim.
+  ///
+  /// STATUS-MAPPING DIFFERENCE FROM ANDROID (open question for PRRC and
+  /// BIOSYNEX): the iOS SDK only exposes `Result.isValid: Bool`, while the
+  /// Android SDK reports a validity code 0-4. iOS sends 0 when `isValid` is
+  /// true and 3 ("Ungueltig") otherwise, so 1 ("Kein Wert"), 2 ("Unendlich")
+  /// and 4 ("Geraet abgelaufen") never occur on iOS. What `isValid` covers in
+  /// CubeReader 1.3.0 (e.g. expiry, missing value) is not documented. The
+  /// value is an Int, never a Bool: Dart maps Bool true to 1 ("Kein Wert").
   static func resultPayloads(_ results: [CubeResultValue]) -> [[String: Any]] {
     results.sorted { $0.index < $1.index }.map { (r: CubeResultValue) -> [String: Any] in
       let validity: Int = r.isValid ? 0 : 3
@@ -590,8 +724,11 @@ final class CubeBridgeCore: CubeSDKObserver {
   /// MT_ERROR `msgCode` / `msgData` as cube_sdk_messages.dart decodes them.
   static func errorCode(for kind: CubeErrorKind) -> (code: Int, data: Int) {
     switch kind {
-    case let .device(code):
-      return (1, code)
+    case .device:
+      // msgData 0: `DeviceError.rawValue` may be the enum ordinal rather than
+      // the firmware code that Dart's error texts expect. The raw value is
+      // logged instead until verified on a device.
+      return (1, 0)
     case .communication:
       return (2, 0)
     case .timeout:

@@ -1,6 +1,5 @@
 #if canImport(CubeReader)
 import Combine
-import CryptoKit
 import CubeReader
 import Foundation
 import os
@@ -122,7 +121,7 @@ final class CubeReaderAdapter: CubeSDK {
       log.error("license: bundled cube_license.dat not found")
       return
     }
-    let fingerprint = CubeReaderAdapter.sha256Hex(data)
+    let fingerprint = CubeMeasurementUID.sha256Hex(data)
     let defaults = UserDefaults.standard
     if defaults.string(forKey: CubeReaderAdapter.licenseAttemptKey) == fingerprint {
       log.error("license: bundled file was already offered and is not valid")
@@ -150,6 +149,8 @@ final class CubeReaderAdapter: CubeSDK {
   }
   var licenseValid: Bool { hasValidLicense() }
   var isConnected: Bool { viewModel.isConnected }
+  var connectedDeviceSerial: String? { viewModel.connectedDevice?.deviceSerial }
+  var connectedDeviceDate: Date? { viewModel.connectedDevice?.lastDeviceDate }
 
   func startScan(timeoutMs: Int) -> Bool {
     // CubeReader's timeout is in milliseconds, like the Dart argument.
@@ -232,7 +233,13 @@ final class CubeReaderAdapter: CubeSDK {
       )
     }
     return CubeMeasurementValue(
-      uid: uid(for: measurement),
+      uid: CubeMeasurementUID.make(
+        deviceSerial: measurement.deviceSerial,
+        deviceDate: measurement.deviceDate,
+        configurationName: measurement.configurationName,
+        configurationLotNumber: measurement.configurationLotNumber,
+        configurationVendor: measurement.configurationVendor
+      ),
       deviceSerial: measurement.deviceSerial,
       deviceDate: measurement.deviceDate,
       temperature: Double(measurement.deviceTemperature),
@@ -240,29 +247,6 @@ final class CubeReaderAdapter: CubeSDK {
       cfgLotNr: measurement.configurationLotNumber,
       results: results
     )
-  }
-
-  /// Stable measurement id.
-  ///
-  /// SwiftData's `PersistentIdentifier` can change from a temporary to a
-  /// permanent id when the context saves, which would make an old
-  /// measurement look new to the wrong-measurement guard. The id is
-  /// therefore derived from what identifies a Cube measurement: device
-  /// serial, device timestamp (ms), configuration name, lot and vendor. The
-  /// SDK's DB import skips measurements that are "already present", so
-  /// these fields are expected to be unique per stored measurement. If two
-  /// rows ever share the id, the bridge treats it as ambiguous and fails
-  /// closed. The id is hashed so that it does not expose the serial.
-  private static func uid(for measurement: CubeReader.Measurement) -> String {
-    let millis = Int64((measurement.deviceDate.timeIntervalSince1970 * 1000).rounded())
-    let key = [
-      measurement.deviceSerial,
-      String(millis),
-      measurement.configurationName,
-      measurement.configurationLotNumber,
-      measurement.configurationVendor,
-    ].joined(separator: "|")
-    return "m-" + String(sha256Hex(Data(key.utf8)).prefix(24))
   }
 
   private static func map(_ message: CubeReader.Message) -> CubeSDKMessage? {
@@ -278,7 +262,7 @@ final class CubeReaderAdapter: CubeSDK {
       case .databaseFormatted: kind = .databaseFormatted
       @unknown default: kind = .generic
       }
-      return .info(kind, numericData: intValue(info.data))
+      return .info(kind, numericData: CubeSDKValue.intValue(info.data))
     }
     if let success = message as? SuccessMessage {
       let kind: CubeSuccessKind
@@ -317,26 +301,6 @@ final class CubeReaderAdapter: CubeSDK {
       return .testConfig
     }
     return .other
-  }
-
-  /// `InfoMessage.data` is untyped. Only plain numbers are used (as the
-  /// remaining timer seconds); everything else, including Bool, is ignored.
-  private static func intValue(_ value: Any?) -> Int? {
-    guard let value = value else { return nil }
-    if value is Bool { return nil }
-    if let v = value as? Int { return v }
-    if let v = value as? Int32 { return Int(v) }
-    if let v = value as? Int64 { return Int(v) }
-    if let v = value as? UInt { return Int(v) }
-    if let v = value as? UInt16 { return Int(v) }
-    if let v = value as? UInt32 { return Int(v) }
-    if let v = value as? Double, v.isFinite { return Int(v.rounded()) }
-    if let v = value as? Float, v.isFinite { return Int(v.rounded()) }
-    return nil
-  }
-
-  private static func sha256Hex(_ data: Data) -> String {
-    SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
   }
 }
 #endif

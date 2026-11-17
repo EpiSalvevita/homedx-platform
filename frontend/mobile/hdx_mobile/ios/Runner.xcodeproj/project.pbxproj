@@ -20,6 +20,7 @@
 		C0BEB41D0000000000000008 /* CubeReaderAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BEB41D0000000000000007 /* CubeReaderAdapter.swift */; };
 		C0BEB41D000000000000000A /* UnavailableCubeSDK.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BEB41D0000000000000009 /* UnavailableCubeSDK.swift */; };
 		C0BEB41D000000000000000D /* CubeBridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BEB41D000000000000000C /* CubeBridgeTests.swift */; };
+		C0BEB41D000000000000000F /* CubeSDKSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BEB41D000000000000000E /* CubeSDKSupport.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +68,7 @@
 		C0BEB41D0000000000000007 /* CubeReaderAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeReaderAdapter.swift; sourceTree = "<group>"; };
 		C0BEB41D0000000000000009 /* UnavailableCubeSDK.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnavailableCubeSDK.swift; sourceTree = "<group>"; };
 		C0BEB41D000000000000000C /* CubeBridgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeBridgeTests.swift; sourceTree = "<group>"; };
+		C0BEB41D000000000000000E /* CubeSDKSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeSDKSupport.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -143,6 +145,7 @@
 				C0BEB41D0000000000000005 /* CubeBridge.swift */,
 				C0BEB41D0000000000000007 /* CubeReaderAdapter.swift */,
 				C0BEB41D0000000000000009 /* UnavailableCubeSDK.swift */,
+				C0BEB41D000000000000000E /* CubeSDKSupport.swift */,
 			);
 			path = Cube;
 			sourceTree = "<group>";
@@ -302,6 +305,7 @@
 				C0BEB41D0000000000000006 /* CubeBridge.swift in Sources */,
 				C0BEB41D0000000000000008 /* CubeReaderAdapter.swift in Sources */,
 				C0BEB41D000000000000000A /* UnavailableCubeSDK.swift in Sources */,
+				C0BEB41D000000000000000F /* CubeSDKSupport.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
