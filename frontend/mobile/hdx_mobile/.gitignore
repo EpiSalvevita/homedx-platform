@@ -48,3 +48,8 @@ app.*.map.json
 # Cube: vendor test config blobs (copy locally — do not commit; see ENV_SETUP.md)
 /android/app/src/main/assets/cube_test_config.bin
 /android/app/src/main/assets/CRP_*.bin
+
+# BIOSYNEX Cube SDK (proprietary, local only)
+ios/CubeSDK/CubeReader.xcframework/
+ios/CubeSDK/assets/*
+!ios/CubeSDK/assets/.gitkeep

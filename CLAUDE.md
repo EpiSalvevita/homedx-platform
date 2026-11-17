@@ -10,6 +10,7 @@ homeDX is a **software accessory** to the Cube rapid-test reader. The phone conn
 
 - `backend/` — NestJS 11 + Prisma + PostgreSQL, port 4000. REST API under `/gg-homedx-json/gg-api/v1`, **every endpoint is POST**. Controllers: `src/controllers/mobile-*.controller.ts`. Feature modules: `src/modules/`. Schema: `prisma/schema.prisma`.
 - `frontend/mobile/hdx_mobile/` — Flutter app (Android, iOS, web). Provider, **GoRouter only** (no `Navigator.push`). HTTP goes through `lib/core/api_service.dart`. Cube integration: `lib/features/cube/`.
+- `docs/IOS_SETUP.md` — Mac setup for the iOS build (Cube SDK is local and gitignored, in `frontend/mobile/hdx_mobile/ios/CubeSDK/`).
 - `deploy/nas/` — LAN preview deploy (Docker, nginx). See `docs/NAS_DEPLOY.md`.
 - `docs/` — setup and component docs. `docs/regulatory/` — MDR/IVDR material.
 - `work/` — non-code project work (strategy, roadmap, brand). See the work rules below.

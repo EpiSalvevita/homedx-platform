@@ -45,5 +45,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>homeDX verbindet sich per Bluetooth mit dem Cube-Lesegerät, um Ihren Test auszuwerten.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>homeDX benötigt den Standortzugriff, um Bluetooth-Geräte in Ihrer Nähe zu finden.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>bluetooth-central</string>
+	</array>
 </dict>
 </plist>
