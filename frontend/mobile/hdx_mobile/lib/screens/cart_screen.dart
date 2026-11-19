@@ -44,7 +44,7 @@ class CartScreen extends StatelessWidget {
                       16,
                     ),
                     itemCount: cart.items.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 16),
+                    separatorBuilder: (_, _) => const SizedBox(height: 16),
                     itemBuilder: (context, index) {
                       final item = cart.items[index];
                       return Align(

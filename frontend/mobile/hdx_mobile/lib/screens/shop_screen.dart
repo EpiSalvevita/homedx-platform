@@ -123,7 +123,7 @@ class _ShopScreenState extends State<ShopScreen> {
                         : ListView.separated(
                             padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
                             itemCount: _filteredProducts.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 16),
+                            separatorBuilder: (_, _) => const SizedBox(height: 16),
                             itemBuilder: (context, index) => _ProductCard(product: _filteredProducts[index], cartProvider: cartProvider),
                           ),
           ),
