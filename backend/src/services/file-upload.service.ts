@@ -6,11 +6,17 @@ import { promisify } from 'util';
 const writeFile = promisify(fs.writeFile);
 const mkdir = promisify(fs.mkdir);
 
+/**
+ * Subset of Express.Multer.File used here. Memory storage provides `buffer`;
+ * disk storage (multer `dest`) provides `path` instead, which is read once and
+ * removed so no unnamed temp files remain in the upload directory.
+ */
 type FileUpload = {
-  filename: string;
-  mimetype: string;
-  encoding: string;
-  createReadStream(): AsyncIterable<Buffer>;
+  originalname?: string;
+  mimetype?: string;
+  size?: number;
+  buffer?: Buffer;
+  path?: string;
 };
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
@@ -67,25 +73,33 @@ export class FileUploadService {
 
   async uploadFile(file: FileUpload, subdirectory: string): Promise<{ success: boolean; objectName?: string; validation?: string }> {
     try {
-      const fileAny = await file as unknown as { file?: FileUpload };
-      const fileData = fileAny.file ?? file;
-      const { createReadStream, filename } = fileData;
-      const stream = createReadStream();
-      const chunks: Buffer[] = [];
-      let totalSize = 0;
-
-      for await (const chunk of stream) {
-        totalSize += chunk.length;
-        if (totalSize > MAX_UPLOAD_BYTES) {
-          return {
-            success: false,
-            validation: 'File size exceeds 10MB limit',
-          };
+      if (!file || typeof file !== 'object') {
+        return { success: false, validation: 'No file provided' };
+      }
+      const filename = file.originalname ?? '';
+      let buffer: Buffer;
+      if (Buffer.isBuffer(file.buffer)) {
+        buffer = file.buffer;
+      } else if (typeof file.path === 'string') {
+        try {
+          const stat = await fs.promises.stat(file.path);
+          if (stat.size > MAX_UPLOAD_BYTES) {
+            return { success: false, validation: 'File size exceeds 10MB limit' };
+          }
+          buffer = await fs.promises.readFile(file.path);
+        } finally {
+          await fs.promises.unlink(file.path).catch(() => undefined);
         }
-        chunks.push(chunk);
+      } else {
+        return { success: false, validation: 'No file provided' };
       }
 
-      const buffer = Buffer.concat(chunks);
+      if (buffer.length > MAX_UPLOAD_BYTES) {
+        return {
+          success: false,
+          validation: 'File size exceeds 10MB limit',
+        };
+      }
       const detectedMime = this.detectMimeFromBuffer(buffer);
       const allowedMimeTypes = [
         'image/jpeg',
@@ -107,7 +121,11 @@ export class FileUploadService {
       const subDirPath = path.join(process.cwd(), this.uploadDir, subdirectory);
       await mkdir(subDirPath, { recursive: true });
       const timestamp = Date.now();
+      // Client-supplied extension is only used if it is short and alphanumeric.
       let extension = path.extname(filename);
+      if (!/^\.[A-Za-z0-9]{1,5}$/.test(extension)) {
+        extension = '';
+      }
       if (!extension) {
         if (detectedMime === 'image/jpeg') extension = '.jpeg';
         else if (detectedMime === 'image/png') extension = '.png';

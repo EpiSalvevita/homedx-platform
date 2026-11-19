@@ -26,7 +26,9 @@ const isTestEnv = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID 
       },
     ]),
     MulterModule.register({
-      dest: './uploads',
+      // No `dest`/`storage`: multer defaults to memory storage (file.buffer).
+      // FileUploadService validates the bytes and writes the final file itself,
+      // so no unvalidated temp files land in ./uploads.
       limits: { fileSize: 10 * 1024 * 1024 },
     }),
     PrismaModule,
