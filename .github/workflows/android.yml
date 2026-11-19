@@ -1,0 +1,54 @@
+name: Android
+
+# Compile evidence for the Android side (Kotlin, themes, Gradle, R8). The APKs are
+# NOT uploaded: they would contain the BIOSYNEX Cube AAR.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/mobile/**'
+      - '.github/workflows/android.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'frontend/mobile/**'
+      - '.github/workflows/android.yml'
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Create CI .env for Flutter
+        working-directory: frontend/mobile/hdx_mobile
+        run: cp .env.example .env
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.35.6
+          cache: true
+
+      - name: Install Flutter dependencies
+        working-directory: frontend/mobile/hdx_mobile
+        run: flutter pub get
+
+      # cube_license.dat and the Cube .bin configs are runtime assets only (gitignored);
+      # the build does not need them. No google-services plugin is applied, so no
+      # google-services.json is needed either.
+      - name: Build debug APK
+        working-directory: frontend/mobile/hdx_mobile
+        run: flutter build apk --debug
+
+      # Release is signed with the debug key (build.gradle.kts), so no secrets needed.
+      # Exercises R8 minification with android.enableR8.fullMode=false.
+      - name: Build release APK
+        working-directory: frontend/mobile/hdx_mobile
+        run: flutter build apk --release

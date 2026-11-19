@@ -19,6 +19,10 @@ dependencies {
     // BLESSED BLE library (required by CubeLib)
     implementation("com.github.weliem:blessed-android-coroutines:0.5.0")
 
+    // Material Components: Stripe PaymentSheet needs a Theme.MaterialComponents/AppCompat host theme.
+    // Pinned explicitly; keep consistent with stripe_android (material:1.6.0).
+    implementation("com.google.android.material:material:1.6.0")
+
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 }
