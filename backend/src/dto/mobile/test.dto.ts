@@ -80,13 +80,14 @@ export class FinalizeTestDto {
 }
 
 export class RapidTestMediaUploadDto {
-  @IsString()
-  @MinLength(1)
-  fileExtension: string;
-
+  /** Ignored: the stored extension is derived from the detected file type. */
   @IsOptional()
   @IsString()
-  rapidTestId?: string;
+  fileExtension?: string;
+
+  @IsString()
+  @MinLength(1)
+  rapidTestId: string;
 }
 
 export class IdentificationPhotoUploadDto extends RapidTestMediaUploadDto {
