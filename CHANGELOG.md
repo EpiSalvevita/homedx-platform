@@ -10,6 +10,11 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 
 ## Unreleased
 
+**Mobile: flutter_dotenv 5.2.1 to 6.0.1 (dependabot):**
+- Test-only code change: `dotenv.testLoad(fileInput:)` renamed to `dotenv.loadFromString(envString:)` in `test/widget_test.dart` and `test/services/cube_service_test.dart`. `docs/regulatory/soup-list.md` range bumped to ^6.0.1. Runtime usage (`dotenv.load(fileName: '.env')`, `dotenv.env[...]`) unchanged; no use of `clean()`, `getInt`, `getBool` or `isOptional`.
+
+*Regulatory note:* runtime-config SOUP version bump, no app code, result logic or wording changed; `flutter analyze` and `flutter test` green; no sign-off needed beyond routine SOUP list update.
+
 - **Mobile (Android): Cube license file no longer tracked in git.** `android/app/src/main/assets/cube_license.dat` is removed from the index and gitignored; the local copy stays in place for builds. Developers obtain it from BIOSYNEX or the team's secure store (`docs/ENV_SETUP.md`). *Regulatory note:* no code or result logic changed. A missing license makes `licenseValid` false and blocks Cube tests (fail closed). The file remains in git history; rotation or history purge is a separate decision with BIOSYNEX.
 
 **Mobile: iOS Bluetooth permission flow and platform-neutral wording:**
