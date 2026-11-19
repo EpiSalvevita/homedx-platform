@@ -19,13 +19,16 @@ class ApiService {
     String? baseUrl,
     Map<String, String>? headers,
     String? authToken,
+    // Test seam only: lets tests inject a mock HTTP client. Production code
+    // never passes it, so behavior is unchanged (platform client is used).
+    @visibleForTesting http.Client? client,
   })  : baseUrl = baseUrl ?? AppConstants.apiBaseUrl,
         _authToken = authToken,
         defaultHeaders = headers ?? {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        _client = createPlatformHttpClient();
+        _client = client ?? createPlatformHttpClient();
 
   void dispose() {
     _client.close();
@@ -247,12 +250,12 @@ class ApiService {
         '/submit-cube-data',
         body: {
           'testTypeId': testTypeId,
-          if (rapidTestId != null) 'rapidTestId': rapidTestId,
-          if (rawData != null) 'rawData': rawData,
-          if (deviceSerial != null) 'deviceSerial': deviceSerial,
-          if (measurementTimestamp != null) 'measurementTimestamp': measurementTimestamp,
-          if (result != null) 'result': result,
-          if (resultData != null) 'resultData': resultData,
+          'rapidTestId': ?rapidTestId,
+          'rawData': ?rawData,
+          'deviceSerial': ?deviceSerial,
+          'measurementTimestamp': ?measurementTimestamp,
+          'result': ?result,
+          'resultData': ?resultData,
         },
         includeAuth: true,
       );

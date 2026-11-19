@@ -98,7 +98,7 @@ class _Illustration extends StatelessWidget {
     final image = Image.asset(
       assetPath,
       fit: BoxFit.contain,
-      errorBuilder: (_, __, ___) => _Placeholder(
+      errorBuilder: (_, _, _) => _Placeholder(
         label: fallbackLabel,
         accentColor: accentColor,
       ),

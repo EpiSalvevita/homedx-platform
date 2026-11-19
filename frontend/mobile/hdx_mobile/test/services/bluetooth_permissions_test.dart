@@ -115,4 +115,54 @@ void main() {
       );
     });
   });
+
+  group('isBluetoothEnabled (provider initial state)', () {
+    test('iOS: cold-launch unknown then on -> true (no "disabled" flash)', () async {
+      expect(
+        await service.isBluetoothEnabled(
+          isIOS: true,
+          states: Stream.fromIterable([BluetoothAdapterState.unknown, BluetoothAdapterState.on]),
+        ),
+        isTrue,
+      );
+    });
+
+    test('iOS: unknown then off -> false', () async {
+      expect(
+        await service.isBluetoothEnabled(
+          isIOS: true,
+          states: Stream.fromIterable([BluetoothAdapterState.unknown, BluetoothAdapterState.off]),
+        ),
+        isFalse,
+      );
+    });
+
+    test('iOS: only unknown -> false after timeout', () async {
+      expect(
+        await service.isBluetoothEnabled(
+          isIOS: true,
+          states: Stream<BluetoothAdapterState>.periodic(
+            const Duration(milliseconds: 5),
+            (_) => BluetoothAdapterState.unknown,
+          ),
+          iosTimeout: const Duration(milliseconds: 50),
+        ),
+        isFalse,
+      );
+    });
+
+    test('Android (unchanged): first state used', () async {
+      expect(
+        await service.isBluetoothEnabled(isIOS: false, states: Stream.value(BluetoothAdapterState.on)),
+        isTrue,
+      );
+      expect(
+        await service.isBluetoothEnabled(
+          isIOS: false,
+          states: Stream.fromIterable([BluetoothAdapterState.unknown, BluetoothAdapterState.on]),
+        ),
+        isFalse,
+      );
+    });
+  });
 }

@@ -55,10 +55,10 @@ class QuestionnaireService {
       body: {
         'moduleId': moduleId,
         'answers': answers,
-        if (submissionId != null) 'submissionId': submissionId,
-        if (expectedUpdatedAt != null) 'expectedUpdatedAt': expectedUpdatedAt,
-        if (linkedRapidTestId != null) 'linkedRapidTestId': linkedRapidTestId,
-        if (consentStatus != null) 'consentStatus': consentStatus,
+        'submissionId': ?submissionId,
+        'expectedUpdatedAt': ?expectedUpdatedAt,
+        'linkedRapidTestId': ?linkedRapidTestId,
+        'consentStatus': ?consentStatus,
       },
     );
     return _submissionFrom(response);
@@ -77,10 +77,10 @@ class QuestionnaireService {
       body: {
         'moduleId': moduleId,
         'answers': answers,
-        if (submissionId != null) 'submissionId': submissionId,
-        if (expectedUpdatedAt != null) 'expectedUpdatedAt': expectedUpdatedAt,
-        if (linkedRapidTestId != null) 'linkedRapidTestId': linkedRapidTestId,
-        if (consentStatus != null) 'consentStatus': consentStatus,
+        'submissionId': ?submissionId,
+        'expectedUpdatedAt': ?expectedUpdatedAt,
+        'linkedRapidTestId': ?linkedRapidTestId,
+        'consentStatus': ?consentStatus,
       },
     );
     return _submissionFrom(response);
@@ -94,9 +94,9 @@ class QuestionnaireService {
     final response = await _apiService.post(
       '/get-questionnaire-submission',
       body: {
-        if (submissionId != null) 'submissionId': submissionId,
-        if (moduleId != null) 'moduleId': moduleId,
-        if (linkedRapidTestId != null) 'linkedRapidTestId': linkedRapidTestId,
+        'submissionId': ?submissionId,
+        'moduleId': ?moduleId,
+        'linkedRapidTestId': ?linkedRapidTestId,
       },
     );
     if (response['success'] == true && response['submission'] is Map) {

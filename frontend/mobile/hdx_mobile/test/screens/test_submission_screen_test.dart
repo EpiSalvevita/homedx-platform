@@ -33,7 +33,7 @@ void main() {
       routes: [
         GoRoute(
           path: '/submission',
-          builder: (_, __) => const TestSubmissionScreen(
+          builder: (_, _) => const TestSubmissionScreen(
             testTypeId: 'rheumacheck',
             testTypeName: 'RheumaCheck',
             rapidTestId: 'rt-1',
@@ -42,7 +42,7 @@ void main() {
         ),
         GoRoute(
           path: '/results',
-          builder: (_, __) => const Scaffold(body: Text('Results')),
+          builder: (_, _) => const Scaffold(body: Text('Results')),
         ),
       ],
     );

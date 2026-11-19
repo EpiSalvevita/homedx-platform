@@ -9,8 +9,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { IMAGE_UPLOAD_OPTIONS, VIDEO_UPLOAD_OPTIONS } from '../config/media-upload.config';
+import { TempUploadCleanupInterceptor } from '../interceptors/temp-upload-cleanup.interceptor';
 import { RapidTestService } from '../services/rapid-test.service';
-import { FileUploadService } from '../services/file-upload.service';
+import { FileUploadService, MediaKind } from '../services/file-upload.service';
 import { CubeService } from '../services/cube.service';
 import { MobileTestService } from '../services/mobile-test.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -128,39 +130,42 @@ export class MobileTestController {
 
   @Post('add-rapid-test-photo')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('media'))
+  @UseInterceptors(FileInterceptor('media', IMAGE_UPLOAD_OPTIONS))
   async addRapidTestPhoto(
     @Request() req: { user?: { sub: string } },
     @UploadedFile() file: unknown,
     @Body() body: RapidTestMediaUploadDto,
   ): Promise<MediaResponse> {
-    return this.uploadMedia(req, file, body, 'photos', (uid, rtId, name) =>
+    return this.uploadMedia(req, file, body, 'photos', 'image', (uid, rtId, name) =>
       this.mobileTestService.attachPhoto(uid, rtId, name),
     );
   }
 
   @Post('add-rapid-test-video')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('media'))
+  @UseInterceptors(
+    FileInterceptor('media', VIDEO_UPLOAD_OPTIONS),
+    TempUploadCleanupInterceptor,
+  )
   async addRapidTestVideo(
     @Request() req: { user?: { sub: string } },
     @UploadedFile() file: unknown,
     @Body() body: RapidTestMediaUploadDto,
   ): Promise<MediaResponse> {
-    return this.uploadMedia(req, file, body, 'videos', (uid, rtId, name) =>
+    return this.uploadMedia(req, file, body, 'videos', 'video', (uid, rtId, name) =>
       this.mobileTestService.attachVideo(uid, rtId, name),
     );
   }
 
   @Post('add-identification-photo')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('media'))
+  @UseInterceptors(FileInterceptor('media', IMAGE_UPLOAD_OPTIONS))
   async addIdentificationPhoto(
     @Request() req: { user?: { sub: string } },
     @UploadedFile() file: unknown,
     @Body() body: IdentificationPhotoUploadDto,
   ): Promise<MediaResponse> {
-    return this.uploadMedia(req, file, body, 'identification', (uid, rtId, name) =>
+    return this.uploadMedia(req, file, body, 'identification', 'image', (uid, rtId, name) =>
       this.mobileTestService.attachIdentificationPhoto(uid, rtId, name, body.type),
     );
   }
@@ -192,6 +197,7 @@ export class MobileTestController {
     file: unknown,
     body: RapidTestMediaUploadDto,
     folder: string,
+    kind: MediaKind,
     attach: (userId: string, rapidTestId: string, objectName: string) => Promise<unknown>,
   ): Promise<MediaResponse> {
     try {
@@ -199,9 +205,15 @@ export class MobileTestController {
       if (!userId) {
         return { success: false, error: 'Invalid token' };
       }
+      if (!body.rapidTestId) {
+        return { success: false, error: 'Invalid request' };
+      }
+      // Ownership is checked BEFORE anything is written to uploads/.
+      await this.mobileTestService.assertTestOwner(body.rapidTestId, userId);
       const uploadResult = await this.fileUploadService.uploadFile(
         file as Parameters<FileUploadService['uploadFile']>[0],
         folder,
+        kind,
       );
       if (!uploadResult.success || !uploadResult.objectName) {
         return {
@@ -209,8 +221,11 @@ export class MobileTestController {
           error: uploadResult.validation || 'Failed to upload file',
         };
       }
-      if (body.rapidTestId) {
+      try {
         await attach(userId, body.rapidTestId, uploadResult.objectName);
+      } catch (attachError) {
+        await this.fileUploadService.deleteStored(folder, uploadResult.objectName);
+        throw attachError;
       }
       return { success: true, objectName: uploadResult.objectName };
     } catch (error) {

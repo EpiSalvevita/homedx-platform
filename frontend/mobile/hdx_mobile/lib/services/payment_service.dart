@@ -18,7 +18,7 @@ class PaymentService {
       'create-payment',
       body: {
         'paymentMethod': paymentMethod,
-        if (rapidTestId != null) 'rapidTestId': rapidTestId,
+        'rapidTestId': ?rapidTestId,
         if (items != null && items.isNotEmpty) 'items': items,
       },
     );
@@ -116,9 +116,9 @@ class PaymentService {
     final response = await _api.post(
       'create-paypal-order',
       body: {
-        if (paymentId != null) 'paymentId': paymentId,
-        if (returnUrl != null) 'returnUrl': returnUrl,
-        if (cancelUrl != null) 'cancelUrl': cancelUrl,
+        'paymentId': ?paymentId,
+        'returnUrl': ?returnUrl,
+        'cancelUrl': ?cancelUrl,
       },
     );
 
@@ -142,7 +142,7 @@ class PaymentService {
       'capture-paypal-order',
       body: {
         'paymentId': paymentId,
-        if (paypalOrderId != null) 'paypalOrderId': paypalOrderId,
+        'paypalOrderId': ?paypalOrderId,
       },
     );
 

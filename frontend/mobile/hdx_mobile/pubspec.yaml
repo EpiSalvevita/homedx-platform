@@ -50,7 +50,7 @@ dependencies:
   http_parser: ^4.0.2
 
   # Environment Configuration
-  flutter_dotenv: ^5.1.0
+  flutter_dotenv: ^6.0.1
 
   # Date Formatting
   intl: ^0.20.2
@@ -86,7 +86,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   
   # App Icon Generator
   flutter_launcher_icons: ^0.14.4
