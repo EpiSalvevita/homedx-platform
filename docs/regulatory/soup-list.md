@@ -18,8 +18,8 @@
 
 | Package | Version | Role |
 |---|---|---|
-| `@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express` | ^11.1.3 / ^11.1.6 | Framework |
-| `@nestjs/jwt`, `@nestjs/passport`, `passport`, `passport-jwt` | ^11.0.0 / ^11.0.5 / ^0.7.0 / ^4.0.1 | Auth |
+| `@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express` | ^11.2.11 | Framework |
+| `@nestjs/jwt`, `@nestjs/passport`, `passport`, `passport-jwt` | ^11.0.2 / ^11.0.5 / ^0.7.0 / ^4.0.1 | Auth |
 | `@nestjs/throttler` | ^6.5.0 | Rate limiting |
 | `@prisma/client`, `prisma` | ^6.9.0 / 6.9.0 | ORM / DB access (regulated data path) |
 | `bcrypt` | ^6.0.0 | Password hashing |
