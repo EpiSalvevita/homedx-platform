@@ -10,15 +10,22 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 
 ## Unreleased
 
+- **Backend: fix media uploads (`add-rapid-test-photo`, `add-rapid-test-video`, `add-identification-photo`).** Since 2026-06-22 (commit 10a4ee83) no upload could succeed, for two independent reasons on `main`: (1) `FileUploadService.uploadFile()` expected a GraphQL-upload object (`createReadStream()`) but the controllers pass a multer file, so every call threw and returned "File upload failed"; (2) `RapidTestMediaUploadDto` required `fileExtension`, which the Flutter client never sends, so requests were rejected at validation. In addition, no upload limits were ever applied: `MulterModule.register(...)` in `AppModule` is not global and `TestsModule` never imported it, so `FileInterceptor` ran with multer defaults (the `dest` there never took effect either; uploads were already memory-backed). Changes: the service now takes the multer file; `fileExtension` is optional and ignored (extension is derived from the detected type only); explicit limits per interceptor (images 10 MB, video 100 MB, 1 file, 5 fields, 1 KiB per field); the dead `MulterModule` registration is removed; `rapidTestId` is required and its ownership is verified before anything is written; the stored file is removed if attaching it fails; object names are `<folder>_<uuid><ext>` written with exclusive create (the former `<folder>_<Date.now()>` name could collide and overwrite another person's file once storage worked); magic-byte detection now covers MP4/MOV (`ftyp` brands) so videos can pass (previously only JPEG/PNG/GIF/WebM were detectable); photo endpoints accept images only and the video endpoint videos only; video uses disk storage in one fixed private 0700 temp dir `os.tmpdir()/homedx-video` (not `uploads/`); the temp file is deleted when the response closes (which also fires when the client aborts mid-upload, a case multer 2.0.2 does not clean up itself) and before the response on the normal path, a startup sweep removes temp files older than 15 minutes and stale legacy `homedx-video-*` dirs, and a failed copy into `uploads/videos` removes the partial destination file; errors are logged by code/name only; `deploy/nas` mounts a named volume at `/app/uploads` (Dockerfile pre-creates the directory for the `node` user). Unchanged: magic-byte validation against an allow-list, `uploads/<folder>/` location (gitignored `backend/uploads/`), sanitized error text, response shape. HEIC is not detected or allowed (follow-up). *Regulatory note:* (1) regulatory-relevant: stores test photos/videos and ID photos used as test evidence (GDPR Art. 9 health data and ID documents). (2) Failure modes: silent loss of media evidence since 2026-06-22 (internal testing only per the product owner, no vigilance report); latent defects that would have surfaced once storage worked and are fixed here: file name collisions (PHI mix-up or overwrite between users), orphaned PHI from uploads without an ownership check, unlimited upload size. Test results and certificates do not depend on these attachments: the certificate service never reads `photoUrl`/`videoUrl`/`identityCard*Url`, the mobile app does not read them, and the attach step only sets those columns. (3) Test evidence: `backend/test/media-upload.e2e-spec.ts` (exact client field set; stored bytes and attach call; MP4/MOV/WebM; concurrent uploads keep distinct names and own bytes; wrong field, non-media bytes, wrong kind, oversize image/video, foreign and missing `rapidTestId` store nothing and leave no temp file; stored file removed when attach fails; client abort mid-upload leaves no temp file) and `backend/test/media-upload-module.e2e-spec.ts` (real `TestsModule`, oversize rejected by the interceptor limit); synthetic bytes only. (4) Sign-off: human and DPO sign-off required before merge (PHI storage path, location, volume); PRRC input not needed for result logic as none changed. Follow-ups: no retention/deletion policy for stored media exists (see `docs/regulatory/gap-assessment.md`); stored files are unencrypted at rest on the volume; HEIC support.
+
 **Mobile (Android): MainActivity now extends FlutterFragmentActivity; Material Components launch/normal themes (Stripe PaymentSheet fix):**
 - `flutter_stripe`'s Android plugin (stripe_android 11.5.0, `StripeAndroidPlugin.onAttachedToActivity`) records an initialization error unless the host activity is a `FlutterFragmentActivity` with an AppCompat/MaterialComponents theme. `MainActivity` extended `FlutterActivity` and the themes descended from `@android:style/Theme.*`, so PaymentSheet could not initialize on Android. `MainActivity` now extends `FlutterFragmentActivity` (`configureFlutterEngine`/`CubeBridge` creation and `onDestroy` dispose unchanged); `LaunchTheme`/`NormalTheme` (light and night) now descend from `Theme.MaterialComponents.DayNight.NoActionBar`, existing items preserved, status/navigation bar colors pinned to black (as before). `android.enableR8.fullMode=false` added (flutter_stripe README, release builds) and `com.google.android.material:material:1.6.0` declared explicitly; SOUP list updated.
 
-*Regulatory note:* (1) Regulatory-relevant: yes. `MainActivity` hosts the Cube bridge (regulated result path), so the host activity's lifecycle changes; payment flow is also affected. (2) Failure modes (ISO 14971): Cube bridge not registered or EventChannel lifecycle differing under `FlutterFragmentActivity` leading to no or dropped result; activity recreation mid-run; PaymentSheet still failing (generic payFailed). Payments stay server-authoritative; no result logic, thresholds or wording changed. No result or certificate a user saw is affected (host-activity change only; not a vigilance item). Card payment on Android may have always failed before this fix: a human should check payment logs and user complaints for follow-up blocked after positive results. (3) Test evidence: local Android builds fail on this machine's network (TLS error downloading the Flutter engine jar), but the new `Android` CI workflow (`.github/workflows/android.yml`) builds `flutter build apk --debug` and `--release` (R8, enableR8.fullMode=false) successfully (about 11.5 min); `flutter analyze` clean and `flutter test` 152 passed; device regression tests required and listed in the PR (Stripe test-mode payment, Cube end-to-end, activity recreation, dark mode/splash). CI Android build compiles the Kotlin/themes/Gradle changes; runtime behavior still needs device tests. (4) Human sign-off needed after on-device testing, before merge.
+*Regulatory note:* (1) Regulatory-relevant: yes. `MainActivity` hosts the Cube bridge (regulated result path), so the host activity's lifecycle changes; payment flow is also affected. (2) Failure modes (ISO 14971): Cube bridge not registered or EventChannel lifecycle differing under `FlutterFragmentActivity` leading to no or dropped result; activity recreation mid-run; PaymentSheet still failing (generic payFailed). Payments stay server-authoritative; no result logic, thresholds or wording changed. No result or certificate a user saw is affected (host-activity change only; not a vigilance item). Card payment on Android may have always failed before this fix: a human should check payment logs and user complaints for follow-up blocked after positive results. (3) Test evidence: local Android builds fail on this machine's network (TLS error downloading the Flutter engine jar), but the new `Android` CI workflow (`.github/workflows/android.yml`) builds `flutter build apk --debug` and `--release` (R8, enableR8.fullMode=false) successfully (about 11.5 min); `flutter analyze` clean and `flutter test` 152 passed; device regression tests required and listed in the PR (Stripe test-mode payment, Cube end-to-end, activity recreation, dark mode/splash). CI Android build compiles the Kotlin/themes/Gradle changes; runtime behavior still needs device tests. (4) Human sign-off needed after on-device testing, before merge. Human sign-off given by the product owner 2026-11-19.
 
 **Mobile: flutter_dotenv 5.2.1 to 6.0.1 (dependabot):**
 - Test-only code change: `dotenv.testLoad(fileInput:)` renamed to `dotenv.loadFromString(envString:)` in `test/widget_test.dart` and `test/services/cube_service_test.dart`. `docs/regulatory/soup-list.md` range bumped to ^6.0.1. Runtime usage (`dotenv.load(fileName: '.env')`, `dotenv.env[...]`) unchanged; no use of `clean()`, `getInt`, `getBool` or `isOptional`.
 
 *Regulatory note:* runtime-config SOUP version bump, no app code, result logic or wording changed; `flutter analyze` and `flutter test` green; no sign-off needed beyond routine SOUP list update.
+
+**Mobile: flutter_lints 5 to 6 (dependabot) with lint fixes:**
+- `use_null_aware_elements` (`if (x != null) 'k': x` to `'k': ?x`) in `api_service.dart`, `payment_service.dart`, `questionnaire_service.dart` and one test; `unnecessary_underscores` in builders (`(_, __)` to `(_, _)`).
+
+*Regulatory note:* regulatory-relevant surface: the rewrite touches the `submit-cube-data` payload (`ApiService.submitCubeData`, `result`/`resultData`/`rawData` keys) and the payment/questionnaire request maps. Failure mode (ISO 14971): a dropped `result` or `resultData` key would mean a lost Cube result. `'k': ?x` is equivalent to `if (x != null) 'k': x` by Dart null-aware element semantics (key omitted when null, otherwise the value as-is). Now covered by new request-body tests (`test/core/request_body_test.dart`, 9 tests, real `ApiService` and service methods with a mocked HTTP client): unset keys are absent (not null), set keys carry exact values incl. `resultData` list and `result` string. The `(_, __)` / `(_, __, ___)` to `(_, _)` / `(_, _, _)` builder renames only rename unused parameters. Added a `@visibleForTesting` `client` parameter to the `ApiService` constructor (default unchanged). Regulatory review completed 2026-11-19 after the request-body tests were added: no PRRC sign-off required.
 
 - **Mobile (Android): Cube license file no longer tracked in git.** `android/app/src/main/assets/cube_license.dat` is removed from the index and gitignored; the local copy stays in place for builds. Developers obtain it from BIOSYNEX or the team's secure store (`docs/ENV_SETUP.md`). *Regulatory note:* no code or result logic changed. A missing license makes `licenseValid` false and blocks Cube tests (fail closed). The file remains in git history; rotation or history purge is a separate decision with BIOSYNEX.
 
@@ -31,6 +38,72 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 - Min iOS 13 to 17, bundle id `com.example.hdxMobile` to `com.homedx.app`, Podfile with `PERMISSION_BLUETOOTH` macro only (no location on iOS), optional local `CubeReader` pod (proprietary SDK not in git), `NSBluetoothAlwaysUsageDescription`, `bluetooth-central` background mode (timed evaluations up to ~20 min may continue with the screen locked), new `ios` CI job (path-filtered), `docs/IOS_SETUP.md`.
 
 *Regulatory note:* project configuration only; no result logic, thresholds, status mapping or result/certificate wording changed. iOS 13-16 devices are no longer supported (compatibility change). Usage string states that the app receives the result determined by the Cube. Tests: CI `ios` job (simulator build and RunnerTests). On-device Cube verification pending (needs the native bridge PR and a Mac).
+
+**iOS: Cube bridge for the CubeReader SDK (`ios/Runner/Cube/`):**
+- New Swift bridge that serves the same `com.homedx.cube/analysis` method
+  channel and `com.homedx.cube/events` event channel as the Android
+  `CubeBridge`, so `cube_service.dart` runs unchanged on iOS. All 14 methods,
+  the `invalid_args` / `missing_asset` / `open_failed` error codes and the
+  event shapes match Kotlin. `class` is passed verbatim and `value` is the
+  SDK's formatted string.
+- **Status-mapping difference from Android (open question for PRRC and
+  BIOSYNEX):** the iOS SDK only exposes `Result.isValid` (Bool). iOS sends
+  `validity` 0 when it is true and 3 ("Ungültig") otherwise, as an Int.
+  Android reports 0–4, so "Kein Wert" (1), "Unendlich" (2) and "Gerät
+  abgelaufen" (4) never appear on iOS. What `isValid` covers in CubeReader
+  1.3.0 (expiry, missing value) is undocumented.
+- Wrong-measurement guard: `startEvaluation` snapshots the stored
+  measurements and captures the connected Cube's serial and clock (refused
+  with `device_unknown` if either is unknown). The run's measurement is
+  identified only after `measurementEnd` and before any DB read starts: exactly
+  one new row, same Cube serial, `deviceDate` not earlier than the captured
+  Cube clock minus 2 s. A DB read never identifies a measurement, because it
+  can import old Cube-stored ones. A DB read with no identified measurement,
+  several or zero candidates, a serial or date mismatch, or a missing or
+  duplicated pinned row all emit `MT_ERROR` 99 and no `IM_MEASURE_COUNT`.
+  `selectMeasurement` accepts only the identified measurement
+  (`measurement_mismatch`). A run ends after `IM_MEASURE_COUNT`, so later SDK
+  messages cannot produce a stale `IM_MEASUREMENT_DONE`. When the SDK refuses
+  `startEvaluation` or `readDeviceDatabase` during a run, the bridge emits
+  `MT_ERROR` 98.
+- Conservative until verified on a device: `DeviceError` is sent with
+  `msgData` 0 (its raw value may be an ordinal, not the firmware code Dart's
+  texts expect), and no `IM_TIMER_RUNNING` countdown is sent, because the
+  meaning of `InfoMessage.data` is undocumented.
+- The CubeReader view model is created on the first Cube channel call rather
+  than at app launch, which avoids a Bluetooth prompt without context.
+- Without `CubeReader.xcframework` (CI, public checkouts) the app builds with
+  a fail-closed fallback: license invalid, every device call returns
+  `sdk_unavailable`.
+
+*Regulatory note:* regulatory-relevant (transport of Cube results to the
+screen and backend on a new platform). No thresholds or class mapping in the
+app, but the validity mapping above is a status-mapping difference from
+Android. ISO 14971 failure modes:
+- A wrong or old measurement attached to a run: mitigated by the guard, which
+  identifies only before any DB read and checks serial and time, and by the
+  selection lock.
+- A result dropped or delayed: fails closed with an error, nothing submitted.
+- A result field altered in transit: class and value verbatim, validity Int
+  only, covered by tests.
+- Wrong device serial: taken from the identified measurement, which must match
+  the connected Cube.
+
+Test evidence: XCTest `RunnerTests/CubeBridgeTests.swift` in the CI `ios` job
+with a fake SDK, covering the mapping, the guard (including DB-import paths
+without `measurementEnd`, serial and date mismatch, duplicates, a removed pin
+and back-to-back runs), config resolution and listen/cancel. Missing: the
+real-SDK adapter compiles only on a Mac with the SDK, and the on-device
+checklist in the PR is pending. Sign-off: human/PRRC sign-off required before
+merge and before iOS results are used.
+- Follow-ups in the same PR:
+  - The iOS CI workflow now writes an `.xcresult` bundle and uploads the
+    summary as a 90-day artifact (test evidence). It fails unless the result
+    is "Passed" with at least 46 tests and no failures.
+  - The SOUP list records CubeReader 1.3.0 (iOS).
+  - `BluetoothProvider` no longer shows "Bluetooth deaktiviert" on a cold iOS
+    launch: it waits for a settled adapter state and follows adapter-state
+    updates on iOS. Android is unchanged. Dart tests were added for both.
 
 **Backend Docker image: include the questionnaire catalogue:**
 - `backend/Dockerfile` now copies `backend/data/` into the image. The

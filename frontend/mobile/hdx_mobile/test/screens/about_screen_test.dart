@@ -31,11 +31,11 @@ GoRouter _testRouter({String initialLocation = '/'}) {
       ),
       GoRoute(
         path: '/about',
-        redirect: (_, __) => '/?section=about',
+        redirect: (_, _) => '/?section=about',
       ),
       GoRoute(
         path: '/signup',
-        builder: (_, __) => const Scaffold(body: Text('Signup page')),
+        builder: (_, _) => const Scaffold(body: Text('Signup page')),
       ),
     ],
   );

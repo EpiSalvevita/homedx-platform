@@ -1,7 +1,7 @@
 # SOUP List (Software of Unknown Provenance)
 
 **Date generated:** 2026-07-02  
-**Updated:** 2026-10-07 (`proxy-addr` 2.0.8 override)  
+**Updated:** 2026-10-07 (`proxy-addr` 2.0.8 override); 2026-11-17 (iOS CubeReader SDK)  
 **Scope:** direct dependencies of `backend/` and `frontend/mobile/hdx_mobile/`.
 
 > Per IEC 62304, SOUP items are third-party components not developed for
@@ -63,6 +63,11 @@ regulatory-relevant SOUP item (it performs the actual IVD measurement)
 and is **not tracked by any package manager here** — its version,
 provenance, and update process should be documented by whoever owns the
 Cube device integration agreement, not inferred from this repo.
+
+| Component | Platform | Version | Vendor | Provenance | Notes |
+|---|---|---|---|---|---|
+| Cube analysis SDK (`cubelib`, AAR) | Android | TBD | TBD (Cube manufacturer) | `android/app/libs/cubelib-release.aar` (committed) | Bridge: `CubeAnalysisMethodChannel.kt` |
+| `CubeReader.xcframework` | iOS (min. iOS 17) | 1.3.0 | BIOSYNEX Technologies GmbH | Vendor zip `iOS-CubeReader-1.3.0.xcframework.zip` delivered 2026-11-12, SHA-256 `55f780b2d9dfd003d88afcd07451bd7334ec7825cbe2c8f5f0bc240e81fafec5`. **Not in git** (proprietary, "All Rights Reserved"); placed locally in `ios/CubeSDK/` and linked through the local `CubeReader` pod (`ios/CubeSDK/CubeReader.podspec`). CI builds without it. | Purpose: on-device test evaluation by the Cube, BLE communication, license handling, local measurement store (SwiftData). Bridge: `ios/Runner/Cube/` (`CubeReaderAdapter.swift`). Validation status: TBD. Known anomalies: TBD. Update process: TBD with BIOSYNEX. No CE status is claimed here. |
 
 ## Known gaps in this process (not just this list)
 

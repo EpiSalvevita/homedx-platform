@@ -45,7 +45,7 @@ class DoctorPortraitAvatar extends StatelessWidget {
                   networkUrl,
                   fit: BoxFit.contain,
                   alignment: Alignment.center,
-                  errorBuilder: (_, __, ___) => _IllustrationFace(asset: asset),
+                  errorBuilder: (_, _, _) => _IllustrationFace(asset: asset),
                 )
               : _IllustrationFace(asset: asset),
         ),

@@ -60,5 +60,58 @@ jobs:
             -workspace ios/Runner.xcworkspace \
             -scheme Runner \
             -destination "id=$SIM_UDID" \
+            -resultBundlePath "$RUNNER_TEMP/RunnerTests.xcresult" \
             CODE_SIGNING_ALLOWED=NO
-          echo "TEST SUCCEEDED (xcodebuild exit 0)"
+
+      # Test evidence (IEC 62304): the job fails unless the result bundle
+      # reports result "Passed", at least MIN_TESTS executed tests (the current
+      # RunnerTests count; raise it when tests are added) and no failures. CI never has
+      # the proprietary Cube SDK, so the bundle contains no vendor material.
+      - name: Summarise test results
+        if: always()
+        env:
+          MIN_TESTS: '46'
+        run: |
+          set -euo pipefail
+          BUNDLE="$RUNNER_TEMP/RunnerTests.xcresult"
+          SUMMARY="$RUNNER_TEMP/RunnerTests-summary.json"
+          test -d "$BUNDLE" || { echo "::error::No result bundle at $BUNDLE"; exit 1; }
+          xcrun xcresulttool get test-results summary --path "$BUNDLE" > "$SUMMARY"
+          jq . "$SUMMARY"
+          TOTAL=$(jq -r '.totalTestCount // 0' "$SUMMARY")
+          PASSED=$(jq -r '.passedTests // 0' "$SUMMARY")
+          FAILED=$(jq -r '.failedTests // 0' "$SUMMARY")
+          SKIPPED=$(jq -r '.skippedTests // 0' "$SUMMARY")
+          RESULT=$(jq -r '.result // "unknown"' "$SUMMARY")
+          echo "RunnerTests: result=$RESULT total=$TOTAL passed=$PASSED failed=$FAILED skipped=$SKIPPED"
+          {
+            echo "### RunnerTests"
+            echo "| result | total | passed | failed | skipped |"
+            echo "|---|---|---|---|---|"
+            echo "| $RESULT | $TOTAL | $PASSED | $FAILED | $SKIPPED |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          du -sh "$BUNDLE"
+          (cd "$RUNNER_TEMP" && zip -qr RunnerTests.xcresult.zip RunnerTests.xcresult)
+          if [ "$TOTAL" -lt "$MIN_TESTS" ]; then
+            echo "::error::Only $TOTAL tests ran (minimum $MIN_TESTS)"
+            exit 1
+          fi
+          if [ "$RESULT" != "Passed" ]; then
+            echo "::error::xcresult result is '$RESULT', expected 'Passed'"
+            exit 1
+          fi
+          if [ "$FAILED" -ne 0 ]; then
+            echo "::error::$FAILED test(s) failed"
+            exit 1
+          fi
+
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-runnertests-evidence
+          path: |
+            ${{ runner.temp }}/RunnerTests-summary.json
+            ${{ runner.temp }}/RunnerTests.xcresult.zip
+          if-no-files-found: warn
+          retention-days: 90

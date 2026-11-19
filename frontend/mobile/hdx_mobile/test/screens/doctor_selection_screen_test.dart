@@ -19,7 +19,7 @@ Future<List<String>> _pumpScreen(
     routes: [
       GoRoute(
         path: '/',
-        builder: (_, __) => DoctorSelectionScreen(
+        builder: (_, _) => DoctorSelectionScreen(
           testTypeId: testTypeId,
           testTypeName: testTypeName,
         ),
