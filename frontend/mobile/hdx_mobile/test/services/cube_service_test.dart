@@ -47,7 +47,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() {
-    dotenv.testLoad(fileInput: 'API_BASE_URL=http://test\nCUBE_VERBOSE=false\n');
+    dotenv.loadFromString(envString: 'API_BASE_URL=http://test\nCUBE_VERBOSE=false\n');
   });
 
   late CubeChannelHarness harness;

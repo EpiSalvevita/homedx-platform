@@ -42,7 +42,7 @@
 | `go_router` | ^14.2.7 | Navigation |
 | `http` | ^1.2.2 | REST client to backend |
 | `flutter_secure_storage` | ^9.2.4 | Encrypted JWT/PII storage |
-| `flutter_dotenv` | ^5.1.0 | Runtime config (`.env`) |
+| `flutter_dotenv` | ^6.0.1 | Runtime config (`.env`) |
 | `shared_preferences` | ^2.2.3 | Non-sensitive local prefs (locale) |
 | `flutter_blue_plus` | ^1.32.7 | Bluetooth (generic; Cube pairing itself uses the native SDK bridge below) |
 | `permission_handler` | ^11.3.1 | Runtime BT/camera permissions |

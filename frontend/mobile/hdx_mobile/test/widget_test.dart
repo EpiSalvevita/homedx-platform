@@ -8,7 +8,7 @@ void main() {
   // Setup: Load test environment before tests run
   setUpAll(() async {
     // Initialize dotenv with test values (mock the .env file)
-    dotenv.testLoad(fileInput: '''
+    dotenv.loadFromString(envString: '''
 API_BASE_URL=http://localhost:4000
 ENV=test
 STRIPE_PUBLISHABLE_KEY=pk_test_mock
