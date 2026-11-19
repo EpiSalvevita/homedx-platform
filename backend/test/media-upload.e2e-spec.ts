@@ -1,5 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { ExecutionContext, ForbiddenException, INestApplication } from '@nestjs/common';
+import * as http from 'http';
+import { AddressInfo } from 'net';
 import * as request from 'supertest';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -52,6 +54,7 @@ describe('Media upload endpoints (e2e)', () => {
     originalCwd = process.cwd();
     tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'hdx-upload-e2e-'));
     process.chdir(tmpRoot);
+    process.env.HOMEDX_VIDEO_TMP_DIR = path.join(tmpRoot, 'video-tmp');
 
     const moduleRef = await Test.createTestingModule({
       controllers: [MobileTestController],
@@ -79,7 +82,7 @@ describe('Media upload endpoints (e2e)', () => {
     await app.close();
     process.chdir(originalCwd);
     fs.rmSync(tmpRoot, { recursive: true, force: true });
-    fs.rmSync(getVideoTempDir(), { recursive: true, force: true });
+    delete process.env.HOMEDX_VIDEO_TMP_DIR;
   });
 
   const stored = (sub: string) => {
@@ -274,5 +277,42 @@ describe('Media upload endpoints (e2e)', () => {
       .attach('media', PNG, { filename: 'p.png', contentType: 'image/png' });
     expect(res.body.success).toBe(false);
     expect(stored('photos').length).toBe(before);
+  });
+
+  it('removes the partial temp file when the client aborts mid-upload', async () => {
+    await app.listen(0, '127.0.0.1');
+    const { port } = app.getHttpServer().address() as AddressInfo;
+    const boundary = 'xBOUNDARYx';
+    const head = Buffer.from(
+      `--${boundary}\r\nContent-Disposition: form-data; name="rapidTestId"\r\n\r\nrt-1\r\n` +
+        `--${boundary}\r\nContent-Disposition: form-data; name="media"; filename="v.mp4"\r\n` +
+        `Content-Type: video/mp4\r\n\r\n`,
+    );
+    const body = Buffer.concat([MP4, Buffer.alloc(2 * 1024 * 1024)]);
+    const videosBefore = stored('videos').length;
+    const req = http.request({
+      host: '127.0.0.1',
+      port,
+      method: 'POST',
+      path: `${API}/add-rapid-test-video`,
+      headers: {
+        'Content-Type': `multipart/form-data; boundary=${boundary}`,
+        'Content-Length': 50 * 1024 * 1024, // claims far more than is sent
+      },
+    });
+    req.on('error', () => undefined);
+    req.write(head);
+    req.write(body);
+    const deadline = Date.now() + 5000;
+    while (Date.now() < deadline && tempFiles().length === 0) {
+      await new Promise((r) => setTimeout(r, 25));
+    }
+    expect(tempFiles().length).toBe(1); // partial file exists mid-upload
+    req.destroy();
+    while (Date.now() < deadline + 5000 && tempFiles().length > 0) {
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    expect(tempFiles()).toEqual([]);
+    expect(stored('videos').length).toBe(videosBefore);
   });
 });

@@ -1,8 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
-import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES } from '../config/media-upload.config';
+import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, purgeStaleVideoTemp } from '../config/media-upload.config';
 
 /**
  * Subset of Express.Multer.File used here. Image endpoints use memory storage
@@ -37,7 +37,7 @@ const MP4_BRANDS = ['isom', 'iso2', 'mp41', 'mp42', 'avc1', 'M4V '];
 const HEAD_BYTES = 16;
 
 @Injectable()
-export class FileUploadService {
+export class FileUploadService implements OnModuleInit {
   private readonly logger = new Logger(FileUploadService.name);
   private readonly uploadDir = 'uploads';
 
@@ -50,6 +50,10 @@ export class FileUploadService {
     } catch {
       // Created lazily on first upload.
     }
+  }
+
+  onModuleInit(): void {
+    purgeStaleVideoTemp();
   }
 
   detectMimeFromBuffer(buffer: Buffer): string | null {
@@ -151,8 +155,17 @@ export class FileUploadService {
       if (Buffer.isBuffer(file.buffer)) {
         await fs.promises.writeFile(filePath, file.buffer, { flag: 'wx', mode: 0o600 });
       } else {
-        await fs.promises.copyFile(file.path as string, filePath, fs.constants.COPYFILE_EXCL);
-        await fs.promises.chmod(filePath, 0o600);
+        try {
+          await fs.promises.copyFile(file.path as string, filePath, fs.constants.COPYFILE_EXCL);
+          await fs.promises.chmod(filePath, 0o600);
+        } catch (copyError) {
+          // Do not leave a partial PHI file behind (only ours: EXCL means a
+          // pre-existing file makes copyFile fail before writing).
+          if ((copyError as { code?: string }).code !== 'EEXIST') {
+            await fs.promises.unlink(filePath).catch(() => undefined);
+          }
+          throw copyError;
+        }
       }
       return { success: true, objectName };
     } catch (error) {

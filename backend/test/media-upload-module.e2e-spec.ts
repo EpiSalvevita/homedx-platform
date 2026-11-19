@@ -39,6 +39,7 @@ describe('Media upload via the real TestsModule (e2e)', () => {
     originalCwd = process.cwd();
     tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'hdx-upload-mod-e2e-'));
     process.chdir(tmpRoot);
+    process.env.HOMEDX_VIDEO_TMP_DIR = path.join(tmpRoot, 'video-tmp');
     const moduleRef = await Test.createTestingModule({ imports: [PrismaModule, CommonModule, TestsModule] })
       .overrideProvider(PrismaService)
       .useValue(prisma)
@@ -57,6 +58,7 @@ describe('Media upload via the real TestsModule (e2e)', () => {
 
   afterAll(async () => {
     await app.close();
+    delete process.env.HOMEDX_VIDEO_TMP_DIR;
     process.chdir(originalCwd);
     fs.rmSync(tmpRoot, { recursive: true, force: true });
   });
