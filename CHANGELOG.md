@@ -15,6 +15,11 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 
 *Regulatory note:* runtime-config SOUP version bump, no app code, result logic or wording changed; `flutter analyze` and `flutter test` green; no sign-off needed beyond routine SOUP list update.
 
+**Mobile: flutter_lints 5 to 6 (dependabot) with lint fixes:**
+- `use_null_aware_elements` (`if (x != null) 'k': x` to `'k': ?x`) in `api_service.dart`, `payment_service.dart`, `questionnaire_service.dart` and one test; `unnecessary_underscores` in builders (`(_, __)` to `(_, _)`).
+
+*Regulatory note:* behavior-preserving lint rewrite in payment/questionnaire/API request maps; existing tests pass; no sign-off needed.
+
 - **Mobile (Android): Cube license file no longer tracked in git.** `android/app/src/main/assets/cube_license.dat` is removed from the index and gitignored; the local copy stays in place for builds. Developers obtain it from BIOSYNEX or the team's secure store (`docs/ENV_SETUP.md`). *Regulatory note:* no code or result logic changed. A missing license makes `licenseValid` false and blocks Cube tests (fail closed). The file remains in git history; rotation or history purge is a separate decision with BIOSYNEX.
 
 **Mobile: iOS Bluetooth permission flow and platform-neutral wording:**

@@ -20,15 +20,15 @@ void main() {
         ),
         GoRoute(
           path: '/signup',
-          builder: (_, __) => const Scaffold(body: Text('Signup')),
+          builder: (_, _) => const Scaffold(body: Text('Signup')),
         ),
         GoRoute(
           path: '/login',
-          builder: (_, __) => const Scaffold(body: Text('Login')),
+          builder: (_, _) => const Scaffold(body: Text('Login')),
         ),
         GoRoute(
           path: '/about',
-          redirect: (_, __) => '/?section=about',
+          redirect: (_, _) => '/?section=about',
         ),
       ],
     );

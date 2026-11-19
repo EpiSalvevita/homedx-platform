@@ -247,12 +247,12 @@ class ApiService {
         '/submit-cube-data',
         body: {
           'testTypeId': testTypeId,
-          if (rapidTestId != null) 'rapidTestId': rapidTestId,
-          if (rawData != null) 'rawData': rawData,
-          if (deviceSerial != null) 'deviceSerial': deviceSerial,
-          if (measurementTimestamp != null) 'measurementTimestamp': measurementTimestamp,
-          if (result != null) 'result': result,
-          if (resultData != null) 'resultData': resultData,
+          'rapidTestId': ?rapidTestId,
+          'rawData': ?rawData,
+          'deviceSerial': ?deviceSerial,
+          'measurementTimestamp': ?measurementTimestamp,
+          'result': ?result,
+          'resultData': ?resultData,
         },
         includeAuth: true,
       );

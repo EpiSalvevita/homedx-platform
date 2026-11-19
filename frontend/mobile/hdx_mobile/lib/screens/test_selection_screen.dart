@@ -145,7 +145,7 @@ class _TestSelectionScreenState extends State<TestSelectionScreen> {
     return ListView.separated(
       padding: const EdgeInsets.all(AppTheme.screenHorizontalPadding),
       itemCount: _testTypes.length,
-      separatorBuilder: (_, __) => const SizedBox(height: AppTheme.testTypeCardSpacing),
+      separatorBuilder: (_, _) => const SizedBox(height: AppTheme.testTypeCardSpacing),
       itemBuilder: (context, index) => _buildTestCard(_testTypes[index]),
     );
   }

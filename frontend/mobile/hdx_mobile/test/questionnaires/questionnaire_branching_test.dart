@@ -30,7 +30,7 @@ Map<String, dynamic> _single(String id, {Map<String, dynamic>? rule, bool requir
       'text': 'Frage $id',
       'options': ['Ja', 'Nein'],
       'responseContract': {'kind': 'categorical_single'},
-      if (rule != null) 'visibilityRule': rule,
+      'visibilityRule': ?rule,
     };
 
 void main() {

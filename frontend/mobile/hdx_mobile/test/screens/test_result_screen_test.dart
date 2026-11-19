@@ -14,7 +14,7 @@ Future<List<String>> _pumpWithRouter(
   final router = GoRouter(
     initialLocation: '/',
     routes: [
-      GoRoute(path: '/', builder: (_, __) => child),
+      GoRoute(path: '/', builder: (_, _) => child),
       GoRoute(
         path: '/doctors',
         builder: (context, state) {
