@@ -73,7 +73,7 @@ dependencies:
   firebase_messaging: ^15.1.6
 
   # Payment Processing
-  flutter_stripe: ^11.1.0  # Stripe SDK for secure credit card payments (PCI compliant)
+  flutter_stripe: ^13.0.0  # Stripe SDK for secure credit card payments (PCI compliant)
   webview_flutter: ^4.9.0  # For PayPal Checkout
   url_launcher: ^6.3.1
 
