@@ -30,6 +30,10 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-homedx}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-homedx}?schema=public
       PORT: "4000"
       HOMEDX_SEED_DOCTORS: ${HOMEDX_SEED_DOCTORS:-false}
+    volumes:
+      # Uploaded test media / ID photos (PHI) and certificates live under
+      # <WORKDIR>/uploads; keep them out of the container's writable layer.
+      - homedx_uploads:/app/uploads
     ports:
       - "${BACKEND_PORT:-4000}:4000"
 
@@ -48,3 +52,4 @@ services:
 
 volumes:
   homedx_pgdata:
+  homedx_uploads:

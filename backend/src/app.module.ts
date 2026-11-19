@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { MulterModule } from '@nestjs/platform-express';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { PrismaModule } from './modules/prisma/prisma.module';
@@ -25,12 +24,6 @@ const isTestEnv = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID 
         limit: isTestEnv ? 10000 : 120,
       },
     ]),
-    MulterModule.register({
-      // No `dest`/`storage`: multer defaults to memory storage (file.buffer).
-      // FileUploadService validates the bytes and writes the final file itself,
-      // so no unvalidated temp files land in ./uploads.
-      limits: { fileSize: 10 * 1024 * 1024 },
-    }),
     PrismaModule,
     CommonModule,
     AuthModule,

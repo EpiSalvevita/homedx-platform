@@ -16,7 +16,7 @@ COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN ./node_modules/.bin/prisma generate && npm run build && chmod 755 /docker-entrypoint.sh
 ENV NODE_ENV=production
 
-RUN apk add --no-cache wget && chown -R node:node /app
+RUN apk add --no-cache wget && mkdir -p /app/uploads && chown -R node:node /app
 
 USER node
 
