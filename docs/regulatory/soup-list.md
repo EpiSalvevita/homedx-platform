@@ -48,6 +48,8 @@
 | `permission_handler` | ^11.3.1 | Runtime BT/camera permissions |
 | `file_picker` | ^8.1.6 | Test photo/video/ID upload |
 | `flutter_stripe` | ^11.1.0 | Payments |
+| `com.google.android.material:material` (Android, Gradle) | 1.6.0 | Android UI theme (Theme.MaterialComponents), pulled in for Stripe PaymentSheet; not result logic |
+| `androidx.appcompat:appcompat` (Android, Gradle, transitive via stripe_android) | 1.4.1 | Android UI base theme, pulled in for Stripe PaymentSheet; not result logic |
 | `webview_flutter` | ^4.9.0 | PayPal checkout |
 | `firebase_core`, `firebase_messaging` | ^3.8.1 / ^15.1.6 | Push notifications |
 | `google_fonts`, `cupertino_icons`, `intl`, `url_launcher` | — | UI/formatting, not regulated-surface |
