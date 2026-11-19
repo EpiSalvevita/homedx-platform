@@ -34,6 +34,72 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 
 *Regulatory note:* project configuration only; no result logic, thresholds, status mapping or result/certificate wording changed. iOS 13-16 devices are no longer supported (compatibility change). Usage string states that the app receives the result determined by the Cube. Tests: CI `ios` job (simulator build and RunnerTests). On-device Cube verification pending (needs the native bridge PR and a Mac).
 
+**iOS: Cube bridge for the CubeReader SDK (`ios/Runner/Cube/`):**
+- New Swift bridge that serves the same `com.homedx.cube/analysis` method
+  channel and `com.homedx.cube/events` event channel as the Android
+  `CubeBridge`, so `cube_service.dart` runs unchanged on iOS. All 14 methods,
+  the `invalid_args` / `missing_asset` / `open_failed` error codes and the
+  event shapes match Kotlin. `class` is passed verbatim and `value` is the
+  SDK's formatted string.
+- **Status-mapping difference from Android (open question for PRRC and
+  BIOSYNEX):** the iOS SDK only exposes `Result.isValid` (Bool). iOS sends
+  `validity` 0 when it is true and 3 ("Ungültig") otherwise, as an Int.
+  Android reports 0–4, so "Kein Wert" (1), "Unendlich" (2) and "Gerät
+  abgelaufen" (4) never appear on iOS. What `isValid` covers in CubeReader
+  1.3.0 (expiry, missing value) is undocumented.
+- Wrong-measurement guard: `startEvaluation` snapshots the stored
+  measurements and captures the connected Cube's serial and clock (refused
+  with `device_unknown` if either is unknown). The run's measurement is
+  identified only after `measurementEnd` and before any DB read starts: exactly
+  one new row, same Cube serial, `deviceDate` not earlier than the captured
+  Cube clock minus 2 s. A DB read never identifies a measurement, because it
+  can import old Cube-stored ones. A DB read with no identified measurement,
+  several or zero candidates, a serial or date mismatch, or a missing or
+  duplicated pinned row all emit `MT_ERROR` 99 and no `IM_MEASURE_COUNT`.
+  `selectMeasurement` accepts only the identified measurement
+  (`measurement_mismatch`). A run ends after `IM_MEASURE_COUNT`, so later SDK
+  messages cannot produce a stale `IM_MEASUREMENT_DONE`. When the SDK refuses
+  `startEvaluation` or `readDeviceDatabase` during a run, the bridge emits
+  `MT_ERROR` 98.
+- Conservative until verified on a device: `DeviceError` is sent with
+  `msgData` 0 (its raw value may be an ordinal, not the firmware code Dart's
+  texts expect), and no `IM_TIMER_RUNNING` countdown is sent, because the
+  meaning of `InfoMessage.data` is undocumented.
+- The CubeReader view model is created on the first Cube channel call rather
+  than at app launch, which avoids a Bluetooth prompt without context.
+- Without `CubeReader.xcframework` (CI, public checkouts) the app builds with
+  a fail-closed fallback: license invalid, every device call returns
+  `sdk_unavailable`.
+
+*Regulatory note:* regulatory-relevant (transport of Cube results to the
+screen and backend on a new platform). No thresholds or class mapping in the
+app, but the validity mapping above is a status-mapping difference from
+Android. ISO 14971 failure modes:
+- A wrong or old measurement attached to a run: mitigated by the guard, which
+  identifies only before any DB read and checks serial and time, and by the
+  selection lock.
+- A result dropped or delayed: fails closed with an error, nothing submitted.
+- A result field altered in transit: class and value verbatim, validity Int
+  only, covered by tests.
+- Wrong device serial: taken from the identified measurement, which must match
+  the connected Cube.
+
+Test evidence: XCTest `RunnerTests/CubeBridgeTests.swift` in the CI `ios` job
+with a fake SDK, covering the mapping, the guard (including DB-import paths
+without `measurementEnd`, serial and date mismatch, duplicates, a removed pin
+and back-to-back runs), config resolution and listen/cancel. Missing: the
+real-SDK adapter compiles only on a Mac with the SDK, and the on-device
+checklist in the PR is pending. Sign-off: human/PRRC sign-off required before
+merge and before iOS results are used.
+- Follow-ups in the same PR:
+  - The iOS CI workflow now writes an `.xcresult` bundle and uploads the
+    summary as a 90-day artifact (test evidence). It fails unless the result
+    is "Passed" with at least 46 tests and no failures.
+  - The SOUP list records CubeReader 1.3.0 (iOS).
+  - `BluetoothProvider` no longer shows "Bluetooth deaktiviert" on a cold iOS
+    launch: it waits for a settled adapter state and follows adapter-state
+    updates on iOS. Android is unchanged. Dart tests were added for both.
+
 **Backend Docker image: include the questionnaire catalogue:**
 - `backend/Dockerfile` now copies `backend/data/` into the image. The
   questionnaire service loads the RheumaCheck V04 catalogue from
