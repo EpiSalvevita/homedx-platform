@@ -1,7 +1,7 @@
 # SOUP List (Software of Unknown Provenance)
 
 **Date generated:** 2026-07-02  
-**Updated:** 2026-10-07 (`proxy-addr` 2.0.8 override)  
+**Updated:** 2026-11-19 (Nest 11.2.11, `@nestjs/jwt` 11.0.2, resolved transitive runtime upgrades incl. express, multer, jsonwebtoken/jws/jwa; earlier: 2026-10-07 `proxy-addr` 2.0.8 override)  
 **Scope:** direct dependencies of `backend/` and `frontend/mobile/hdx_mobile/`.
 
 > Per IEC 62304, SOUP items are third-party components not developed for
@@ -29,6 +29,14 @@
 | `firebase-admin` | ^13.4.0 | Push notifications |
 | `helmet` | ^8.2.0 | HTTP security headers |
 | Transitive `proxy-addr` | **2.0.8** via `package.json` `overrides` | Express client-IP trust (`req.ip`); CVE-2026-90711 (GHSA-jqcg-44mw-7w3h) |
+| Transitive `express` | 5.2.1 (was 5.1.0), resolved via lockfile | HTTP server; pulled by `@nestjs/platform-express` 11.2.11 (2026-11-19) |
+| Transitive `body-parser` | 2.4.0 (was 2.2.0) | Request body parsing; DoS fixes |
+| Transitive `path-to-regexp` | 8.4.2 (was 8.2.0) | Route matching; DoS fix |
+| Transitive `qs` | 6.17.1 | Query parsing; DoS fix |
+| Transitive `multer` | 2.5.0 (was 2.0.2) | Multipart/media uploads (`FileInterceptor`); DoS fixes |
+| Transitive `file-type` | 21.3.4 | Used by `@nestjs/common` file validation; DoS fix |
+| Transitive `jsonwebtoken` | 9.0.3 (was 9.0.2) | JWT sign/verify (auth) |
+| Transitive `jws` / `jwa` | 4.0.1 / 2.0.1 (were 3.2.2 / 1.4.2) | JWT signature primitives (auth). jws 3 to 4 only changes the `jwa` major and rejects empty HMAC secrets (GHSA-869p-cjfg-cm3x); `getJwtSecret()` already throws on an empty secret. Guard pins `algorithms: ['HS256']`; negative-path e2e in `backend/test/jwt-auth-negative.e2e-spec.ts` |
 | `class-validator`, `class-transformer` | ^0.14.2 / ^0.5.1 | Input validation (incl. Cube/RapidTest DTOs) |
 | `cookie-parser` | ^1.4.7 | Auth cookie handling |
 | `reflect-metadata`, `rxjs`, `tslib` | — | Framework runtime deps |
