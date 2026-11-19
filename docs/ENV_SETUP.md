@@ -134,7 +134,7 @@ Keep `.gitkeep` in that folder; add your local blobs beside it.
 |------|---------|
 | `cube_test_config.bin` | Default/fallback Cube config (generic dev blob) |
 | `CRP_250702_216.bin` | CRP assay config — required for test type id `crp` (see `lib/utils/cube_test_config_assets.dart`) |
-| `cube_license.dat` | Cube SDK license (tracked in repo when present) |
+| `cube_license.dat` | Cube SDK license. Not in git: obtain from BIOSYNEX or the team's secure store. Without it `licenseValid` is false and Cube tests are blocked. |
 
 Obtain `.bin` files from your Cube vendor package or device calibration export. Do not commit updated vendor blobs unless your team explicitly decides to share them.
 

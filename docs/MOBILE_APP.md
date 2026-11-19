@@ -224,7 +224,7 @@ Scanning is filtered to Cube devices only; no Windows service is used.
 **Key Components:**
 - `CubeService` (`lib/features/cube/cube_service.dart`) – Flutter bridge to native Cube SDK
 - `CubeBridge` (`android/.../CubeAnalysisMethodChannel.kt`) – Kotlin MethodChannel/EventChannel wrapper
-- `cubelib-release.aar` + `cube_license.dat` – Cube SDK and license in `android/app/libs` and `assets`
+- `cubelib-release.aar` + `cube_license.dat` – Cube SDK in `android/app/libs`; license in `assets` (local only, gitignored, see `docs/ENV_SETUP.md`)
 
 **Test Flow:**
 1. User selects a test type and taps "Nach Cube-Geräten suchen"

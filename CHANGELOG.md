@@ -10,6 +10,8 @@ independently (`backend/package.json`, `frontend/mobile/hdx_mobile/pubspec.yaml`
 
 ## Unreleased
 
+- **Mobile (Android): Cube license file no longer tracked in git.** `android/app/src/main/assets/cube_license.dat` is removed from the index and gitignored; the local copy stays in place for builds. Developers obtain it from BIOSYNEX or the team's secure store (`docs/ENV_SETUP.md`). *Regulatory note:* no code or result logic changed. A missing license makes `licenseValid` false and blocks Cube tests (fail closed). The file remains in git history; rotation or history purge is a separate decision with BIOSYNEX.
+
 **Mobile: iOS Bluetooth permission flow and platform-neutral wording:**
 - `requestPermissions()` now requests `Permission.bluetooth` on iOS (and no location); Android flow unchanged. Cube-not-available, license-hint and BT-timeout wording no longer names Android only (DE+EN).
 
