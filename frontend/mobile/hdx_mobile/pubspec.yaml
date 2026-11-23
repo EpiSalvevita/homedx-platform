@@ -60,7 +60,7 @@ dependencies:
   flutter_secure_storage: ^9.2.4
 
   # Typography (Rubik — Google Fonts, works on Android + iOS)
-  google_fonts: ^6.2.1
+  google_fonts: ^9.0.0
 
   # Bluetooth Connectivity
   flutter_blue_plus: ^1.32.7
