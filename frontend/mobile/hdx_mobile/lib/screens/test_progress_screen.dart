@@ -7,6 +7,7 @@ import '../features/cube/cube_service.dart';
 import '../core/constants.dart';
 import '../utils/cube_test_config_assets.dart';
 import '../widgets/neumorphic.dart';
+import '../widgets/responsive_layout.dart';
 import '../l10n/l10n_ext.dart';
 
 /// Full-screen step-by-step measurement progress.
@@ -187,7 +188,9 @@ class _TestProgressScreenState extends State<TestProgressScreen>
         ),
       ),
       body: SafeArea(
-        child: _errorMessage != null ? _buildError(theme) : _buildProgress(theme),
+        child: NativeContentWidth(
+          child: _errorMessage != null ? _buildError(theme) : _buildProgress(theme),
+        ),
       ),
     ),
     );

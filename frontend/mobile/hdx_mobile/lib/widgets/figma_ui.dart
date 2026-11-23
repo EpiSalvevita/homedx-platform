@@ -5,6 +5,7 @@ import '../l10n/l10n_ext.dart';
 import '../utils/app_assets.dart';
 import '../utils/profile_field_metrics.dart';
 import 'neumorphic_inset.dart';
+import 'responsive_layout.dart';
 
 /// Shared UI primitives matching the homeDX Figma "Final" page.
 ///

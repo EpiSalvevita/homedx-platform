@@ -209,7 +209,9 @@ class FigmaBottomActionBar extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: NeumorphicPillButton(label: buttonLabel, onPressed: onPressed, loading: loading),
+        child: NativeContentWidth(
+          child: NeumorphicPillButton(label: buttonLabel, onPressed: onPressed, loading: loading),
+        ),
       ),
     );
   }

@@ -1,7 +1,14 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+
 /// Breakpoints shared across web and adaptive layouts.
 class AppBreakpoints {
   /// Matches marketing pages (`MarketingSection.wideBreakpoint`).
   static const double wide = 768;
+
+  /// Max content width on wide native screens (tablets). Same 800px column
+  /// the web layout uses (`AdaptiveScreen`, `test_result_screen.dart`).
+  static const double contentMaxWidth = 800;
 
   /// Routes that intentionally use full browser width on web.
   static bool isFullWidthWebRoute(String path) {
@@ -68,5 +75,48 @@ class AppBreakpoints {
       cols--;
     }
     return cols;
+  }
+}
+
+/// Caps content width on wide **native** screens (Android/iOS tablets).
+///
+/// Below [AppBreakpoints.wide], and always on web (which has its own shell and
+/// column), [child] is returned unchanged, so phone and web layouts are
+/// untouched. Layout only; it never changes what is shown.
+class NativeContentWidth extends StatelessWidget {
+  final Widget child;
+
+  /// Overrides [kIsWeb] in tests.
+  @visibleForTesting
+  final bool? isWebOverride;
+
+  const NativeContentWidth({
+    super.key,
+    required this.child,
+    this.isWebOverride,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (isWebOverride ?? kIsWeb) return child;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        if (width < AppBreakpoints.wide ||
+            width <= AppBreakpoints.contentMaxWidth) {
+          return child;
+        }
+        // Symmetric padding instead of Align: keeps the vertical constraints
+        // exactly as given (tight stays tight, loose stays loose). An Align
+        // would expand to the max height, e.g. a Scaffold bottom bar would
+        // then fill the whole screen.
+        return Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: (width - AppBreakpoints.contentMaxWidth) / 2,
+          ),
+          child: child,
+        );
+      },
+    );
   }
 }
