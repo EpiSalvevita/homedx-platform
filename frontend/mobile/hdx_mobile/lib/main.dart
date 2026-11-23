@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -31,6 +32,11 @@ Future<void> main() async {
   await dotenv.load(fileName: '.env');
 
   if (!kIsWeb) {
+    // Portrait only on phones and tablets: no landscape layouts exist yet.
+    await SystemChrome.setPreferredOrientations(const [
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     await initStripe();
   }
 

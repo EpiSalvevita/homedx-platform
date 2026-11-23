@@ -1,5 +1,6 @@
 import '../config/app_theme.dart';
 import '../l10n/l10n_ext.dart';
+import '../widgets/responsive_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -137,224 +138,226 @@ ${context.l10n.amountLabel} ${widget.amount.toStringAsFixed(2)} ${widget.currenc
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Amount Display
-              Card(
-                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        context.l10n.amountDue,
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      Text(
-                        '${widget.amount.toStringAsFixed(2)} ${widget.currency}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+        child: NativeContentWidth(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Amount Display
+                Card(
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          context.l10n.amountDue,
+                          style: TextStyle(fontSize: 16),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Bank Details Section
-              Text(
-                context.l10n.bankDetails,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            context.l10n.ibanLabel,
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                        Text(
+                          '${widget.amount.toStringAsFixed(2)} ${widget.currency}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
-                          TextButton.icon(
-                            icon: const Icon(Icons.copy, size: 16),
-                            label: Text(context.l10n.copy),
-                            onPressed: _copyBankDetails,
-                          ),
-                        ],
-                      ),
-                      const Text(
-                        'DE89 3704 0044 0532 0130 00',
-                        style: TextStyle(fontSize: 16, fontFamily: 'monospace'),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        context.l10n.bicLabel,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const Text(
-                        'COBADEFFXXX',
-                        style: TextStyle(fontSize: 16, fontFamily: 'monospace'),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        context.l10n.accountHolderLabel,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const Text(
-                        'HomeDX GmbH',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        context.l10n.referenceLabel,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        widget.paymentId,
-                        style: const TextStyle(fontSize: 16, fontFamily: 'monospace'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Your Bank Details (Optional)
-              Text(
-                context.l10n.bankDetailsOptional,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                context.l10n.bankDetailsOptionalNote,
-                style: TextStyle(fontSize: 12, color: AppTheme.textColorSecondary),
-              ),
-              const SizedBox(height: 16),
-
-              // IBAN
-              TextFormField(
-                controller: _ibanController,
-                decoration: InputDecoration(
-                  labelText: context.l10n.ibanOptional,
-                  hintText: 'DE89 3704 0044 0532 0130 00',
-                  prefixIcon: Icon(Icons.account_balance),
-                  border: OutlineInputBorder(),
-                ),
-                textCapitalization: TextCapitalization.characters,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9\s]')),
-                  TextInputFormatter.withFunction((oldValue, newValue) {
-                    final formatted = _formatIBAN(newValue.text);
-                    return TextEditingValue(
-                      text: formatted,
-                      selection: TextSelection.collapsed(offset: formatted.length),
-                    );
-                  }),
-                ],
-                validator: (value) {
-                  if (value != null && value.isNotEmpty && !_validateIBAN(value)) {
-                    return context.l10n.invalidIban;
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // BIC
-              TextFormField(
-                controller: _bicController,
-                decoration: InputDecoration(
-                  labelText: context.l10n.bicOptional,
-                  hintText: 'COBADEFFXXX',
-                  prefixIcon: Icon(Icons.business),
-                  border: OutlineInputBorder(),
-                ),
-                textCapitalization: TextCapitalization.characters,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9\s]')),
-                ],
-                validator: (value) {
-                  if (value != null && value.isNotEmpty && !_validateBIC(value)) {
-                    return context.l10n.invalidBic;
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Account Holder
-              TextFormField(
-                controller: _accountHolderController,
-                decoration: InputDecoration(
-                  labelText: context.l10n.accountHolderOptional,
-                  hintText: 'Max Mustermann',
-                  prefixIcon: Icon(Icons.person),
-                  border: OutlineInputBorder(),
-                ),
-                textCapitalization: TextCapitalization.words,
-              ),
-              const SizedBox(height: 24),
-
-              // Info Box
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryLight,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppTheme.accentBlue),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.info_outline, color: AppTheme.primaryBlue),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        context.l10n.sepaNotice,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.navy,
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-              // Confirm Button
-              ElevatedButton(
-                onPressed: _confirmPayment,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: AppTheme.primaryBlue,
-                ),
-                child: Text(
-                  context.l10n.confirmTransfer,
+                // Bank Details Section
+                Text(
+                  context.l10n.bankDetails,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              context.l10n.ibanLabel,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            TextButton.icon(
+                              icon: const Icon(Icons.copy, size: 16),
+                              label: Text(context.l10n.copy),
+                              onPressed: _copyBankDetails,
+                            ),
+                          ],
+                        ),
+                        const Text(
+                          'DE89 3704 0044 0532 0130 00',
+                          style: TextStyle(fontSize: 16, fontFamily: 'monospace'),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          context.l10n.bicLabel,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const Text(
+                          'COBADEFFXXX',
+                          style: TextStyle(fontSize: 16, fontFamily: 'monospace'),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          context.l10n.accountHolderLabel,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const Text(
+                          'HomeDX GmbH',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          context.l10n.referenceLabel,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          widget.paymentId,
+                          style: const TextStyle(fontSize: 16, fontFamily: 'monospace'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Your Bank Details (Optional)
+                Text(
+                  context.l10n.bankDetailsOptional,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.l10n.bankDetailsOptionalNote,
+                  style: TextStyle(fontSize: 12, color: AppTheme.textColorSecondary),
+                ),
+                const SizedBox(height: 16),
+
+                // IBAN
+                TextFormField(
+                  controller: _ibanController,
+                  decoration: InputDecoration(
+                    labelText: context.l10n.ibanOptional,
+                    hintText: 'DE89 3704 0044 0532 0130 00',
+                    prefixIcon: Icon(Icons.account_balance),
+                    border: OutlineInputBorder(),
+                  ),
+                  textCapitalization: TextCapitalization.characters,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9\s]')),
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      final formatted = _formatIBAN(newValue.text);
+                      return TextEditingValue(
+                        text: formatted,
+                        selection: TextSelection.collapsed(offset: formatted.length),
+                      );
+                    }),
+                  ],
+                  validator: (value) {
+                    if (value != null && value.isNotEmpty && !_validateIBAN(value)) {
+                      return context.l10n.invalidIban;
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // BIC
+                TextFormField(
+                  controller: _bicController,
+                  decoration: InputDecoration(
+                    labelText: context.l10n.bicOptional,
+                    hintText: 'COBADEFFXXX',
+                    prefixIcon: Icon(Icons.business),
+                    border: OutlineInputBorder(),
+                  ),
+                  textCapitalization: TextCapitalization.characters,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9\s]')),
+                  ],
+                  validator: (value) {
+                    if (value != null && value.isNotEmpty && !_validateBIC(value)) {
+                      return context.l10n.invalidBic;
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Account Holder
+                TextFormField(
+                  controller: _accountHolderController,
+                  decoration: InputDecoration(
+                    labelText: context.l10n.accountHolderOptional,
+                    hintText: 'Max Mustermann',
+                    prefixIcon: Icon(Icons.person),
+                    border: OutlineInputBorder(),
+                  ),
+                  textCapitalization: TextCapitalization.words,
+                ),
+                const SizedBox(height: 24),
+
+                // Info Box
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryLight,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppTheme.accentBlue),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.info_outline, color: AppTheme.primaryBlue),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          context.l10n.sepaNotice,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.navy,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Confirm Button
+                ElevatedButton(
+                  onPressed: _confirmPayment,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: AppTheme.primaryBlue,
+                  ),
+                  child: Text(
+                    context.l10n.confirmTransfer,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

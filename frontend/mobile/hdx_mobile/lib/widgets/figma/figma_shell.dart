@@ -23,7 +23,7 @@ class FigmaScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (header != null) header!,
-          Expanded(child: body),
+          Expanded(child: NativeContentWidth(child: body)),
         ],
       ),
     );
