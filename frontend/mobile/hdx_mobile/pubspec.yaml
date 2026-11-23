@@ -64,7 +64,7 @@ dependencies:
 
   # Bluetooth Connectivity
   flutter_blue_plus: ^1.32.7
-  permission_handler: ^11.3.1
+  permission_handler: ^13.0.2
 
   file_picker: ^8.1.6
 
